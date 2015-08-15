@@ -55,7 +55,7 @@ class SubmitToMatchingForm(forms.Form):
     perp_name = forms.CharField(label="Perpetrator's Name",
                             required=False,
                             max_length=500,
-                            widget=forms.TextInput(attrs={'placeholder': 'ex. John Jacob Jingleheimer Schmidt'}),)
+                            widget=forms.TextInput(attrs={'placeholder': 'ex. John Jacob Jingleheimer Schmidt',}),)
 
     perp = forms.URLField(label="Perpetrator's Facebook URL",
                             required=True,
