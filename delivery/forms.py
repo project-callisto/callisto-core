@@ -12,7 +12,7 @@ class SubmitToSchoolForm(SecretKeyForm):
                                     max_length=500,
                                     widget=forms.TextInput(attrs={'placeholder': 'ex. Chris'}),)
 
-    phone_number = forms.CharField(label="Preferred phone number to call",
+    phone_number = forms.CharField(label="Preferred phone number to call:",
                                     required=True,
                                     max_length=50,
                                     widget=forms.TextInput(attrs={'placeholder': 'ex. (555) 555-5555'}),)
