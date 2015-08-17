@@ -7,6 +7,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle, ListStyle
 from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER
 from time import strftime
+from django.utils.timezone import localtime
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
@@ -17,7 +18,7 @@ import json
 from reports.models import PageBase
 from .models import EmailNotification, SentFullReport, SentMatchReport
 
-date_format = "%m/%d/%Y @%H:%M"
+date_format = "%m/%d/%Y @%H:%M%p"
 
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -249,10 +250,10 @@ def generate_pdf_report(toname, user, report, decrypted_report, report_id):
 
     overview_body = "Submitted by: {0}<br/>".format(user.account.school_email)
     if toname:
-        overview_body = overview_body + "Submitted on:  {0}<br/>".format(report.submitted_to_school.strftime(date_format))
+        overview_body = overview_body + "Submitted on:  {0}<br/>".format(localtime(report.submitted_to_school).strftime(date_format))
     overview_body = overview_body + """Record Created: {0}
-                                       Last Edited: {1}""".format(report.added.strftime(date_format),
-                                                                  report.last_edited.strftime(date_format)
+                                       Last Edited: {1}""".format(localtime(report.added).strftime(date_format),
+                                                                  localtime(report.last_edited).strftime(date_format)
                                                                   if report.last_edited else "<i>Not edited</i>")
     overview_body = overview_body.replace('\n','<br />\n')
 
@@ -377,7 +378,7 @@ def generate_match_report(matches, report_id):
             report_id = sent_report.get_report_id() if sent_report else "<i>Not found</i>"
             is_submitted = """Yes
                            Submitted to school on: {0}
-                           Submitted report ID: {1}""".format(report.submitted_to_school.strftime(date_format),
+                           Submitted report ID: {1}""".format(localtime(report.submitted_to_school).strftime(date_format),
                                                                 report_id)
         else:
             is_submitted = "No"
@@ -387,8 +388,8 @@ def generate_match_report(matches, report_id):
                            Record Created: {3}
                            Full record submitted? {4}""".format(match.name or "<i>None provided</i>",
                                                                 user.account.school_email,
-                                                                match.added.strftime(date_format),
-                                                                report.added.strftime(date_format),
+                                                                localtime(match.added).strftime(date_format),
+                                                                localtime(report.added).strftime(date_format),
                                                                 is_submitted).replace('\n','<br />\n')
 
         Story.append(Paragraph(overview_body, body_style))
