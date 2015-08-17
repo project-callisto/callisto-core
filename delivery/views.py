@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.utils import timezone
 import bugsnag
+from ratelimit.decorators import ratelimit
 
 User = get_user_model()
 
@@ -20,6 +21,7 @@ from django.utils.html import conditional_escape
 
 from account.forms import SecretKeyForm, SendVerificationEmailForm
 
+@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def view_report(request, report_id):
     owner = request.user
     report = Report.objects.get(id=report_id)
@@ -36,6 +38,7 @@ def view_report(request, report_id):
     else:
         return HttpResponseForbidden()
 
+@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def export_report(request, report_id):
     owner = request.user
     report = Report.objects.get(id=report_id)
@@ -60,6 +63,7 @@ def export_report(request, report_id):
     else:
         return HttpResponseForbidden()
 
+@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_school(request, report_id):
     owner = request.user
     report = Report.objects.get(id=report_id)
@@ -116,6 +120,7 @@ def submit_to_school(request, report_id):
     else:
         return HttpResponseForbidden()
 
+@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_matching(request, report_id):
     owner = request.user
     report = Report.objects.get(id=report_id)
@@ -195,4 +200,6 @@ def withdraw_from_matching(request, report_id):
     else:
         return HttpResponseForbidden()
 
-
+def ratelimit(request, exception):
+    bugsnag.notify(exception)
+    return render(request, 'ratelimit.html')
