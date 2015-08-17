@@ -16,6 +16,7 @@ from .models import Report, MatchReport, EmailNotification
 from account.tokens import student_token_generator
 from .report_delivery import send_report_to_school, generate_pdf_report
 from .matching import find_matches
+from django.utils.html import conditional_escape
 
 from account.forms import SecretKeyForm, SendVerificationEmailForm
 
@@ -82,11 +83,11 @@ def submit_to_school(request, report_id):
                 form.report = report
                 if form.is_valid():
                     try:
-                        report.contact_name = form.cleaned_data.get('name')
+                        report.contact_name = conditional_escape(form.cleaned_data.get('name'))
                         report.contact_email = form.cleaned_data.get('email')
-                        report.contact_phone = form.cleaned_data.get('phone_number')
-                        report.contact_voicemail = form.cleaned_data.get('voicemail')
-                        report.contact_notes = form.cleaned_data.get('contact_notes')
+                        report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
+                        report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
+                        report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                         report.submitted_to_school = timezone.now()
                         send_report_to_school(owner, report, form.decrypted_report)
                         report.save()
@@ -143,13 +144,13 @@ def submit_to_matching(request, report_id):
                         for perp_form in formset:
                             #enter into matching
                             match_report = MatchReport(report=report)
-                            match_report.contact_name = form.cleaned_data.get('name')
+                            match_report.contact_name = conditional_escape(form.cleaned_data.get('name'))
                             match_report.contact_email = form.cleaned_data.get('email')
-                            match_report.contact_phone = form.cleaned_data.get('phone_number')
-                            match_report.contact_voicemail = form.cleaned_data.get('voicemail')
-                            match_report.contact_notes = form.cleaned_data.get('contact_notes')
+                            match_report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
+                            match_report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
+                            match_report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                             match_report.identifier = perp_form.cleaned_data.get('perp')
-                            match_report.name = perp_form.cleaned_data.get('perp_name')
+                            match_report.name = conditional_escape(perp_form.cleaned_data.get('perp_name'))
                             match_reports.append(match_report)
                         MatchReport.objects.bulk_create(match_reports)
                         if settings.MATCH_IMMEDIATELY:
