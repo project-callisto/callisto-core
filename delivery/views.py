@@ -100,7 +100,7 @@ def submit_to_school(request, report_id):
                             notification = EmailNotification.objects.get(name='submit_confirmation')
                             preferred_email = form.cleaned_data.get('email')
                             to_email = set([owner.account.school_email, preferred_email])
-                            from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.CALLISTO_DOMAIN)
+                            from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
                             notification.send(to=to_email, from_email=from_email)
                     except Exception as e:
                         #TODO: real logging
@@ -165,7 +165,7 @@ def submit_to_matching(request, report_id):
                             notification = EmailNotification.objects.get(name='match_confirmation')
                             preferred_email = form.cleaned_data.get('email')
                             to_email = set([owner.account.school_email, preferred_email])
-                            from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.CALLISTO_DOMAIN)
+                            from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
                             notification.send(to=to_email, from_email=from_email)
                     except Exception as e:
                         #TODO: real logging

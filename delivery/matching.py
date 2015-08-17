@@ -43,7 +43,7 @@ def process_new_matches(matches):
 
 def send_notification_email(user, match_report):
     notification = EmailNotification.objects.get(name='match_notification')
-    from_email = '"Callisto Matching" <notification@{0}>'.format(settings.CALLISTO_DOMAIN)
+    from_email = '"Callisto Matching" <notification@{0}>'.format(settings.APP_URL)
     to = set([user.account.school_email, match_report.contact_email])
     context = {'report': match_report.report}
     notification.send(to=to, from_email=from_email, context=context)

@@ -317,7 +317,7 @@ def generate_pdf_report(toname, user, report, decrypted_report, report_id):
 def send_email_to_coordinator(pdf_to_attach, notification_name, report_id):
     notification = EmailNotification.objects.get(name=notification_name)
 
-    from_email = '"Callisto Reports" <reports@{0}>'.format(settings.CALLISTO_DOMAIN)
+    from_email = '"Callisto Reports" <reports@{0}>'.format(settings.APP_URL)
     to = settings.COORDINATOR_EMAIL
 
     email = EmailMultiAlternatives(notification.subject, notification.render_body_plain(), from_email, [to])
