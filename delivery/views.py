@@ -196,6 +196,8 @@ def withdraw_from_matching(request, report_id):
         report.withdraw_from_matching()
         report.save()
         return render(request, 'dashboard.html', {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
+                                                        'coordinator_name': settings.COORDINATOR_NAME,
+                                                       'coordinator_email': settings.COORDINATOR_EMAIL,
                                                        'match_report_withdrawn': True})
     else:
         return HttpResponseForbidden()

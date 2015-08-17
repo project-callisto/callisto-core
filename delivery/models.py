@@ -64,6 +64,15 @@ class Report(models.Model):
         self.matchreport_set.all().delete()
         self.match_found = False
 
+    @property
+    def get_submitted_report_id(self):
+        if self.submitted_to_school:
+            sent_report = self.sentfullreport_set.first()
+            report_id = sent_report.get_report_id() if sent_report else None
+            return report_id
+        else:
+            return None
+
 class EmailNotification(models.Model):
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
