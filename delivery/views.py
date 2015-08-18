@@ -167,7 +167,7 @@ def submit_to_matching(request, report_id):
                                                                            'school_name': settings.SCHOOL_SHORTNAME,
                                                                                       'submit_error': True})
                     try:
-                        if form.cleaned_data.get('email_confirmation'):
+                        if form.cleaned_data.get('email_confirmation') == "True":
                             notification = EmailNotification.objects.get(name='match_confirmation')
                             preferred_email = form.cleaned_data.get('email')
                             to_email = set([owner.account.school_email, preferred_email])

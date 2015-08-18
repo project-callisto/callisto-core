@@ -29,7 +29,6 @@ def find_matches():
             bugsnag.notify(e)
 
 def process_new_matches(matches):
-    #TODO: do we send email if the student's already reported through the school?
     owners_notified = []
     for match_report in matches:
         owner = match_report.report.owner
