@@ -194,6 +194,9 @@ def generate_pdf_report(toname, user, report, decrypted_report, report_id):
         if type == 'RadioButton' or type=='Checkbox':
             choices = []
             answer_ids = question.get('answer')
+            # RadioButton answers need to be stored as single int to keep edit working
+            if answer_ids and type=='RadioButton':
+                answer_ids = [answer_ids]
             answers = []
             for idx, choice in enumerate(question.get('choices')):
                 choices.append(choice.get('choice_text'))
