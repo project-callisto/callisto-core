@@ -406,7 +406,7 @@ def generate_match_report(matches, report_id):
         Story.append(Paragraph(contact_body, body_style))
         Story.append(Paragraph(match.contact_notes or "None provided", notes_style))
 
-    doc.build(Story, onFirstPage=get_header_footer, onLaterPages=get_header_footer, canvasmaker=NumberedCanvas)
+    doc.build(Story, onFirstPage=get_header_footer(), onLaterPages=get_header_footer(), canvasmaker=NumberedCanvas)
     result = buffer.getvalue()
     buffer.close()
     return result
