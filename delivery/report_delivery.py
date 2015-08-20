@@ -251,7 +251,7 @@ def generate_pdf_report(toname, user, report, decrypted_report, report_id):
 
     Story.append(Paragraph("Overview", section_title_style))
 
-    overview_body = "Submitted by: {0}<br/>".format(user.account.school_email)
+    overview_body = "Submitted by: {0}<br/>".format(user.account.school_email or user.email or user.username)
     if toname:
         overview_body = overview_body + "Submitted on:  {0}<br/>".format(localtime(report.submitted_to_school).strftime(date_format))
     overview_body = overview_body + """Record Created: {0}
@@ -277,15 +277,6 @@ def generate_pdf_report(toname, user, report, decrypted_report, report_id):
         Story.append(Paragraph(contact_body, body_style))
         Story.append(Paragraph(report.contact_notes or "None provided", notes_style))
 
-        Story.append(Paragraph("Opted Into Matching?", section_title_style))
-
-        in_matching = "<b>Yes</b>/No"
-        not_in_matching = "Yes/<b>No</b>"
-        Story.append(Paragraph(in_matching if report.entered_into_matching else not_in_matching, body_style))
-        matching_notes = """This student has elected NOT to provide the perpetrator identifier (Facebook URL) that would cause their report to trigger a match. In discussions, you may wish to ask whether they would be willing to enter into the matching system. """
-        if not report.entered_into_matching:
-            Story.append(Paragraph(matching_notes, notes_style))
-
     Story.append(Paragraph("Key", section_title_style))
 
     unselected = u'\u2610'
@@ -296,8 +287,7 @@ def generate_pdf_report(toname, user, report, decrypted_report, report_id):
     key = ListFlowable(
         [ListItem(Paragraph("Unselected option",answers_style), value = unselected, leftIndent=45),
          ListItem(Paragraph("<b>Selected option</b>",answers_style), value = selected, leftIndent=45),
-         ListItem(Paragraph("Free text response",answers_style), value = free_text, leftIndent=45),
-         ListItem(Paragraph("<strike>question not shown (not relevant)</strike>",answers_style), value = no_bullet, leftIndent=45)],
+         ListItem(Paragraph("Free text response",answers_style), value = free_text, leftIndent=45)],
         bulletType='bullet',
         style = styles["answers_list"] )
     Story.append(key)
