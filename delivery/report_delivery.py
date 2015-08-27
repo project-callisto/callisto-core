@@ -42,48 +42,48 @@ class NumberedCanvas(canvas.Canvas):
         width, height = letter
         margin = 0.66 * 72
         self.setFillColor('gray')
-        self.setFont('OpenSans',12)
+        #self.setFont('OpenSans',12)
         self.drawRightString(width - margin, margin, "Page %d of %d" % (self._pageNumber, page_count))
 
 def set_up_styles():
     def get_font_location(filename):
         return settings.APPS_DIR.path('fonts')(filename)
 
-    pdfmetrics.registerFont(TTFont('Montserrat', get_font_location('Montserrat-Regular.ttf')))
-    pdfmetrics.registerFont(TTFont('OpenSans', get_font_location('OpenSans-Regular.ttf')))
-    pdfmetrics.registerFont(TTFont('OpenSans-Bold', get_font_location('OpenSans-ExtraBold.ttf')))
-    pdfmetrics.registerFont(TTFont('OpenSans-Italic', get_font_location('OpenSans-Italic.ttf')))
-    pdfmetrics.registerFont(TTFont('DejaVuSans', get_font_location('DejaVuSans.ttf')))
-    pdfmetrics.registerFontFamily('OpenSans', normal='OpenSans', bold='OpenSans-Bold', italic='OpenSans-Italic')
+    # pdfmetrics.registerFont(TTFont('Montserrat', get_font_location('Montserrat-Regular.ttf')))
+    # pdfmetrics.registerFont(TTFont('OpenSans', get_font_location('OpenSans-Regular.ttf')))
+    # pdfmetrics.registerFont(TTFont('OpenSans-Bold', get_font_location('OpenSans-ExtraBold.ttf')))
+    # pdfmetrics.registerFont(TTFont('OpenSans-Italic', get_font_location('OpenSans-Italic.ttf')))
+    # pdfmetrics.registerFont(TTFont('DejaVuSans', get_font_location('DejaVuSans.ttf')))
+    # pdfmetrics.registerFontFamily('OpenSans', normal='OpenSans', bold='OpenSans-Bold', italic='OpenSans-Italic')
 
     styles=getSampleStyleSheet()
     headline_style = styles["Heading1"]
     headline_style.alignment = TA_CENTER
     headline_style.fontSize = 48
-    headline_style.fontName = 'Montserrat'
+    #headline_style.fontName = 'Montserrat'
 
     subtitle_style = styles["Heading2"]
     subtitle_style.fontSize = 24
-    subtitle_style.fontName = 'OpenSans'
+    #subtitle_style.fontName = 'OpenSans'
     subtitle_style.leading = 26
     subtitle_style.alignment = TA_CENTER
 
     report_title_style = styles["Heading3"]
     report_title_style.fontSize = 28
-    report_title_style.fontName = 'Montserrat'
+    #report_title_style.fontName = 'Montserrat'
     report_title_style.leading = 36
     report_title_style.spaceBefore = 0
     report_title_style.alignment = TA_CENTER
 
     section_title_style = styles["Heading4"]
     section_title_style.fontSize = 18
-    section_title_style.fontName = 'Montserrat'
+    #section_title_style.fontName = 'Montserrat'
     section_title_style.leading = 22
     section_title_style.spaceBefore = 20
 
     body_style = styles["Normal"]
     body_style.fontSize = 14
-    body_style.fontName = 'OpenSans'
+    #body_style.fontName = 'OpenSans'
     body_style.leading = 17
     body_style.leftIndent = 25
 
@@ -95,7 +95,7 @@ def set_up_styles():
                                   alias='notes'))
     styles.add(ListStyle(
         name='answers_list',
-        bulletFontName='DejaVuSans',
+        #bulletFontName='DejaVuSans',
     ))
 
     styles.add(ParagraphStyle(name='Answers',
@@ -131,7 +131,7 @@ def get_header_footer(toname=settings.COORDINATOR_NAME):
         margin = 0.66 * 72
         canvas.saveState()
         canvas.setFillColor('gray')
-        canvas.setFont('OpenSans',12)
+        #canvas.setFont('OpenSans',12)
         canvas.drawString(margin, height - margin, "CONFIDENTIAL")
         canvas.drawRightString(width - margin, height - margin, strftime("%d %b %Y %H:%M"))
         if toname:
