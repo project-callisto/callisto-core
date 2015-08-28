@@ -14,11 +14,16 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus.doctemplate import Indenter
 import json
+from django.utils import timezone
+import pytz
 
 from reports.models import PageBase
 from .models import EmailNotification, SentFullReport, SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"
+#TODO: customize
+tzname = 'America/Los_Angeles'
+timezone.activate(pytz.timezone(tzname))
 
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -133,7 +138,7 @@ def get_header_footer(toname=settings.COORDINATOR_NAME):
         canvas.setFillColor('gray')
         #canvas.setFont('OpenSans',12)
         canvas.drawString(margin, height - margin, "CONFIDENTIAL")
-        canvas.drawRightString(width - margin, height - margin, strftime("%d %b %Y %H:%M"))
+        canvas.drawRightString(width - margin, height - margin, localtime(timezone.now()).strftime(date_format))
         if toname:
             canvas.drawString(margin, margin, "Intended for: Title IX Coordinator %s" % toname)
         canvas.restoreState()
