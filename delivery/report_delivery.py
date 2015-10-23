@@ -323,7 +323,6 @@ def send_email_to_coordinator(pdf_to_attach, notification_name, report_id):
     #TODO: sign encrypted doc
     attachment = gpg.encrypt(pdf_to_attach, imported_keys.fingerprints[0], armor=True, always_trust=True)
 
-    #TODO: include ID in filename
     email.attach("callisto_report_{0}.pdf.gpg".format(report_id), attachment.data, "application/octet-stream")
 
     email.send()
@@ -405,7 +404,6 @@ def generate_match_report(matches, report_id):
     return result
 
 def send_matching_report_to_school(matches):
-    #TODO: set matches
     sent_report = SentMatchReport.objects.create(to_address = settings.COORDINATOR_EMAIL)
     report_id = sent_report.get_report_id()
     sent_report.reports.add(*matches)
