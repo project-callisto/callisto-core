@@ -2,8 +2,9 @@ from django.db import models
 from django.conf import settings
 import gnupg
 import hashlib
+from django.core.exceptions import ObjectDoesNotExist
 
-from reports.models import RecordFormItem
+from reports.models import RecordFormItem, MultipleChoice
 
 class EvalRow(models.Model):
     # TODO: delete, view, export?
@@ -35,6 +36,25 @@ class EvalRow(models.Model):
         imported_keys = gpg.import_keys(key)
         encrypted = gpg.encrypt(row, imported_keys.fingerprints[0], armor=True, always_trust=True)
         self.row = encrypted.data
+
+    @staticmethod
+    def extract_answers(answered_questions):
+        eval_location = {}
+        for serialized_question in answered_questions:
+            #TODO: handle formset
+            if serialized_question['type'] and serialized_question['type'] != 'FormSet':
+                try:
+                    question = RecordFormItem.objects.get(id=serialized_question['id'])
+                    try:
+                        label = question.evalfield.label
+                        eval_location[label] = serialized_question['answer']
+                        if isinstance(question, MultipleChoice):
+                                eval_location[label + "_choices"] = question.serialize_choices()
+                    except ObjectDoesNotExist:
+                            pass #TODO: record whether an answer was entered or not
+                except:
+                    pass
+        return eval_location
 
 class EvalField(models.Model):
     #If an associated EvalField exists for a record form item, we record the contents
