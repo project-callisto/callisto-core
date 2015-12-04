@@ -50,6 +50,8 @@ class EvalRow(models.Model):
                         eval_location[label] = serialized_question['answer']
                         if isinstance(question, MultipleChoice):
                                 eval_location[label + "_choices"] = question.serialize_choices()
+                                if serialized_question['extra']:
+                                    eval_location[label + "_extra"] = serialized_question['extra']['answer']
                     except ObjectDoesNotExist:
                             pass #TODO: record whether an answer was entered or not
                 except:
