@@ -2,8 +2,9 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 import gnupg
+import json
 
-from reports.models import SingleLineText
+from reports.models import SingleLineText, RecordFormQuestionPage, RadioButton, Choice
 
 from .models import EvalRow, EvalField
 
@@ -47,8 +48,7 @@ class EvalRowTest(TestCase):
 
     def test_can_decrypt_a_row(self):
         gpg = gnupg.GPG()
-        key_settings = gpg.gen_key_input(key_type='RSA', key_length=1024, key_usage='ESCA')
-        key = gpg.gen_key(key_settings)
+        key = gpg.gen_key(gpg.gen_key_input())
         user = User.objects.create_user(username="dummy", password="dummy")
         row = EvalRow(action=EvalRow.CREATE)
         row.set_identifier(user)
@@ -73,4 +73,64 @@ class EvalFieldTest(TestCase):
         rfi.save()
         self.assertRaises(ObjectDoesNotExist, lambda: SingleLineText.objects.first().evalfield)
 
+
+class ExtractAnswersTest(TestCase):
+
+    def test_extract_answers(self):
+        self.maxDiff = None
+
+        page1 = RecordFormQuestionPage.objects.create()
+        page2 = RecordFormQuestionPage.objects.create()
+        question1 = SingleLineText.objects.create(text="first question", page=page1)
+        question2 = SingleLineText.objects.create(text="2nd question", page=page2)
+        EvalField.objects.create(question=question2, label="q2")
+        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page2)
+        for i in range(5):
+            Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
+        EvalField.objects.create(question=radio_button_q, label="radio")
+
+
+        choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
+        selected_id = choice_ids[2]
+
+        object_ids = [question1.pk, question2.pk, selected_id, radio_button_q.pk,] + choice_ids
+
+        json_report = json.loads("""[
+    { "answer": "test answer",
+      "id": %i,
+      "section": 1,
+      "question_text": "first question",
+      "type": "SingleLineText"
+    },
+    { "answer": "another answer to a different question",
+      "id": %i,
+      "section": 1,
+      "question_text": "2nd question",
+      "type": "SingleLineText"
+    },
+    { "answer": "%i",
+      "id": %i,
+      "section": 1,
+      "question_text": "this is a radio button question",
+            "choices": [{"id": %i, "choice_text": "This is choice 0"},
+                  {"id": %i, "choice_text": "This is choice 1"},
+                  {"id": %i, "choice_text": "This is choice 2"},
+                  {"id": %i, "choice_text": "This is choice 3"},
+                  {"id": %i, "choice_text": "This is choice 4"}],
+      "type": "RadioButton"
+    }
+  ]""" % tuple(object_ids))
+
+        anonymised = EvalRow.extract_answers(json_report)
+
+        expected = {
+    "q2": "another answer to a different question",
+    "radio": str(selected_id),
+    "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
+                  {"id": choice_ids[1], "choice_text": "This is choice 1"},
+                  {"id": choice_ids[2], "choice_text": "This is choice 2"},
+                  {"id": choice_ids[3], "choice_text": "This is choice 3"},
+                  {"id": choice_ids[4], "choice_text": "This is choice 4"}],
+    }
+        self.assertEqual(anonymised, expected)
 
