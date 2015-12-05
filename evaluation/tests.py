@@ -128,6 +128,8 @@ class ExtractAnswersTest(TestCase):
                   {"id": choice_ids[2], "choice_text": "This is choice 2"},
                   {"id": choice_ids[3], "choice_text": "This is choice 3"},
                   {"id": choice_ids[4], "choice_text": "This is choice 4"}],
+    "answered": [question1.pk, question2.pk, radio_button_q.pk],
+    "unanswered": []
     }
 
         anonymised = EvalRow.extract_answers(json_report)
@@ -240,6 +242,8 @@ class ExtractAnswersTest(TestCase):
                   {"id": q3_choice_ids[3], "choice_text": "This is choice 3"},
                   {"id": q3_choice_ids[4], "choice_text": "This is choice 4"}],
     "q3_extra": "",
+    "answered": [question1.pk, question2.pk, question3.pk],
+    "unanswered": []
     }
         anonymised = EvalRow.extract_answers(json_report)
         self.assertEqual(anonymised, expected)
@@ -309,6 +313,8 @@ class ExtractAnswersTest(TestCase):
         } ]""" % (single_question.pk, answer_set_one, answer_set_two, page2.pk))
 
         expected = {'single_q': 'single answer',
+                    "answered": [single_question.pk],
+                "unanswered": [],
             'form_multiple':
             [{
                 "q2": "first answer to a different question",
@@ -318,7 +324,9 @@ class ExtractAnswersTest(TestCase):
                               {"id": choice_ids[2], "choice_text": "This is choice 2"},
                               {"id": choice_ids[3], "choice_text": "This is choice 3"},
                               {"id": choice_ids[4], "choice_text": "This is choice 4"}],
-                },
+                "answered": [question1.pk, question2.pk, radio_button_q.pk],
+                "unanswered": []
+            },
               {
                 "q2": "second answer to a different question",
                 "radio": str(selected_id_2),
@@ -327,6 +335,55 @@ class ExtractAnswersTest(TestCase):
                               {"id": choice_ids[2], "choice_text": "This is choice 2"},
                               {"id": choice_ids[3], "choice_text": "This is choice 3"},
                               {"id": choice_ids[4], "choice_text": "This is choice 4"}],
+                "answered": [question1.pk, question2.pk, radio_button_q.pk],
+                "unanswered": []
              }]}
+        anonymised = EvalRow.extract_answers(json_report)
+        self.assertEqual(anonymised, expected)
+
+    def test_tracking_of_answered_questions(self):
+        self.maxDiff = None
+
+        page1 = RecordFormQuestionPage.objects.create()
+        question1 = SingleLineText.objects.create(text="first question", page=page1)
+        question2 = SingleLineText.objects.create(text="2nd question", page=page1)
+        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page1)
+        for i in range(5):
+            Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
+
+        choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
+        object_ids = [question1.pk, question2.pk, radio_button_q.pk,] + choice_ids
+
+        json_report = json.loads("""[
+    { "answer": "test answer",
+      "id": %i,
+      "section": 1,
+      "question_text": "first question",
+      "type": "SingleLineText"
+    },
+    { "answer": "",
+      "id": %i,
+      "section": 1,
+      "question_text": "2nd question",
+      "type": "SingleLineText"
+    },
+    { "answer": "",
+      "id": %i,
+      "section": 1,
+      "question_text": "this is a radio button question",
+            "choices": [{"id": %i, "choice_text": "This is choice 0"},
+                  {"id": %i, "choice_text": "This is choice 1"},
+                  {"id": %i, "choice_text": "This is choice 2"},
+                  {"id": %i, "choice_text": "This is choice 3"},
+                  {"id": %i, "choice_text": "This is choice 4"}],
+      "type": "RadioButton"
+    }
+  ]""" % tuple(object_ids))
+
+        expected = {
+    "answered": [question1.pk],
+    "unanswered": [question2.pk, radio_button_q.pk]
+    }
+
         anonymised = EvalRow.extract_answers(json_report)
         self.assertEqual(anonymised, expected)

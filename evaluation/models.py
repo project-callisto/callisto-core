@@ -41,16 +41,25 @@ class EvalRow(models.Model):
 
     @staticmethod
     def extract_answers(answered_questions):
+
+        def record_if_answered(question_dict, eval_location):
+            id = question_dict['id']
+            if 'answer' in question_dict and question_dict['answer']:
+                eval_location['answered'].append(id)
+            else:
+                eval_location['unanswered'].append(id)
+
         def extract_single_question(question_dict, eval_location):
             try:
+                record_if_answered(question_dict, eval_location)
                 question = RecordFormItem.objects.get(id=question_dict['id'])
                 try:
                     label = question.evalfield.label
                     eval_location[label] = question_dict['answer']
                     if isinstance(question, MultipleChoice):
-                            eval_location[label + "_choices"] = question.serialize_choices()
-                            if question_dict['extra']:
-                                eval_location[label + "_extra"] = question_dict['extra']['answer']
+                        eval_location[label + "_choices"] = question.serialize_choices()
+                        if 'extra' in question_dict:
+                            eval_location[label + "_extra"] = question_dict['extra']['answer']
                 except ObjectDoesNotExist:
                         pass #TODO: record whether an answer was entered or not
             except Exception as e:
@@ -59,14 +68,14 @@ class EvalRow(models.Model):
                 bugsnag.notify(e)
                 pass
 
-        anonymised_answers = {}
+        anonymised_answers = {'answered': [], 'unanswered': []}
         for serialized_question in answered_questions:
             try:
-                if serialized_question['type']:
+                if 'type' in serialized_question:
                     if serialized_question['type'] == 'FormSet':
                         all_pages = []
                         for page in serialized_question['answers']:
-                            page_answers = {}
+                            page_answers = {'answered': [], 'unanswered': []}
                             for question in page:
                                 extract_single_question(question, page_answers)
                             all_pages.append(page_answers)
