@@ -133,7 +133,6 @@ class ExtractAnswersTest(TestCase):
         anonymised = EvalRow.extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
-
     def test_extract_answers_with_extra(self):
         self.maxDiff = None
         page1 = RecordFormQuestionPage.objects.create()
@@ -245,3 +244,89 @@ class ExtractAnswersTest(TestCase):
         anonymised = EvalRow.extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
+    def test_extract_answers_with_multiple(self):
+        self.maxDiff = None
+
+        page1 = RecordFormQuestionPage.objects.create()
+        single_question = SingleLineText.objects.create(text="single question", page=page1)
+        EvalField.objects.create(question=single_question, label="single_q")
+
+        page2 = RecordFormQuestionPage.objects.create(multiple=True, name_for_multiple="form")
+        question1 = SingleLineText.objects.create(text="first question", page=page2)
+        question2 = SingleLineText.objects.create(text="2nd question", page=page2)
+        EvalField.objects.create(question=question2, label="q2")
+        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page2)
+        for i in range(5):
+            Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
+        EvalField.objects.create(question=radio_button_q, label="radio")
+
+        choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
+        selected_id_1 = choice_ids[1]
+        selected_id_2 = choice_ids[4]
+        object_ids = [question1.pk, question2.pk, radio_button_q.pk,] + choice_ids
+
+        answer_set_template = """[
+    { "answer": "test answer <PREFIX> answer",
+      "id": %i,
+      "section": 1,
+      "question_text": "first question",
+      "type": "SingleLineText"
+    },
+    { "answer": "<PREFIX> answer to a different question",
+      "id": %i,
+      "section": 1,
+      "question_text": "2nd question",
+      "type": "SingleLineText"
+    },
+    { "answer": "<SELECTED>",
+      "id": %i,
+      "section": 1,
+      "question_text": "this is a radio button question",
+            "choices": [{"id": %i, "choice_text": "This is choice 0"},
+                  {"id": %i, "choice_text": "This is choice 1"},
+                  {"id": %i, "choice_text": "This is choice 2"},
+                  {"id": %i, "choice_text": "This is choice 3"},
+                  {"id": %i, "choice_text": "This is choice 4"}],
+      "type": "RadioButton"
+    }
+  ]"""% tuple(object_ids)
+
+        answer_set_one = answer_set_template.replace("<PREFIX>", "first").replace("<SELECTED>", str(selected_id_1))
+        answer_set_two = answer_set_template.replace("<PREFIX>", "second").replace("<SELECTED>", str(selected_id_2))
+
+        json_report = json.loads("""
+      [ { "answer": "single answer",
+          "id": %i,
+          "section": 1,
+          "question_text": "single question",
+          "type": "SingleLineText"
+        },
+        { "answers" : [ %s, %s],
+            "page_id" : %i,
+            "prompt" : "form",
+            "section" : 1,
+            "type" : "FormSet"
+        } ]""" % (single_question.pk, answer_set_one, answer_set_two, page2.pk))
+
+        expected = {'single_q': 'single answer',
+            'form_multiple':
+            [{
+                "q2": "first answer to a different question",
+                "radio": str(selected_id_1),
+                "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
+                              {"id": choice_ids[1], "choice_text": "This is choice 1"},
+                              {"id": choice_ids[2], "choice_text": "This is choice 2"},
+                              {"id": choice_ids[3], "choice_text": "This is choice 3"},
+                              {"id": choice_ids[4], "choice_text": "This is choice 4"}],
+                },
+              {
+                "q2": "second answer to a different question",
+                "radio": str(selected_id_2),
+                "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
+                              {"id": choice_ids[1], "choice_text": "This is choice 1"},
+                              {"id": choice_ids[2], "choice_text": "This is choice 2"},
+                              {"id": choice_ids[3], "choice_text": "This is choice 3"},
+                              {"id": choice_ids[4], "choice_text": "This is choice 4"}],
+             }]}
+        anonymised = EvalRow.extract_answers(json_report)
+        self.assertEqual(anonymised, expected)

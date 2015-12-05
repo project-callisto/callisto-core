@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 import gnupg
 import hashlib
+import bugsnag
 from django.core.exceptions import ObjectDoesNotExist
 
 from reports.models import RecordFormItem, MultipleChoice
@@ -37,26 +38,47 @@ class EvalRow(models.Model):
         encrypted = gpg.encrypt(row, imported_keys.fingerprints[0], armor=True, always_trust=True)
         self.row = encrypted.data
 
+
     @staticmethod
     def extract_answers(answered_questions):
-        eval_location = {}
-        for serialized_question in answered_questions:
-            #TODO: handle formset
-            if serialized_question['type'] and serialized_question['type'] != 'FormSet':
+        def extract_single_question(question_dict, eval_location):
+            try:
+                question = RecordFormItem.objects.get(id=question_dict['id'])
                 try:
-                    question = RecordFormItem.objects.get(id=serialized_question['id'])
-                    try:
-                        label = question.evalfield.label
-                        eval_location[label] = serialized_question['answer']
-                        if isinstance(question, MultipleChoice):
-                                eval_location[label + "_choices"] = question.serialize_choices()
-                                if serialized_question['extra']:
-                                    eval_location[label + "_extra"] = serialized_question['extra']['answer']
-                    except ObjectDoesNotExist:
-                            pass #TODO: record whether an answer was entered or not
-                except:
-                    pass
-        return eval_location
+                    label = question.evalfield.label
+                    eval_location[label] = question_dict['answer']
+                    if isinstance(question, MultipleChoice):
+                            eval_location[label + "_choices"] = question.serialize_choices()
+                            if question_dict['extra']:
+                                eval_location[label + "_extra"] = question_dict['extra']['answer']
+                except ObjectDoesNotExist:
+                        pass #TODO: record whether an answer was entered or not
+            except Exception as e:
+                #TODO: real logging
+                # always fail evaluation code silently
+                bugsnag.notify(e)
+                pass
+
+        anonymised_answers = {}
+        for serialized_question in answered_questions:
+            try:
+                if serialized_question['type']:
+                    if serialized_question['type'] == 'FormSet':
+                        all_pages = []
+                        for page in serialized_question['answers']:
+                            page_answers = {}
+                            for question in page:
+                                extract_single_question(question, page_answers)
+                            all_pages.append(page_answers)
+                        anonymised_answers[serialized_question['prompt'] + "_multiple"] = all_pages
+                    else:
+                        extract_single_question(serialized_question, anonymised_answers)
+            except Exception as e:
+                #TODO: real logging
+                # always fail evaluation code silently
+                bugsnag.notify(e)
+                pass
+        return anonymised_answers
 
 class EvalField(models.Model):
     #If an associated EvalField exists for a record form item, we record the contents
