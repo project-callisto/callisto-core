@@ -44,7 +44,7 @@ class EvalRow(models.Model):
 
         def record_if_answered(question_dict, eval_location):
             id = question_dict['id']
-            if 'answer' in question_dict and question_dict['answer']:
+            if 'answer' in question_dict and question_dict['answer'].strip():
                 eval_location['answered'].append(id)
             else:
                 eval_location['unanswered'].append(id)

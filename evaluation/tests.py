@@ -361,7 +361,7 @@ class ExtractAnswersTest(TestCase):
       "question_text": "first question",
       "type": "SingleLineText"
     },
-    { "answer": "",
+    { "answer": " ",
       "id": %i,
       "section": 1,
       "question_text": "2nd question",
