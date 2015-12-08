@@ -15,8 +15,8 @@ class EvalRowTest(TestCase):
     def save_row_for_report(self, report):
         row = EvalRow(action=EvalRow.SUBMIT)
         row.set_identifiers(report)
-        row.save()
         row.full_clean()
+        row.save()
         return row
 
     def test_can_hash_on_user_id(self):

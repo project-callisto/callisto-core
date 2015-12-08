@@ -35,6 +35,11 @@ class EvalRow(models.Model):
     row = models.BinaryField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def anonymise_row(self, action, report, decrypted):
+        self.action = action
+        self.set_identifiers(report)
+        self.encrypt_row(decrypted)
+
     def set_identifiers(self, report):
         self.user_identifier = hashlib.sha256(str(report.owner.id).encode()).hexdigest()
         self.record_identifier = hashlib.sha256(str(report.id).encode()).hexdigest()
@@ -44,7 +49,6 @@ class EvalRow(models.Model):
         imported_keys = gpg.import_keys(key)
         encrypted = gpg.encrypt(row, imported_keys.fingerprints[0], armor=True, always_trust=True)
         self.row = encrypted.data
-
 
     @staticmethod
     def extract_answers(answered_questions):
