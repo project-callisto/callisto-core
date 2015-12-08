@@ -8,17 +8,23 @@ from django.core.exceptions import ObjectDoesNotExist
 from reports.models import RecordFormItem, MultipleChoice
 
 class EvalRow(models.Model):
-    # TODO: delete, view, export?
     EDIT = "e"
     CREATE = "c"
     SUBMIT = "s"
     VIEW = "v"
+    MATCH = "m"
+    FIRST = "f"
+    WITHDRAW = "w"
 
+    #TODO: delete
     ACTIONS = (
-        (EDIT, 'Edit'),
         (CREATE, 'Create'),
+        (EDIT, 'Edit'),
+        (VIEW, 'View'),
         (SUBMIT, 'Submit'),
-        (VIEW, 'View')
+        (MATCH, 'Match'),
+        (WITHDRAW, 'Withdraw'),
+        (FIRST, 'First'), #for records that were saved before evaluation was implemented--on entrance to edit
     )
 
     user_identifier = models.CharField(blank=False, max_length=500)
