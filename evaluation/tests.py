@@ -5,39 +5,65 @@ import gnupg
 import json
 
 from reports.models import SingleLineText, RecordFormQuestionPage, RadioButton, Choice
+from delivery.models import Report
 
 from .models import EvalRow, EvalField
 
 User = get_user_model()
 
 class EvalRowTest(TestCase):
-    def save_row_for_user(self, user):
+    def save_row_for_report(self, report):
         row = EvalRow(action=EvalRow.SUBMIT)
-        row.set_identifier(user)
+        row.set_identifiers(report)
         row.save()
         row.full_clean()
         return row
 
     def test_can_hash_on_user_id(self):
         user = User.objects.create_user(username="dummy", password="dummy")
-        self.save_row_for_user(user)
+        report = Report.objects.create(owner=user, encrypted=b'first report')
+        self.save_row_for_report(report)
         self.assertEqual(EvalRow.objects.count(), 1)
-        self.assertNotEqual(EvalRow.objects.first().identifier, user.id)
+        self.assertNotEqual(EvalRow.objects.first().user_identifier, user.id)
+        self.assertNotEqual(EvalRow.objects.first().record_identifier, report.id)
 
     def test_user_hashes_correctly(self):
         user1 = User.objects.create_user(username="dummy", password="dummy")
+        report1 = Report.objects.create(owner=user1, encrypted=b'first report')
         user2 = User.objects.create_user(username="dummy1", password="dummy")
-        row1 = self.save_row_for_user(user1)
-        row2 = self.save_row_for_user(user2)
-        row3 = self.save_row_for_user(user1)
+        report2 = Report.objects.create(owner=user2, encrypted=b'second report')
+        report3 = Report.objects.create(owner=user1, encrypted=b'third report')
+        row1 = self.save_row_for_report(report1)
+        row2 = self.save_row_for_report(report2)
+        row3 = self.save_row_for_report(report3)
         self.assertEqual(EvalRow.objects.count(), 3)
-        self.assertEqual(EvalRow.objects.get(id=row1.pk).identifier, EvalRow.objects.get(id=row3.pk).identifier)
-        self.assertNotEqual(EvalRow.objects.get(id=row1.pk).identifier, EvalRow.objects.get(id=row2.pk).identifier)
+        self.assertEqual(EvalRow.objects.get(id=row1.pk).user_identifier, EvalRow.objects.get(id=row3.pk).user_identifier)
+        self.assertNotEqual(EvalRow.objects.get(id=row1.pk).user_identifier, EvalRow.objects.get(id=row2.pk).user_identifier)
+
+    def test_report_hashes_correctly(self):
+        user1 = User.objects.create_user(username="dummy", password="dummy")
+        report1 = Report.objects.create(owner=user1, encrypted=b'first report')
+        user2 = User.objects.create_user(username="dummy1", password="dummy")
+        report2 = Report.objects.create(owner=user2, encrypted=b'second report')
+        report3 = Report.objects.create(owner=user1, encrypted=b'third report')
+        row1 = self.save_row_for_report(report1)
+        row2 = self.save_row_for_report(report2)
+        row3 = self.save_row_for_report(report3)
+        row3_edit = EvalRow(action=EvalRow.EDIT)
+        row3_edit.set_identifiers(report3)
+        row3_edit.save()
+        row3_edit.full_clean()
+        self.assertEqual(EvalRow.objects.count(), 4)
+        self.assertNotEqual(EvalRow.objects.get(id=row2.pk).record_identifier, EvalRow.objects.get(id=row3.pk).record_identifier)
+        self.assertNotEqual(EvalRow.objects.get(id=row1.pk).record_identifier, EvalRow.objects.get(id=row2.pk).record_identifier)
+        self.assertEqual(EvalRow.objects.get(id=row3.pk).record_identifier, EvalRow.objects.get(id=row3_edit.pk).record_identifier)
+
 
     def test_can_encrypt_a_row(self):
         user = User.objects.create_user(username="dummy", password="dummy")
+        report = Report.objects.create(owner=user, encrypted=b'first report')
         row = EvalRow(action=EvalRow.CREATE)
-        row.set_identifier(user)
+        row.set_identifiers(report)
         test_row = "{'test_field': 'test_answer'}"
         row.encrypt_row(test_row)
         row.save()
@@ -50,8 +76,9 @@ class EvalRowTest(TestCase):
         gpg = gnupg.GPG()
         key = gpg.gen_key(gpg.gen_key_input())
         user = User.objects.create_user(username="dummy", password="dummy")
+        report = Report.objects.create(owner=user, encrypted=b'first report')
         row = EvalRow(action=EvalRow.CREATE)
-        row.set_identifier(user)
+        row.set_identifiers(report)
         test_row = "{'test_field': 'test_answer'}"
         row.encrypt_row(test_row, key = gpg.export_keys(str(key.fingerprint)))
         row.save()

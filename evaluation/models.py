@@ -21,16 +21,17 @@ class EvalRow(models.Model):
         (VIEW, 'View')
     )
 
-    identifier = models.CharField(blank=False, max_length=500)
+    user_identifier = models.CharField(blank=False, max_length=500)
+    record_identifier = models.CharField(blank=False, max_length=500)
     action = models.CharField(max_length=2,
                               choices=ACTIONS,
                               blank=False)
     row = models.BinaryField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    #TODO: use report instead
-    def set_identifier(self, user):
-        self.identifier = hashlib.sha256(str(user.id).encode()).hexdigest()
+    def set_identifiers(self, report):
+        self.user_identifier = hashlib.sha256(str(report.owner.id).encode()).hexdigest()
+        self.record_identifier = hashlib.sha256(str(report.id).encode()).hexdigest()
 
     def encrypt_row(self, row, key = settings.CALLISTO_EVAL_PUBLIC_KEY):
         gpg = gnupg.GPG()
