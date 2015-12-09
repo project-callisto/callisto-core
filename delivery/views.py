@@ -20,6 +20,7 @@ from .matching import find_matches
 from django.utils.html import conditional_escape
 
 from account.forms import SecretKeyForm, SendVerificationEmailForm
+from evaluation.models import EvalRow
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def view_report(request, report_id):
@@ -47,6 +48,17 @@ def export_report(request, report_id):
             form = SecretKeyForm(request.POST)
             form.report = report
             if form.is_valid():
+
+                #record viewing in anonymous evaluation data
+                try:
+                    row = EvalRow()
+                    row.anonymise_row(action=EvalRow.VIEW, report=report)
+                    row.save()
+                except Exception as e:
+                    #TODO: real logging
+                    bugsnag.notify(e)
+                    pass
+
                 try:
                     response = HttpResponse(content_type='application/pdf')
                     response['Content-Disposition'] = 'attachment; filename="callisto_report.pdf"'
@@ -100,6 +112,17 @@ def submit_to_school(request, report_id):
                         bugsnag.notify(e)
                         return render(request, 'submit_to_school.html', {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                       'submit_error': True})
+
+                    #record submission in anonymous evaluation data
+                    try:
+                        row = EvalRow()
+                        row.anonymise_row(action=EvalRow.SUBMIT, report=report)
+                        row.save()
+                    except Exception as e:
+                        #TODO: real logging
+                        bugsnag.notify(e)
+                        pass
+
                     try:
                         if form.cleaned_data.get('email_confirmation') == "True":
                             notification = EmailNotification.objects.get(name='submit_confirmation')
@@ -166,6 +189,17 @@ def submit_to_matching(request, report_id):
                         return render(request, 'submit_to_matching.html', {'form': form, 'formset': formset,
                                                                            'school_name': settings.SCHOOL_SHORTNAME,
                                                                                       'submit_error': True})
+
+                    #record matching submission in anonymous evaluation data
+                    try:
+                        row = EvalRow()
+                        row.anonymise_row(action=EvalRow.MATCH, report=report)
+                        row.save()
+                    except Exception as e:
+                        #TODO: real logging
+                        bugsnag.notify(e)
+                        pass
+
                     try:
                         if form.cleaned_data.get('email_confirmation') == "True":
                             notification = EmailNotification.objects.get(name='match_confirmation')
@@ -195,6 +229,17 @@ def withdraw_from_matching(request, report_id):
     if owner == report.owner:
         report.withdraw_from_matching()
         report.save()
+
+        #record match withdrawal in anonymous evaluation data
+        try:
+            row = EvalRow()
+            row.anonymise_row(action=EvalRow.WITHDRAW, report=report)
+            row.save()
+        except Exception as e:
+            #TODO: real logging
+            bugsnag.notify(e)
+            pass
+
         return render(request, 'dashboard.html', {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
                                                         'coordinator_name': settings.COORDINATOR_NAME,
                                                        'coordinator_email': settings.COORDINATOR_EMAIL,

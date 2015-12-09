@@ -24,7 +24,7 @@ class EvalRow(models.Model):
         (SUBMIT, 'Submit'),
         (MATCH, 'Match'),
         (WITHDRAW, 'Withdraw'),
-        (FIRST, 'First'), #for records that were saved before evaluation was implemented--on entrance to edit
+        (FIRST, 'First'), #for records that were saved before evaluation was implemented--saved on any decryption action
     )
 
     user_identifier = models.CharField(blank=False, max_length=500)
@@ -35,10 +35,11 @@ class EvalRow(models.Model):
     row = models.BinaryField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def anonymise_row(self, action, report, decrypted):
+    def anonymise_row(self, action, report, decrypted=None):
         self.action = action
         self.set_identifiers(report)
-        self.encrypt_row(decrypted)
+        if decrypted:
+            self.encrypt_row(decrypted)
 
     def set_identifiers(self, report):
         self.user_identifier = hashlib.sha256(str(report.owner.id).encode()).hexdigest()
