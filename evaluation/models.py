@@ -3,6 +3,7 @@ from django.conf import settings
 import gnupg
 import hashlib
 import bugsnag
+import json
 from django.core.exceptions import ObjectDoesNotExist
 
 from reports.models import RecordFormItem, MultipleChoice
@@ -35,24 +36,26 @@ class EvalRow(models.Model):
     row = models.BinaryField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def anonymise_row(self, action, report, decrypted=None):
+    def anonymise_record(self, action, report, decrypted_text=None, key=settings.CALLISTO_EVAL_PUBLIC_KEY):
         self.action = action
         self.set_identifiers(report)
-        if decrypted:
-            self.encrypt_row(decrypted)
+        if decrypted_text:
+            self.add_report_data(decrypted_text, key=key)
 
     def set_identifiers(self, report):
         self.user_identifier = hashlib.sha256(str(report.owner.id).encode()).hexdigest()
         self.record_identifier = hashlib.sha256(str(report.id).encode()).hexdigest()
 
-    def encrypt_row(self, row, key = settings.CALLISTO_EVAL_PUBLIC_KEY):
+    def add_report_data(self, decrypted_text, key=settings.CALLISTO_EVAL_PUBLIC_KEY):
+        self._encrypt_eval_row(json.dumps(self._extract_answers(json.loads(decrypted_text))), key=key)
+
+    def _encrypt_eval_row(self, eval_row, key=settings.CALLISTO_EVAL_PUBLIC_KEY):
         gpg = gnupg.GPG()
         imported_keys = gpg.import_keys(key)
-        encrypted = gpg.encrypt(row, imported_keys.fingerprints[0], armor=True, always_trust=True)
+        encrypted = gpg.encrypt(eval_row, imported_keys.fingerprints[0], armor=True, always_trust=True)
         self.row = encrypted.data
 
-    @staticmethod
-    def extract_answers(answered_questions):
+    def _extract_answers(self, answered_questions_dict):
 
         def record_if_answered(question_dict, eval_location):
             id = question_dict['id']
@@ -76,12 +79,12 @@ class EvalRow(models.Model):
                         pass #TODO: record whether an answer was entered or not
             except Exception as e:
                 #TODO: real logging
-                # always fail evaluation code silently
                 bugsnag.notify(e)
+                # extract other answers if we can
                 pass
 
         anonymised_answers = {'answered': [], 'unanswered': []}
-        for serialized_question in answered_questions:
+        for serialized_question in answered_questions_dict:
             try:
                 if 'type' in serialized_question:
                     if serialized_question['type'] == 'FormSet':
@@ -96,8 +99,8 @@ class EvalRow(models.Model):
                         extract_single_question(serialized_question, anonymised_answers)
             except Exception as e:
                 #TODO: real logging
-                # always fail evaluation code silently
                 bugsnag.notify(e)
+                # extract other answers if we can
                 pass
         return anonymised_answers
 

@@ -65,7 +65,7 @@ class EvalRowTest(TestCase):
         row = EvalRow(action=EvalRow.CREATE)
         row.set_identifiers(report)
         test_row = "{'test_field': 'test_answer'}"
-        row.encrypt_row(test_row)
+        row._encrypt_eval_row(test_row)
         row.save()
         row.full_clean()
         self.assertEqual(EvalRow.objects.count(), 1)
@@ -80,7 +80,7 @@ class EvalRowTest(TestCase):
         row = EvalRow(action=EvalRow.CREATE)
         row.set_identifiers(report)
         test_row = "{'test_field': 'test_answer'}"
-        row.encrypt_row(test_row, key = gpg.export_keys(str(key.fingerprint)))
+        row._encrypt_eval_row(test_row, key = gpg.export_keys(str(key.fingerprint)))
         row.save()
         row.full_clean()
         self.assertEqual(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row)), test_row)
@@ -102,9 +102,7 @@ class EvalFieldTest(TestCase):
 
 class ExtractAnswersTest(TestCase):
 
-    def test_extract_answers(self):
-        self.maxDiff = None
-
+    def set_up_simple_report_scenario(self):
         page1 = RecordFormQuestionPage.objects.create()
         page2 = RecordFormQuestionPage.objects.create()
         question1 = SingleLineText.objects.create(text="first question", page=page1)
@@ -121,7 +119,7 @@ class ExtractAnswersTest(TestCase):
 
         object_ids = [question1.pk, question2.pk, selected_id, radio_button_q.pk,] + choice_ids
 
-        json_report = json.loads("""[
+        self.json_report = """[
     { "answer": "test answer",
       "id": %i,
       "section": 1,
@@ -145,9 +143,9 @@ class ExtractAnswersTest(TestCase):
                   {"id": %i, "choice_text": "This is choice 4"}],
       "type": "RadioButton"
     }
-  ]""" % tuple(object_ids))
+  ]""" % tuple(object_ids)
 
-        expected = {
+        self.expected = {
     "q2": "another answer to a different question",
     "radio": str(selected_id),
     "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
@@ -159,8 +157,11 @@ class ExtractAnswersTest(TestCase):
     "unanswered": []
     }
 
-        anonymised = EvalRow.extract_answers(json_report)
-        self.assertEqual(anonymised, expected)
+    def test_extract_answers(self):
+        self.maxDiff = None
+        self.set_up_simple_report_scenario()
+        anonymised = EvalRow()._extract_answers(json.loads(self.json_report))
+        self.assertEqual(anonymised, self.expected)
 
     def test_extract_answers_with_extra(self):
         self.maxDiff = None
@@ -272,7 +273,7 @@ class ExtractAnswersTest(TestCase):
     "answered": [question1.pk, question2.pk, question3.pk],
     "unanswered": []
     }
-        anonymised = EvalRow.extract_answers(json_report)
+        anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
     def test_extract_answers_with_multiple(self):
@@ -365,7 +366,7 @@ class ExtractAnswersTest(TestCase):
                 "answered": [question1.pk, question2.pk, radio_button_q.pk],
                 "unanswered": []
              }]}
-        anonymised = EvalRow.extract_answers(json_report)
+        anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
     def test_tracking_of_answered_questions(self):
@@ -412,5 +413,26 @@ class ExtractAnswersTest(TestCase):
     "unanswered": [question2.pk, radio_button_q.pk]
     }
 
-        anonymised = EvalRow.extract_answers(json_report)
+        anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
+
+    def test_anonymise_record_end_to_end(self):
+        self.maxDiff = None
+
+        self.set_up_simple_report_scenario()
+
+        user = User.objects.create_user(username="dummy", password="dummy")
+        report = Report.objects.create(owner=user, encrypted=b'dummy report')
+
+        gpg = gnupg.GPG()
+        key = gpg.gen_key(gpg.gen_key_input())
+
+        row = EvalRow()
+        row.anonymise_record(action=EvalRow.CREATE, report=report, decrypted_text=self.json_report,
+                             key = gpg.export_keys(str(key.fingerprint)))
+        row.save()
+
+        print(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row)))
+
+
+        self.assertEqual(json.loads(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row))), self.expected)

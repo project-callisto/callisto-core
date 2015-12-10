@@ -52,7 +52,7 @@ def export_report(request, report_id):
                 #record viewing in anonymous evaluation data
                 try:
                     row = EvalRow()
-                    row.anonymise_row(action=EvalRow.VIEW, report=report)
+                    row.anonymise_record(action=EvalRow.VIEW, report=report)
                     row.save()
                 except Exception as e:
                     #TODO: real logging
@@ -116,7 +116,7 @@ def submit_to_school(request, report_id):
                     #record submission in anonymous evaluation data
                     try:
                         row = EvalRow()
-                        row.anonymise_row(action=EvalRow.SUBMIT, report=report)
+                        row.anonymise_record(action=EvalRow.SUBMIT, report=report)
                         row.save()
                     except Exception as e:
                         #TODO: real logging
@@ -193,7 +193,7 @@ def submit_to_matching(request, report_id):
                     #record matching submission in anonymous evaluation data
                     try:
                         row = EvalRow()
-                        row.anonymise_row(action=EvalRow.MATCH, report=report)
+                        row.anonymise_record(action=EvalRow.MATCH, report=report)
                         row.save()
                     except Exception as e:
                         #TODO: real logging
@@ -233,7 +233,7 @@ def withdraw_from_matching(request, report_id):
         #record match withdrawal in anonymous evaluation data
         try:
             row = EvalRow()
-            row.anonymise_row(action=EvalRow.WITHDRAW, report=report)
+            row.anonymise_record(action=EvalRow.WITHDRAW, report=report)
             row.save()
         except Exception as e:
             #TODO: real logging
