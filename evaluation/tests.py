@@ -100,6 +100,15 @@ class EvalFieldTest(TestCase):
         rfi.save()
         self.assertRaises(ObjectDoesNotExist, lambda: SingleLineText.objects.first().evalfield)
 
+    def test_evalfield_label_is_non_unique(self):
+        q1 = SingleLineText(text="This is a question")
+        q1.save()
+        EvalField.objects.create(question=q1, label="question")
+        q2 = SingleLineText(text="This is also a question")
+        q2.save()
+        EvalField.objects.create(question=q2, label="question")
+        self.assertEqual(EvalField.objects.all().count(), 2)
+
 class ExtractAnswersTest(TestCase):
 
     def set_up_simple_report_scenario(self):
@@ -431,8 +440,5 @@ class ExtractAnswersTest(TestCase):
         row.anonymise_record(action=EvalRow.CREATE, report=report, decrypted_text=self.json_report,
                              key = gpg.export_keys(str(key.fingerprint)))
         row.save()
-
-        print(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row)))
-
 
         self.assertEqual(json.loads(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row))), self.expected)

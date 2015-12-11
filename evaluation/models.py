@@ -108,6 +108,6 @@ class EvalField(models.Model):
     #If an associated EvalField exists for a record form item, we record the contents
     #If not, we (eventually) just save whether the question was answered or not
     question = models.OneToOneField(RecordFormItem, primary_key=True)
-    label = models.CharField(blank=False, null=False, max_length=500, unique=True)
+    label = models.CharField(blank=False, null=False, max_length=500)
 
 
