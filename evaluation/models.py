@@ -59,7 +59,7 @@ class EvalRow(models.Model):
 
         def record_if_answered(question_dict, eval_location):
             id = question_dict['id']
-            if 'answer' in question_dict and question_dict['answer'].strip():
+            if 'answer' in question_dict and question_dict['answer'] and str(question_dict['answer']).strip():
                 eval_location['answered'].append(id)
             else:
                 eval_location['unanswered'].append(id)
@@ -76,7 +76,7 @@ class EvalRow(models.Model):
                         if 'extra' in question_dict:
                             eval_location[label + "_extra"] = question_dict['extra']['answer']
                 except ObjectDoesNotExist:
-                        pass #TODO: record whether an answer was entered or not
+                        pass
             except Exception as e:
                 #TODO: real logging
                 bugsnag.notify(e)

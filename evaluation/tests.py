@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import gnupg
 import json
 
-from reports.models import SingleLineText, RecordFormQuestionPage, RadioButton, Choice
+from reports.models import SingleLineText, RecordFormQuestionPage, RadioButton, Choice, Checkbox
 from delivery.models import Report
 
 from .models import EvalRow, EvalField
@@ -420,6 +420,54 @@ class ExtractAnswersTest(TestCase):
         expected = {
     "answered": [question1.pk],
     "unanswered": [question2.pk, radio_button_q.pk]
+    }
+
+        anonymised = EvalRow()._extract_answers(json_report)
+        self.assertEqual(anonymised, expected)
+
+    def test_tracking_of_answered_questions_checkbox(self):
+        self.maxDiff = None
+
+        page1 = RecordFormQuestionPage.objects.create()
+        checkbox_q_1 = Checkbox.objects.create(text="this is a checkbox question", page=page1)
+        for i in range(5):
+            Choice.objects.create(text="This is choice %i" % i, question = checkbox_q_1)
+        checkbox_q_2 = Checkbox.objects.create(text="this is another checkbox question", page=page1)
+        for i in range(5):
+            Choice.objects.create(text="This is choice %i" % i, question = checkbox_q_2)
+
+        choice_ids_1 = [choice.pk for choice in checkbox_q_1.choice_set.all()]
+        choice_ids_2 = [choice.pk for choice in checkbox_q_2.choice_set.all()]
+        object_ids = [checkbox_q_1.pk] + choice_ids_1 + [choice_ids_2[1], choice_ids_2[3], checkbox_q_2.pk]+ choice_ids_2
+
+        json_report = json.loads("""[
+    { "answer": [],
+      "id": %i,
+      "section": 1,
+      "question_text": "this is a checkbox question",
+            "choices": [{"id": %i, "choice_text": "This is choice 0"},
+                  {"id": %i, "choice_text": "This is choice 1"},
+                  {"id": %i, "choice_text": "This is choice 2"},
+                  {"id": %i, "choice_text": "This is choice 3"},
+                  {"id": %i, "choice_text": "This is choice 4"}],
+      "type": "Checkbox"
+    },
+    { "answer": ["%i", "%i"],
+      "id": %i,
+      "section": 1,
+      "question_text": "this is another checkbox question",
+            "choices": [{"id": %i, "choice_text": "This is choice 0"},
+                  {"id": %i, "choice_text": "This is choice 1"},
+                  {"id": %i, "choice_text": "This is choice 2"},
+                  {"id": %i, "choice_text": "This is choice 3"},
+                  {"id": %i, "choice_text": "This is choice 4"}],
+      "type": "Checkbox"
+    }
+  ]""" % tuple(object_ids))
+
+        expected = {
+    "answered": [checkbox_q_2.pk],
+    "unanswered": [checkbox_q_1.pk]
     }
 
         anonymised = EvalRow()._extract_answers(json_report)
