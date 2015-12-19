@@ -6,10 +6,19 @@ import json
 
 from reports.models import SingleLineText, RecordFormQuestionPage, RadioButton, Choice, Checkbox
 from delivery.models import Report
+from .test_keypair import public_test_key, private_test_key
 
-from .models import EvalRow, EvalField
+from evaluation.models import EvalRow, EvalField
 
 User = get_user_model()
+
+def delete_test_key(gpg, identifier):
+    private_key_delete = str(gpg.delete_keys(identifier, True))
+    if private_key_delete != 'ok':
+        raise RuntimeError('delete of test GPG private key failed: ' + private_key_delete)
+    public_key_delete = str(gpg.delete_keys(identifier))
+    if public_key_delete != 'ok':
+        raise RuntimeError('delete of test GPG public key failed: ' + public_key_delete)
 
 class EvalRowTest(TestCase):
     def save_row_for_report(self, report):
@@ -72,15 +81,17 @@ class EvalRowTest(TestCase):
         self.assertIsNotNone(EvalRow.objects.get(id=row.pk).row)
         self.assertNotEqual(EvalRow.objects.get(id=row.pk).row, test_row)
 
+
     def test_can_decrypt_a_row(self):
         gpg = gnupg.GPG()
-        key = gpg.gen_key(gpg.gen_key_input())
+        test_key = gpg.import_keys(private_test_key)
+        self.addCleanup(delete_test_key, gpg, test_key.fingerprints[0])
         user = User.objects.create_user(username="dummy", password="dummy")
         report = Report.objects.create(owner=user, encrypted=b'first report')
         row = EvalRow(action=EvalRow.CREATE)
         row.set_identifiers(report)
         test_row = "{'test_field': 'test_answer'}"
-        row._encrypt_eval_row(test_row, key = gpg.export_keys(str(key.fingerprint)))
+        row._encrypt_eval_row(test_row, key = public_test_key)
         row.save()
         row.full_clean()
         self.assertEqual(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row)), test_row)
@@ -482,11 +493,12 @@ class ExtractAnswersTest(TestCase):
         report = Report.objects.create(owner=user, encrypted=b'dummy report')
 
         gpg = gnupg.GPG()
-        key = gpg.gen_key(gpg.gen_key_input())
+        test_key = gpg.import_keys(private_test_key)
+        self.addCleanup(delete_test_key, gpg, test_key.fingerprints[0])
 
         row = EvalRow()
         row.anonymise_record(action=EvalRow.CREATE, report=report, decrypted_text=self.json_report,
-                             key = gpg.export_keys(str(key.fingerprint)))
+                             key = public_test_key)
         row.save()
 
         self.assertEqual(json.loads(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row))), self.expected)
