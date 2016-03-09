@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from polymorphic import PolymorphicModel
+from polymorphic.models import PolymorphicModel
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.utils.html import strip_tags
