@@ -4,7 +4,7 @@ from django.forms.formsets import formset_factory
 from django.conf import settings
 from urllib.parse import urlsplit, parse_qs
 
-from account.forms import SecretKeyForm
+from reports.forms import SecretKeyForm
 
 class SubmitToSchoolForm(SecretKeyForm):
     name = forms.CharField(label="Your preferred first name:",

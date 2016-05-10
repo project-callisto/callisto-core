@@ -12,14 +12,14 @@ from ratelimit.decorators import ratelimit
 
 User = get_user_model()
 
-from .forms import SubmitToSchoolForm, SubmitToMatchingFormSet
+from .forms import SubmitToSchoolForm, SubmitToMatchingFormSet, SecretKeyForm
 from .models import Report, MatchReport, EmailNotification
 from account.tokens import student_token_generator
 from .report_delivery import send_report_to_school, generate_pdf_report
 from .matching import find_matches
 from django.utils.html import conditional_escape
 
-from account.forms import SecretKeyForm, SendVerificationEmailForm
+from account.forms import SendVerificationEmailForm
 from evaluation.models import EvalRow
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
