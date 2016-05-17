@@ -1,6 +1,10 @@
 from django.test import TestCase
+from django.contrib.auth import get_user_model
 
-from ..forms import SubmitToMatchingForm
+from ..forms import SubmitToMatchingForm, SecretKeyForm, NewSecretKeyForm
+from ..models import Report
+
+User = get_user_model()
 
 class SubmitToMatchingFormTest(TestCase):
 
@@ -53,3 +57,55 @@ class SubmitToMatchingFormTest(TestCase):
         self.verify_url_fails('https://www.facebook.com/messages/10601427')
         self.verify_url_fails('https://www.facebook.com/hashtag/funny?source=feed_text&story_id=858583977551613')
         self.verify_url_fails('https://www.facebook.com/')
+
+class CreateKeyFormTest(TestCase):
+    def test_nonmatching_keys_rejected(self):
+        bad_request = {'key': 'this is a key',
+                       'key2': 'this is also a key'}
+        form = NewSecretKeyForm(bad_request)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['key2'],
+            ["The two passphrase fields didn't match."]
+        )
+
+    def test_matching_keys_accepted(self):
+        good_request = {'key': 'this is my good secret key',
+                        'key2': 'this is my good secret key'}
+        form = NewSecretKeyForm(good_request)
+        self.assertTrue(form.is_valid())
+
+    def test_too_short_key_rejected(self):
+        bad_request = {'key': 'key',
+                       'key2': 'key'}
+        form = NewSecretKeyForm(bad_request)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['key'],
+            ["Your password isn't strong enough."]
+        )
+
+class DecryptKeyFormTest(TestCase):
+
+    def setUp(self):
+        user = User.objects.create(username="dummy", password="dummy")
+        self.report = Report(owner = user)
+        self.key = '~*~*~*~my key~*~*~*~'
+        self.report.encrypt_report('this is a report', self.key)
+        self.report.save()
+
+    def test_wrong_key_rejected(self):
+        bad_request = {'key': 'not my key'}
+        form = SecretKeyForm(bad_request)
+        form.report = self.report
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['key'],
+            ["The passphrase didn't match."]
+        )
+
+    def test_right_key_accepted(self):
+        good_request = {'key': self.key}
+        form = SecretKeyForm(good_request)
+        form.report = self.report
+        self.assertTrue(form.is_valid())

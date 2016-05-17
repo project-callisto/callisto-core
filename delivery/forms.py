@@ -1,10 +1,90 @@
-from django import forms
+import bugsnag
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
 from django.conf import settings
 from urllib.parse import urlsplit, parse_qs
+from django import forms
+from zxcvbn import password_strength
+from nacl.exceptions import CryptoError
 
-from reports.forms import SecretKeyForm
+from evaluation.models import EvalRow
+
+REQUIRED_ERROR = "The {0} field is required."
+
+class NewSecretKeyForm(forms.Form):
+    error_messages = {
+        'key_mismatch': "The two passphrase fields didn't match.",
+    }
+
+    key = forms.CharField(max_length=64,
+                           label="Your passphrase",
+                           widget=forms.PasswordInput(attrs={'placeholder': 'Your passphrase',
+                                                         'autocomplete': 'off'}),
+                           error_messages = {'required': REQUIRED_ERROR.format("passphrase")})
+    key2 = forms.CharField(max_length=64,
+                           label="Repeat your passphrase",
+                           widget=forms.PasswordInput(attrs={'placeholder': 'Repeat your passphrase',
+                                                         'autocomplete': 'off'}),
+                           error_messages = {'required': REQUIRED_ERROR.format("passphrase confirmation")})
+
+    # from http://birdhouse.org/blog/2015/06/16/sane-password-strength-validation-for-django-with-zxcvbn/
+    def clean_key(self):
+        # Password strength testing mostly done in JS; minimal validation here.
+        password = self.cleaned_data.get('key')
+        results = password_strength(password)
+
+        if results['entropy'] < settings.PASSWORD_MINIMUM_ENTROPY:
+            raise forms.ValidationError("Your password isn't strong enough.")
+        return password
+
+
+    def clean_key2(self):
+        key1 = self.cleaned_data.get("key")
+        key2 = self.cleaned_data.get("key2")
+        if key1 and key2 and key1 != key2:
+            raise forms.ValidationError(
+                self.error_messages['key_mismatch'],
+                code='key_mismatch',
+            )
+        return key2
+
+class SecretKeyForm(forms.Form):
+    error_messages = {
+        'wrong_key': "The passphrase didn't match.",
+    }
+
+    key = forms.CharField(max_length=254,
+                          label="Your passphrase",
+                          widget=forms.PasswordInput(attrs={'placeholder': 'Your passphrase',
+                                                        'autocomplete': 'off'}),
+                          error_messages = {'required': REQUIRED_ERROR.format("passphrase")})
+
+    def clean_key(self):
+        key = self.cleaned_data.get('key')
+        report = self.report
+        try:
+            decrypted_report = report.decrypted_report(key)
+            self.decrypted_report = decrypted_report
+            #save anonymous row if one wasn't saved on creation
+            try:
+                row = EvalRow()
+                row.set_identifiers(report)
+                if (EvalRow.objects.filter(record_identifier = row.record_identifier).count() == 0):
+                    row.action = EvalRow.FIRST
+                    row.add_report_data(decrypted_report)
+                    row.save()
+            except Exception as e:
+                #TODO: real logging
+                bugsnag.notify(e)
+                pass
+        except CryptoError:
+            self.decrypted_report = None
+            raise forms.ValidationError(
+                self.error_messages['wrong_key'],
+                code='wrong_key',
+            )
+        return key
+
 
 class SubmitToSchoolForm(SecretKeyForm):
     name = forms.CharField(label="Your preferred first name:",
@@ -81,3 +161,4 @@ class SubmitToMatchingForm(forms.Form):
             return path
 
 SubmitToMatchingFormSet = formset_factory(SubmitToMatchingForm, extra=0, min_num=1)
+
