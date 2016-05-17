@@ -9,14 +9,15 @@ from django.utils.html import conditional_escape, mark_safe
 from .forms import get_record_form_pages, QuestionPageForm
 from .models import RecordFormQuestionPage, RecordFormTextPage, Conditional, PageBase
 
-#rearranged from django-formtools to allow binding forms before skipping steps & submitting
-#adds hook before done is called to process answers
+
+# rearranged from django-formtools to allow binding forms before skipping steps & submission
+# adds hook before done is called to process answers
 class ModifiedSessionWizardView(NamedUrlSessionWizardView):
-     def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.processed_answers = []
 
-     def post(self, *args, **kwargs):
+    def post(self, *args, **kwargs):
         # Check if form was refreshed
         management_form = ManagementForm(self.request.POST, prefix=self.prefix)
         if not management_form.is_valid():
@@ -56,10 +57,10 @@ class ModifiedSessionWizardView(NamedUrlSessionWizardView):
                 return self.render_next_step(form)
         return self.render(form)
 
-     def process_answers(self, form_list, form_dict):
+    def process_answers(self, form_list, form_dict):
         return []
 
-     def render_done(self, form, **kwargs):
+    def render_done(self, form, **kwargs):
         """
         This method gets called when all forms passed. The method should also
         re-validate all steps to prevent manipulation. If any form fails to
@@ -70,8 +71,8 @@ class ModifiedSessionWizardView(NamedUrlSessionWizardView):
         # walk through the form list and try to validate the data again.
         for form_key in self.get_form_list():
             form_obj = self.get_form(step=form_key,
-                data=self.storage.get_step_data(form_key),
-                files=self.storage.get_step_files(form_key))
+                                     data=self.storage.get_step_data(form_key),
+                                     files=self.storage.get_step_files(form_key))
             # don't reject form if it's not bound (modification from original)
             if form_obj.is_bound and not form_obj.is_valid():
                 return self.render_revalidation_failure(form_key,
@@ -92,6 +93,7 @@ class ModifiedSessionWizardView(NamedUrlSessionWizardView):
         self.storage.reset()
         return done_response
 
+
 class ConfigurableFormWizard(ModifiedSessionWizardView):
     def get_form_to_edit(self, object_to_edit):
         return []
@@ -104,14 +106,15 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         def process_form(cleaned_data, output_location):
             # order by position on page (python & json lists both preserve order)
             questions = [(field_name, answer, self.items[field_name]) for field_name, answer in cleaned_data.items()
-                                                                      if "extra" not in field_name]
+                         if "extra" not in field_name]
             questions.sort(key=lambda x: x[2].position)
             for field_name, answer, question in questions:
                 extra_key = "%s_extra-%s" % (field_name, answer)
                 extra_prompt = self.items.get(extra_key)
                 extra_context = None
                 if extra_prompt:
-                    extra_context = {'answer': conditional_escape(cleaned_data.get(extra_key, '')), 'extra_text': extra_prompt}
+                    extra_context = {'answer': conditional_escape(cleaned_data.get(extra_key, '')),
+                                     'extra_text': extra_prompt}
 
                 output_location.append(question.serialize_for_report(answer, extra_context))
 
@@ -121,7 +124,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 try:
                     clean_data = form.cleaned_data
                 except:
-                    #process unbound form with initial data
+                    # process unbound form with initial data
                     initial_data = self.get_form_initial(str(idx))
                     clean_data = dict([(field, initial_data.get(field, '')) for field in form.fields.keys()])
                 process_form(clean_data, answered_questions)
@@ -129,7 +132,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 try:
                     clean_data = form.cleaned_data
                 except:
-                    #process unbound formset with initial data
+                    # process unbound formset with initial data
                     clean_data = self.get_form_initial(str(idx))
                 formset_answers = []
                 for idx, entry in enumerate(clean_data):
@@ -157,7 +160,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             answer = question.get('answer')
             id = question.get('id')
             if answer and id:
-                answers["question_%i" % id] = mark_safe(answer) #answers are escaped before saving
+                answers["question_%i" % id] = mark_safe(answer)  # answers are escaped before saving
                 extra = question.get('extra')
                 if extra:
                     extra_answer = extra.get('answer')
@@ -176,7 +179,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     def get_form_initial(self, step):
         if self.form_to_edit:
             form = self.form_list[step]
-            #process formset answers
+            # process formset answers
             if issubclass(form, QuestionPageForm):
                 return self._process_non_formset_answers_for_edit(self.form_to_edit)
             elif issubclass(self.form_list[step], BaseFormSet):
@@ -189,7 +192,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     def generate_form_list(cls, page_map, pages, object_to_edit, **kwargs):
         return get_record_form_pages(page_map)
 
-    #allows you to append pages to the form like a password field
+    # allows you to append pages to the form like a password field
     @classmethod
     def calculate_real_page_index(cls, raw_idx, pages, object_to_edit, **kwargs):
         return raw_idx
@@ -198,17 +201,18 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     def wizard_factory(cls, object_to_edit=None, **kwargs):
         pages = PageBase.objects.all()
         form_items_at_initialization = {}
-        page_map=[]
+        page_map = []
         formsets = {}
-        page_index = dict([(page.pk, cls.calculate_real_page_index(idx, pages, object_to_edit, **kwargs)) for idx, page in enumerate(pages)])
+        page_index = dict([(page.pk, cls.calculate_real_page_index(idx, pages, object_to_edit, **kwargs))
+                           for idx, page in enumerate(pages)])
         condition_dict = {}
         page_count = 0
         for idx, page in enumerate(pages):
             real_page_idx = cls.calculate_real_page_index(idx, pages, object_to_edit, **kwargs)
             if isinstance(page, RecordFormQuestionPage):
-                #increment page count
+                # increment page count
                 page_count += 1
-                #store question copies
+                # store question copies
                 questions = page.recordformitem_set.order_by('position')
                 if len(questions) > 0:
                     question_copies = [question.clone() for question in questions]
@@ -219,7 +223,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                         if extras:
                             for (extra_id, prompt) in extras:
                                 form_items_at_initialization[extra_id] = prompt
-                #store page_id if is formset
+                # store page_id if is formset
                 if page.multiple:
                     formsets[str(real_page_idx)] = page.pk
             elif isinstance(page, RecordFormTextPage):
@@ -231,25 +235,28 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 depends_on_page = depends_on_question.page
                 depends_on_page_idx = page_index[depends_on_page.pk]
                 depends_on_question_field = "question_%s" % depends_on_question.pk
-                condition_dict[str(real_page_idx)] = partial(predicate, condition, depends_on_page_idx, depends_on_question_field)
+                condition_dict[str(real_page_idx)] = partial(predicate, condition, depends_on_page_idx,
+                                                             depends_on_question_field)
             except Conditional.DoesNotExist:
                 pass
 
         form_list = cls.generate_form_list(page_map, pages, object_to_edit, **kwargs)
         page_count_map = calculate_page_count_map(pages)
 
-        #storage is generated by class name, so want unique class names per record for edit forms
-        return type('RecordFormWizard' + (str(object_to_edit.id) if object_to_edit else ""), (cls,), {"items": form_items_at_initialization,
-                                                        "form_list": form_list,
-                                                        "object_to_edit": object_to_edit,
-                                                        "formsets": formsets,
-                                                        "condition_dict": condition_dict,
-                                                        "page_count": page_count_map['page_count'],
-                                                        "page_count_map": page_count_map})
+        # storage is generated by class name, so want unique class names per record for edit forms
+        return type('RecordFormWizard' + (str(object_to_edit.id) if object_to_edit else ""), (cls,),
+                    {"items": form_items_at_initialization,
+                     "form_list": form_list,
+                     "object_to_edit": object_to_edit,
+                     "formsets": formsets,
+                     "condition_dict": condition_dict,
+                     "page_count": page_count_map['page_count'],
+                     "page_count_map": page_count_map})
+
 
 def predicate(passed_condition, depends_on_page_idx, depends_on_question_field, wizard):
     cleaned_data = wizard.get_cleaned_data_for_step(str(depends_on_page_idx)) \
-                   or {depends_on_question_field : 'none'}
+                   or {depends_on_question_field: 'none'}
     condition_type = passed_condition.condition_type
 
     form_answer = cleaned_data.get(depends_on_question_field)
@@ -269,8 +276,9 @@ def predicate(passed_condition, depends_on_page_idx, depends_on_question_field, 
         if isinstance(form_answer, str):
             form_answer = [form_answer]
         possibles = passed_condition.answer.split(',')
-        #return true if intersection of answers & possibles is non-empty
+        # return true if intersection of answers & possibles is non-empty
         return len(list(set(form_answer) & set(possibles))) > 0
+
 
 def calculate_page_count_map(pages):
     page_count = 0
@@ -289,5 +297,3 @@ def calculate_page_count_map(pages):
             page_count_map[idx] = page_count
     page_count_map['page_count'] = page_count
     return page_count_map
-
-

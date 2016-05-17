@@ -1,8 +1,8 @@
 from django.contrib import admin
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin
-from .models import RecordFormItem, SingleLineText, MultiLineText, RadioButton, Choice, PageBase, RecordFormQuestionPage, \
-                    RecordFormTextPage, Date, Checkbox, SingleLineTextWithMap, Conditional
-#TODO: remove grappelli dependency
+from .models import (RecordFormItem, SingleLineText, MultiLineText, RadioButton, Choice, PageBase,
+                     RecordFormQuestionPage, RecordFormTextPage, Date, Checkbox, SingleLineTextWithMap, Conditional)
+# TODO: remove grappelli dependency
 from grappelli.forms import GrappelliSortableHiddenMixin
 from django.core.urlresolvers import reverse_lazy
 from django.db import models
@@ -13,14 +13,18 @@ class RecordFormItemChildAdmin(PolymorphicChildModelAdmin):
     """ Base admin class for all child models """
     base_model = RecordFormItem
 
+
 class SingleLineTextAdmin(RecordFormItemChildAdmin):
     base_model = SingleLineText
+
 
 class MultiLineTextAdmin(RecordFormItemChildAdmin):
     base_model = MultiLineText
 
+
 class SingleLineTextWithMapAdmin(RecordFormItemChildAdmin):
     base_model = MultiLineText
+
 
 class ChoiceInline(GrappelliSortableHiddenMixin, admin.TabularInline):
     fields = ['text', 'position', 'extra_info_placeholder', 'id']
@@ -32,22 +36,26 @@ class ChoiceInline(GrappelliSortableHiddenMixin, admin.TabularInline):
         models.TextField: {'widget': forms.TextInput},
     }
 
+
 class RadioButtonAdmin(RecordFormItemChildAdmin):
-    base_model =  RadioButton
+    base_model = RadioButton
     inlines = RecordFormItemChildAdmin.inlines + [
         ChoiceInline,
     ]
     exclude = ['example']
 
+
 class CheckboxAdmin(RecordFormItemChildAdmin):
     base_model = Checkbox
-    inlines = RecordFormItemChildAdmin.inlines +[
+    inlines = RecordFormItemChildAdmin.inlines + [
         ChoiceInline,
     ]
     exclude = ['example']
 
+
 class DateAdmin(RecordFormItemChildAdmin):
     base_model = Date
+
 
 class RecordFormItemParentAdmin(PolymorphicParentModelAdmin):
     base_model = RecordFormItem
@@ -61,15 +69,18 @@ class RecordFormItemParentAdmin(PolymorphicParentModelAdmin):
         (Checkbox, CheckboxAdmin)
     )
 
+
 class QuestionInline(admin.TabularInline):
-    #hack because weird ghost RecordFormItem version of this is called last
+    # hack because weird ghost RecordFormItem version of this is called last
     id_cache = None
     type_cache = None
+
     def question_link(self, obj):
         if not self.id_cache:
             self.id_cache = obj.pk
         if self.id_cache:
-            url = '<a href="%s" target="_blank">%s</a>' % (reverse_lazy("admin:wizard_builder_recordformitem_change", args=(self.id_cache,)) , obj.text)
+            url = '<a href="%s" target="_blank">%s</a>' % (reverse_lazy("admin:wizard_builder_recordformitem_change",
+                                                                        args=(self.id_cache,)), obj.text)
             self.id_cache = None
             return url
 
@@ -91,20 +102,22 @@ class QuestionInline(admin.TabularInline):
 
     extra = 0
 
+
 class PageChildAdmin(PolymorphicChildModelAdmin):
     """ Base admin class for all child models """
     base_model = PageBase
+
 
 class RecordFormQuestionPageAdmin(PageChildAdmin):
     base_model = RecordFormQuestionPage
 
     fieldsets = (
         (None, {
-            'fields': ('position','section','encouragement','infobox')
+            'fields': ('position', 'section', 'encouragement', 'infobox')
         }),
         ('Advanced options', {
             'classes': ('grp-collapse grp-closed',),
-            'fields': (('multiple','name_for_multiple'),)
+            'fields': (('multiple', 'name_for_multiple'),)
         }),
     )
 
@@ -112,8 +125,10 @@ class RecordFormQuestionPageAdmin(PageChildAdmin):
         QuestionInline,
     ]
 
+
 class RecordFormTextPageAdmin(PageChildAdmin):
     base_model = RecordFormTextPage
+
 
 class PageParentAdmin(PolymorphicParentModelAdmin):
     """ Base admin class for all child models """
@@ -128,4 +143,3 @@ class PageParentAdmin(PolymorphicParentModelAdmin):
 admin.site.register(RecordFormItem, RecordFormItemParentAdmin)
 admin.site.register(PageBase, PageParentAdmin)
 admin.site.register(Conditional)
-

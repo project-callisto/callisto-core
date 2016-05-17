@@ -1,7 +1,8 @@
 from wizard_builder.views import ConfigurableFormWizard
-#from .models import Report
+# from .models import Report
 from django.http import HttpResponse
 import json
+
 
 class TestWizard(ConfigurableFormWizard):
     # def get_form_to_edit(self, object_to_edit):
@@ -17,9 +18,13 @@ class TestWizard(ConfigurableFormWizard):
 
 
 def new_test_wizard_view(request, step=None):
-    return TestWizard.wizard_factory().as_view(url_name="test_wizard", template_name='wizard_form.html')(request, step=step)
+    return TestWizard.wizard_factory().as_view(url_name="test_wizard", template_name='wizard_form.html')(request,
+                                                                                                         step=step)
+
 
 def edit_test_wizard_view(request, report_id, step=None):
-    #report = Report.objects.get(id=report_id)
+    # report = Report.objects.get(id=report_id)
     report = None
-    return TestWizard.wizard_factory(object_to_edit=report).as_view(url_name="test_wizard", template_name='wizard_form.html')(request, step=step)
+    return TestWizard.wizard_factory(object_to_edit=report).as_view(url_name="test_wizard",
+                                                                    template_name='wizard_form.html')(request,
+                                                                                                      step=step)

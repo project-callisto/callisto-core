@@ -1,8 +1,9 @@
 from django.test import TestCase
-from wizard_builder.models import SingleLineText, RadioButton, Choice, MultiLineText, RecordFormQuestionPage, RecordFormTextPage, \
-                     Date, Checkbox, PageBase
+from wizard_builder.models import (SingleLineText, RadioButton, Choice, MultiLineText, RecordFormQuestionPage,
+                                   RecordFormTextPage, Date, Checkbox, PageBase)
 from django import forms
 import json
+
 
 class PageTest(TestCase):
     def test_page_can_have_position(self):
@@ -31,6 +32,7 @@ class PageTest(TestCase):
     def test_page_infobox_can_be_specified(self):
         RecordFormQuestionPage.objects.create(infobox="More information")
         self.assertEqual(RecordFormQuestionPage.objects.first().infobox, "More information")
+
 
 class RecordFormItemModelTest(TestCase):
     def test_questions_have_text(self):
@@ -80,7 +82,8 @@ class SingleLineTextModelTestCase(TestCase):
         self.assertIn('form-control input-lg', question.widget.attrs['class'])
 
     def test_make_field_includes_placeholder(self):
-        question = SingleLineText.objects.create(text="This is a question", example="You might answer it so").make_field()
+        question = SingleLineText.objects.create(text="This is a question",
+                                                 example="You might answer it so").make_field()
         self.assertIn('You might answer it so', question.widget.attrs['placeholder'])
 
     def test_make_field_works_without_placeholder(self):
@@ -99,6 +102,7 @@ class SingleLineTextModelTestCase(TestCase):
     }""" % question.pk)
         self.assertEqual(serialized_q, json_report)
 
+
 class MultiLineTextTestCase(TestCase):
     def test_make_field_is_textarea(self):
         question = MultiLineText.objects.create(text="This is a big question with css").make_field()
@@ -114,21 +118,21 @@ class MultiLineTextTestCase(TestCase):
         serialized_q = question.serialize_for_report("""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
 quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""")
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""")  # noqa
         json_report = json.loads("""
-    {  "id": %i,
-        "answer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\\nquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\\n\\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      "question_text": "This is a big question to be answered",
-      "section": 1,
-      "type": "MultiLineText"
-    }""" % question.pk)
+        {"id": %i,
+         "answer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\\nquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\\n\\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+         "question_text": "This is a big question to be answered",
+         "section": 1,
+         "type": "MultiLineText"}""" % question.pk)  # noqa
         self.assertEqual(serialized_q, json_report)
+
 
 class RadioButtonTestCase(TestCase):
     def setUp(self):
         self.question = RadioButton.objects.create(text="this is a radio button question")
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = self.question)
+            Choice.objects.create(text="This is choice %i" % i, question=self.question)
 
     def test_can_retrieve_choices(self):
         self.assertEqual(self.question.choice_set.count(), 5)
@@ -142,7 +146,7 @@ class RadioButtonTestCase(TestCase):
     def test_can_make_dropdown(self):
         dropdown = RadioButton.objects.create(text="this is a dropdown question", is_dropdown=True)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = dropdown)
+            Choice.objects.create(text="This is choice %i" % i, question=dropdown)
         self.assertEqual(len(dropdown.make_field().choices), 5)
         self.assertEqual(dropdown.make_field().choices[3][1], "This is choice 3")
         self.assertIsInstance(dropdown.make_field().widget, forms.Select)
@@ -167,11 +171,12 @@ class RadioButtonTestCase(TestCase):
     }""" % tuple(object_ids))
         self.assertEqual(serialized_q, json_report)
 
+
 class CheckboxTestCase(TestCase):
     def setUp(self):
         self.question = Checkbox.objects.create(text="this is a checkbox question")
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = self.question)
+            Choice.objects.create(text="This is choice %i" % i, question=self.question)
 
     def test_can_retrieve_choices(self):
         self.assertEqual(self.question.choice_set.count(), 5)
@@ -224,6 +229,7 @@ class DateTestCase(TestCase):
     }""" % question.pk)
         self.assertEqual(serialized_q, json_report)
 
+
 class RecordFormQuestionPageTest(TestCase):
     def test_can_save_encouragement(self):
         page_id = RecordFormQuestionPage.objects.create(encouragement="you can do it!").pk
@@ -233,9 +239,10 @@ class RecordFormQuestionPageTest(TestCase):
         page_id = RecordFormQuestionPage.objects.create(infobox="you'll be asked later").pk
         self.assertEqual(RecordFormQuestionPage.objects.get(pk=page_id).infobox, "you'll be asked later")
 
+
 class RecordFormTextPageTest(TestCase):
     def test_can_save_with_or_without_title(self):
         without_title = RecordFormTextPage.objects.create(text="here's some instructions")
-        with_title = RecordFormTextPage.objects.create(title = "This Page's Title", text="more instructions")
-        self.assertEqual("here's some instructions", RecordFormTextPage.objects.get(id = without_title.pk).text)
-        self.assertEqual("This Page's Title", RecordFormTextPage.objects.get(id = with_title.pk).title)
+        with_title = RecordFormTextPage.objects.create(title="This Page's Title", text="more instructions")
+        self.assertEqual("here's some instructions", RecordFormTextPage.objects.get(id=without_title.pk).text)
+        self.assertEqual("This Page's Title", RecordFormTextPage.objects.get(id=with_title.pk).title)

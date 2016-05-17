@@ -3,12 +3,14 @@ from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
 from django.forms.formsets import formset_factory
 
+from .models import RecordFormQuestionPage, RecordFormTextPage, PageBase, MultipleChoice, Date
+
 User = get_user_model()
 
-from .models import RecordFormQuestionPage, RecordFormTextPage, PageBase, MultipleChoice, Date
 
 class BaseRecordPageForm(forms.Form):
     sections = dict(PageBase.SECTION_CHOICES)
+
 
 class QuestionPageForm(BaseRecordPageForm):
     def __init__(self, *args, **kwargs):
@@ -26,9 +28,10 @@ class QuestionPageForm(BaseRecordPageForm):
                     if placeholder:
                         extra_dict = {}
                         extra_field = forms.CharField(label=mark_safe("<span class='sr-only'>%s</span>" % placeholder),
-                                    required=False,
-                                    widget=forms.TextInput(attrs={'class': "form-control extra_text_info",
-                                                                  'placeholder': placeholder}),)
+                                                      required=False,
+                                                      widget=forms.TextInput(attrs={'class':
+                                                                                    "form-control extra_text_info",
+                                                                                    'placeholder': placeholder}),)
                         id_for_extra_field = '%s_extra-%s' % (question_id, choice_with_extra.pk)
                         self.fields[id_for_extra_field] = extra_field
                         radio_button_name = "%s-%s" % (self.prefix, question_id)
@@ -44,8 +47,10 @@ class QuestionPageForm(BaseRecordPageForm):
         if len(date_fields) > 0:
             self.date_fields = date_fields
 
+
 class TextPageForm(BaseRecordPageForm):
     pass
+
 
 def get_record_form_pages(page_map):
     pages = sorted(page_map, key=lambda p: p[0].position)
