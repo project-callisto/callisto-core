@@ -14,7 +14,7 @@ from .models import RecordFormQuestionPage, RecordFormTextPage, Conditional, Pag
 # adds hook before done is called to process answers
 class ModifiedSessionWizardView(NamedUrlSessionWizardView):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(ModifiedSessionWizardView, self).__init__(*args, **kwargs)
         self.processed_answers = []
 
     def post(self, *args, **kwargs):
@@ -99,7 +99,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         return []
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(ConfigurableFormWizard, self).__init__(*args, **kwargs)
         self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
 
     def process_answers(self, form_list, form_dict):
@@ -147,7 +147,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         return answered_questions
 
     def get_context_data(self, form, **kwargs):
-        context = super().get_context_data(form=form, **kwargs)
+        context = super(ConfigurableFormWizard, self).get_context_data(form=form, **kwargs)
         if isinstance(form, QuestionPageForm) or isinstance(form, BaseFormSet):
             context.update({'page_count': self.page_count,
                             'current_page': self.page_count_map.get(form.page_index),

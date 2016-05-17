@@ -38,7 +38,7 @@ class RecordFormBaseTest(TestCase):
 class WizardIntegratedTest(RecordFormBaseTest):
 
     def setUp(self):
-        super().setUp()
+        super(WizardIntegratedTest, self).setUp()
         User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')
         self.request = HttpRequest()
