@@ -13,7 +13,7 @@ from reports.views import calculate_page_count_map
 from reports.tests.test_views import RecordFormBaseTest, sort_json
 
 from ..models import Report
-from ..wizard import EncryptedBaseWizard
+from ..wizard import EncryptedFormWizard
 from ..forms import NewSecretKeyForm, SecretKeyForm
 from evaluation.models import EvalRow
 
@@ -43,18 +43,18 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         SingleLineText.objects.create(text="first page question", page=page3)
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
         SingleLineText.objects.create(text="another first page question", page=page3, position=1)
-        wizard = EncryptedBaseWizard.wizard_factory()()
+        wizard = EncryptedFormWizard.wizard_factory()()
         #includes key page
         self.assertEqual(len(wizard.form_list), 4)
 
     def test_wizard_appends_key_page(self):
-        wizard = EncryptedBaseWizard.wizard_factory()()
+        wizard = EncryptedFormWizard.wizard_factory()()
         self.assertEqual(len(wizard.form_list), 3)
         self.assertEqual(wizard.form_list[-1], NewSecretKeyForm)
 
     @patch('delivery.wizard.Report')
     def test_wizard_done_redirects_to_dashboard(self, mockReport):
-        wizard = EncryptedBaseWizard.wizard_factory()()
+        wizard = EncryptedFormWizard.wizard_factory()()
         PageOneForm = wizard.form_list[0]
         PageTwoForm = wizard.form_list[1]
         KeyForm = wizard.form_list[2]
@@ -76,7 +76,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
-        wizard = EncryptedBaseWizard.wizard_factory()()
+        wizard = EncryptedFormWizard.wizard_factory()()
 
         PageOneForm = wizard.form_list[0]
         PageTwoForm = wizard.form_list[1]
@@ -145,7 +145,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
-        wizard = EncryptedBaseWizard.wizard_factory()()
+        wizard = EncryptedFormWizard.wizard_factory()()
 
         PageOneForm = wizard.form_list[0]
         PageTwoForm = wizard.form_list[1]
@@ -234,7 +234,7 @@ class EditRecordFormTest(RecordFormBaseTest):
         self.assertIn('another answer to a different question', form.initial.values())
 
     def edit_record(self, record_to_edit):
-        wizard = EncryptedBaseWizard.wizard_factory(object_to_edit=record_to_edit)()
+        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=record_to_edit)()
 
         KeyForm1 = wizard.form_list[0]
         PageOneForm = wizard.form_list[1]
@@ -279,7 +279,7 @@ class EditRecordFormTest(RecordFormBaseTest):
     def test_cant_edit_with_bad_key(self):
         self.maxDiff = None
 
-        wizard = EncryptedBaseWizard.wizard_factory(object_to_edit=self.report)()
+        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=self.report)()
 
         KeyForm1 = wizard.form_list[0]
 
@@ -287,7 +287,7 @@ class EditRecordFormTest(RecordFormBaseTest):
         self.assertFalse(key_form_1.is_valid())
 
     def test_cant_save_edit_with_bad_key(self):
-        wizard = EncryptedBaseWizard.wizard_factory(object_to_edit=self.report)()
+        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=self.report)()
 
         KeyForm1 = wizard.form_list[0]
         PageOneForm = wizard.form_list[1]

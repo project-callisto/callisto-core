@@ -17,7 +17,7 @@ from .forms import SubmitToSchoolForm, SubmitToMatchingFormSet, SecretKeyForm
 from .models import Report, MatchReport, EmailNotification
 from .report_delivery import send_report_to_school, generate_pdf_report
 from .matching import find_matches
-from .wizard import EncryptedBaseWizard
+from .wizard import EncryptedFormWizard
 
 from account.forms import SendVerificationEmailForm
 from account.tokens import student_token_generator
@@ -255,7 +255,7 @@ def ratelimited(request, exception):
 
 def new_record_form_view(request, step=None):
     if PageBase.objects.count() > 0:
-        return EncryptedBaseWizard.wizard_factory().as_view(url_name="record_form")(request, step=step)
+        return EncryptedFormWizard.wizard_factory().as_view(url_name="record_form")(request, step=step)
     else:
         #TODO: log error
         return render(request, 'error.html')
@@ -267,7 +267,7 @@ def edit_record_form_view(request, report_id, step=None):
     report = Report.objects.get(id=report_id)
     if owner == report.owner:
         if PageBase.objects.count() > 0:
-            return EncryptedBaseWizard.wizard_factory(object_to_edit=report).as_view(url_name="edit_report")(request, step=step)
+            return EncryptedFormWizard.wizard_factory(object_to_edit=report).as_view(url_name="edit_report")(request, step=step)
         else:
             #TODO: log error
             return render(request, 'error.html')

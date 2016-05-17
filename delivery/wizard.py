@@ -13,7 +13,7 @@ from reports.views import ConfigurableFormWizard
 from reports.forms import get_record_form_pages
 
 
-class EncryptedBaseWizard(ConfigurableFormWizard):
+class EncryptedFormWizard(ConfigurableFormWizard):
 
     def get_form_initial(self, step):
         #TODO: store with other intermediate form data
