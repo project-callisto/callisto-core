@@ -102,6 +102,18 @@ class SingleLineTextModelTestCase(TestCase):
     }""" % question.pk)
         self.assertEqual(serialized_q, json_report)
 
+    def test_serializes_no_answer_correctly(self):
+        question = SingleLineText.objects.create(text="This is a question to be answered")
+        serialized_q = question.serialize_for_report()
+        json_report = json.loads("""
+    { "answer": "",
+      "id": %i,
+      "section": 1,
+      "question_text": "This is a question to be answered",
+      "type": "SingleLineText"
+    }""" % question.pk)
+        self.assertEqual(serialized_q, json_report)
+
 
 class MultiLineTextTestCase(TestCase):
     def test_make_field_is_textarea(self):

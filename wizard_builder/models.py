@@ -3,6 +3,7 @@ from polymorphic.models import PolymorphicModel
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.html import conditional_escape
+from django.core.exceptions import ObjectDoesNotExist
 
 import copy
 
@@ -10,7 +11,7 @@ import copy
 def get_page_position():
     try:
         return PageBase.objects.latest('position').position + 1
-    except:
+    except ObjectDoesNotExist:
         return 0
 
 
@@ -69,7 +70,7 @@ class RecordFormQuestionPage(PageBase):
 def get_page():
     try:
         return RecordFormQuestionPage.objects.latest('position').pk
-    except:
+    except ObjectDoesNotExist:
         return RecordFormQuestionPage.objects.create().pk
 
 
@@ -108,7 +109,7 @@ class SingleLineText(RecordFormItem):
                                widget=forms.TextInput(attrs={'class': "form-control input-lg",
                                                              'placeholder': self.example}),)
 
-    def serialize_for_report(self, answer={}, *args):
+    def serialize_for_report(self, answer="", *args):
         return {'id': self.pk, 'question_text': self.text, 'answer': conditional_escape(answer),
                 'type': 'SingleLineText', 'section': self.section}
 
@@ -126,7 +127,7 @@ class SingleLineTextWithMap(RecordFormItem):
                                widget=forms.TextInput(attrs={'class': "form-control input-lg map-field",
                                                              'placeholder': self.example}),)
 
-    def serialize_for_report(self, answer={}, *args):
+    def serialize_for_report(self, answer="", *args):
         return {'id': self.pk, 'question_text': self.text, 'answer': conditional_escape(answer),
                 'type': 'SingleLineText', 'section': self.section}
 
@@ -139,7 +140,7 @@ class MultiLineText(RecordFormItem):
                                                             'placeholder': self.example,
                                                             'max_length': 30000}),)
 
-    def serialize_for_report(self, answer={}, *args):
+    def serialize_for_report(self, answer="", *args):
         return {'id': self.pk, 'question_text': self.text, 'answer': conditional_escape(answer),
                 'type': 'MultiLineText', 'section': self.section}
 

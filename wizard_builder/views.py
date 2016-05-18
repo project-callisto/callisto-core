@@ -13,8 +13,8 @@ from .models import RecordFormQuestionPage, RecordFormTextPage, Conditional, Pag
 # rearranged from django-formtools to allow binding forms before skipping steps & submission
 # adds hook before done is called to process answers
 class ModifiedSessionWizardView(NamedUrlSessionWizardView):
-    def __init__(self, *args, **kwargs):
-        super(ModifiedSessionWizardView, self).__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super(ModifiedSessionWizardView, self).__init__(**kwargs)
         self.processed_answers = []
 
     def post(self, *args, **kwargs):
@@ -135,7 +135,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                     # process unbound formset with initial data
                     clean_data = self.get_form_initial(str(idx))
                 formset_answers = []
-                for idx, entry in enumerate(clean_data):
+                for entry in clean_data:
                     entry_answers = []
                     process_form(entry, entry_answers)
                     formset_answers.append(entry_answers)
@@ -158,14 +158,14 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         answers = {}
         for question in json_questions:
             answer = question.get('answer')
-            id = question.get('id')
-            if answer and id:
-                answers["question_%i" % id] = mark_safe(answer)  # answers are escaped before saving
+            question_id = question.get('id')
+            if answer and question_id:
+                answers["question_%i" % question_id] = mark_safe(answer)  # answers are escaped before saving
                 extra = question.get('extra')
                 if extra:
                     extra_answer = extra.get('answer')
                     if extra_answer:
-                        answers['question_%i_extra-%s' % (id, answer)] = mark_safe(extra_answer)
+                        answers['question_%i_extra-%s' % (question_id, answer)] = mark_safe(extra_answer)
         return answers
 
     def _process_formset_answers_for_edit(self, json_questions, page_id):
