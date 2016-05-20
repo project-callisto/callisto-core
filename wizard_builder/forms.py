@@ -3,18 +3,18 @@ from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
 from django.forms.formsets import formset_factory
 
-from .models import RecordFormQuestionPage, RecordFormTextPage, PageBase, MultipleChoice, Date
+from .models import QuestionPage, TextPage, PageBase, MultipleChoice, Date
 
 User = get_user_model()
 
 
-class BaseRecordPageForm(forms.Form):
+class BasePageForm(forms.Form):
     sections = dict(PageBase.SECTION_CHOICES)
 
 
-class QuestionPageForm(BaseRecordPageForm):
+class QuestionPageForm(BasePageForm):
     def __init__(self, *args, **kwargs):
-        super(BaseRecordPageForm, self).__init__(*args, **kwargs)
+        super(BasePageForm, self).__init__(*args, **kwargs)
         self.has_tooltip = False
         extra_fields = {}
         date_fields = []
@@ -48,11 +48,11 @@ class QuestionPageForm(BaseRecordPageForm):
             self.date_fields = date_fields
 
 
-class TextPageForm(BaseRecordPageForm):
+class TextPageForm(BasePageForm):
     pass
 
 
-def get_record_form_pages(page_map):
+def get_form_pages(page_map):
     pages = sorted(page_map, key=lambda p: p[0].position)
     generated_forms = []
     section_map = {}
@@ -61,7 +61,7 @@ def get_record_form_pages(page_map):
         section_map[section] = start
 
     for idx, (page, item_set) in enumerate(pages):
-        if isinstance(page, RecordFormQuestionPage):
+        if isinstance(page, QuestionPage):
             FormType = type('Page%iForm' % idx, (QuestionPageForm,),
                             {"items": sorted(item_set, key=lambda i: i.position),
                              "encouragement": page.encouragement,
@@ -80,7 +80,7 @@ def get_record_form_pages(page_map):
                 generated_forms.append(FormSetType)
             else:
                 generated_forms.append(FormType)
-        elif isinstance(page, RecordFormTextPage):
+        elif isinstance(page, TextPage):
             FormType = type('Page%iForm' % idx, (TextPageForm,),
                             {"title": page.title,
                              "text": page.text,

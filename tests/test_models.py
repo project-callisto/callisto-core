@@ -1,45 +1,45 @@
 from django.test import TestCase
-from wizard_builder.models import (SingleLineText, RadioButton, Choice, MultiLineText, RecordFormQuestionPage,
-                                   RecordFormTextPage, Date, Checkbox, PageBase)
+from wizard_builder.models import (SingleLineText, RadioButton, Choice, MultiLineText, QuestionPage,
+                                   TextPage, Date, Checkbox, PageBase)
 from django import forms
 import json
 
 
 class PageTest(TestCase):
     def test_page_can_have_position(self):
-        page = RecordFormQuestionPage.objects.create(position=10)
-        self.assertEqual(RecordFormQuestionPage.objects.get(pk=page.pk).position, 10)
+        page = QuestionPage.objects.create(position=10)
+        self.assertEqual(QuestionPage.objects.get(pk=page.pk).position, 10)
 
     def test_page_position_defaults_to_last(self):
         for i in range(7):
-            RecordFormQuestionPage.objects.create()
-        last_page = RecordFormQuestionPage.objects.create()
+            QuestionPage.objects.create()
+        last_page = QuestionPage.objects.create()
         self.assertEqual(last_page.position, 7)
 
     def test_page_can_have_section(self):
-        when_page = RecordFormQuestionPage.objects.create()
-        who_page = RecordFormQuestionPage.objects.create(section=PageBase.WHO)
+        when_page = QuestionPage.objects.create()
+        who_page = QuestionPage.objects.create(section=PageBase.WHO)
         self.assertEqual(PageBase.objects.get(pk=who_page.pk).section, PageBase.WHO)
         self.assertEqual(PageBase.objects.get(pk=when_page.pk).section, PageBase.WHEN)
 
     def test_page_can_have_multiple(self):
-        single_page = RecordFormQuestionPage.objects.create()
-        multiple_page = RecordFormQuestionPage.objects.create(multiple=True, name_for_multiple="random field")
+        single_page = QuestionPage.objects.create()
+        multiple_page = QuestionPage.objects.create(multiple=True, name_for_multiple="random field")
         self.assertFalse(PageBase.objects.get(pk=single_page.pk).multiple)
         self.assertTrue(PageBase.objects.get(pk=multiple_page.pk).multiple)
         self.assertTrue(PageBase.objects.get(pk=multiple_page.pk).name_for_multiple, "random field")
 
     def test_page_infobox_can_be_specified(self):
-        RecordFormQuestionPage.objects.create(infobox="More information")
-        self.assertEqual(RecordFormQuestionPage.objects.last().infobox, "More information")
+        QuestionPage.objects.create(infobox="More information")
+        self.assertEqual(QuestionPage.objects.last().infobox, "More information")
 
 
 class ItemTestCase(TestCase):
     def setUp(self):
-        self.page = RecordFormQuestionPage.objects.create()
+        self.page = QuestionPage.objects.create()
 
 
-class RecordFormItemModelTest(ItemTestCase):
+class FormQuestionModelTest(ItemTestCase):
 
     def test_questions_have_text(self):
         SingleLineText.objects.create(text="This is a question")
@@ -51,7 +51,7 @@ class RecordFormItemModelTest(ItemTestCase):
         self.assertEqual(str(question), "What's up? (SingleLineText)")
 
     def test_questions_can_have_pages(self):
-        page = RecordFormQuestionPage.objects.create()
+        page = QuestionPage.objects.create()
         SingleLineText.objects.create(text="This is a question on page 4", page=page)
         self.assertEqual(SingleLineText.objects.first().page, page)
 
@@ -62,7 +62,7 @@ class RecordFormItemModelTest(ItemTestCase):
     def test_questions_get_added_to_end_by_default(self):
         # setup creates one page
         for i in range(9):
-            RecordFormQuestionPage.objects.create()
+            QuestionPage.objects.create()
         question = SingleLineText.objects.create(text="This is a question with no page")
         self.assertEqual(question.page.position, 9)
 
@@ -197,7 +197,7 @@ class RadioButtonTestCase(ItemTestCase):
 
 class CheckboxTestCase(ItemTestCase):
     def setUp(self):
-        self.page = RecordFormQuestionPage.objects.create()
+        self.page = QuestionPage.objects.create()
         self.question = Checkbox.objects.create(text="this is a checkbox question")
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question=self.question)
@@ -254,19 +254,19 @@ class DateTestCase(ItemTestCase):
         self.assertEqual(serialized_q, json_report)
 
 
-class RecordFormQuestionPageTest(TestCase):
+class QuestionPageTest(TestCase):
     def test_can_save_encouragement(self):
-        page_id = RecordFormQuestionPage.objects.create(encouragement="you can do it!").pk
-        self.assertEqual(RecordFormQuestionPage.objects.get(pk=page_id).encouragement, "you can do it!")
+        page_id = QuestionPage.objects.create(encouragement="you can do it!").pk
+        self.assertEqual(QuestionPage.objects.get(pk=page_id).encouragement, "you can do it!")
 
     def test_can_save_infobox(self):
-        page_id = RecordFormQuestionPage.objects.create(infobox="you'll be asked later").pk
-        self.assertEqual(RecordFormQuestionPage.objects.get(pk=page_id).infobox, "you'll be asked later")
+        page_id = QuestionPage.objects.create(infobox="you'll be asked later").pk
+        self.assertEqual(QuestionPage.objects.get(pk=page_id).infobox, "you'll be asked later")
 
 
-class RecordFormTextPageTest(TestCase):
+class TextPageTest(TestCase):
     def test_can_save_with_or_without_title(self):
-        without_title = RecordFormTextPage.objects.create(text="here's some instructions")
-        with_title = RecordFormTextPage.objects.create(title="This Page's Title", text="more instructions")
-        self.assertEqual("here's some instructions", RecordFormTextPage.objects.get(id=without_title.pk).text)
-        self.assertEqual("This Page's Title", RecordFormTextPage.objects.get(id=with_title.pk).title)
+        without_title = TextPage.objects.create(text="here's some instructions")
+        with_title = TextPage.objects.create(title="This Page's Title", text="more instructions")
+        self.assertEqual("here's some instructions", TextPage.objects.get(id=without_title.pk).text)
+        self.assertEqual("This Page's Title", TextPage.objects.get(id=with_title.pk).title)

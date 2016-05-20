@@ -34,10 +34,10 @@ class PageBase(PolymorphicModel):
 
     class Meta:
         ordering = ['position']
-        verbose_name = 'Record form page'
+        verbose_name = 'Form page'
 
 
-class RecordFormTextPage(PageBase):
+class TextPage(PageBase):
     title = models.TextField(blank=True)
     text = models.TextField(blank=False)
 
@@ -48,7 +48,7 @@ class RecordFormTextPage(PageBase):
             return "Page %i (%s)" % (self.position, self.text[:97] + '...')
 
 
-class RecordFormQuestionPage(PageBase):
+class QuestionPage(PageBase):
     encouragement = models.TextField(blank=True)
     infobox = models.TextField(blank=True,
                                verbose_name='why is this asked? wrap additional titles in [[double brackets]]')
@@ -57,7 +57,7 @@ class RecordFormQuestionPage(PageBase):
     name_for_multiple = models.TextField(blank=True, verbose_name='name of field for "add another" prompt')
 
     def __str__(self):
-        questions = self.recordformitem_set.order_by('position')
+        questions = self.formquestion_set.order_by('position')
         if len(questions) > 0:
             return "Page %i (%s)" % (self.position, questions[0].text)
         else:
@@ -69,15 +69,15 @@ class RecordFormQuestionPage(PageBase):
 
 def get_page():
     try:
-        return RecordFormQuestionPage.objects.latest('position').pk
+        return QuestionPage.objects.latest('position').pk
     except ObjectDoesNotExist:
         return None
 
 
-class RecordFormItem(PolymorphicModel):
+class FormQuestion(PolymorphicModel):
     text = models.TextField(blank=False)
 
-    page = models.ForeignKey('RecordFormQuestionPage', editable=True, default=get_page, blank=True)
+    page = models.ForeignKey('QuestionPage', editable=True, default=get_page, blank=True)
     position = models.PositiveSmallIntegerField("position", default=0)
     example = models.TextField(blank=True)
     descriptive_text = models.TextField(blank=True)
@@ -102,7 +102,7 @@ class RecordFormItem(PolymorphicModel):
         verbose_name = 'question'
 
 
-class SingleLineText(RecordFormItem):
+class SingleLineText(FormQuestion):
     def make_field(self):
         return forms.CharField(label=self.text,
                                required=False,
@@ -114,7 +114,7 @@ class SingleLineText(RecordFormItem):
                 'type': 'SingleLineText', 'section': self.section}
 
 
-class SingleLineTextWithMap(RecordFormItem):
+class SingleLineTextWithMap(FormQuestion):
     map_link = models.CharField(blank=False, max_length=500)
 
     def make_field(self):
@@ -132,7 +132,7 @@ class SingleLineTextWithMap(RecordFormItem):
                 'type': 'SingleLineText', 'section': self.section}
 
 
-class MultiLineText(RecordFormItem):
+class MultiLineText(FormQuestion):
     def make_field(self):
         return forms.CharField(label=self.text,
                                required=False,
@@ -145,7 +145,7 @@ class MultiLineText(RecordFormItem):
                 'type': 'MultiLineText', 'section': self.section}
 
 
-class MultipleChoice(RecordFormItem):
+class MultipleChoice(FormQuestion):
     cached_choices = None
 
     def clone(self):
@@ -224,7 +224,7 @@ class Choice(models.Model):
         ordering = ['position', 'pk']
 
 
-class Date(RecordFormItem):
+class Date(FormQuestion):
     def make_field(self):
         return forms.CharField(label=self.text,
                                required=False,
@@ -249,7 +249,7 @@ class Conditional(models.Model):
                                       default=EXACTLY)
 
     page = models.OneToOneField(PageBase)
-    question = models.ForeignKey(RecordFormItem)
+    question = models.ForeignKey(FormQuestion)
     answer = models.CharField(max_length=150)
 
     def __str__(self):
