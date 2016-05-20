@@ -31,10 +31,16 @@ class PageTest(TestCase):
 
     def test_page_infobox_can_be_specified(self):
         RecordFormQuestionPage.objects.create(infobox="More information")
-        self.assertEqual(RecordFormQuestionPage.objects.first().infobox, "More information")
+        self.assertEqual(RecordFormQuestionPage.objects.last().infobox, "More information")
 
 
-class RecordFormItemModelTest(TestCase):
+class ItemTestCase(TestCase):
+    def setUp(self):
+        self.page = RecordFormQuestionPage.objects.create()
+
+
+class RecordFormItemModelTest(ItemTestCase):
+
     def test_questions_have_text(self):
         SingleLineText.objects.create(text="This is a question")
         self.assertEqual(SingleLineText.objects.count(), 1)
@@ -54,7 +60,8 @@ class RecordFormItemModelTest(TestCase):
         self.assertEqual(SingleLineText.objects.first().page.position, 0)
 
     def test_questions_get_added_to_end_by_default(self):
-        for i in range(10):
+        # setup creates one page
+        for i in range(9):
             RecordFormQuestionPage.objects.create()
         question = SingleLineText.objects.create(text="This is a question with no page")
         self.assertEqual(question.page.position, 9)
@@ -76,7 +83,8 @@ class RecordFormItemModelTest(TestCase):
         self.assertEqual(SingleLineText.objects.first().position, 10)
 
 
-class SingleLineTextModelTestCase(TestCase):
+class SingleLineTextModelTestCase(ItemTestCase):
+
     def test_make_field_applies_css(self):
         question = SingleLineText.objects.create(text="This is a question with css").make_field()
         self.assertIn('form-control input-lg', question.widget.attrs['class'])
@@ -115,7 +123,8 @@ class SingleLineTextModelTestCase(TestCase):
         self.assertEqual(serialized_q, json_report)
 
 
-class MultiLineTextTestCase(TestCase):
+class MultiLineTextTestCase(ItemTestCase):
+
     def test_make_field_is_textarea(self):
         question = MultiLineText.objects.create(text="This is a big question with css").make_field()
         self.assertIsInstance(question.widget, forms.Textarea)
@@ -140,8 +149,10 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
         self.assertEqual(serialized_q, json_report)
 
 
-class RadioButtonTestCase(TestCase):
+class RadioButtonTestCase(ItemTestCase):
+
     def setUp(self):
+        super(RadioButtonTestCase, self).setUp()
         self.question = RadioButton.objects.create(text="this is a radio button question")
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question=self.question)
@@ -184,8 +195,9 @@ class RadioButtonTestCase(TestCase):
         self.assertEqual(serialized_q, json_report)
 
 
-class CheckboxTestCase(TestCase):
+class CheckboxTestCase(ItemTestCase):
     def setUp(self):
+        self.page = RecordFormQuestionPage.objects.create()
         self.question = Checkbox.objects.create(text="this is a checkbox question")
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question=self.question)
@@ -223,7 +235,7 @@ class CheckboxTestCase(TestCase):
         self.assertEqual(serialized_q, json_report)
 
 
-class DateTestCase(TestCase):
+class DateTestCase(ItemTestCase):
     def test_make_field_is_text_input(self):
         question = Date.objects.create(text="When did it happen?").make_field()
         self.assertIsInstance(question.widget, forms.TextInput)

@@ -71,13 +71,13 @@ def get_page():
     try:
         return RecordFormQuestionPage.objects.latest('position').pk
     except ObjectDoesNotExist:
-        return RecordFormQuestionPage.objects.create().pk
+        return None
 
 
 class RecordFormItem(PolymorphicModel):
     text = models.TextField(blank=False)
 
-    page = models.ForeignKey('RecordFormQuestionPage', editable=True, default=get_page)
+    page = models.ForeignKey('RecordFormQuestionPage', editable=True, default=get_page, blank=True)
     position = models.PositiveSmallIntegerField("position", default=0)
     example = models.TextField(blank=True)
     descriptive_text = models.TextField(blank=True)
