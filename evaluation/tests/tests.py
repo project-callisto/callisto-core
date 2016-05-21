@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import gnupg
 import json
 
-from reports.models import SingleLineText, RecordFormQuestionPage, RadioButton, Choice, Checkbox
+from wizard_builder.models import SingleLineText, QuestionPage, RadioButton, Choice, Checkbox
 from delivery.models import Report
 from .test_keypair import public_test_key, private_test_key
 
@@ -99,7 +99,8 @@ class EvalRowTest(TestCase):
 class EvalFieldTest(TestCase):
 
     def test_question_can_have_eval_field(self):
-        rfi = SingleLineText(text="This is a question")
+        page = QuestionPage.objects.create()
+        rfi = SingleLineText(text="This is a question", page=page)
         rfi.save()
         EvalField.objects.create(question=rfi)
         self.assertIsNotNone(EvalField.objects.first().question)
@@ -107,15 +108,17 @@ class EvalFieldTest(TestCase):
         self.assertEqual(SingleLineText.objects.first().evalfield, EvalField.objects.first())
 
     def test_question_can_not_have_eval_field(self):
-        rfi = SingleLineText(text="This is a question")
+        page = QuestionPage.objects.create()
+        rfi = SingleLineText(text="This is a question", page=page)
         rfi.save()
         self.assertRaises(ObjectDoesNotExist, lambda: SingleLineText.objects.first().evalfield)
 
     def test_evalfield_label_is_non_unique(self):
-        q1 = SingleLineText(text="This is a question")
+        page = QuestionPage.objects.create()
+        q1 = SingleLineText(text="This is a question", page=page)
         q1.save()
         EvalField.objects.create(question=q1, label="question")
-        q2 = SingleLineText(text="This is also a question")
+        q2 = SingleLineText(text="This is also a question", page=page)
         q2.save()
         EvalField.objects.create(question=q2, label="question")
         self.assertEqual(EvalField.objects.all().count(), 2)
@@ -123,8 +126,8 @@ class EvalFieldTest(TestCase):
 class ExtractAnswersTest(TestCase):
 
     def set_up_simple_report_scenario(self):
-        page1 = RecordFormQuestionPage.objects.create()
-        page2 = RecordFormQuestionPage.objects.create()
+        page1 = QuestionPage.objects.create()
+        page2 = QuestionPage.objects.create()
         question1 = SingleLineText.objects.create(text="first question", page=page1)
         question2 = SingleLineText.objects.create(text="2nd question", page=page2)
         EvalField.objects.create(question=question2, label="q2")
@@ -185,7 +188,7 @@ class ExtractAnswersTest(TestCase):
 
     def test_extract_answers_with_extra(self):
         self.maxDiff = None
-        page1 = RecordFormQuestionPage.objects.create()
+        page1 = QuestionPage.objects.create()
 
         question1 = RadioButton.objects.create(text="this is a radio button question", page=page1)
         for i in range(5):
@@ -299,11 +302,11 @@ class ExtractAnswersTest(TestCase):
     def test_extract_answers_with_multiple(self):
         self.maxDiff = None
 
-        page1 = RecordFormQuestionPage.objects.create()
+        page1 = QuestionPage.objects.create()
         single_question = SingleLineText.objects.create(text="single question", page=page1)
         EvalField.objects.create(question=single_question, label="single_q")
 
-        page2 = RecordFormQuestionPage.objects.create(multiple=True, name_for_multiple="form")
+        page2 = QuestionPage.objects.create(multiple=True, name_for_multiple="form")
         question1 = SingleLineText.objects.create(text="first question", page=page2)
         question2 = SingleLineText.objects.create(text="2nd question", page=page2)
         EvalField.objects.create(question=question2, label="q2")
@@ -392,7 +395,7 @@ class ExtractAnswersTest(TestCase):
     def test_tracking_of_answered_questions(self):
         self.maxDiff = None
 
-        page1 = RecordFormQuestionPage.objects.create()
+        page1 = QuestionPage.objects.create()
         question1 = SingleLineText.objects.create(text="first question", page=page1)
         question2 = SingleLineText.objects.create(text="2nd question", page=page1)
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page1)
@@ -439,7 +442,7 @@ class ExtractAnswersTest(TestCase):
     def test_tracking_of_answered_questions_checkbox(self):
         self.maxDiff = None
 
-        page1 = RecordFormQuestionPage.objects.create()
+        page1 = QuestionPage.objects.create()
         checkbox_q_1 = Checkbox.objects.create(text="this is a checkbox question", page=page1)
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question = checkbox_q_1)

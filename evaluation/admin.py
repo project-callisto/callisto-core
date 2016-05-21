@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import EvalField
-from reports.models import RecordFormItem, SingleLineText, MultiLineText, RadioButton, Date, Checkbox, SingleLineTextWithMap
-from reports.admin import RecordFormItemParentAdmin, SingleLineTextAdmin, MultiLineTextAdmin, SingleLineTextWithMapAdmin, \
+from wizard_builder.models import FormQuestion, SingleLineText, MultiLineText, RadioButton, Date, Checkbox, SingleLineTextWithMap
+from wizard_builder.admin import FormQuestionParentAdmin, SingleLineTextAdmin, MultiLineTextAdmin, SingleLineTextWithMapAdmin, \
     RadioButtonAdmin, CheckboxAdmin, DateAdmin
 
 class EvalFieldInline(admin.StackedInline):
@@ -30,7 +30,7 @@ class CheckboxWithEvalAdmin(WithEval, CheckboxAdmin):
 class DateWithEvalAdmin(WithEval, DateAdmin):
     pass
 
-class RecordFormItemsWithEvalParentAdmin(RecordFormItemParentAdmin):
+class FormQuestionsWithEvalParentAdmin(FormQuestionParentAdmin):
     child_models = (
         (SingleLineText, SingleLineTextWithEvalAdmin),
         (MultiLineText, MultiLineTextWithEvalAdmin),
@@ -40,5 +40,5 @@ class RecordFormItemsWithEvalParentAdmin(RecordFormItemParentAdmin):
         (Date, DateWithEvalAdmin),
     )
 
-admin.site.unregister(RecordFormItem)
-admin.site.register(RecordFormItem, RecordFormItemsWithEvalParentAdmin)
+admin.site.unregister(FormQuestion)
+admin.site.register(FormQuestion, FormQuestionsWithEvalParentAdmin)
