@@ -22,7 +22,7 @@ from .wizard import EncryptedFormWizard
 from account.forms import SendVerificationEmailForm
 from account.tokens import student_token_generator
 from evaluation.models import EvalRow
-from reports.models import PageBase
+from wizard_builder.models import PageBase
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def view_report(request, report_id):

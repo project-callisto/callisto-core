@@ -7,15 +7,34 @@ from unittest.mock import patch, Mock
 
 User = get_user_model()
 
-from reports.models import SingleLineText, RadioButton, Choice, RecordFormQuestionPage, RecordFormTextPage, Date, Checkbox, Conditional
-from reports.forms import QuestionPageForm, TextPageForm
-from reports.views import calculate_page_count_map
-from reports.tests.test_views import RecordFormBaseTest, sort_json
+from wizard_builder.models import SingleLineText, RadioButton, Choice, QuestionPage, TextPage, Date, Checkbox, Conditional
+from wizard_builder.forms import QuestionPageForm, TextPageForm
 
 from ..models import Report
 from ..wizard import EncryptedFormWizard
 from ..forms import NewSecretKeyForm, SecretKeyForm
 from evaluation.models import EvalRow
+
+
+def sort_json(text):
+    return sorted(json.loads(text), key=lambda x: x['id'])
+
+
+def get_body(response):
+    return response.content.decode('utf-8')
+
+
+class RecordFormBaseTest(TestCase):
+    def setUp(self):
+        self.page1 = QuestionPage.objects.create()
+        self.page2 = QuestionPage.objects.create()
+        self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
+        self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
+
+    def _get_wizard_response(self, wizard, form_list, **kwargs):
+        # simulate what wizard does on final form submit
+        wizard.processed_answers = wizard.process_answers(form_list=form_list, form_dict=dict(enumerate(form_list)))
+        return get_body(wizard.done(form_list=form_list, form_dict=dict(enumerate(form_list)), **kwargs))
 
 class RecordFormIntegratedTest(RecordFormBaseTest):
 
@@ -39,7 +58,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         self.assertTemplateUsed(response, 'record_form.html')
 
     def test_wizard_generates_correct_number_of_pages(self):
-        page3 = RecordFormQuestionPage.objects.create()
+        page3 = QuestionPage.objects.create()
         SingleLineText.objects.create(text="first page question", page=page3)
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
         SingleLineText.objects.create(text="another first page question", page=page3, position=1)
@@ -211,7 +230,7 @@ class EditRecordFormTest(RecordFormBaseTest):
             (self.record_form_url % self.report.pk),
             data={'0-key': self.report_key,
                   'wizard_goto_step':1,
-                  'record_form_wizard' + str(self.report.id) + '-current_step': 0},
+                  'form_wizard' + str(self.report.id) + '-current_step': 0},
             follow=True
         )
 

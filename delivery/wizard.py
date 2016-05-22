@@ -9,8 +9,8 @@ from .models import Report
 from .forms import NewSecretKeyForm, SecretKeyForm
 
 from evaluation.models import EvalRow
-from reports.views import ConfigurableFormWizard
-from reports.forms import get_record_form_pages
+from wizard_builder.views import ConfigurableFormWizard
+from wizard_builder.forms import get_form_pages
 
 
 class EncryptedFormWizard(ConfigurableFormWizard):
@@ -34,7 +34,7 @@ class EncryptedFormWizard(ConfigurableFormWizard):
 
     @classmethod
     def generate_form_list(cls, page_map, pages, record_to_edit, **kwargs):
-        form_list = get_record_form_pages(page_map)
+        form_list = get_form_pages(page_map)
         if record_to_edit:
             form_list.insert(0, cls.get_key_form(record_to_edit))
         form_list.append(cls.get_key_form(record_to_edit))

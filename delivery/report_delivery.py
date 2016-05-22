@@ -17,7 +17,7 @@ import json
 from django.utils import timezone
 import pytz
 
-from reports.models import PageBase
+from wizard_builder.models import PageBase
 from .models import EmailNotification, SentFullReport, SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"
