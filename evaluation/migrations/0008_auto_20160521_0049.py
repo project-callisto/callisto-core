@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('evaluation', '0007_evalfield_wb_question'),
+        ('reports', '0082_migrate_to_wizard_builder')
     ]
 
     operations = [
