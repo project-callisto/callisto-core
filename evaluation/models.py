@@ -7,6 +7,7 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 
 from wizard_builder.models import FormQuestion, MultipleChoice
+from reports.models import RecordFormItem
 
 class EvalRow(models.Model):
     EDIT = "e"
@@ -107,7 +108,7 @@ class EvalRow(models.Model):
 class EvalField(models.Model):
     #If an associated EvalField exists for a record form item, we record the contents
     #If not, we just save whether the question was answered or not
-    question = models.OneToOneField(FormQuestion, primary_key=True)
+    question = models.OneToOneField(RecordFormItem, primary_key=True)
     label = models.CharField(blank=False, null=False, max_length=500)
 
 
