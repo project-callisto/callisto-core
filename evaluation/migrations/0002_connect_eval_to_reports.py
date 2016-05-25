@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0001_initial'),
+        ('reports', '0078_conditional'),
         ('evaluation', '0001_initial'),
     ]
 
@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EvalField',
             fields=[
-                ('question', models.OneToOneField(to='wizard_builder.FormQuestion', serialize=False, primary_key=True)),
+                ('question', models.OneToOneField(to='reports.RecordFormItem', serialize=False, primary_key=True)),
             ],
         ),
         migrations.AlterField(
