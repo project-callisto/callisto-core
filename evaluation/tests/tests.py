@@ -8,7 +8,7 @@ from wizard_builder.models import SingleLineText, QuestionPage, RadioButton, Cho
 from delivery.models import Report
 from .test_keypair import public_test_key, private_test_key
 
-from evaluation.models import EvalRow, EvalField
+from evaluation.models import EvalRow, EvaluationField
 
 User = get_user_model()
 
@@ -102,26 +102,26 @@ class EvalFieldTest(TestCase):
         page = QuestionPage.objects.create()
         rfi = SingleLineText(text="This is a question", page=page)
         rfi.save()
-        EvalField.objects.create(question=rfi)
-        self.assertIsNotNone(EvalField.objects.first().question)
-        self.assertIsNotNone(SingleLineText.objects.first().evalfield)
-        self.assertEqual(SingleLineText.objects.first().evalfield, EvalField.objects.first())
+        EvaluationField.objects.create(question=rfi)
+        self.assertIsNotNone(EvaluationField.objects.first().question)
+        self.assertIsNotNone(SingleLineText.objects.first().evaluationfield)
+        self.assertEqual(SingleLineText.objects.first().evaluationfield, EvaluationField.objects.first())
 
     def test_question_can_not_have_eval_field(self):
         page = QuestionPage.objects.create()
         rfi = SingleLineText(text="This is a question", page=page)
         rfi.save()
-        self.assertRaises(ObjectDoesNotExist, lambda: SingleLineText.objects.first().evalfield)
+        self.assertRaises(ObjectDoesNotExist, lambda: SingleLineText.objects.first().evaluationfield)
 
     def test_evalfield_label_is_non_unique(self):
         page = QuestionPage.objects.create()
         q1 = SingleLineText(text="This is a question", page=page)
         q1.save()
-        EvalField.objects.create(question=q1, label="question")
+        EvaluationField.objects.create(question=q1, label="question")
         q2 = SingleLineText(text="This is also a question", page=page)
         q2.save()
-        EvalField.objects.create(question=q2, label="question")
-        self.assertEqual(EvalField.objects.all().count(), 2)
+        EvaluationField.objects.create(question=q2, label="question")
+        self.assertEqual(EvaluationField.objects.all().count(), 2)
 
 class ExtractAnswersTest(TestCase):
 
@@ -130,11 +130,11 @@ class ExtractAnswersTest(TestCase):
         page2 = QuestionPage.objects.create()
         question1 = SingleLineText.objects.create(text="first question", page=page1)
         question2 = SingleLineText.objects.create(text="2nd question", page=page2)
-        EvalField.objects.create(question=question2, label="q2")
+        EvaluationField.objects.create(question=question2, label="q2")
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page2)
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
-        EvalField.objects.create(question=radio_button_q, label="radio")
+        EvaluationField.objects.create(question=radio_button_q, label="radio")
 
 
         choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
@@ -196,7 +196,7 @@ class ExtractAnswersTest(TestCase):
             if i == 0:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
-        EvalField.objects.create(question=question1, label="q1")
+        EvaluationField.objects.create(question=question1, label="q1")
 
         question2 = RadioButton.objects.create(text="this is another radio button question", page=page1)
         for i in range(5):
@@ -204,7 +204,7 @@ class ExtractAnswersTest(TestCase):
             if i % 2 == 1:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
-        EvalField.objects.create(question=question2, label="q2")
+        EvaluationField.objects.create(question=question2, label="q2")
 
         question3 = RadioButton.objects.create(text="this is a radio button question too", page=page1)
         for i in range(5):
@@ -212,7 +212,7 @@ class ExtractAnswersTest(TestCase):
             if i == 0:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
-        EvalField.objects.create(question=question3, label="q3")
+        EvaluationField.objects.create(question=question3, label="q3")
 
         q1_choice_ids = [choice.pk for choice in question1.choice_set.all()]
         q1_selected_id = q1_choice_ids[1]
@@ -304,16 +304,16 @@ class ExtractAnswersTest(TestCase):
 
         page1 = QuestionPage.objects.create()
         single_question = SingleLineText.objects.create(text="single question", page=page1)
-        EvalField.objects.create(question=single_question, label="single_q")
+        EvaluationField.objects.create(question=single_question, label="single_q")
 
         page2 = QuestionPage.objects.create(multiple=True, name_for_multiple="form")
         question1 = SingleLineText.objects.create(text="first question", page=page2)
         question2 = SingleLineText.objects.create(text="2nd question", page=page2)
-        EvalField.objects.create(question=question2, label="q2")
+        EvaluationField.objects.create(question=question2, label="q2")
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page2)
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
-        EvalField.objects.create(question=radio_button_q, label="radio")
+        EvaluationField.objects.create(question=radio_button_q, label="radio")
 
         choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
         selected_id_1 = choice_ids[1]

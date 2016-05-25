@@ -1,11 +1,11 @@
 from django.contrib import admin
-from .models import EvalField
+from .models import EvaluationField
 from wizard_builder.models import FormQuestion, SingleLineText, MultiLineText, RadioButton, Date, Checkbox, SingleLineTextWithMap
 from wizard_builder.admin import FormQuestionParentAdmin, SingleLineTextAdmin, MultiLineTextAdmin, SingleLineTextWithMapAdmin, \
     RadioButtonAdmin, CheckboxAdmin, DateAdmin
 
 class EvalFieldInline(admin.StackedInline):
-    model = EvalField
+    model = EvaluationField
 
 class WithEval(object):
     def __init__(self, *args, **kwargs):

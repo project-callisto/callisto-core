@@ -70,7 +70,7 @@ class EvalRow(models.Model):
                 record_if_answered(question_dict, eval_location)
                 question = FormQuestion.objects.get(id=question_dict['id'])
                 try:
-                    label = question.evalfield.label
+                    label = question.evaluationfield.label
                     eval_location[label] = question_dict['answer']
                     if isinstance(question, MultipleChoice):
                         eval_location[label + "_choices"] = question.serialize_choices()
@@ -105,10 +105,10 @@ class EvalRow(models.Model):
                 pass
         return anonymised_answers
 
-class EvalField(models.Model):
-    #If an associated EvalField exists for a record form item, we record the contents
+class EvaluationField(models.Model):
+    #If an associated EvaluationField exists for a record form item, we record the contents
     #If not, we just save whether the question was answered or not
-    question = models.OneToOneField(RecordFormItem, primary_key=True)
+    question = models.OneToOneField(FormQuestion)
     label = models.CharField(blank=False, null=False, max_length=500)
 
 
