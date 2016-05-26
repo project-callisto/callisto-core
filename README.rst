@@ -13,7 +13,7 @@ Create multi-page forms with branching logic from the Django admin, no code requ
 Documentation
 -------------
 
-The full documentation is at https://django-wizard-builder.readthedocs.org.
+The full documentation will eventually be at https://django-wizard-builder.readthedocs.org.
 
 Quickstart
 ----------
