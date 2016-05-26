@@ -12,4 +12,4 @@ Learn more about information escrows:
 
 [Contribute](https://github.com/SexualHealthInnovations/callisto-core/blob/master/CONTRIBUTING.md) to callisto-core.
 
-Want to talk about extending the code to other applications, how Callisto works, or anything else? Contact us at tech@sexualhealthinnovations.org.
+Want to talk about extending the code to other applications, how Callisto works, or schedule a demo of Callisto for your campus? Contact us at tech@sexualhealthinnovations.org.
