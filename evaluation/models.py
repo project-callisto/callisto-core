@@ -7,7 +7,6 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 
 from wizard_builder.models import FormQuestion, MultipleChoice
-from reports.models import RecordFormItem
 
 class EvalRow(models.Model):
     EDIT = "e"
