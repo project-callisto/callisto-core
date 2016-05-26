@@ -28,6 +28,10 @@ class NewSecretKeyForm(forms.Form):
                            error_messages = {'required': REQUIRED_ERROR.format("passphrase confirmation")})
 
     # from http://birdhouse.org/blog/2015/06/16/sane-password-strength-validation-for-django-with-zxcvbn/
+
+    # Portions of the below implementation are copyright cca.edu, and are under the Educational Community License:
+    # https://opensource.org/licenses/ECL-2.0
+
     def clean_key(self):
         # Password strength testing mostly done in JS; minimal validation here.
         password = self.cleaned_data.get('key')
