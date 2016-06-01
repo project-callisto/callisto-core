@@ -6,12 +6,11 @@ from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer, Page
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle, ListStyle
 from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER
-from time import strftime
 from django.utils.timezone import localtime
 from io import BytesIO
 from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
+# from reportlab.pdfbase import pdfmetrics
+# from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus.doctemplate import Indenter
 import json
 from django.utils import timezone
@@ -287,7 +286,6 @@ def generate_pdf_report(toname, user, report, decrypted_report, report_id):
     unselected = u'\u2610'
     selected =  u'\u2717'
     free_text = u'\u2756'
-    no_bullet = ' '
 
     key = ListFlowable(
         [ListItem(Paragraph("Unselected option",answers_style), value = unselected, leftIndent=45),

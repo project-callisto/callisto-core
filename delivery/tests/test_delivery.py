@@ -170,7 +170,7 @@ class MatchNotificationTest(MatchTest):
 
     def test_users_are_deduplicated(self, mock_send_to_school, mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
-        report2 = self.create_match(self.user1, 'dummy')
+        self.create_match(self.user1, 'dummy')
         find_matches()
         self.assertFalse(mock_send_email.called)
         report3 = self.create_match(self.user2, 'dummy')
