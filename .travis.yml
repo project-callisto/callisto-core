@@ -4,5 +4,7 @@ python:
 sudo: false
 install:
     - pip install -r requirements.txt
+    - pip install pyflakes
 script:
+    - pyflakes runtests.py delivery evaluation
     - python runtests.py
