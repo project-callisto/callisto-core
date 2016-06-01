@@ -1,0 +1,13 @@
+django
+django-formtools
+django_polymorphic
+git+https://github.com/SexualHealthInnovations/django-wizard-builder.git#egg=wizard_builder
+
+pynacl
+gnupg
+
+bugsnag
+environ
+zxcvbn-py3
+reportlab
+pytz
