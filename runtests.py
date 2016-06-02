@@ -11,7 +11,12 @@ settings.configure(
     USE_TZ=True,
     DATABASES={
         "default": {
-            "ENGINE": "django.db.backends.sqlite3"
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "callisto-core-test",
+            "USER": "postgres",
+            "PASSWORD": "",
+            "HOST": "",
+            "PORT": ""
         }
     },
     #ROOT_URLCONF="",

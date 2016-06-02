@@ -11,3 +11,4 @@ environ
 zxcvbn-py3
 reportlab
 pytz
+psycopg2
