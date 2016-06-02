@@ -1,6 +1,7 @@
 django
 django-formtools
 django_polymorphic
+django-ratelimit
 git+https://github.com/SexualHealthInnovations/django-wizard-builder.git#egg=wizard_builder
 
 pynacl
@@ -8,7 +9,7 @@ gnupg
 
 bugsnag
 environ
-zxcvbn-py3
-reportlab
-pytz
 psycopg2
+pytz
+reportlab
+zxcvbn-py3
