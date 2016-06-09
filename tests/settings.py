@@ -31,7 +31,7 @@ SITE_ID = 1
 
 MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',)
 
-TEMPLATE_DIRS = ['%s/tests/templates' % os.path.abspath(os.path.dirname(__file__))]
+TEMPLATE_DIRS = ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
 
 SCHOOL_REPORT_PREFIX = "000"
 
