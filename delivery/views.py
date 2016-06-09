@@ -1,5 +1,5 @@
 import json
-import bugsnag
+import logging
 
 from django.shortcuts import render
 from django.http import HttpResponseForbidden, HttpResponse
@@ -23,6 +23,8 @@ from account.forms import SendVerificationEmailForm
 from account.tokens import student_token_generator
 from evaluation.models import EvalRow
 from wizard_builder.models import PageBase
+
+logger = logging.getLogger(__name__)
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def view_report(request, report_id):
@@ -57,8 +59,7 @@ def export_report(request, report_id):
                     row.anonymise_record(action=EvalRow.VIEW, report=report)
                     row.save()
                 except Exception as e:
-                    #TODO: real logging
-                    bugsnag.notify(e)
+                    logger.error(e)
                     pass
 
                 try:
@@ -68,7 +69,7 @@ def export_report(request, report_id):
                     response.write(pdf)
                     return response
                 except Exception as e:
-                    bugsnag.notify(e)
+                    logger.error(e)
                     form.add_error(None, "There was an error exporting your report.")
         else:
             form = SecretKeyForm()
@@ -110,8 +111,7 @@ def submit_to_school(request, report_id):
                         send_report_to_school(owner, report, form.decrypted_report)
                         report.save()
                     except Exception as e:
-                        #TODO: real logging
-                        bugsnag.notify(e)
+                        logger.error(e)
                         return render(request, 'submit_to_school.html', {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                       'submit_error': True})
 
@@ -121,8 +121,7 @@ def submit_to_school(request, report_id):
                         row.anonymise_record(action=EvalRow.SUBMIT, report=report)
                         row.save()
                     except Exception as e:
-                        #TODO: real logging
-                        bugsnag.notify(e)
+                        logger.error(e)
                         pass
 
                     try:
@@ -133,9 +132,8 @@ def submit_to_school(request, report_id):
                             from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
                             notification.send(to=to_email, from_email=from_email)
                     except Exception as e:
-                        #TODO: real logging
                         # report was sent even if confirmation email fails, so don't show an error if so
-                        bugsnag.notify(e)
+                        logger.error(e)
 
                     return render(request, 'submit_to_school_confirmation.html', {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                       'report': report})
@@ -186,8 +184,7 @@ def submit_to_matching(request, report_id):
                         if settings.MATCH_IMMEDIATELY:
                             find_matches()
                     except Exception as e:
-                        #TODO: real logging
-                        bugsnag.notify(e)
+                        logger.error(e)
                         return render(request, 'submit_to_matching.html', {'form': form, 'formset': formset,
                                                                            'school_name': settings.SCHOOL_SHORTNAME,
                                                                                       'submit_error': True})
@@ -198,8 +195,7 @@ def submit_to_matching(request, report_id):
                         row.anonymise_record(action=EvalRow.MATCH, report=report)
                         row.save()
                     except Exception as e:
-                        #TODO: real logging
-                        bugsnag.notify(e)
+                        logger.error(e)
                         pass
 
                     try:
@@ -210,9 +206,8 @@ def submit_to_matching(request, report_id):
                             from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
                             notification.send(to=to_email, from_email=from_email)
                     except Exception as e:
-                        #TODO: real logging
                         # matching was entered even if confirmation email fails, so don't show an error if so
-                        bugsnag.notify(e)
+                        logger.error(e)
 
                     return render(request, 'submit_to_matching_confirmation.html', {'school_name': settings.SCHOOL_SHORTNAME,
                                                                                         'report': report})
@@ -238,8 +233,7 @@ def withdraw_from_matching(request, report_id):
             row.anonymise_record(action=EvalRow.WITHDRAW, report=report)
             row.save()
         except Exception as e:
-            #TODO: real logging
-            bugsnag.notify(e)
+            logger.error(e)
             pass
 
         return render(request, 'dashboard.html', {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
@@ -250,14 +244,14 @@ def withdraw_from_matching(request, report_id):
         return HttpResponseForbidden()
 
 def ratelimited(request, exception):
-    bugsnag.notify(exception)
+    logger.error(exception)
     return render(request, 'ratelimited.html')
 
 def new_record_form_view(request, step=None):
     if PageBase.objects.count() > 0:
         return EncryptedFormWizard.wizard_factory().as_view(url_name="record_form")(request, step=step)
     else:
-        #TODO: log error
+        logger.error('PageBase.objects.count() is not valid.')
         return render(request, 'error.html')
 
 #TODO: only apply limit to the edit & save pages
@@ -269,7 +263,7 @@ def edit_record_form_view(request, report_id, step=None):
         if PageBase.objects.count() > 0:
             return EncryptedFormWizard.wizard_factory(object_to_edit=report).as_view(url_name="edit_report")(request, step=step)
         else:
-            #TODO: log error
+            logger.error('PageBase.objects.count() is not valid.')
             return render(request, 'error.html')
     else:
         return HttpResponseForbidden()

@@ -1,5 +1,5 @@
 import json
-import bugsnag
+import logging
 from django.shortcuts import HttpResponseRedirect
 from django.http import HttpResponseForbidden
 from django.core.urlresolvers import reverse
@@ -12,6 +12,7 @@ from evaluation.models import EvalRow
 from wizard_builder.views import ConfigurableFormWizard
 from wizard_builder.forms import get_form_pages
 
+logger = logging.getLogger(__name__)
 
 class EncryptedFormWizard(ConfigurableFormWizard):
 
@@ -70,8 +71,7 @@ class EncryptedFormWizard(ConfigurableFormWizard):
             row.anonymise_record(action=action, report=report, decrypted_text=report_text)
             row.save()
         except Exception as e:
-            #TODO: real logging
-            bugsnag.notify(e)
+            logger.error(e)
             pass
 
         #TODO: check if valid?
