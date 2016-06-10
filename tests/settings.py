@@ -52,3 +52,5 @@ def get_test_key():
     return key_str
 
 CALLISTO_EVAL_PUBLIC_KEY = os.environ.get('CALLISTO_EVAL_PUBLIC_KEY', get_test_key())
+
+DECRYPT_THROTTLE_RATE = '100/m'
