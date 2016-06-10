@@ -1,34 +1,50 @@
 from django.contrib import admin
+from wizard_builder.admin import (
+    CheckboxAdmin, DateAdmin, FormQuestionParentAdmin, MultiLineTextAdmin,
+    RadioButtonAdmin, SingleLineTextAdmin, SingleLineTextWithMapAdmin,
+)
+from wizard_builder.models import (
+    Checkbox, Date, FormQuestion, MultiLineText, RadioButton, SingleLineText,
+    SingleLineTextWithMap,
+)
+
 from .models import EvaluationField
-from wizard_builder.models import FormQuestion, SingleLineText, MultiLineText, RadioButton, Date, Checkbox, SingleLineTextWithMap
-from wizard_builder.admin import FormQuestionParentAdmin, SingleLineTextAdmin, MultiLineTextAdmin, SingleLineTextWithMapAdmin, \
-    RadioButtonAdmin, CheckboxAdmin, DateAdmin
+
 
 class EvalFieldInline(admin.StackedInline):
     model = EvaluationField
 
+
 class WithEval(object):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.inlines = (self.inlines or []) + [EvalFieldInline,]
+        self.inlines = (self.inlines or []) + [EvalFieldInline, ]
+
 
 class SingleLineTextWithEvalAdmin(WithEval, SingleLineTextAdmin):
     pass
 
+
 class MultiLineTextWithEvalAdmin(WithEval, MultiLineTextAdmin):
     pass
+
 
 class SingleLineTextWithMapWithEvalAdmin(WithEval, SingleLineTextWithMapAdmin):
     pass
 
+
 class RadioButtonWithEvalAdmin(WithEval, RadioButtonAdmin):
     pass
+
 
 class CheckboxWithEvalAdmin(WithEval, CheckboxAdmin):
     pass
 
+
 class DateWithEvalAdmin(WithEval, DateAdmin):
     pass
+
 
 class FormQuestionsWithEvalParentAdmin(FormQuestionParentAdmin):
     child_models = (

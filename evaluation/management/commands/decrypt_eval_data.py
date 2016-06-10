@@ -1,14 +1,16 @@
-from django.core.management.base import BaseCommand
-import gnupg
 import json
-from django.conf import settings
-import environ
-env = environ.Env()
 
+import environ
+import gnupg
+from django.conf import settings
+from django.core.management.base import BaseCommand
 from evaluation.models import EvalRow
 
+env = environ.Env()
+
+
 class Command(BaseCommand):
-    help='decrypts eval data. can only be run in local environments (import data from prod)'
+    help = 'decrypts eval data. can only be run in local environments (import data from prod)'
 
     def handle(self, *args, **options):
         if not settings.DEBUG:
@@ -27,6 +29,6 @@ class Command(BaseCommand):
             if decrypted_eval_row:
                 decrypted_row.update(json.loads(decrypted_eval_row))
             decrypted_eval_data.append(decrypted_row)
-        with open('eval_data.json','w') as output:
+        with open('eval_data.json', 'w') as output:
             json.dump(decrypted_eval_data, output)
         self.stdout.write("Decrypted eval data written to eval_data.json")

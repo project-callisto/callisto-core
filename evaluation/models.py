@@ -1,12 +1,13 @@
-from django.db import models
-from django.conf import settings
-import gnupg
 import hashlib
-import bugsnag
 import json
-from django.core.exceptions import ObjectDoesNotExist
 
+import bugsnag
+import gnupg
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 from wizard_builder.models import FormQuestion, MultipleChoice
+
 
 class EvalRow(models.Model):
     EDIT = "e"
@@ -17,7 +18,7 @@ class EvalRow(models.Model):
     FIRST = "f"
     WITHDRAW = "w"
 
-    #TODO: delete
+    # TODO: delete
     ACTIONS = (
         (CREATE, 'Create'),
         (EDIT, 'Edit'),
@@ -25,7 +26,9 @@ class EvalRow(models.Model):
         (SUBMIT, 'Submit'),
         (MATCH, 'Match'),
         (WITHDRAW, 'Withdraw'),
-        (FIRST, 'First'), #for records that were saved before evaluation was implemented--saved on any decryption action
+        # For records that were saved before evaluation was implemented--saved
+        # on any decryption action
+        (FIRST, 'First'),
     )
 
     user_identifier = models.CharField(blank=False, max_length=500)
@@ -76,9 +79,9 @@ class EvalRow(models.Model):
                         if 'extra' in question_dict:
                             eval_location[label + "_extra"] = question_dict['extra']['answer']
                 except ObjectDoesNotExist:
-                        pass
+                    pass
             except Exception as e:
-                #TODO: real logging
+                # TODO: real logging
                 bugsnag.notify(e)
                 # extract other answers if we can
                 pass
@@ -98,16 +101,15 @@ class EvalRow(models.Model):
                     else:
                         extract_single_question(serialized_question, anonymised_answers)
             except Exception as e:
-                #TODO: real logging
+                # TODO: real logging
                 bugsnag.notify(e)
                 # extract other answers if we can
                 pass
         return anonymised_answers
 
+
 class EvaluationField(models.Model):
-    #If an associated EvaluationField exists for a record form item, we record the contents
-    #If not, we just save whether the question was answered or not
+    # If an associated EvaluationField exists for a record form item, we record the contents
+    # If not, we just save whether the question was answered or not
     question = models.OneToOneField(FormQuestion)
     label = models.CharField(blank=False, null=False, max_length=500)
-
-

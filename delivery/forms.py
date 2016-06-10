@@ -1,13 +1,13 @@
+from urllib.parse import parse_qs, urlsplit
+
 import bugsnag
+from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
-from django.conf import settings
-from urllib.parse import urlsplit, parse_qs
-from django import forms
-from zxcvbn import password_strength
-from nacl.exceptions import CryptoError
-
 from evaluation.models import EvalRow
+from nacl.exceptions import CryptoError
+from zxcvbn import password_strength
 
 REQUIRED_ERROR = "The {0} field is required."
 
@@ -165,4 +165,3 @@ class SubmitToMatchingForm(forms.Form):
             return path
 
 SubmitToMatchingFormSet = formset_factory(SubmitToMatchingForm, extra=0, min_num=1)
-

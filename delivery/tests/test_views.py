@@ -1,19 +1,24 @@
-import json
 import inspect
-from django.test import TestCase
+import json
+from unittest.mock import Mock, patch
+
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
-from unittest.mock import patch, Mock
+from django.test import TestCase
+from evaluation.models import EvalRow
+from wizard_builder.forms import QuestionPageForm, TextPageForm
+from wizard_builder.models import (
+    Checkbox, Choice, Conditional, Date, QuestionPage, RadioButton,
+    SingleLineText, TextPage,
+)
+
+from ..forms import NewSecretKeyForm, SecretKeyForm
+from ..models import Report
+from ..wizard import EncryptedFormWizard
 
 User = get_user_model()
 
-from wizard_builder.models import SingleLineText, RadioButton, Choice, QuestionPage, TextPage, Date, Checkbox, Conditional
-from wizard_builder.forms import QuestionPageForm, TextPageForm
 
-from ..models import Report
-from ..wizard import EncryptedFormWizard
-from ..forms import NewSecretKeyForm, SecretKeyForm
-from evaluation.models import EvalRow
 
 
 def sort_json(text):

@@ -1,7 +1,7 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 
-from ..forms import SubmitToMatchingForm, SecretKeyForm, NewSecretKeyForm
+from ..forms import NewSecretKeyForm, SecretKeyForm, SubmitToMatchingForm
 from ..models import Report
 
 User = get_user_model()

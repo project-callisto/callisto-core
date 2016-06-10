@@ -1,8 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
-from django.contrib.auth import get_user_model
-from ..models import Report, MatchReport, SentFullReport, SentMatchReport
+
+from ..models import MatchReport, Report, SentFullReport, SentMatchReport
 
 User = get_user_model()
 

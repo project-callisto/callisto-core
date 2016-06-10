@@ -1,16 +1,19 @@
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-import gnupg
 import json
 
-from wizard_builder.models import SingleLineText, QuestionPage, RadioButton, Choice, Checkbox
+import gnupg
 from delivery.models import Report
-from .test_keypair import public_test_key, private_test_key
-
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
+from django.test import TestCase
 from evaluation.models import EvalRow, EvaluationField
+from wizard_builder.models import (
+    Checkbox, Choice, QuestionPage, RadioButton, SingleLineText,
+)
+
+from .test_keypair import private_test_key, public_test_key
 
 User = get_user_model()
+
 
 def delete_test_key(gpg, identifier):
     private_key_delete = str(gpg.delete_keys(identifier, True))
@@ -20,7 +23,9 @@ def delete_test_key(gpg, identifier):
     if public_key_delete != 'ok':
         raise RuntimeError('delete of test GPG public key failed: ' + public_key_delete)
 
+
 class EvalRowTest(TestCase):
+
     def save_row_for_report(self, report):
         row = EvalRow(action=EvalRow.SUBMIT)
         row.set_identifiers(report)
@@ -46,8 +51,14 @@ class EvalRowTest(TestCase):
         row2 = self.save_row_for_report(report2)
         row3 = self.save_row_for_report(report3)
         self.assertEqual(EvalRow.objects.count(), 3)
-        self.assertEqual(EvalRow.objects.get(id=row1.pk).user_identifier, EvalRow.objects.get(id=row3.pk).user_identifier)
-        self.assertNotEqual(EvalRow.objects.get(id=row1.pk).user_identifier, EvalRow.objects.get(id=row2.pk).user_identifier)
+        self.assertEqual(
+            EvalRow.objects.get(
+                id=row1.pk).user_identifier, EvalRow.objects.get(
+                id=row3.pk).user_identifier)
+        self.assertNotEqual(
+            EvalRow.objects.get(
+                id=row1.pk).user_identifier, EvalRow.objects.get(
+                id=row2.pk).user_identifier)
 
     def test_report_hashes_correctly(self):
         user1 = User.objects.create_user(username="dummy", password="dummy")
@@ -63,10 +74,18 @@ class EvalRowTest(TestCase):
         row3_edit.save()
         row3_edit.full_clean()
         self.assertEqual(EvalRow.objects.count(), 4)
-        self.assertNotEqual(EvalRow.objects.get(id=row2.pk).record_identifier, EvalRow.objects.get(id=row3.pk).record_identifier)
-        self.assertNotEqual(EvalRow.objects.get(id=row1.pk).record_identifier, EvalRow.objects.get(id=row2.pk).record_identifier)
-        self.assertEqual(EvalRow.objects.get(id=row3.pk).record_identifier, EvalRow.objects.get(id=row3_edit.pk).record_identifier)
-
+        self.assertNotEqual(
+            EvalRow.objects.get(
+                id=row2.pk).record_identifier, EvalRow.objects.get(
+                id=row3.pk).record_identifier)
+        self.assertNotEqual(
+            EvalRow.objects.get(
+                id=row1.pk).record_identifier, EvalRow.objects.get(
+                id=row2.pk).record_identifier)
+        self.assertEqual(
+            EvalRow.objects.get(
+                id=row3.pk).record_identifier, EvalRow.objects.get(
+                id=row3_edit.pk).record_identifier)
 
     def test_can_encrypt_a_row(self):
         user = User.objects.create_user(username="dummy", password="dummy")
@@ -81,7 +100,6 @@ class EvalRowTest(TestCase):
         self.assertIsNotNone(EvalRow.objects.get(id=row.pk).row)
         self.assertNotEqual(EvalRow.objects.get(id=row.pk).row, test_row)
 
-
     def test_can_decrypt_a_row(self):
         gpg = gnupg.GPG()
         test_key = gpg.import_keys(private_test_key)
@@ -91,10 +109,11 @@ class EvalRowTest(TestCase):
         row = EvalRow(action=EvalRow.CREATE)
         row.set_identifiers(report)
         test_row = "{'test_field': 'test_answer'}"
-        row._encrypt_eval_row(test_row, key = public_test_key)
+        row._encrypt_eval_row(test_row, key=public_test_key)
         row.save()
         row.full_clean()
         self.assertEqual(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row)), test_row)
+
 
 class EvalFieldTest(TestCase):
 
@@ -123,6 +142,7 @@ class EvalFieldTest(TestCase):
         EvaluationField.objects.create(question=q2, label="question")
         self.assertEqual(EvaluationField.objects.all().count(), 2)
 
+
 class ExtractAnswersTest(TestCase):
 
     def set_up_simple_report_scenario(self):
@@ -133,14 +153,13 @@ class ExtractAnswersTest(TestCase):
         EvaluationField.objects.create(question=question2, label="q2")
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page2)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
+            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
         EvaluationField.objects.create(question=radio_button_q, label="radio")
-
 
         choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
         selected_id = choice_ids[2]
 
-        object_ids = [question1.pk, question2.pk, selected_id, radio_button_q.pk,] + choice_ids
+        object_ids = [question1.pk, question2.pk, selected_id, radio_button_q.pk, ] + choice_ids
 
         self.json_report = """[
     { "answer": "test answer",
@@ -169,16 +188,16 @@ class ExtractAnswersTest(TestCase):
   ]""" % tuple(object_ids)
 
         self.expected = {
-    "q2": "another answer to a different question",
-    "radio": str(selected_id),
-    "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
-                  {"id": choice_ids[1], "choice_text": "This is choice 1"},
-                  {"id": choice_ids[2], "choice_text": "This is choice 2"},
-                  {"id": choice_ids[3], "choice_text": "This is choice 3"},
-                  {"id": choice_ids[4], "choice_text": "This is choice 4"}],
-    "answered": [question1.pk, question2.pk, radio_button_q.pk],
-    "unanswered": []
-    }
+            "q2": "another answer to a different question",
+            "radio": str(selected_id),
+            "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
+                              {"id": choice_ids[1], "choice_text": "This is choice 1"},
+                              {"id": choice_ids[2], "choice_text": "This is choice 2"},
+                              {"id": choice_ids[3], "choice_text": "This is choice 3"},
+                              {"id": choice_ids[4], "choice_text": "This is choice 4"}],
+            "answered": [question1.pk, question2.pk, radio_button_q.pk],
+            "unanswered": []
+            }
 
     def test_extract_answers(self):
         self.maxDiff = None
@@ -192,7 +211,7 @@ class ExtractAnswersTest(TestCase):
 
         question1 = RadioButton.objects.create(text="this is a radio button question", page=page1)
         for i in range(5):
-            choice = Choice.objects.create(text="This is choice %i" % i, question = question1)
+            choice = Choice.objects.create(text="This is choice %i" % i, question=question1)
             if i == 0:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
@@ -200,7 +219,7 @@ class ExtractAnswersTest(TestCase):
 
         question2 = RadioButton.objects.create(text="this is another radio button question", page=page1)
         for i in range(5):
-            choice = Choice.objects.create(text="This is choice %i" % i, question = question2)
+            choice = Choice.objects.create(text="This is choice %i" % i, question=question2)
             if i % 2 == 1:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
@@ -208,7 +227,7 @@ class ExtractAnswersTest(TestCase):
 
         question3 = RadioButton.objects.create(text="this is a radio button question too", page=page1)
         for i in range(5):
-            choice = Choice.objects.create(text="This is choice %i" % i, question = question3)
+            choice = Choice.objects.create(text="This is choice %i" % i, question=question3)
             if i == 0:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
@@ -273,29 +292,29 @@ class ExtractAnswersTest(TestCase):
         json_report = json.loads("[%s, %s, %s]" % (first_q_output, second_q_output, third_q_output))
 
         expected = {
-    "q1": str(q1_selected_id),
-    "q1_choices": [{"id": q1_choice_ids[0], "choice_text": "This is choice 0"},
-                  {"id": q1_choice_ids[1], "choice_text": "This is choice 1"},
-                  {"id": q1_choice_ids[2], "choice_text": "This is choice 2"},
-                  {"id": q1_choice_ids[3], "choice_text": "This is choice 3"},
-                  {"id": q1_choice_ids[4], "choice_text": "This is choice 4"}],
-    "q2": str(q2_selected_id),
-    "q2_choices": [{"id": q2_choice_ids[0], "choice_text": "This is choice 0"},
-                  {"id": q2_choice_ids[1], "choice_text": "This is choice 1"},
-                  {"id": q2_choice_ids[2], "choice_text": "This is choice 2"},
-                  {"id": q2_choice_ids[3], "choice_text": "This is choice 3"},
-                  {"id": q2_choice_ids[4], "choice_text": "This is choice 4"}],
-    "q2_extra": "this should be in the report",
-    "q3": str(q3_selected_id),
-    "q3_choices": [{"id": q3_choice_ids[0], "choice_text": "This is choice 0"},
-                  {"id": q3_choice_ids[1], "choice_text": "This is choice 1"},
-                  {"id": q3_choice_ids[2], "choice_text": "This is choice 2"},
-                  {"id": q3_choice_ids[3], "choice_text": "This is choice 3"},
-                  {"id": q3_choice_ids[4], "choice_text": "This is choice 4"}],
-    "q3_extra": "",
-    "answered": [question1.pk, question2.pk, question3.pk],
-    "unanswered": []
-    }
+            "q1": str(q1_selected_id),
+            "q1_choices": [{"id": q1_choice_ids[0], "choice_text": "This is choice 0"},
+                           {"id": q1_choice_ids[1], "choice_text": "This is choice 1"},
+                           {"id": q1_choice_ids[2], "choice_text": "This is choice 2"},
+                           {"id": q1_choice_ids[3], "choice_text": "This is choice 3"},
+                           {"id": q1_choice_ids[4], "choice_text": "This is choice 4"}],
+            "q2": str(q2_selected_id),
+            "q2_choices": [{"id": q2_choice_ids[0], "choice_text": "This is choice 0"},
+                           {"id": q2_choice_ids[1], "choice_text": "This is choice 1"},
+                           {"id": q2_choice_ids[2], "choice_text": "This is choice 2"},
+                           {"id": q2_choice_ids[3], "choice_text": "This is choice 3"},
+                           {"id": q2_choice_ids[4], "choice_text": "This is choice 4"}],
+            "q2_extra": "this should be in the report",
+            "q3": str(q3_selected_id),
+            "q3_choices": [{"id": q3_choice_ids[0], "choice_text": "This is choice 0"},
+                           {"id": q3_choice_ids[1], "choice_text": "This is choice 1"},
+                           {"id": q3_choice_ids[2], "choice_text": "This is choice 2"},
+                           {"id": q3_choice_ids[3], "choice_text": "This is choice 3"},
+                           {"id": q3_choice_ids[4], "choice_text": "This is choice 4"}],
+            "q3_extra": "",
+            "answered": [question1.pk, question2.pk, question3.pk],
+            "unanswered": []
+            }
         anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
@@ -312,13 +331,13 @@ class ExtractAnswersTest(TestCase):
         EvaluationField.objects.create(question=question2, label="q2")
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page2)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
+            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
         EvaluationField.objects.create(question=radio_button_q, label="radio")
 
         choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
         selected_id_1 = choice_ids[1]
         selected_id_2 = choice_ids[4]
-        object_ids = [question1.pk, question2.pk, radio_button_q.pk,] + choice_ids
+        object_ids = [question1.pk, question2.pk, radio_button_q.pk, ] + choice_ids
 
         answer_set_template = """[
     { "answer": "test answer <PREFIX> answer",
@@ -344,7 +363,7 @@ class ExtractAnswersTest(TestCase):
                   {"id": %i, "choice_text": "This is choice 4"}],
       "type": "RadioButton"
     }
-  ]"""% tuple(object_ids)
+  ]""" % tuple(object_ids)
 
         answer_set_one = answer_set_template.replace("<PREFIX>", "first").replace("<SELECTED>", str(selected_id_1))
         answer_set_two = answer_set_template.replace("<PREFIX>", "second").replace("<SELECTED>", str(selected_id_2))
@@ -365,30 +384,30 @@ class ExtractAnswersTest(TestCase):
 
         expected = {'single_q': 'single answer',
                     "answered": [single_question.pk],
-                "unanswered": [],
-            'form_multiple':
-            [{
-                "q2": "first answer to a different question",
-                "radio": str(selected_id_1),
-                "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
-                              {"id": choice_ids[1], "choice_text": "This is choice 1"},
-                              {"id": choice_ids[2], "choice_text": "This is choice 2"},
-                              {"id": choice_ids[3], "choice_text": "This is choice 3"},
-                              {"id": choice_ids[4], "choice_text": "This is choice 4"}],
-                "answered": [question1.pk, question2.pk, radio_button_q.pk],
-                "unanswered": []
-            },
-              {
-                "q2": "second answer to a different question",
-                "radio": str(selected_id_2),
-                "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
-                              {"id": choice_ids[1], "choice_text": "This is choice 1"},
-                              {"id": choice_ids[2], "choice_text": "This is choice 2"},
-                              {"id": choice_ids[3], "choice_text": "This is choice 3"},
-                              {"id": choice_ids[4], "choice_text": "This is choice 4"}],
-                "answered": [question1.pk, question2.pk, radio_button_q.pk],
-                "unanswered": []
-             }]}
+                    "unanswered": [],
+                    'form_multiple':
+                    [{
+                        "q2": "first answer to a different question",
+                        "radio": str(selected_id_1),
+                        "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
+                                          {"id": choice_ids[1], "choice_text": "This is choice 1"},
+                                          {"id": choice_ids[2], "choice_text": "This is choice 2"},
+                                          {"id": choice_ids[3], "choice_text": "This is choice 3"},
+                                          {"id": choice_ids[4], "choice_text": "This is choice 4"}],
+                        "answered": [question1.pk, question2.pk, radio_button_q.pk],
+                        "unanswered": []
+                        },
+                        {
+                            "q2": "second answer to a different question",
+                            "radio": str(selected_id_2),
+                            "radio_choices": [{"id": choice_ids[0], "choice_text": "This is choice 0"},
+                                              {"id": choice_ids[1], "choice_text": "This is choice 1"},
+                                              {"id": choice_ids[2], "choice_text": "This is choice 2"},
+                                              {"id": choice_ids[3], "choice_text": "This is choice 3"},
+                                              {"id": choice_ids[4], "choice_text": "This is choice 4"}],
+                            "answered": [question1.pk, question2.pk, radio_button_q.pk],
+                            "unanswered": []
+                            }]}
         anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
@@ -400,10 +419,10 @@ class ExtractAnswersTest(TestCase):
         question2 = SingleLineText.objects.create(text="2nd question", page=page1)
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page1)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
+            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
 
         choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
-        object_ids = [question1.pk, question2.pk, radio_button_q.pk,] + choice_ids
+        object_ids = [question1.pk, question2.pk, radio_button_q.pk, ] + choice_ids
 
         json_report = json.loads("""[
     { "answer": "test answer",
@@ -432,9 +451,9 @@ class ExtractAnswersTest(TestCase):
   ]""" % tuple(object_ids))
 
         expected = {
-    "answered": [question1.pk],
-    "unanswered": [question2.pk, radio_button_q.pk]
-    }
+            "answered": [question1.pk],
+            "unanswered": [question2.pk, radio_button_q.pk]
+            }
 
         anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
@@ -445,14 +464,15 @@ class ExtractAnswersTest(TestCase):
         page1 = QuestionPage.objects.create()
         checkbox_q_1 = Checkbox.objects.create(text="this is a checkbox question", page=page1)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = checkbox_q_1)
+            Choice.objects.create(text="This is choice %i" % i, question=checkbox_q_1)
         checkbox_q_2 = Checkbox.objects.create(text="this is another checkbox question", page=page1)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = checkbox_q_2)
+            Choice.objects.create(text="This is choice %i" % i, question=checkbox_q_2)
 
         choice_ids_1 = [choice.pk for choice in checkbox_q_1.choice_set.all()]
         choice_ids_2 = [choice.pk for choice in checkbox_q_2.choice_set.all()]
-        object_ids = [checkbox_q_1.pk] + choice_ids_1 + [choice_ids_2[1], choice_ids_2[3], checkbox_q_2.pk]+ choice_ids_2
+        object_ids = [checkbox_q_1.pk] + choice_ids_1 + \
+            [choice_ids_2[1], choice_ids_2[3], checkbox_q_2.pk] + choice_ids_2
 
         json_report = json.loads("""[
     { "answer": [],
@@ -480,9 +500,9 @@ class ExtractAnswersTest(TestCase):
   ]""" % tuple(object_ids))
 
         expected = {
-    "answered": [checkbox_q_2.pk],
-    "unanswered": [checkbox_q_1.pk]
-    }
+            "answered": [checkbox_q_2.pk],
+            "unanswered": [checkbox_q_1.pk]
+            }
 
         anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
@@ -501,7 +521,7 @@ class ExtractAnswersTest(TestCase):
 
         row = EvalRow()
         row.anonymise_record(action=EvalRow.CREATE, report=report, decrypted_text=self.json_report,
-                             key = public_test_key)
+                             key=public_test_key)
         row.save()
 
         self.assertEqual(json.loads(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row))), self.expected)

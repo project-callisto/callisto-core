@@ -1,0 +1,6 @@
+# Coding style compliance
+flake8
+isort
+mccabe
+pep8
+pyflakes

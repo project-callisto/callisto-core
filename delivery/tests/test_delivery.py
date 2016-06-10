@@ -1,11 +1,11 @@
 from datetime import datetime
+from unittest.mock import call, patch
 
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 
-from unittest.mock import patch, call
-from ..models import Report, MatchReport
 from ..matching import find_matches
+from ..models import MatchReport, Report
 
 User = get_user_model()
 
