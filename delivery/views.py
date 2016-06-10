@@ -1,28 +1,29 @@
 import json
-import bugsnag
 
-from django.shortcuts import render
-from django.http import HttpResponseForbidden, HttpResponse
-from django.core.urlresolvers import reverse
-from django.contrib.auth.views import password_reset
-from django.contrib.auth import get_user_model
+import bugsnag
+from account.forms import SendVerificationEmailForm
+from account.tokens import student_token_generator
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.views import password_reset
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import render
 from django.utils import timezone
 from django.utils.html import conditional_escape
+from evaluation.models import EvalRow
 from ratelimit.decorators import ratelimit
+from wizard_builder.models import PageBase
+
+from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
+from .matching import find_matches
+from .models import EmailNotification, MatchReport, Report
+from .report_delivery import generate_pdf_report, send_report_to_school
+from .wizard import EncryptedFormWizard
 
 User = get_user_model()
 
-from .forms import SubmitToSchoolForm, SubmitToMatchingFormSet, SecretKeyForm
-from .models import Report, MatchReport, EmailNotification
-from .report_delivery import send_report_to_school, generate_pdf_report
-from .matching import find_matches
-from .wizard import EncryptedFormWizard
 
-from account.forms import SendVerificationEmailForm
-from account.tokens import student_token_generator
-from evaluation.models import EvalRow
-from wizard_builder.models import PageBase
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def view_report(request, report_id):

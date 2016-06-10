@@ -1,14 +1,16 @@
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-import gnupg
 import json
 
-from wizard_builder.models import SingleLineText, QuestionPage, RadioButton, Choice, Checkbox
+import gnupg
 from delivery.models import Report
-from .test_keypair import public_test_key, private_test_key
-
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
+from django.test import TestCase
 from evaluation.models import EvalRow, EvaluationField
+from wizard_builder.models import (
+    Checkbox, Choice, QuestionPage, RadioButton, SingleLineText,
+)
+
+from .test_keypair import private_test_key, public_test_key
 
 User = get_user_model()
 

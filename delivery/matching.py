@@ -1,7 +1,8 @@
 from django.conf import settings
 
-from .models import MatchReport, EmailNotification
+from .models import EmailNotification, MatchReport
 from .report_delivery import send_matching_report_to_school
+
 
 def find_matches():
     new_identifiers = MatchReport.objects.filter(seen=False).order_by('identifier').distinct('identifier')

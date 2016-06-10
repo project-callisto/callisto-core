@@ -1,23 +1,27 @@
-from django.core.mail.message import EmailMultiAlternatives
-from django.conf import settings
-import gnupg
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer, PageBreak, ListFlowable, ListItem, KeepTogether
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle, ListStyle
-from reportlab.lib.units import inch
-from reportlab.lib.enums import TA_CENTER
-from time import strftime
-from django.utils.timezone import localtime
+import json
 from io import BytesIO
-from reportlab.pdfgen import canvas
+from time import strftime
+
+import gnupg
+import pytz
+from django.conf import settings
+from django.core.mail.message import EmailMultiAlternatives
+from django.utils import timezone
+from django.utils.timezone import localtime
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import inch
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
+from reportlab.platypus import (
+    Image, KeepTogether, ListFlowable, ListItem, PageBreak, Paragraph,
+    SimpleDocTemplate, Spacer,
+)
 from reportlab.platypus.doctemplate import Indenter
-import json
-from django.utils import timezone
-import pytz
-
 from wizard_builder.models import PageBase
+
 from .models import EmailNotification, SentFullReport, SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"

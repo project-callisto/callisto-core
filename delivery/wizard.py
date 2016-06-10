@@ -1,16 +1,16 @@
 import json
+
 import bugsnag
-from django.shortcuts import HttpResponseRedirect
-from django.http import HttpResponseForbidden
-from django.core.urlresolvers import reverse
 from django.conf import settings
-
-from .models import Report
-from .forms import NewSecretKeyForm, SecretKeyForm
-
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseForbidden
+from django.shortcuts import HttpResponseRedirect
 from evaluation.models import EvalRow
-from wizard_builder.views import ConfigurableFormWizard
 from wizard_builder.forms import get_form_pages
+from wizard_builder.views import ConfigurableFormWizard
+
+from .forms import NewSecretKeyForm, SecretKeyForm
+from .models import Report
 
 
 class EncryptedFormWizard(ConfigurableFormWizard):
