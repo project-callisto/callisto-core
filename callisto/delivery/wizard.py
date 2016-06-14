@@ -1,19 +1,18 @@
 import json
 
 import bugsnag
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden
-from django.shortcuts import HttpResponseRedirect
 from callisto.evaluation.models import EvalRow
 from wizard_builder.forms import get_form_pages
 from wizard_builder.views import ConfigurableFormWizard
+from django.utils.decorators import classonlymethod
 
 from .forms import NewSecretKeyForm, SecretKeyForm
 from .models import Report
 
 
-class EncryptedFormWizard(ConfigurableFormWizard):
+class EncryptedFormBaseWizard(ConfigurableFormWizard):
 
     def get_form_initial(self, step):
         #TODO: store with other intermediate form data
@@ -45,6 +44,13 @@ class EncryptedFormWizard(ConfigurableFormWizard):
         #add one for decryption page if editing
         return raw_idx + 1 if record_to_edit else raw_idx
 
+    def wizard_complete(self, report, **kwargs):
+        """
+        This method must be overridden by a subclass to redirect wizard after the report has been processed.
+        """
+        raise NotImplementedError("Your %s class has not defined a wizard_complete() "
+            "method, which is required." % self.__class__.__name__)
+
     def done(self, form_list, **kwargs):
         req = kwargs.get('request') or self.request
         report = Report(owner=req.user)
@@ -75,7 +81,7 @@ class EncryptedFormWizard(ConfigurableFormWizard):
             pass
 
         #TODO: check if valid?
-        return HttpResponseRedirect(reverse('dashboard'))
+        return self.wizard_complete(report, **kwargs)
 
     def get_template_names(self):
          # render key page with separate template
@@ -87,13 +93,6 @@ class EncryptedFormWizard(ConfigurableFormWizard):
             return ['create_key.html']
          else:
             return ['record_form.html']
-
-    def get_context_data(self, form, **kwargs):
-        context = super().get_context_data(form=form, **kwargs)
-        context.update({'school_name': settings.SCHOOL_SHORTNAME,
-                        'full_school_name': settings.SCHOOL_LONGNAME,
-                        'show_encouragement': settings.SHOW_ENCOURAGEMENT})
-        return context
 
     def get_step_url(self, step):
         kwargs={'step': step,}

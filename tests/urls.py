@@ -1,11 +1,9 @@
-
-# -*- coding: utf-8 -*-
 from django.conf.urls import url
-from django.views.generic import TemplateView
-from callisto.delivery import views
+from .callistocore.views import new_test_report_view, edit_test_report_view
 
 
 urlpatterns = [
-    url(r'', TemplateView.as_view(template_name="base.html")),
-    url(r'^edit/(?P<report_id>\d+)/$', views.edit_record_form_view, name='edit_report'),
+    url(r'^test_reports/new/(?P<step>.+)/$', new_test_report_view, name="test_new_report"),
+    url(r'^test_reports/edit/(?P<report_id>\d+)/$', edit_test_report_view, name='test_edit_report'),
+    url(r'^test_reports/edit/(?P<report_id>\d+)/(?P<step>.+)/$', edit_test_report_view, name='test_edit_report'),
 ]

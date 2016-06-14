@@ -18,8 +18,8 @@ class MatchTest(TestCase):
         report = Report(owner = user)
         report.encrypt_report("test report 1", "key")
         report.save()
-        return MatchReport.objects.create(report = report, contact_phone='phone',
-                                   contact_email='test@example.com', identifier=identifier)
+        return MatchReport.objects.create(report=report, contact_phone='phone',
+                                          contact_email='test@example.com', identifier=identifier)
 
 
 @patch('callisto.delivery.matching.process_new_matches')
@@ -139,7 +139,6 @@ class MatchDiscoveryTest(MatchTest):
         match2.report.refresh_from_db()
         self.assertTrue(match1.report.match_found)
         self.assertTrue(match2.report.match_found)
-
         
 
 @patch('callisto.delivery.matching.send_notification_email')

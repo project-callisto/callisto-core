@@ -85,6 +85,7 @@ class CreateKeyFormTest(TestCase):
             ["Your password isn't strong enough."]
         )
 
+
 class DecryptKeyFormTest(TestCase):
 
     def setUp(self):

@@ -11,9 +11,10 @@ from wizard_builder.models import SingleLineText, RadioButton, Choice, QuestionP
 from wizard_builder.forms import QuestionPageForm
 
 from callisto.delivery.models import Report
-from callisto.delivery.wizard import EncryptedFormWizard
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
 from callisto.evaluation.models import EvalRow
+
+from .forms import EncryptedFormWizard
 
 
 def sort_json(text):
@@ -47,14 +48,12 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         self.request.method = 'GET'
         self.request.user = User.objects.get(username='dummy')
 
-
-    #TODO: test edit by non-owning user
-
-    record_form_url = '/reports/new/0/'
+    record_form_url = '/test_reports/new/0/'
     report_key = 'solidasarock1234rock'
 
     def test_new_record_page_renders_record_template(self):
         response = self.client.get(self.record_form_url)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'record_form.html')
 
     def test_wizard_generates_correct_number_of_pages(self):
@@ -72,7 +71,11 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         self.assertEqual(wizard.form_list[-1], NewSecretKeyForm)
 
     @patch('callisto.delivery.wizard.Report')
-    def test_wizard_done_redirects_to_dashboard(self, mockReport):
+    def test_wizard_done_is_called(self, mockReport):
+        mock_report = Report()
+        mock_report.id = 1
+        mock_report.owner = self.request.user
+        mockReport.return_value = mock_report
         wizard = EncryptedFormWizard.wizard_factory()()
         PageOneForm = wizard.form_list[0]
         PageTwoForm = wizard.form_list[1]
@@ -86,7 +89,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         form_list=[page_one, page_two, key_form]
         wizard.processed_answers = wizard.process_answers(form_list=form_list, form_dict=dict(enumerate(form_list)))
         response = wizard.done(form_list=form_list, form_dict=dict(enumerate(form_list)), request=self.request)
-        self.assertEqual(response.url, '/reports/dashboard')
+        self.assertContains(response, 1)
 
     @patch('callisto.delivery.wizard.Report')
     def test_done_serializes_questions(self, mockReport):
@@ -191,7 +194,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         mock_eval_row.save.assert_any_call()
 
 class EditRecordFormTest(RecordFormBaseTest):
-    record_form_url = '/reports/edit/%s/'
+    record_form_url = '/test_reports/edit/%s/'
 
     def setUp(self):
         super().setUp()

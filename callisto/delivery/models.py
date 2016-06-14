@@ -39,9 +39,6 @@ class Report(models.Model):
     class Meta:
         ordering = ('-added',)
 
-    def get_absolute_url(self):
-        return reverse('view_report', args=[self.id])
-
     def encrypt_report(self, report_text, key):
         if not self.salt:
             self.salt = get_random_string()

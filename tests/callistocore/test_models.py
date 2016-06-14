@@ -6,6 +6,7 @@ from callisto.delivery.models import Report, MatchReport, SentFullReport, SentMa
 
 User = get_user_model()
 
+
 class ReportModelTest(TestCase):
 
     def setUp(self):
@@ -17,7 +18,7 @@ class ReportModelTest(TestCase):
         report.save()
         self.assertIn(report, self.user .report_set.all())
 
-    #need to at minimum save which fields were displayed
+    # need to at minimum save which fields were displayed
     def test_cannot_save_empty_reports(self):
         report = Report(owner=self.user , encrypted=b'')
         with self.assertRaises(ValidationError):
@@ -38,10 +39,6 @@ class ReportModelTest(TestCase):
             list(Report.objects.all()),
             [report3, report2, report1]
         )
-
-    def test_get_absolute_url(self):
-        report = Report.objects.create(encrypted=b'some report', owner=self.user)
-        self.assertEqual(report.get_absolute_url(), '/reports/view/%d/' % (report.id,))
 
     def test_can_encrypt_report(self):
         report = Report(owner=self.user)

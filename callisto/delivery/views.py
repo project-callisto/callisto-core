@@ -3,14 +3,11 @@ import json
 import bugsnag
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.views import password_reset
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.html import conditional_escape
 from ratelimit.decorators import ratelimit
-from django.views.generic.edit import FormView
 
 User = get_user_model()
 
@@ -18,10 +15,9 @@ from .forms import SubmitToSchoolForm, SubmitToMatchingFormSet, SecretKeyForm
 from .models import Report, MatchReport, EmailNotification
 from .report_delivery import send_report_to_school, generate_pdf_report
 from .matching import find_matches
-from .wizard import EncryptedFormWizard
 
 from callisto.evaluation.models import EvalRow
-from wizard_builder.models import PageBase
+
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def view_report(request, report_id):
@@ -218,27 +214,5 @@ def withdraw_from_matching(request, report_id):
                                                         'coordinator_name': settings.COORDINATOR_NAME,
                                                        'coordinator_email': settings.COORDINATOR_EMAIL,
                                                        'match_report_withdrawn': True})
-    else:
-        return HttpResponseForbidden()
-
-
-def new_record_form_view(request, step=None):
-    if PageBase.objects.count() > 0:
-        return EncryptedFormWizard.wizard_factory().as_view(url_name="record_form")(request, step=step)
-    else:
-        #TODO: log error
-        return render(request, 'error.html')
-
-#TODO: only apply limit to the edit & save pages
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def edit_record_form_view(request, report_id, step=None):
-    owner = request.user
-    report = Report.objects.get(id=report_id)
-    if owner == report.owner:
-        if PageBase.objects.count() > 0:
-            return EncryptedFormWizard.wizard_factory(object_to_edit=report).as_view(url_name="edit_report")(request, step=step)
-        else:
-            #TODO: log error
-            return render(request, 'error.html')
     else:
         return HttpResponseForbidden()
