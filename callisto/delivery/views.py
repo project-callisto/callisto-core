@@ -1,9 +1,7 @@
-import json
-
 import bugsnag
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.http import HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseForbidden
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.html import conditional_escape
@@ -11,66 +9,12 @@ from ratelimit.decorators import ratelimit
 
 User = get_user_model()
 
-from .forms import SubmitToSchoolForm, SubmitToMatchingFormSet, SecretKeyForm
+from .forms import SubmitToSchoolForm, SubmitToMatchingFormSet
 from .models import Report, MatchReport, EmailNotification
-from .report_delivery import send_report_to_school, generate_pdf_report
+from .report_delivery import send_report_to_school
 from .matching import find_matches
 
 from callisto.evaluation.models import EvalRow
-
-
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def view_report(request, report_id):
-    owner = request.user
-    report = Report.objects.get(id=report_id)
-    if owner == report.owner:
-        if request.method == 'POST':
-            form = SecretKeyForm(request.POST)
-            form.report = report
-            if form.is_valid():
-                return render(request, 'report.html', {'report': json.dumps(json.loads(form.decrypted_report), indent=4)})
-        else:
-            form = SecretKeyForm()
-            form.report = report
-        return render(request, 'decrypt_record_for_view.html', {'form': form})
-    else:
-        return HttpResponseForbidden()
-
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def export_report(request, report_id):
-    owner = request.user
-    report = Report.objects.get(id=report_id)
-    if owner == report.owner:
-        if request.method == 'POST':
-            form = SecretKeyForm(request.POST)
-            form.report = report
-            if form.is_valid():
-
-                #record viewing in anonymous evaluation data
-                try:
-                    row = EvalRow()
-                    row.anonymise_record(action=EvalRow.VIEW, report=report)
-                    row.save()
-                except Exception as e:
-                    #TODO: real logging
-                    bugsnag.notify(e)
-                    pass
-
-                try:
-                    response = HttpResponse(content_type='application/pdf')
-                    response['Content-Disposition'] = 'attachment; filename="callisto_report.pdf"'
-                    pdf = generate_pdf_report(toname=None, user=owner, report=report, decrypted_report=form.decrypted_report, report_id=None)
-                    response.write(pdf)
-                    return response
-                except Exception as e:
-                    bugsnag.notify(e)
-                    form.add_error(None, "There was an error exporting your report.")
-        else:
-            form = SecretKeyForm()
-            form.report = report
-        return render(request, 'decrypt_record_for_view.html', {'form': form})
-    else:
-        return HttpResponseForbidden()
 
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
