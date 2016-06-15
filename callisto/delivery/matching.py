@@ -1,14 +1,14 @@
 from django.conf import settings
 
 from .models import MatchReport, EmailNotification
-from .report_delivery import send_matching_report_to_school
+from .report_delivery import PDFMatchReport
 
 def find_matches():
     new_identifiers = MatchReport.objects.filter(seen=False).order_by('identifier').distinct('identifier')
     for row in new_identifiers.values():
         matches = MatchReport.objects.filter(identifier=row['identifier'])
         match_list = list(matches)
-        if len(match_list) > 1 :
+        if len(match_list) > 1:
             seen_match_owners = [match.report.owner for match in match_list if match.seen]
             new_match_owners = [match.report.owner for match in match_list if not match.seen]
             all_owners = seen_match_owners + new_match_owners
@@ -32,8 +32,7 @@ def process_new_matches(matches):
             send_notification_email(owner, match_report)
             owners_notified.append(owner)
     #send report to school
-    send_matching_report_to_school(matches)
-
+    PDFMatchReport(matches).send_matching_report_to_school()
 
 def send_notification_email(user, match_report):
     notification = EmailNotification.objects.get(name='match_notification')

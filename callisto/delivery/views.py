@@ -11,7 +11,7 @@ User = get_user_model()
 
 from .forms import SubmitToSchoolForm, SubmitToMatchingFormSet
 from .models import Report, MatchReport, EmailNotification
-from .report_delivery import send_report_to_school
+from .report_delivery import PDFFullReport
 from .matching import find_matches
 
 from callisto.evaluation.models import EvalRow
@@ -32,8 +32,7 @@ def submit_to_school(request, report_id):
                     report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
                     report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                     report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                    report.submitted_to_school = timezone.now()
-                    send_report_to_school(owner, report, form.decrypted_report)
+                    PDFFullReport(owner, report, form.decrypted_report).send_report_to_school()
                     report.save()
                 except Exception as e:
                     #TODO: real logging

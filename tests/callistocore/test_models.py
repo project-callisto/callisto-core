@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from callisto.delivery.models import Report, MatchReport, SentFullReport, SentMatchReport
+from callisto.delivery.models import Report, MatchReport, SentFullReport, SentMatchReport, SentReport
 
 User = get_user_model()
 
@@ -106,10 +106,12 @@ class MatchReportTest(TestCase):
         self.assertIsNone(Report.objects.first().entered_into_matching)
 
 class SentReportTest(TestCase):
-    def test_id_format_works_on_full(self):
-        sent_report = SentFullReport.objects.create()
-        self.assertEqual(sent_report.get_report_id(), '000-00001-1')
+    def test_id_format_works(self):
+        sent_full_report = SentFullReport.objects.create()
+        sent_full_report_id = sent_full_report.get_report_id()
+        sent_match_report = SentMatchReport.objects.create()
+        sent_match_report_id = sent_match_report.get_report_id()
+        self.assertNotEqual(sent_match_report_id, sent_full_report_id)
+        self.assertTrue(sent_full_report_id.endswith('-1'))
+        self.assertTrue(sent_match_report_id.endswith('-0'))
 
-    def test_id_format_works_on_match(self):
-        sent_report = SentMatchReport.objects.create()
-        self.assertEqual(sent_report.get_report_id(), '000-00002-0')

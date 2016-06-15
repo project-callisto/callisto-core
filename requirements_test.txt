@@ -16,3 +16,4 @@ pytz==2016.4
 git+https://github.com/moreati/python-zxcvbn.git@feaacac35e4950ed804e0f2eda2eea21b431e33f#egg=zxcvbn-master
 psycopg2==2.6.1
 django-ratelimit==0.6.0
+PyPDF2==1.26.0

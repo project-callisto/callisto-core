@@ -37,20 +37,24 @@ SCHOOL_REPORT_PREFIX = "000"
 
 KEY_ITERATIONS = 100
 
-COORDINATOR_NAME = "test"
-
-SCHOOL_SHORTNAME = "test"
-
-PASSWORD_MINIMUM_ENTROPY = 35
-
-SECRET_KEY = "not needed"
-
 def get_test_key():
     with open(os.path.join(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))),
                            'test_publickey.gpg'), 'r') as key_file:
         key_str = key_file.read()
     return key_str
 
-CALLISTO_EVAL_PUBLIC_KEY = os.environ.get('CALLISTO_EVAL_PUBLIC_KEY', get_test_key())
+COORDINATOR_NAME = "test"
+COORDINATOR_EMAIL = "test@example.com"
+COORDINATOR_PUBLIC_KEY = get_test_key()
+
+SCHOOL_SHORTNAME = "test"
+SCHOOL_LONGNAME = "test"
+APP_URL = "test"
+
+PASSWORD_MINIMUM_ENTROPY = 35
+
+SECRET_KEY = "not needed"
+
+CALLISTO_EVAL_PUBLIC_KEY = get_test_key()
 
 DECRYPT_THROTTLE_RATE = '100/m'
