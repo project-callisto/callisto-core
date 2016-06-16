@@ -215,24 +215,24 @@ class ReportDeliveryTest(MatchTest):
         self.report.save()
 
     def test_pdf_full_report_is_generated(self):
-        report = PDFFullReport(self.user, self.report, self.decrypted_report)
-        output = report.generate_pdf_report(toname=None, report_id=None)
+        report = PDFFullReport(self.report, self.decrypted_report)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
-        self.assertIn("Callisto", pdfReader.getPage(0).extractText())
-        self.assertIn("Submitted by: dummy", pdfReader.getPage(1).extractText())
-        self.assertIn("test answer", pdfReader.getPage(2).extractText())
-        self.assertIn("answer to 2nd question", pdfReader.getPage(2).extractText())
+        self.assertIn("Submitted by: dummy", pdfReader.getPage(0).extractText())
+        self.assertIn("test answer", pdfReader.getPage(1).extractText())
+        self.assertIn("answer to 2nd question", pdfReader.getPage(1).extractText())
 
     def test_submission_to_school(self):
         EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
-        report = PDFFullReport(self.user, self.report, self.decrypted_report)
+        report = PDFFullReport(self.report, self.decrypted_report)
         report.send_report_to_school()
         sent_report_id = SentFullReport.objects.latest('id').get_report_id()
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test delivery')
-        self.assertEqual(message.attachments[0][0], 'callisto_report_%s.pdf.gpg' % sent_report_id)
+        self.assertIn('"Reports" <reports', message.from_email)
+        self.assertEqual(message.attachments[0][0], 'report_%s.pdf.gpg' % sent_report_id)
 
     # TODO: test encryption of submitted report email
 
@@ -243,9 +243,9 @@ class ReportDeliveryTest(MatchTest):
         output = report.generate_match_report(report_id=1)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
-        self.assertIn("Callisto", pdfReader.getPage(0).extractText())
-        self.assertIn("Submitted by: dummy", pdfReader.getPage(1).extractText())
-        self.assertIn("Submitted by: ymmud", pdfReader.getPage(1).extractText())
+        self.assertIn("Intended for: Title IX Coordinator Tatiana Nine", pdfReader.getPage(0).extractText())
+        self.assertIn("Submitted by: dummy", pdfReader.getPage(0).extractText())
+        self.assertIn("Submitted by: ymmud", pdfReader.getPage(0).extractText())
 
     def test_matches_to_school(self):
         EmailNotification.objects.create(name='match_delivery', subject="test match delivery", body="test match body")
@@ -257,4 +257,16 @@ class ReportDeliveryTest(MatchTest):
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test match delivery')
-        self.assertEqual(message.attachments[0][0], 'callisto_report_%s.pdf.gpg' % sent_report_id)
+        self.assertIn('"Reports" <reports', message.from_email)
+        self.assertEqual(message.attachments[0][0], 'report_%s.pdf.gpg' % sent_report_id)
+
+    def test_user_identifier(self):
+        user_with_email = User.objects.create_user(username="email_dummy", password="dummy", email="test@example.com")
+        report = Report(owner=user_with_email)
+        report.encrypt_report(self.decrypted_report, "a key a key a key")
+        report.save()
+        pdf_report = PDFFullReport(report, self.decrypted_report)
+        output = pdf_report.generate_pdf_report(recipient=None, report_id=None)
+        exported_report = BytesIO(output)
+        pdfReader = PyPDF2.PdfFileReader(exported_report)
+        self.assertIn("Submitted by: test@example.com", pdfReader.getPage(0).extractText())

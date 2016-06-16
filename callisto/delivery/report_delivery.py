@@ -4,9 +4,7 @@ import gnupg
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer, PageBreak, ListFlowable, ListItem, KeepTogether
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle, ListStyle
-from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER
-from time import strftime
 from django.utils.timezone import localtime
 from io import BytesIO
 from reportlab.pdfgen import canvas
@@ -57,7 +55,9 @@ class PDFReport:
     free_text = u'\u2756'
     no_bullet = ' '
 
-    report_title = "Callisto Report"
+    report_title = "Report"
+    from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
+    report_filename = "report_{0}.pdf.gpg"
 
     def __init__(self):
         self.styles = self.set_up_styles()
@@ -224,35 +224,11 @@ class PDFReport:
                 self.add_question('<i>None added</i>')
                 self.pdf_elements.append(Indenter(left=-12))
 
-    #TODO: move to main callisto project
-    def get_cover_page(self, toname, report_id, *args, **kwargs):
-        if toname:
-            title = "{0}<br />{1} No.: {2}".format(settings.SCHOOL_LONGNAME, self.report_title, report_id)
-        else:
-            title = "{0}<br />{1}".format(settings.SCHOOL_LONGNAME, self.report_title)
+    def get_cover_page(self, report_id, recipient, *args, **kwargs):
         CoverPage = []
-        subtitle_style = self.styles["Heading2"]
-        headline_style = self.styles["Heading1"]
-        #logo = settings.APPS_DIR.path('static/images')("callisto_logo.png")
-
-        #im = Image(logo, 3*inch, 3*inch)
-        #CoverPage.append(im)
-        CoverPage.append(Spacer(1, 18))
-
-        CoverPage.append(Paragraph("CONFIDENTIAL", headline_style))
-
-        CoverPage.append(Spacer(1, 30))
-
-        CoverPage.append(Spacer(1, 40))
-        CoverPage.append(Paragraph(title, subtitle_style))
-        CoverPage.append(Spacer(1, 40))
-        if toname:
-            CoverPage.append(Paragraph("Intended for: {0}, Title IX Coordinator".format(toname), subtitle_style))
-
-        CoverPage.append(PageBreak())
         return CoverPage
 
-    def get_header_footer(self, toname=settings.COORDINATOR_NAME):
+    def get_header_footer(self, recipient=settings.COORDINATOR_NAME):
         def func(canvas, doc):
             width, height = letter
             margin = 0.66 * 72
@@ -261,19 +237,17 @@ class PDFReport:
             #canvas.setFont('OpenSans',12)
             canvas.drawString(margin, height - margin, "CONFIDENTIAL")
             canvas.drawRightString(width - margin, height - margin, localtime(timezone.now()).strftime(date_format))
-            if toname:
-                canvas.drawString(margin, margin, "Intended for: Title IX Coordinator %s" % toname)
+            if recipient:
+                canvas.drawString(margin, margin, "Intended for: Title IX Coordinator %s" % recipient)
             canvas.restoreState()
         return func
 
-    @staticmethod
-    def send_email_to_coordinator(pdf_to_attach, notification_name, report_id):
+    def send_email_to_coordinator(self, pdf_to_attach, notification_name, report_id):
         notification = EmailNotification.objects.get(name=notification_name)
 
-        from_email = '"Callisto Reports" <reports@{0}>'.format(settings.APP_URL)
         to = settings.COORDINATOR_EMAIL
 
-        email = EmailMultiAlternatives(notification.subject, notification.render_body_plain(), from_email, [to])
+        email = EmailMultiAlternatives(notification.subject, notification.render_body_plain(), self.from_email, [to])
         email.attach_alternative(notification.render_body(), "text/html")
 
         gpg = gnupg.GPG()
@@ -282,36 +256,39 @@ class PDFReport:
         #TODO: sign encrypted doc
         attachment = gpg.encrypt(pdf_to_attach, imported_keys.fingerprints[0], armor=True, always_trust=True)
 
-        email.attach("callisto_report_{0}.pdf.gpg".format(report_id), attachment.data, "application/octet-stream")
+        email.attach(self.report_filename.format(report_id), attachment.data, "application/octet-stream")
 
         email.send()
 
+    @staticmethod
+    def get_user_identifier(user):
+        return user.email or user.username
+
+
 class PDFFullReport(PDFReport):
 
-    def __init__(self, user, report, decrypted_report):
+    def __init__(self, report, decrypted_report):
         super().__init__()
-        self.user = user
+        self.user = report.owner
         self.report = report
         self.decrypted_report = decrypted_report
 
     def send_report_to_school(self):
         report_id = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL).get_report_id()
         self.report.submitted_to_school = timezone.now()
-        pdf = self.generate_pdf_report(settings.COORDINATOR_NAME, report_id)
+        pdf = self.generate_pdf_report(report_id)
         self.send_email_to_coordinator(pdf, 'report_delivery', report_id)
         #save report timestamp only if generation & email work
         self.report.save()
 
-    def get_metadata_page(self, toname):
+    def get_metadata_page(self, recipient):
         MetadataPage = []
         MetadataPage.append(Paragraph(self.report_title, self.report_title_style))
 
         MetadataPage.append(Paragraph("Overview", self.section_title_style))
 
-        # TODO: override with school-specific email in main callisto
-        #overview_body = "Submitted by: {0}<br/>".format(self.user.account.school_email or self.user.email or self.user.username)
-        overview_body = "Submitted by: {0}<br/>".format(self.user.email or self.user.username)
-        if toname:
+        overview_body = "Submitted by: {0}<br/>".format(self.get_user_identifier(self.user))
+        if recipient:
             overview_body = overview_body + "Submitted on:  {0}<br/>".format(localtime(self.report.submitted_to_school)
                                                                              .strftime(date_format))
         overview_body = overview_body + \
@@ -323,7 +300,7 @@ class PDFFullReport(PDFReport):
 
         MetadataPage.append(Paragraph(overview_body, self.body_style))
 
-        if toname:
+        if recipient:
             MetadataPage.append(Paragraph("Contact Preferences", self.section_title_style))
 
             contact_body = """Name: {0}
@@ -353,8 +330,7 @@ class PDFFullReport(PDFReport):
         MetadataPage.append(PageBreak())
         return MetadataPage
 
-    # TODO: change 'toname' to something more comprehensible
-    def generate_pdf_report(self, toname, report_id):
+    def generate_pdf_report(self, report_id, recipient=settings.COORDINATOR_NAME):
 
         # PREPARE PDF
         report_content = json.loads(self.decrypted_report)
@@ -365,10 +341,10 @@ class PDFFullReport(PDFReport):
                                 topMargin=72, bottomMargin=72)
 
         # COVER PAGE
-        self.pdf_elements.extend(self.get_cover_page(toname, report_id))
+        self.pdf_elements.extend(self.get_cover_page(report_id=report_id, recipient=recipient))
 
         # METADATA PAGE
-        self.pdf_elements.extend(self.get_metadata_page(toname))
+        self.pdf_elements.extend(self.get_metadata_page(recipient))
 
         # REPORT
         for section_id, section_name in PageBase.SECTION_CHOICES:
@@ -377,8 +353,8 @@ class PDFFullReport(PDFReport):
             for q in section_qs:
                 self.render_question(q)
 
-        doc.build(self.pdf_elements, onFirstPage=self.get_header_footer(toname),
-                  onLaterPages=self.get_header_footer(toname), canvasmaker=NumberedCanvas)
+        doc.build(self.pdf_elements, onFirstPage=self.get_header_footer(recipient),
+                  onLaterPages=self.get_header_footer(recipient), canvasmaker=NumberedCanvas)
         result = report_buffer.getvalue()
         report_buffer.close()
         return result
@@ -386,7 +362,7 @@ class PDFFullReport(PDFReport):
 
 class PDFMatchReport(PDFReport):
 
-    report_title = "Callisto Match Report"
+    report_title = "Match Report"
 
     def __init__(self, matches):
         super().__init__()
@@ -399,7 +375,7 @@ class PDFMatchReport(PDFReport):
                                 rightMargin=72, leftMargin=72,
                                 topMargin=72, bottomMargin=72)
         # COVER PAGE
-        self.pdf_elements.extend(self.get_cover_page(settings.COORDINATOR_NAME, report_id))
+        self.pdf_elements.extend(self.get_cover_page(report_id=report_id, recipient=settings.COORDINATOR_NAME))
 
         # MATCH REPORTS
         self.pdf_elements.append(Paragraph(self.report_title, self.report_title_style))
@@ -430,7 +406,7 @@ class PDFMatchReport(PDFReport):
                                Submitted to matching on: {2}
                                Record Created: {3}
                                Full record submitted? {4}""".format(match.name or "<i>None provided</i>",
-                                                                    user.username,#user.account.school_email, # TODO: override with school-specific email in main callisto
+                                                                    self.get_user_identifier(user),
                                                                     localtime(match.added).strftime(date_format),
                                                                     localtime(report.added).strftime(date_format),
                                                                     is_submitted).replace('\n','<br />\n')

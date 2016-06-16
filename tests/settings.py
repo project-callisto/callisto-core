@@ -43,7 +43,7 @@ def get_test_key():
         key_str = key_file.read()
     return key_str
 
-COORDINATOR_NAME = "test"
+COORDINATOR_NAME="Tatiana Nine"
 COORDINATOR_EMAIL = "test@example.com"
 COORDINATOR_PUBLIC_KEY = get_test_key()
 
