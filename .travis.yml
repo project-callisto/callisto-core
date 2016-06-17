@@ -2,14 +2,12 @@ language: python
 python:
     - "3.4"
 sudo: false
-cache: pip
 services:
     - postgresql
 env:
     - db_user=postgres
 install:
-    - pip install -r requirements-test.txt
     - pip install pyflakes
 script:
     - pyflakes setup.py runtests.py tests callisto
-    - python runtests.py
+    - tox -e py34-django18,py34-django19
