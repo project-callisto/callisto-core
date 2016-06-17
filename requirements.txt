@@ -1,4 +1,4 @@
-django
+django>=1.9.6
 django-formtools
 django_polymorphic
 django-ratelimit

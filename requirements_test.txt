@@ -1,0 +1,19 @@
+django<=1.8.13
+coverage
+mock>=1.0.1
+flake8>=2.1.0
+tox>=1.7.0
+
+
+# Additional test requirements go here
+django-polymorphic==0.9.2
+PyNaCl==1.0.1
+python-gnupg==0.3.8
+bugsnag==2.4.0  # TODO: remove!
+git+https://github.com/SexualHealthInnovations/django-wizard-builder.git@6890e6237d2ea6851376a9c2b73ea2e36b0acaea#egg=django_wizard_builder-master
+reportlab==3.3.0
+pytz==2016.4
+git+https://github.com/moreati/python-zxcvbn.git@feaacac35e4950ed804e0f2eda2eea21b431e33f#egg=zxcvbn-master
+psycopg2==2.6.1
+django-ratelimit==0.6.0
+PyPDF2==1.26.0

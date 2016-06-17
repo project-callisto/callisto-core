@@ -1,49 +1,29 @@
-#!/usr/bin/env python3
-
 import sys
-from django.conf import settings
-from django.test.utils import get_runner
+import os
 
-from evaluation.tests.test_keypair import public_test_key, private_test_key
+try:
+    from django.conf import settings
+    from django.test.utils import get_runner
 
-settings.configure(
-    DEBUG=True,
-    USE_TZ=True,
-    DATABASES={
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "callisto-core-test",
-            "USER": "postgres",
-            "PASSWORD": "",
-            "HOST": "",
-            "PORT": ""
-        }
-    },
-    #ROOT_URLCONF="",
-    INSTALLED_APPS=[
-        "django.contrib.auth",
-        "django.contrib.contenttypes",
-        "django.contrib.sites",
-        "wizard_builder",
-        "delivery",
-        "evaluation"
-    ],
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 
-    CALLISTO_EVAL_PUBLIC_KEY=public_test_key,
-    CALLISTO_EVAL_PRIVATE_KEY=private_test_key,
-    COORDINATOR_NAME="Coordinator Name",
-    KEY_ITERATIONS=100000,
-    PASSWORD_MINIMUM_ENTROPY=25,
-    SCHOOL_REPORT_PREFIX="000",
-    SCHOOL_SHORTNAME="Test School"
-)
+    try:
+        import django
+        setup = django.setup
+    except AttributeError:
+        pass
+    else:
+        setup()
 
-import django
-django.setup()
+except ImportError:
+    import traceback
+    traceback.print_exc()
+    raise ImportError("To fix this error, run: pip install -r requirements-test.txt")
+
 
 def run_tests(*test_args):
     if not test_args:
-        test_args = ['evaluation/tests'] #['delivery/tests', 'evaluation/tests']
+        test_args = ['tests']
 
     # Run tests
     TestRunner = get_runner(settings)
