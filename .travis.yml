@@ -4,7 +4,7 @@ python:
 sudo: false
 cache:
     directories:
-        - $HOME/.tox
+        - $TRAVIS_BUILD_DIR/.tox
 services:
     - postgresql
 env:
@@ -15,4 +15,4 @@ script:
     - pyflakes setup.py runtests.py tests callisto
     - tox -e py34-django18,py34-django19
 before_cache:
-    - rm -r $HOME/.tox/log $HOME/.tox/dist $HOME/.tox/*/log
+    - rm -r $TRAVIS_BUILD_DIR/.tox/log $TRAVIS_BUILD_DIR/.tox/dist $TRAVIS_BUILD_DIR/.tox/*/log
