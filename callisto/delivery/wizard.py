@@ -6,7 +6,6 @@ from django.http import HttpResponseForbidden
 from callisto.evaluation.models import EvalRow
 from wizard_builder.forms import get_form_pages
 from wizard_builder.views import ConfigurableFormWizard
-from django.utils.decorators import classonlymethod
 
 from .forms import NewSecretKeyForm, SecretKeyForm
 from .models import Report

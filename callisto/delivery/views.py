@@ -3,7 +3,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseForbidden
 from django.shortcuts import render
-from django.utils import timezone
 from django.utils.html import conditional_escape
 from ratelimit.decorators import ratelimit
 

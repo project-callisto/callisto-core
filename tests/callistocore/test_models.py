@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from callisto.delivery.models import Report, MatchReport, SentFullReport, SentMatchReport, SentReport
+from callisto.delivery.models import Report, MatchReport, SentFullReport, SentMatchReport
 
 User = get_user_model()
 
