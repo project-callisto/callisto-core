@@ -10,7 +10,7 @@ services:
 env:
     - db_user=postgres
 install:
-    - pip install pyflakes
+    - pip install pyflakes tox
 script:
     - pyflakes setup.py runtests.py tests callisto
     - tox -e py34-django18,py34-django19
