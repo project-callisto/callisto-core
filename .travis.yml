@@ -2,6 +2,9 @@ language: python
 python:
     - "3.4"
 sudo: false
+cache:
+    directories:
+        - $HOME/.tox
 services:
     - postgresql
 env:
@@ -11,3 +14,5 @@ install:
 script:
     - pyflakes setup.py runtests.py tests callisto
     - tox -e py34-django18,py34-django19
+before_cache:
+    - rm -r $HOME/.tox/log $HOME/.tox/dist $HOME/.tox/*/log
