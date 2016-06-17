@@ -9,7 +9,7 @@ python-gnupg==0.3.8
 
 bugsnag
 environ
-psycopg2=2.6.1
+psycopg2==2.6.1
 pytz==2016.4
 reportlab==3.3.0
 zxcvbn-py3
