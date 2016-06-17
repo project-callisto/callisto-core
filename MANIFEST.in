@@ -1,8 +1,8 @@
-include AUTHORS.rst
-include CONTRIBUTING.rst
+include AUTHORS.md
+include CONTRIBUTING.md
 include HISTORY.rst
 include LICENSE
-include README.rst
-recursive-include callisto/delivery *.html *.png *.gif *js *.css *jpg *jpeg *svg *py
-recursive-include callisto/evaluation *.html *.png *.gif *js *.css *jpg *jpeg *svg *py
+include README.md
+recursive-include callisto/delivery *.html *.png *.gif *.js *.css *.jpg *.jpeg *.svg *.py
+recursive-include callisto/evaluation *.html *.png *.gif *.js *.css *.jpg *.jpeg *.svg *.py
 
