@@ -9,10 +9,14 @@ services:
     - postgresql
 env:
     - db_user=postgres
+    - TOXENV=py27
+    - TOXENV=py33
+    - TOXENV=py34
+    - TOXENV=py35
 install:
     - pip install pyflakes tox
 script:
     - pyflakes setup.py runtests.py tests callisto
-    - tox -e py34-django18,py34-django19
+    - tox
 before_cache:
     - rm -r $TRAVIS_BUILD_DIR/.tox/log $TRAVIS_BUILD_DIR/.tox/dist $TRAVIS_BUILD_DIR/.tox/*/log $TRAVIS_BUILD_DIR/.tox/*/lib/python*/site-packages/callisto*
