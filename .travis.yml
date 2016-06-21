@@ -11,10 +11,8 @@ cache:
 services:
     - postgresql
 env:
-    - TOXENV=py27 db_user=postgres
-    - TOXENV=py33 db_user=postgres
-    - TOXENV=py34 db_user=postgres
-    - TOXENV=py35 db_user=postgres
+    - TOXENV=django18 db_user=postgres
+    - TOXENV=django19 db_user=postgres
 install:
     - pip install pyflakes tox
 script:
