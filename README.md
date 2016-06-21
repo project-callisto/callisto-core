@@ -1,5 +1,7 @@
 # callisto-core
 
+[![Build Status](https://travis-ci.org/SexualHealthInnovations/callisto-core.svg?branch=master)](https://travis-ci.org/SexualHealthInnovations/callisto-core)
+
 This is the report intake, escrow, matching and secure delivery code for [Callisto](https://www.projectcallisto.org), an online reporting system for sexual assault. 
 
 Learn more about how Callisto works:
