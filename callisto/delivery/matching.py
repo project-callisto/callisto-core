@@ -4,7 +4,7 @@ from .models import MatchReport, EmailNotification
 from .report_delivery import PDFMatchReport
 
 def find_matches():
-    new_identifiers = MatchReport.objects.filter(seen=False).order_by('identifier').distinct('identifier')
+    new_identifiers = MatchReport.objects.filter(seen=False).order_by('identifier').values('identifier').distinct()
     for row in new_identifiers.values():
         matches = MatchReport.objects.filter(identifier=row['identifier'])
         match_list = list(matches)

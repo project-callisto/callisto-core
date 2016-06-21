@@ -5,10 +5,6 @@ sudo: false
 cache:
     directories:
         - $TRAVIS_BUILD_DIR/.tox
-services:
-    - postgresql
-env:
-    - db_user=postgres
 install:
     - pip install pyflakes tox
 script:
