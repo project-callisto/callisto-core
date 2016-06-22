@@ -7,11 +7,11 @@ USE_TZ = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('db_name', default='callisto'),
-        'USER': os.environ.get('db_user', default=''),
-        'PASSWORD': os.environ.get('db_pass', default=''),
-        'HOST': os.environ.get('db_host', default='127.0.0.1'),
-        'PORT': os.environ.get('db_port', default='5432')
+        'NAME': os.environ.get('db_name', 'callisto'),
+        'USER': os.environ.get('db_user', ''),
+        'PASSWORD': os.environ.get('db_pass', ''),
+        'HOST': os.environ.get('db_host', '127.0.0.1'),
+        'PORT': os.environ.get('db_port', '5432')
     }
 }
 
