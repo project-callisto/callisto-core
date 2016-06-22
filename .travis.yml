@@ -13,6 +13,10 @@ services:
 env:
     - TOXENV=django18 db_user=postgres
     - TOXENV=django19 db_user=postgres
+matrix:
+    exclude:
+        - python: "3.3"
+          env: TOXENV=django19 db_user=postgres
 install:
     - pip install pyflakes tox
 script:
