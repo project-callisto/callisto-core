@@ -17,6 +17,14 @@ from .report_delivery import PDFFullReport
 User = get_user_model()
 
 
+def _send_user_notification(form, notification_name):
+    if form.cleaned_data.get('email_confirmation') == "True":
+        notification = EmailNotification.objects.get(name=notification_name)
+        preferred_email = form.cleaned_data.get('email')
+        to_email = preferred_email
+        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
+        notification.send(to=[to_email], from_email=from_email)
+
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
                      confirmation_template_name="submit_to_school_confirmation.html"):
@@ -52,12 +60,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                     pass
 
                 try:
-                    if form.cleaned_data.get('email_confirmation') == "True":
-                        notification = EmailNotification.objects.get(name='submit_confirmation')
-                        preferred_email = form.cleaned_data.get('email')
-                        to_email = preferred_email
-                        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-                        notification.send(to=[to_email], from_email=from_email)
+                    _send_user_notification(form, 'submit_confirmation')
                 except Exception as e:
                     #TODO: real logging
                     # report was sent even if confirmation email fails, so don't show an error if so
@@ -116,12 +119,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     pass
 
                 try:
-                    if form.cleaned_data.get('email_confirmation') == "True":
-                        notification = EmailNotification.objects.get(name='match_confirmation')
-                        preferred_email = form.cleaned_data.get('email')
-                        to_email = preferred_email
-                        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-                        notification.send(to=[to_email], from_email=from_email)
+                    _send_user_notification(form, 'match_confirmation')
                 except Exception as e:
                     #TODO: real logging
                     # matching was entered even if confirmation email fails, so don't show an error if so
