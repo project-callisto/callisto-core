@@ -72,7 +72,8 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
         return HttpResponseForbidden()
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_to_matching(request, report_id):
+def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
+                     confirmation_template_name="submit_to_matching_confirmation.html"):
     owner = request.user
     report = Report.objects.get(id=report_id)
     if owner == report.owner:
@@ -100,7 +101,7 @@ def submit_to_matching(request, report_id):
                 except Exception as e:
                     #TODO: real logging
                     bugsnag.notify(e)
-                    return render(request, 'submit_to_matching.html', {'form': form, 'formset': formset,
+                    return render(request, form_template_name, {'form': form, 'formset': formset,
                                                                        'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'submit_error': True})
 
@@ -126,13 +127,13 @@ def submit_to_matching(request, report_id):
                     # matching was entered even if confirmation email fails, so don't show an error if so
                     bugsnag.notify(e)
 
-                return render(request, 'submit_to_matching_confirmation.html', {'school_name': settings.SCHOOL_SHORTNAME,
+                return render(request, confirmation_template_name, {'school_name': settings.SCHOOL_SHORTNAME,
                                                                                     'report': report})
 
         else:
             form = SubmitToSchoolForm(owner, report)
             formset = SubmitToMatchingFormSet()
-        return render(request, 'submit_to_matching.html', {'form': form, 'formset': formset,
+        return render(request, form_template_name, {'form': form, 'formset': formset,
                                                            'school_name': settings.SCHOOL_SHORTNAME})
     else:
         return HttpResponseForbidden()

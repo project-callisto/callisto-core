@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from .callistocore.views import new_test_report_view, edit_test_report_view
-from callisto.delivery.views import submit_to_school
+from callisto.delivery.views import submit_to_school, submit_to_matching
 
 
 urlpatterns = [
@@ -10,5 +10,9 @@ urlpatterns = [
     url(r'^test_reports/submit/(?P<report_id>\d+)/$', submit_to_school, name="test_submit_report"),
     url(r'^test_reports/submit_custom/(?P<report_id>\d+)/$', submit_to_school,
         {'form_template_name': 'submit_to_school_custom.html',
-         'confirmation_template_name': 'submit_to_school_confirmation_custom.html'}, name="test_submit_report"),
+         'confirmation_template_name': 'submit_to_school_confirmation_custom.html'}, name="test_submit_confirmation"),
+    url(r'^test_reports/match/(?P<report_id>\d+)/$', submit_to_matching, name="test_submit_match"),
+    url(r'^test_reports/match_custom/(?P<report_id>\d+)/$', submit_to_matching,
+        {'form_template_name': 'submit_to_matching_custom.html',
+         'confirmation_template_name': 'submit_to_matching_confirmation_custom.html'}, name="test_match_confirmation"),
 ]

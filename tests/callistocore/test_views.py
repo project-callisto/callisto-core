@@ -11,7 +11,7 @@ User = get_user_model()
 from wizard_builder.models import SingleLineText, RadioButton, Choice, QuestionPage
 from wizard_builder.forms import QuestionPageForm
 
-from callisto.delivery.models import Report, EmailNotification
+from callisto.delivery.models import Report, EmailNotification, MatchReport
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
 from callisto.evaluation.models import EvalRow
 
@@ -410,6 +410,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test delivery')
         self.assertIn('"Reports" <reports', message.from_email)
+        self.assertEqual(message.to, ['titleix@example.com'])
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
 
     def test_submit_sends_email_confirmation(self):
@@ -425,4 +426,170 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         message = mail.outbox[1]
         self.assertEqual(message.subject, 'test submit confirmation')
         self.assertIn('Confirmation" <confirmation@', message.from_email)
+        self.assertEqual(message.to, ['test@example.com'])
         self.assertIn('test submit confirmation body', message.body)
+
+class SubmitMatchIntegrationTest(ExistingRecordTest):
+
+    submission_url = '/test_reports/match/%s/'
+
+    def setUp(self):
+        super().setUp()
+        EmailNotification.objects.create(name='match_confirmation', subject="test match confirmation",
+                                         body="test match confirmation body")
+        EmailNotification.objects.create(name='match_notification', subject="test match notification",
+                                         body="test match notification body")
+        EmailNotification.objects.create(name='match_delivery', subject="test match delivery",
+                                         body="test match delivery body")
+
+    def test_renders_default_template(self):
+        response = self.client.get(self.submission_url % self.report.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'submit_to_matching.html')
+
+    def test_renders_custom_template(self):
+        response = self.client.get('/test_reports/match_custom/%s/' % self.report.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'submit_to_matching_custom.html')
+
+    def test_renders_default_confirmation_template(self):
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/test_url',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertTemplateUsed(response, 'submit_to_matching_confirmation.html')
+
+    def test_renders_custom_confirmation_template(self):
+        response = self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/test_url',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertTemplateUsed(response, 'submit_to_matching_confirmation_custom.html')
+
+    def test_submit_creates_match(self):
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/test_url',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertEqual(self.report.id, MatchReport.objects.latest('id').report.id)
+
+    def test_multiple_perps_creates_multiple_matches(self):
+        total_matches_before = MatchReport.objects.count()
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/test_url1',
+                                          'form-1-perp': 'facebook.com/test_url2',
+                                          'form-TOTAL_FORMS': '2',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        total_matches_after = MatchReport.objects.count()
+        self.assertEqual(total_matches_after - total_matches_before, 2)
+
+    def test_submit_match_sends_email_confirmation(self):
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': True,
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/test_url',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, 'test match confirmation')
+        self.assertEqual(message.to, ['test@example.com'])
+        self.assertIn('Confirmation" <confirmation@', message.from_email)
+        self.assertIn('test match confirmation body', message.body)
+
+    def test_match_sends_report(self):
+        self.client.post((self.submission_url % self.report.pk),
+                                    data={'name':'test submitter 1',
+                                          'email': 'test1@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/triggered_match',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        user2 = User.objects.create_user(username='dummy2', password='dummy')
+        self.client.login(username='dummy2', password='dummy')
+        report2_text = """[
+    { "answer": "test answer",
+      "id": %i,
+      "section": 1,
+      "question_text": "first question",
+      "type": "SingleLineText"
+    },
+    { "answer": "another answer to a different question",
+      "id": %i,
+      "section": 1,
+      "question_text": "2nd question",
+      "type": "SingleLineText"
+    }
+  ]""" % (self.question1.pk, self.question2.pk)
+        report2 = Report(owner = user2)
+        report2_key = 'a key a key a key a key key'
+        report2.encrypt_report(report2_text, report2_key)
+        report2.save()
+        response = self.client.post((self.submission_url % report2.pk),
+                                    data={'name':'test submitter 2',
+                                          'email': 'test2@example.com',
+                                          'phone_number': '555-555-1213',
+                                          'email_confirmation': "False",
+                                          'key': report2_key,
+                                          'form-0-perp': 'facebook.com/triggered_match',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        self.assertNotIn('submit_error', response.context)
+        self.assertEqual(len(mail.outbox), 3)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, 'test match notification')
+        self.assertEqual(message.to, ['test1@example.com'])
+        self.assertIn('Matching" <notification@', message.from_email)
+        self.assertIn('test match notification body', message.body)
+        message = mail.outbox[1]
+        self.assertEqual(message.subject, 'test match notification')
+        self.assertEqual(message.to, ['test2@example.com'])
+        self.assertIn('Matching" <notification@', message.from_email)
+        self.assertIn('test match notification body', message.body)
+        message = mail.outbox[2]
+        self.assertEqual(message.subject, 'test match delivery')
+        self.assertEqual(message.to, ['titleix@example.com'])
+        self.assertIn('"Reports" <reports@', message.from_email)
+        self.assertIn('test match delivery body', message.body)
