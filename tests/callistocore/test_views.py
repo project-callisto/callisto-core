@@ -1,22 +1,21 @@
 import json
 
-from mock import Mock, patch
-from wizard_builder.forms import QuestionPageForm
-from wizard_builder.models import (
-    Choice, QuestionPage, RadioButton, SingleLineText,
-)
-
+from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
-from django.test import TestCase
+from django.core import mail
+from unittest.mock import patch, Mock
 
+User = get_user_model()
+
+from wizard_builder.models import SingleLineText, RadioButton, Choice, QuestionPage
+from wizard_builder.forms import QuestionPageForm
+
+from callisto.delivery.models import Report, EmailNotification
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
-from callisto.delivery.models import Report
 from callisto.evaluation.models import EvalRow
 
 from .forms import EncryptedFormWizard
-
-User = get_user_model()
 
 
 def sort_json(text):
@@ -195,9 +194,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request = self.request)
         mock_eval_row.save.assert_any_call()
 
-class EditRecordFormTest(RecordFormBaseTest):
-    record_form_url = '/test_reports/edit/%s/'
-
+class ExistingRecordTest(RecordFormBaseTest):
     def setUp(self):
         super(EditRecordFormTest, self).setUp()
 
@@ -229,6 +226,9 @@ class EditRecordFormTest(RecordFormBaseTest):
         row = EvalRow()
         row.anonymise_record(action=EvalRow.CREATE, report=self.report, decrypted_text=self.report_text)
         row.save()
+
+class EditRecordFormTest(ExistingRecordTest):
+    record_form_url = '/test_reports/edit/%s/'
 
     def enter_edit_key(self):
         return self.client.post(
@@ -354,3 +354,75 @@ class EditRecordFormTest(RecordFormBaseTest):
         self.assertEqual(EvalRow.objects.last().action, EvalRow.EDIT)
         self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().record_identifier, EvalRow.objects.last().record_identifier)
         self.assertNotEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().row, EvalRow.objects.last().row)
+
+class SubmitReportIntegrationTest(ExistingRecordTest):
+
+    submission_url = '/test_reports/submit/%s/'
+
+    def setUp(self):
+        super().setUp()
+        EmailNotification.objects.create(name='submit_confirmation', subject="test submit confirmation",
+                                         body="test submit confirmation body")
+        EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
+
+    def test_renders_default_template(self):
+        response = self.client.get(self.submission_url % self.report.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'submit_to_school.html')
+
+    def test_renders_custom_template(self):
+        response = self.client.get('/test_reports/submit_custom/%s/' % self.report.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'submit_to_school_custom.html')
+
+    def test_renders_default_confirmation_template(self):
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertTemplateUsed(response, 'submit_to_school_confirmation.html')
+
+    def test_renders_custom_confirmation_template(self):
+        response = self.client.post(('/test_reports/submit_custom/%s/' % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertTemplateUsed(response, 'submit_to_school_confirmation_custom.html')
+
+    def test_submit_sends_report(self):
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, 'test delivery')
+        self.assertIn('"Reports" <reports', message.from_email)
+        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
+
+    def test_submit_sends_email_confirmation(self):
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': True,
+                                          'key': self.report_key})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertEqual(len(mail.outbox), 2)
+        message = mail.outbox[1]
+        self.assertEqual(message.subject, 'test submit confirmation')
+        self.assertIn('Confirmation" <confirmation@', message.from_email)
+        self.assertIn('test submit confirmation body', message.body)

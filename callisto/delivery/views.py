@@ -18,7 +18,8 @@ User = get_user_model()
 
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_to_school(request, report_id):
+def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
+                     confirmation_template_name="submit_to_school_confirmation.html"):
     owner = request.user
     report = Report.objects.get(id=report_id)
     if owner == report.owner:
@@ -32,12 +33,12 @@ def submit_to_school(request, report_id):
                     report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
                     report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                     report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                    PDFFullReport(owner, report, form.decrypted_report).send_report_to_school()
+                    PDFFullReport(report, form.decrypted_report).send_report_to_school()
                     report.save()
                 except Exception as e:
                     #TODO: real logging
                     bugsnag.notify(e)
-                    return render(request, 'submit_to_school.html', {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
+                    return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'submit_error': True})
 
                 #record submission in anonymous evaluation data
@@ -54,19 +55,19 @@ def submit_to_school(request, report_id):
                     if form.cleaned_data.get('email_confirmation') == "True":
                         notification = EmailNotification.objects.get(name='submit_confirmation')
                         preferred_email = form.cleaned_data.get('email')
-                        to_email = set([owner.account.school_email, preferred_email])
+                        to_email = preferred_email
                         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-                        notification.send(to=to_email, from_email=from_email)
+                        notification.send(to=[to_email], from_email=from_email)
                 except Exception as e:
                     #TODO: real logging
                     # report was sent even if confirmation email fails, so don't show an error if so
                     bugsnag.notify(e)
 
-                return render(request, 'submit_to_school_confirmation.html', {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
+                return render(request, confirmation_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'report': report})
         else:
             form = SubmitToSchoolForm(owner, report)
-        return render(request, 'submit_to_school.html', {'form': form, 'school_name': settings.SCHOOL_SHORTNAME})
+        return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME})
     else:
         return HttpResponseForbidden()
 
@@ -117,9 +118,9 @@ def submit_to_matching(request, report_id):
                     if form.cleaned_data.get('email_confirmation') == "True":
                         notification = EmailNotification.objects.get(name='match_confirmation')
                         preferred_email = form.cleaned_data.get('email')
-                        to_email = set([owner.account.school_email, preferred_email])
+                        to_email = preferred_email
                         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-                        notification.send(to=to_email, from_email=from_email)
+                        notification.send(to=[to_email], from_email=from_email)
                 except Exception as e:
                     #TODO: real logging
                     # matching was entered even if confirmation email fails, so don't show an error if so

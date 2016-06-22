@@ -25,7 +25,8 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',)
+MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
+                      'django.contrib.auth.middleware.AuthenticationMiddleware',)
 
 TEMPLATE_DIRS = ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
 
