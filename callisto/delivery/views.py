@@ -138,7 +138,8 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
     else:
         return HttpResponseForbidden()
 
-def withdraw_from_matching(request, report_id):
+
+def withdraw_from_matching(request, report_id, template_name):
     owner = request.user
     report = Report.objects.get(id=report_id)
     if owner == report.owner:
@@ -155,7 +156,7 @@ def withdraw_from_matching(request, report_id):
             bugsnag.notify(e)
             pass
 
-        return render(request, 'dashboard.html', {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
+        return render(request, template_name, {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
                                                         'coordinator_name': settings.COORDINATOR_NAME,
                                                        'coordinator_email': settings.COORDINATOR_EMAIL,
                                                        'match_report_withdrawn': True})

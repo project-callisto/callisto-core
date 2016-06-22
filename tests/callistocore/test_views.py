@@ -593,3 +593,28 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertIn('"Reports" <reports@', message.from_email)
         self.assertIn('test match delivery body', message.body)
+
+class WithdrawMatchIntegrationTest(ExistingRecordTest):
+
+    withdrawal_url = '/test_reports/withdraw_match/%s/'
+
+    def setUp(self):
+        super().setUp()
+        match_report = MatchReport()
+        match_report.report = self.report
+        match_report.contact_email = "test@example.com"
+        match_report.contact_phone = "555-555-1212"
+        match_report.identifier = "http://www.facebook.com/test_withdrawal"
+        match_report.save()
+        self.match_report = match_report
+
+    def test_renders_specified_template(self):
+        response = self.client.get(self.withdrawal_url % self.report.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'after_withdraw.html')
+
+    def test_match_report_is_withdrawn(self):
+        self.assertEqual(MatchReport.objects.filter(report=self.report).count(), 1)
+        response = self.client.get(self.withdrawal_url % self.report.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MatchReport.objects.filter(report=self.report).count(), 0)
