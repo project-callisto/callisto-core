@@ -3,7 +3,7 @@ import json
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
-from unittest.mock import patch, Mock
+from mock import patch, Mock
 
 User = get_user_model()
 
