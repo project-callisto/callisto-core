@@ -40,7 +40,7 @@ class RecordFormBaseTest(TestCase):
 class RecordFormIntegratedTest(RecordFormBaseTest):
 
     def setUp(self):
-        super().setUp()
+        super(RecordFormIntegratedTest, self).setUp()
         User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')
         self.request = HttpRequest()
@@ -197,7 +197,7 @@ class EditRecordFormTest(RecordFormBaseTest):
     record_form_url = '/test_reports/edit/%s/'
 
     def setUp(self):
-        super().setUp()
+        super(EditRecordFormTest, self).setUp()
 
         User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')

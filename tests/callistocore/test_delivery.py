@@ -194,7 +194,7 @@ class MatchNotificationTest(MatchTest):
 class ReportDeliveryTest(MatchTest):
 
     def setUp(self):
-        super().setUp()
+        super(ReportDeliveryTest, self).setUp()
         self.user = self.user1
         self.decrypted_report = """[
     { "answer": "test answer",
