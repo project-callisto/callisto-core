@@ -12,7 +12,17 @@ Working on your first open source contribution? We are so excited to have you! Y
 #### How to submit
 We need all contributors to sign our [volunteer agreement](https://github.com/SexualHealthInnovations/callisto-core/blob/master/shi-volunteer-agreement.pdf) (PDF) in order to accept contributions. Signed agreements can be submitted to tech@sexualhealthinnovations.org. We can take fixes to documentation without a signed agreement.
 
-Coming soon: how to run tests
+#### How to run tests
+````
+git clone git@github.com:SexualHealthInnovations/callisto-core.git # first time only
+cd callisto-core
+pip install virtualenv # first time only
+virtualenv venv # localize your dependencies
+source venv/bin/activate
+pip install -r requirements-test.txt # requires postgres to be installed (brew install postgres)
+python runtests.py
+deactivate # exit virtualenv
+````
 
 #### How to report a bug
 
