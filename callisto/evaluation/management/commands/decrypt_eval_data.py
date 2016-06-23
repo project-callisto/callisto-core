@@ -2,6 +2,7 @@ import json
 
 import environ
 import gnupg
+import six
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -25,7 +26,7 @@ class Command(BaseCommand):
                              'timestamp': row.timestamp.timestamp()}
             gpg = gnupg.GPG()
             gpg.import_keys(eval_key)
-            decrypted_eval_row = str(gpg.decrypt(row.row))
+            decrypted_eval_row = six.text_type(gpg.decrypt(six.binary_type(row.row)))
             if decrypted_eval_row:
                 decrypted_row.update(json.loads(decrypted_eval_row))
             decrypted_eval_data.append(decrypted_row)

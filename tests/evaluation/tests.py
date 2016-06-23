@@ -1,6 +1,7 @@
 import json
 
 import gnupg
+import six
 from callisto.delivery.models import Report
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
@@ -94,7 +95,7 @@ class EvalRowTest(TestCase):
         row._encrypt_eval_row(test_row, key = public_test_key)
         row.save()
         row.full_clean()
-        self.assertEqual(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row)), test_row)
+        self.assertEqual(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row))), test_row)
 
 class EvalFieldTest(TestCase):
 
@@ -504,4 +505,4 @@ class ExtractAnswersTest(TestCase):
                              key = public_test_key)
         row.save()
 
-        self.assertEqual(json.loads(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row))), self.expected)
+        self.assertEqual(json.loads(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row)))), self.expected)
