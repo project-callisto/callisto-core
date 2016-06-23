@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
 from callisto.evaluation.models import EvalRow
 from nacl.exceptions import CryptoError
-from urllib.parse import urlsplit, parse_qs
+from six.moves.urllib.parse import urlsplit, parse_qs
 from zxcvbn import password_strength
 
 REQUIRED_ERROR = "The {0} field is required."
