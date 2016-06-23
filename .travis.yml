@@ -8,15 +8,13 @@ sudo: false
 cache:
     directories:
         - $TRAVIS_BUILD_DIR/.tox
-services:
-    - postgresql
 env:
-    - TOXENV=django18 db_user=postgres
-    - TOXENV=django19 db_user=postgres
+    - TOXENV=django18
+    - TOXENV=django19
 matrix:
     exclude:
         - python: "3.3"
-          env: TOXENV=django19 db_user=postgres
+          env: TOXENV=django19
 install:
     - pip install pyflakes tox
 script:

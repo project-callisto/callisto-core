@@ -17,7 +17,7 @@ from wizard_builder.models import PageBase
 from .models import EmailNotification, SentFullReport, SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"
-#TODO: customize
+# TODO: customize https://github.com/SexualHealthInnovations/callisto-core/issues/20
 tzname = 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
 
@@ -168,8 +168,7 @@ class PDFReport(object):
         for element in self.format_answer_list(answers, keep_together):
             self.pdf_elements.append(element)
 
-    #TODO: make selected_answer kwargs
-    #TODO: figure out how to keep question with answer
+    # TODO: figure out how to keep question w answer https://github.com/SexualHealthInnovations/callisto-core/issues/34
     def add_multiple_choice(self, question, answers, selected_answers, last_is_free_text=False):
         self.add_question(question)
 
@@ -251,7 +250,7 @@ class PDFReport(object):
         gpg = gnupg.GPG()
         school_public_key = settings.COORDINATOR_PUBLIC_KEY
         imported_keys = gpg.import_keys(school_public_key)
-        #TODO: sign encrypted doc
+        # TODO: sign encrypted doc https://github.com/SexualHealthInnovations/callisto-core/issues/32
         attachment = gpg.encrypt(pdf_to_attach, imported_keys.fingerprints[0], armor=True, always_trust=True)
 
         email.attach(self.report_filename.format(report_id), attachment.data, "application/octet-stream")

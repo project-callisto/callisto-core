@@ -116,7 +116,7 @@ class MatchReport(models.Model):
         return "Match report for report {0}".format(self.report.pk)
 
 class SentReport(PolymorphicModel):
-    #TODO: store link to s3 backup
+    # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14
     sent = models.DateTimeField(auto_now_add=True)
     to_address = models.EmailField(blank=False, null=False, max_length=256)
 

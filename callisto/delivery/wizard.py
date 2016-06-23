@@ -14,7 +14,8 @@ from .models import Report
 class EncryptedFormBaseWizard(ConfigurableFormWizard):
 
     def get_form_initial(self, step):
-        #TODO: store with other intermediate form data
+        # TODO: store decrypted record with other intermediate form data
+        # https://github.com/SexualHealthInnovations/callisto-core/issues/33
         if self.object_to_edit and step and step !='0' and not self.form_to_edit:
             #decrypt record and store in memory
             cleaned_data = self.get_cleaned_data_for_step('0')
@@ -79,7 +80,6 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             bugsnag.notify(e)
             pass
 
-        #TODO: check if valid?
         return self.wizard_complete(report, **kwargs)
 
     def get_template_names(self):

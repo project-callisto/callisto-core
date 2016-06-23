@@ -4,16 +4,12 @@ DEBUG = True
 
 USE_TZ = True
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('db_name', 'callisto'),
-        'USER': os.environ.get('db_user', ''),
-        'PASSWORD': os.environ.get('db_pass', ''),
-        'HOST': os.environ.get('db_host', '127.0.0.1'),
-        'PORT': os.environ.get('db_port', '5432')
-    }
-}
+DATABASES={
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+            }
+        }
+
 
 ROOT_URLCONF = "tests.urls"
 
