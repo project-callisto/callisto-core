@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.core import mail
-from unittest.mock import patch, Mock
+from mock import patch, Mock
 
 User = get_user_model()
 
@@ -196,7 +196,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
 
 class ExistingRecordTest(RecordFormBaseTest):
     def setUp(self):
-        super(EditRecordFormTest, self).setUp()
+        super(ExistingRecordTest, self).setUp()
 
         User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')
@@ -360,7 +360,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
     submission_url = '/test_reports/submit/%s/'
 
     def setUp(self):
-        super().setUp()
+        super(SubmitReportIntegrationTest, self).setUp()
         EmailNotification.objects.create(name='submit_confirmation', subject="test submit confirmation",
                                          body="test submit confirmation body")
         EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
@@ -434,7 +434,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
     submission_url = '/test_reports/match/%s/'
 
     def setUp(self):
-        super().setUp()
+        super(SubmitMatchIntegrationTest, self).setUp()
         EmailNotification.objects.create(name='match_confirmation', subject="test match confirmation",
                                          body="test match confirmation body")
         EmailNotification.objects.create(name='match_notification', subject="test match notification",
@@ -599,7 +599,7 @@ class WithdrawMatchIntegrationTest(ExistingRecordTest):
     withdrawal_url = '/test_reports/withdraw_match/%s/'
 
     def setUp(self):
-        super().setUp()
+        super(WithdrawMatchIntegrationTest, self).setUp()
         match_report = MatchReport()
         match_report.report = self.report
         match_report.contact_email = "test@example.com"
