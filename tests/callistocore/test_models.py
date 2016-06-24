@@ -1,8 +1,10 @@
+from callisto.delivery.models import (
+    MatchReport, Report, SentFullReport, SentMatchReport,
+)
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
-from django.contrib.auth import get_user_model
-from callisto.delivery.models import Report, MatchReport, SentFullReport, SentMatchReport
 
 User = get_user_model()
 
@@ -114,4 +116,3 @@ class SentReportTest(TestCase):
         self.assertNotEqual(sent_match_report_id, sent_full_report_id)
         self.assertTrue(sent_full_report_id.endswith('-1'))
         self.assertTrue(sent_match_report_id.endswith('-0'))
-

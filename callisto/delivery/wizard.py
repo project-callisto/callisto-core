@@ -1,9 +1,9 @@
 import json
 
 import bugsnag
+from callisto.evaluation.models import EvalRow
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden
-from callisto.evaluation.models import EvalRow
 from wizard_builder.forms import get_form_pages
 from wizard_builder.views import ConfigurableFormWizard
 

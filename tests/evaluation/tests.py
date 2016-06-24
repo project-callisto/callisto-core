@@ -2,13 +2,15 @@ import json
 
 import gnupg
 from callisto.delivery.models import Report
+from callisto.evaluation.models import EvalRow, EvaluationField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from callisto.evaluation.models import EvalRow, EvaluationField
-from wizard_builder.models import SingleLineText, QuestionPage, RadioButton, Choice, Checkbox
+from wizard_builder.models import (
+    Checkbox, Choice, QuestionPage, RadioButton, SingleLineText,
+)
 
-from .test_keypair import public_test_key, private_test_key
+from .test_keypair import private_test_key, public_test_key
 
 User = get_user_model()
 

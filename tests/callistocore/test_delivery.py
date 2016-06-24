@@ -1,15 +1,16 @@
 from datetime import datetime
-import PyPDF2
 from io import BytesIO
+from unittest.mock import call, patch
 
-from django.test import TestCase
+import PyPDF2
+from callisto.delivery.matching import find_matches
+from callisto.delivery.models import EmailNotification, MatchReport, Report
+from callisto.delivery.report_delivery import (
+    PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport,
+)
 from django.contrib.auth import get_user_model
 from django.core import mail
-
-from unittest.mock import patch, call
-from callisto.delivery.models import Report, MatchReport, EmailNotification
-from callisto.delivery.matching import find_matches
-from callisto.delivery.report_delivery import PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport
+from django.test import TestCase
 
 User = get_user_model()
 

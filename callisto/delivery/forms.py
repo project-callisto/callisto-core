@@ -1,11 +1,12 @@
+from urllib.parse import parse_qs, urlsplit
+
 import bugsnag
+from callisto.evaluation.models import EvalRow
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
-from callisto.evaluation.models import EvalRow
 from nacl.exceptions import CryptoError
-from urllib.parse import urlsplit, parse_qs
 from zxcvbn import password_strength
 
 REQUIRED_ERROR = "The {0} field is required."
@@ -164,4 +165,3 @@ class SubmitToMatchingForm(forms.Form):
             return path
 
 SubmitToMatchingFormSet = formset_factory(SubmitToMatchingForm, extra=0, min_num=1)
-

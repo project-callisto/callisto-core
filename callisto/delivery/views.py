@@ -1,4 +1,5 @@
 import bugsnag
+from callisto.evaluation.models import EvalRow
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseForbidden
@@ -6,14 +7,14 @@ from django.shortcuts import render
 from django.utils.html import conditional_escape
 from ratelimit.decorators import ratelimit
 
+from .forms import SubmitToMatchingFormSet, SubmitToSchoolForm
+from .matching import find_matches
+from .models import EmailNotification, MatchReport, Report
+from .report_delivery import PDFFullReport
+
 User = get_user_model()
 
-from .forms import SubmitToSchoolForm, SubmitToMatchingFormSet
-from .models import Report, MatchReport, EmailNotification
-from .report_delivery import PDFFullReport
-from .matching import find_matches
 
-from callisto.evaluation.models import EvalRow
 
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)

@@ -1,20 +1,23 @@
 import json
+from unittest.mock import Mock, patch
 
-from django.test import TestCase
+from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
+from callisto.delivery.models import Report
+from callisto.evaluation.models import EvalRow
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
-from unittest.mock import patch, Mock
+from django.test import TestCase
+from wizard_builder.forms import QuestionPageForm
+from wizard_builder.models import (
+    Choice, QuestionPage, RadioButton, SingleLineText,
+)
+
+from .forms import EncryptedFormWizard
 
 User = get_user_model()
 
-from wizard_builder.models import SingleLineText, RadioButton, Choice, QuestionPage
-from wizard_builder.forms import QuestionPageForm
 
-from callisto.delivery.models import Report
-from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
-from callisto.evaluation.models import EvalRow
 
-from .forms import EncryptedFormWizard
 
 
 def sort_json(text):

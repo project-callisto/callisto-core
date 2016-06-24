@@ -1,12 +1,13 @@
-from django.db import models
-from django.conf import settings
-import gnupg
 import hashlib
-import bugsnag
 import json
-from django.core.exceptions import ObjectDoesNotExist
 
+import bugsnag
+import gnupg
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 from wizard_builder.models import FormQuestion, MultipleChoice
+
 
 class EvalRow(models.Model):
     EDIT = "e"
@@ -109,5 +110,3 @@ class EvaluationField(models.Model):
     #If not, we just save whether the question was answered or not
     question = models.OneToOneField(FormQuestion)
     label = models.CharField(blank=False, null=False, max_length=500)
-
-

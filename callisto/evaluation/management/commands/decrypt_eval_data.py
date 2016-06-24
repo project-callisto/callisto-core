@@ -2,12 +2,12 @@ import json
 
 import environ
 import gnupg
+from callisto.evaluation.models import EvalRow
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 env = environ.Env()
 
-from callisto.evaluation.models import EvalRow
 
 class Command(BaseCommand):
     help='decrypts eval data. can only be run in local environments (import data from prod)'
