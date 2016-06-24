@@ -1,7 +1,7 @@
 # callisto-core
 
 [![Build Status](https://travis-ci.org/SexualHealthInnovations/callisto-core.svg?branch=master)](https://travis-ci.org/SexualHealthInnovations/callisto-core)
-[![Code Climate](https://codeclimate.com/repos/5769c8c9aee315007d001c8a/badges/bbaf21e756a58593715e/gpa.svg)](https://codeclimate.com/repos/5769c8c9aee315007d001c8a/feed)
+[![Code Climate](https://codeclimate.com/github/SexualHealthInnovations/callisto-core/badges/gpa.svg)](https://codeclimate.com/github/SexualHealthInnovations/callisto-core)
 
 This is the report intake, escrow, matching and secure delivery code for [Callisto](https://www.projectcallisto.org), an online reporting system for sexual assault. 
 
