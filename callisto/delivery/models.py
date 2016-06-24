@@ -6,6 +6,7 @@ from django.utils.html import strip_tags
 import nacl.secret
 import nacl.utils
 import hashlib
+import six
 from django.utils.crypto import pbkdf2, get_random_string
 from django.template import Template, Context
 from django.contrib.sites.models import Site
@@ -69,6 +70,7 @@ class Report(models.Model):
         else:
             return None
 
+@six.python_2_unicode_compatible
 class EmailNotification(models.Model):
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
@@ -95,6 +97,7 @@ class EmailNotification(models.Model):
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
 
+@six.python_2_unicode_compatible
 class MatchReport(models.Model):
     report = models.ForeignKey('Report')
     contact_phone = models.CharField(blank=False, max_length=256)

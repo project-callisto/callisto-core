@@ -22,7 +22,7 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             if cleaned_data:
                 key = cleaned_data.get('key')
                 self.form_to_edit = json.loads(self.object_to_edit.decrypted_report(key))
-        return super().get_form_initial(step)
+        return super(EncryptedFormBaseWizard, self).get_form_initial(step)
 
     @classmethod
     def get_key_form(cls, record_to_edit):

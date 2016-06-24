@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core import mail
 
-from unittest.mock import patch, call
+from mock import patch, call
 from callisto.delivery.models import Report, MatchReport, EmailNotification
 from callisto.delivery.matching import find_matches
 from callisto.delivery.report_delivery import PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport
@@ -194,7 +194,7 @@ class MatchNotificationTest(MatchTest):
 class ReportDeliveryTest(MatchTest):
 
     def setUp(self):
-        super().setUp()
+        super(ReportDeliveryTest, self).setUp()
         self.user = self.user1
         self.decrypted_report = """[
     { "answer": "test answer",

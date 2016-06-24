@@ -46,7 +46,7 @@ class NumberedCanvas(canvas.Canvas):
         #self.setFont('OpenSans',12)
         self.drawRightString(width - margin, margin, "Page %d of %d" % (self._pageNumber, page_count))
 
-class PDFReport:
+class PDFReport(object):
 
     unselected = u'\u2610'
     selected = u'\u2717'
@@ -265,7 +265,7 @@ class PDFReport:
 class PDFFullReport(PDFReport):
 
     def __init__(self, report, decrypted_report):
-        super().__init__()
+        super(PDFFullReport, self).__init__()
         self.user = report.owner
         self.report = report
         self.decrypted_report = decrypted_report
@@ -362,7 +362,7 @@ class PDFMatchReport(PDFReport):
     report_title = "Match Report"
 
     def __init__(self, matches):
-        super().__init__()
+        super(PDFMatchReport, self).__init__()
         self.matches = matches
 
     def generate_match_report(self, report_id):
