@@ -1,5 +1,3 @@
-from urllib.parse import parse_qs, urlsplit
-
 import bugsnag
 from callisto.evaluation.models import EvalRow
 from django import forms

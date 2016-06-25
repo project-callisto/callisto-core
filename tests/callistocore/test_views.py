@@ -1,5 +1,4 @@
 import json
-from unittest.mock import Mock, patch
 
 from mock import patch, Mock
 from wizard_builder.forms import QuestionPageForm

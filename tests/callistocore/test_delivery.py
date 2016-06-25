@@ -1,6 +1,5 @@
 from datetime import datetime
 from io import BytesIO
-from unittest.mock import call, patch
 
 import PyPDF2
 from mock import patch, call
@@ -148,7 +147,7 @@ class MatchDiscoveryTest(MatchTest):
         match2.report.refresh_from_db()
         self.assertTrue(match1.report.match_found)
         self.assertTrue(match2.report.match_found)
-        
+
 
 @patch('callisto.delivery.matching.send_notification_email')
 @patch('callisto.delivery.report_delivery.PDFMatchReport.send_email_to_coordinator')
