@@ -1,6 +1,7 @@
 import json
 
 import gnupg
+import six
 from callisto.delivery.models import Report
 from callisto.evaluation.models import EvalRow, EvaluationField
 from django.contrib.auth import get_user_model
@@ -96,7 +97,7 @@ class EvalRowTest(TestCase):
         row._encrypt_eval_row(test_row, key = public_test_key)
         row.save()
         row.full_clean()
-        self.assertEqual(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row)), test_row)
+        self.assertEqual(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row))), test_row)
 
 class EvalFieldTest(TestCase):
 
@@ -139,7 +140,7 @@ class ExtractAnswersTest(TestCase):
         EvaluationField.objects.create(question=radio_button_q, label="radio")
 
 
-        choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
+        choice_ids = [ch.pk for ch in radio_button_q.choice_set.all()]
         selected_id = choice_ids[2]
 
         object_ids = [question1.pk, question2.pk, selected_id, radio_button_q.pk,] + choice_ids
@@ -216,7 +217,7 @@ class ExtractAnswersTest(TestCase):
                 choice.save()
         EvaluationField.objects.create(question=question3, label="q3")
 
-        q1_choice_ids = [choice.pk for choice in question1.choice_set.all()]
+        q1_choice_ids = [ch.pk for ch in question1.choice_set.all()]
         q1_selected_id = q1_choice_ids[1]
         first_q_object_ids = [q1_selected_id, question1.pk] + q1_choice_ids
         first_q_output = """{
@@ -232,7 +233,7 @@ class ExtractAnswersTest(TestCase):
           "section": 1
          }""" % tuple(first_q_object_ids)
 
-        q2_choice_ids = [choice.pk for choice in question2.choice_set.all()]
+        q2_choice_ids = [ch.pk for ch in question2.choice_set.all()]
         q2_selected_id = q2_choice_ids[3]
         second_q_object_ids = [q2_selected_id, question2.pk] + q2_choice_ids
         second_q_output = """{
@@ -252,7 +253,7 @@ class ExtractAnswersTest(TestCase):
                     }
          }""" % tuple(second_q_object_ids)
 
-        q3_choice_ids = [choice.pk for choice in question3.choice_set.all()]
+        q3_choice_ids = [ch.pk for ch in question3.choice_set.all()]
         q3_selected_id = q3_choice_ids[0]
         third_q_object_ids = [q3_selected_id, question3.pk] + q3_choice_ids
         third_q_output = """{
@@ -317,7 +318,7 @@ class ExtractAnswersTest(TestCase):
             Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
         EvaluationField.objects.create(question=radio_button_q, label="radio")
 
-        choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
+        choice_ids = [ch.pk for ch in radio_button_q.choice_set.all()]
         selected_id_1 = choice_ids[1]
         selected_id_2 = choice_ids[4]
         object_ids = [question1.pk, question2.pk, radio_button_q.pk,] + choice_ids
@@ -404,7 +405,7 @@ class ExtractAnswersTest(TestCase):
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
 
-        choice_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
+        choice_ids = [ch.pk for ch in radio_button_q.choice_set.all()]
         object_ids = [question1.pk, question2.pk, radio_button_q.pk,] + choice_ids
 
         json_report = json.loads("""[
@@ -452,8 +453,8 @@ class ExtractAnswersTest(TestCase):
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question = checkbox_q_2)
 
-        choice_ids_1 = [choice.pk for choice in checkbox_q_1.choice_set.all()]
-        choice_ids_2 = [choice.pk for choice in checkbox_q_2.choice_set.all()]
+        choice_ids_1 = [ch.pk for ch in checkbox_q_1.choice_set.all()]
+        choice_ids_2 = [ch.pk for ch in checkbox_q_2.choice_set.all()]
         object_ids = [checkbox_q_1.pk] + choice_ids_1 + [choice_ids_2[1], choice_ids_2[3], checkbox_q_2.pk]+ choice_ids_2
 
         json_report = json.loads("""[
@@ -506,4 +507,4 @@ class ExtractAnswersTest(TestCase):
                              key = public_test_key)
         row.save()
 
-        self.assertEqual(json.loads(str(gpg.decrypt(EvalRow.objects.get(id=row.pk).row))), self.expected)
+        self.assertEqual(json.loads(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row)))), self.expected)

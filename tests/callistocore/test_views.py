@@ -1,23 +1,22 @@
 import json
 from unittest.mock import Mock, patch
 
-from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
-from callisto.delivery.models import Report
-from callisto.evaluation.models import EvalRow
-from django.contrib.auth import get_user_model
-from django.http import HttpRequest
-from django.test import TestCase
+from mock import patch, Mock
 from wizard_builder.forms import QuestionPageForm
 from wizard_builder.models import (
     Choice, QuestionPage, RadioButton, SingleLineText,
 )
 
+from django.contrib.auth import get_user_model
+from django.http import HttpRequest
+from django.test import TestCase
+
+from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
+from callisto.delivery.models import Report
+from callisto.evaluation.models import EvalRow
 from .forms import EncryptedFormWizard
 
 User = get_user_model()
-
-
-
 
 
 def sort_json(text):
@@ -43,7 +42,7 @@ class RecordFormBaseTest(TestCase):
 class RecordFormIntegratedTest(RecordFormBaseTest):
 
     def setUp(self):
-        super().setUp()
+        super(RecordFormIntegratedTest, self).setUp()
         User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')
         self.request = HttpRequest()
@@ -200,7 +199,7 @@ class EditRecordFormTest(RecordFormBaseTest):
     record_form_url = '/test_reports/edit/%s/'
 
     def setUp(self):
-        super().setUp()
+        super(EditRecordFormTest, self).setUp()
 
         User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')

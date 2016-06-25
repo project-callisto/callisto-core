@@ -2,6 +2,7 @@ import hashlib
 
 import nacl.secret
 import nacl.utils
+import six
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail.message import EmailMultiAlternatives
@@ -71,6 +72,7 @@ class Report(models.Model):
         else:
             return None
 
+@six.python_2_unicode_compatible
 class EmailNotification(models.Model):
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
@@ -97,6 +99,7 @@ class EmailNotification(models.Model):
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
 
+@six.python_2_unicode_compatible
 class MatchReport(models.Model):
     report = models.ForeignKey('Report')
     contact_phone = models.CharField(blank=False, max_length=256)

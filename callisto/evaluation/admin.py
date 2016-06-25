@@ -16,7 +16,7 @@ class EvalFieldInline(admin.StackedInline):
 
 class WithEval(object):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(WithEval, self).__init__(*args, **kwargs)
         self.inlines = (self.inlines or []) + [EvalFieldInline,]
 
 class SingleLineTextWithEvalAdmin(WithEval, SingleLineTextAdmin):

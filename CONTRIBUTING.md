@@ -23,6 +23,11 @@ Coming soon: how to run tests
 
 Other bugs or feature requests can be submitted as [GitHub issues](https://github.com/SexualHealthInnovations/callisto-core/issues) on this repo.
 
+
+#### Code of conduct
+
+This project adheres to a [code of conduct](https://github.com/SexualHealthInnovations/callisto-core/blob/master/CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to tech@sexualhealthinnovations.org.
+
 #### Other questions
 
 Contact us at tech@sexualhealthinnovations.org.

@@ -3,16 +3,20 @@ from io import BytesIO
 from unittest.mock import call, patch
 
 import PyPDF2
+from mock import patch, call
+
+from django.contrib.auth import get_user_model
+from django.core import mail
+from django.test import TestCase
+
 from callisto.delivery.matching import find_matches
 from callisto.delivery.models import EmailNotification, MatchReport, Report
 from callisto.delivery.report_delivery import (
     PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport,
 )
-from django.contrib.auth import get_user_model
-from django.core import mail
-from django.test import TestCase
 
 User = get_user_model()
+
 
 class MatchTest(TestCase):
     def setUp(self):
@@ -195,7 +199,7 @@ class MatchNotificationTest(MatchTest):
 class ReportDeliveryTest(MatchTest):
 
     def setUp(self):
-        super().setUp()
+        super(ReportDeliveryTest, self).setUp()
         self.user = self.user1
         self.decrypted_report = """[
     { "answer": "test answer",
