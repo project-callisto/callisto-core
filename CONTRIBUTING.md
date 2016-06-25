@@ -19,10 +19,24 @@ cd callisto-core
 pip install virtualenv # first time only
 virtualenv venv # localize your dependencies
 source venv/bin/activate
-pip install -r requirements-test.txt # requires postgres to be installed (brew install postgres)
+pip install -r requirements-test.txt
 make test # run tests quickly with the default Python. Prefer this over running ``python runtests.py`` directly.
 deactivate # exit virtualenv
-  ````
+````
+
+#### Supported versions:
+
+Django
+- 1.8
+- 1.9
+
+Python
+- 2.7 (coming soon in PR #35)
+- 3.3 (coming soon in PR #35)
+- 3.4
+- 3.5 (coming soon in PR #35)
+
+To see whether your pull request has passed the build on all of these versions, go to https://travis-ci.org/SexualHealthInnovations/callisto-core/pull_requests and click on your PR title to see all of the builds for your code with the above versions of Django and Python.
 
 #### How to report a bug
 
