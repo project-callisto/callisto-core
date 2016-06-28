@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('report_class', nargs='?', default=None)
-        # TODO: add test option that verifies that passed class can be imported & has necessary methods
+        # eventually: add test option that verifies that passed class can be imported & has necessary methods
         # https://github.com/SexualHealthInnovations/callisto-core/issues/56
 
     def handle(self, *args, **options):
