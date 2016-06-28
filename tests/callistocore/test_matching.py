@@ -1,16 +1,13 @@
 from datetime import datetime
-import PyPDF2
-from io import BytesIO
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.core import mail
 from django.core.management import call_command
 
 from mock import patch, call
-from callisto.delivery.models import Report, MatchReport, EmailNotification
+from callisto.delivery.models import Report, MatchReport
 from callisto.delivery.matching import find_matches
-from callisto.delivery.report_delivery import PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport
+from callisto.delivery.report_delivery import PDFMatchReport
 from .forms import CustomMatchReport
 
 User = get_user_model()
