@@ -80,8 +80,8 @@ class PDFReport(object):
             * Notes: get_metadata_page
             * Answers: format_answer, get_metadata_page
             * AnswersList: format_answer_list, get_metadata_page
-            * Heading4: get_metadata_page, generate_pdf_report, generate_match_report
-            * Heading3: get_metadata_page, generate_match_report
+            * Heading4: get_metadata_page, PDFFullReport.generate_pdf_report, PDFMatchReport.generate_match_report
+            * Heading3: get_metadata_page, PDFMatchReport.generate_match_report
         If you override this method but don't define these styles, you will need to also override init and potentially
         the corresponding formatting methods.
         :return: a ReportLab stylesheet

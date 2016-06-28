@@ -429,6 +429,23 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['test@example.com'])
         self.assertIn('test submit confirmation body', message.body)
 
+    def test_submit_sends_custom_report(self):
+        response = self.client.post(('/test_reports/submit_custom/%s/' % self.report.pk),
+                                    data={'name':'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, 'test delivery')
+        self.assertIn('"Custom" <custom', message.from_email)
+        self.assertEqual(message.to, ['titleix@example.com'])
+        self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\.pdf\.gpg')
+
+
 class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     submission_url = '/test_reports/match/%s/'
@@ -593,6 +610,58 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertIn('"Reports" <reports@', message.from_email)
         self.assertIn('test match delivery body', message.body)
+        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
+
+    def test_match_sends_custom_report(self):
+        self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
+                                    data={'name':'test submitter 1',
+                                          'email': 'test1@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/triggered_match',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        user2 = User.objects.create_user(username='dummy2', password='dummy')
+        self.client.login(username='dummy2', password='dummy')
+        report2_text = """[
+    { "answer": "test answer",
+      "id": %i,
+      "section": 1,
+      "question_text": "first question",
+      "type": "SingleLineText"
+    },
+    { "answer": "another answer to a different question",
+      "id": %i,
+      "section": 1,
+      "question_text": "2nd question",
+      "type": "SingleLineText"
+    }
+  ]""" % (self.question1.pk, self.question2.pk)
+        report2 = Report(owner = user2)
+        report2_key = 'a key a key a key a key key'
+        report2.encrypt_report(report2_text, report2_key)
+        report2.save()
+        response = self.client.post(('/test_reports/match_custom/%s/' % report2.pk),
+                                    data={'name':'test submitter 2',
+                                          'email': 'test2@example.com',
+                                          'phone_number': '555-555-1213',
+                                          'email_confirmation': "False",
+                                          'key': report2_key,
+                                          'form-0-perp': 'facebook.com/triggered_match',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        self.assertNotIn('submit_error', response.context)
+        self.assertEqual(len(mail.outbox), 3)
+        message = mail.outbox[2]
+        self.assertEqual(message.subject, 'test match delivery')
+        self.assertEqual(message.to, ['titleix@example.com'])
+        self.assertIn('"Custom" <custom@', message.from_email)
+        self.assertIn('test match delivery body', message.body)
+        self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\.pdf\.gpg')
+
 
 class WithdrawMatchIntegrationTest(ExistingRecordTest):
 

@@ -4,7 +4,7 @@ from .models import EmailNotification, MatchReport
 from .report_delivery import PDFMatchReport
 
 
-def find_matches():
+def find_matches(report_class=PDFMatchReport):
     new_identifiers = MatchReport.objects.filter(seen=False).order_by('identifier').values('identifier').distinct()
     for row in new_identifiers.values():
         matches = MatchReport.objects.filter(identifier=row['identifier'])
@@ -17,14 +17,14 @@ def find_matches():
             if len(set(all_owners)) > 1:
                 # only send notifications if new owners are actually new
                 if not set(new_match_owners).issubset(set(seen_match_owners)):
-                    process_new_matches(match_list)
+                    process_new_matches(match_list, report_class)
                 #new owners all already have existing matches
                 for match_report in match_list:
                     match_report.report.match_found = True
                     match_report.report.save()
         matches.update(seen=True)
 
-def process_new_matches(matches):
+def process_new_matches(matches, report_class):
     owners_notified = []
     for match_report in matches:
         owner = match_report.report.owner
@@ -33,7 +33,7 @@ def process_new_matches(matches):
             send_notification_email(owner, match_report)
             owners_notified.append(owner)
     #send report to school
-    PDFMatchReport(matches).send_matching_report_to_school()
+    report_class(matches).send_matching_report_to_school()
 
 def send_notification_email(user, match_report):
     notification = EmailNotification.objects.get(name='match_notification')
