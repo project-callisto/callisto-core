@@ -16,9 +16,11 @@ matrix:
         - python: "3.3"
           env: TOXENV=django19
 install:
-    - pip install pyflakes tox
+    - pip install pyflakes tox codecov
 script:
     - pyflakes setup.py runtests.py tests callisto
     - tox
+after_success:
+    - codecov -e TOXENV
 before_cache:
     - rm -r $TRAVIS_BUILD_DIR/.tox/log $TRAVIS_BUILD_DIR/.tox/dist $TRAVIS_BUILD_DIR/.tox/*/log $TRAVIS_BUILD_DIR/.tox/*/lib/python*/site-packages/callisto*

@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/SexualHealthInnovations/callisto-core.svg?branch=master)](https://travis-ci.org/SexualHealthInnovations/callisto-core)
 [![Code Climate](https://codeclimate.com/github/SexualHealthInnovations/callisto-core/badges/gpa.svg)](https://codeclimate.com/github/SexualHealthInnovations/callisto-core)
+[![codecov](https://codecov.io/gh/SexualHealthInnovations/callisto-core/branch/master/graph/badge.svg)](https://codecov.io/gh/SexualHealthInnovations/callisto-core)
 
 This is the report intake, escrow, matching and secure delivery code for [Callisto](https://www.projectcallisto.org), an online reporting system for sexual assault. 
 
@@ -13,6 +14,10 @@ Learn more about information escrows:
 
 ### Requirements
 `callisto-core` supports Django 1.8 and Django 1.9, running on Python 3.3, 3.4, or 3.5. Python 2.7 is provisionally supported, pending [further testing](https://githib.com/SexualHealthInnovations/callisto-core/issue/19).
+
+`callisto-core` is built on top of [`django-wizard-builder`](https://github.com/SexualHealthInnovations/django-wizard-builder), another open source Django package maintained by Sexual Health Innovations. If you're interested in contributing to Callisto, please check out that repo as well.
+
+### Support us
 
 [Donate](https://www.sexualhealthinnovations.org/donate/) to Sexual Health Innovations, the organization behind Callisto.
 
