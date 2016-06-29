@@ -17,6 +17,8 @@ matrix:
           env: TOXENV=django19
 install:
     - pip install pyflakes tox codecov
+before_script:
+    - isort --check-only --diff --quiet
 script:
     - pyflakes setup.py runtests.py tests callisto
     - tox
