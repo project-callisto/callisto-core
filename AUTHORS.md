@@ -5,3 +5,4 @@ Contributors
 * Lacey Williams Henschel / @williln
 * Scot Hacker / @shacker
 * David Cook / @divergentdave
+* Kevin Daum / @kevindaum
