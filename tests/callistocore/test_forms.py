@@ -1,11 +1,13 @@
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+
 from callisto.delivery.forms import (
     NewSecretKeyForm, SecretKeyForm, SubmitToMatchingForm,
 )
 from callisto.delivery.models import Report
-from django.contrib.auth import get_user_model
-from django.test import TestCase
 
 User = get_user_model()
+
 
 class SubmitToMatchingFormTest(TestCase):
 

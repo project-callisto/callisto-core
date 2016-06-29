@@ -1,4 +1,3 @@
-from django.contrib import admin
 from wizard_builder.admin import (
     CheckboxAdmin, DateAdmin, FormQuestionParentAdmin, MultiLineTextAdmin,
     RadioButtonAdmin, SingleLineTextAdmin, SingleLineTextWithMapAdmin,
@@ -7,6 +6,8 @@ from wizard_builder.models import (
     Checkbox, Date, FormQuestion, MultiLineText, RadioButton, SingleLineText,
     SingleLineTextWithMap,
 )
+
+from django.contrib import admin
 
 from .models import EvaluationField
 

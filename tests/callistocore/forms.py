@@ -1,5 +1,6 @@
-from callisto.delivery.wizard import EncryptedFormBaseWizard
 from django.http import HttpResponse
+
+from callisto.delivery.wizard import EncryptedFormBaseWizard
 
 
 class EncryptedFormWizard(EncryptedFormBaseWizard):

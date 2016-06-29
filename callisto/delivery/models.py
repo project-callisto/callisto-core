@@ -3,6 +3,8 @@ import hashlib
 import nacl.secret
 import nacl.utils
 import six
+from polymorphic.models import PolymorphicModel
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail.message import EmailMultiAlternatives
@@ -11,7 +13,6 @@ from django.template import Context, Template
 from django.utils import timezone
 from django.utils.crypto import get_random_string, pbkdf2
 from django.utils.html import strip_tags
-from polymorphic.models import PolymorphicModel
 
 
 class Report(models.Model):

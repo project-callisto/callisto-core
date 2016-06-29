@@ -1,10 +1,11 @@
-from callisto.delivery.models import (
-    MatchReport, Report, SentFullReport, SentMatchReport,
-)
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
+
+from callisto.delivery.models import (
+    MatchReport, Report, SentFullReport, SentMatchReport,
+)
 
 User = get_user_model()
 

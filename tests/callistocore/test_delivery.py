@@ -2,7 +2,7 @@ from datetime import datetime
 from io import BytesIO
 
 import PyPDF2
-from mock import patch, call
+from mock import call, patch
 
 from django.contrib.auth import get_user_model
 from django.core import mail

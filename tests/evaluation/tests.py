@@ -2,18 +2,21 @@ import json
 
 import gnupg
 import six
-from callisto.delivery.models import Report
-from callisto.evaluation.models import EvalRow, EvaluationField
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
 from wizard_builder.models import (
     Checkbox, Choice, QuestionPage, RadioButton, SingleLineText,
 )
 
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
+from django.test import TestCase
+
+from callisto.delivery.models import Report
+from callisto.evaluation.models import EvalRow, EvaluationField
+
 from .test_keypair import private_test_key, public_test_key
 
 User = get_user_model()
+
 
 def delete_test_key(gpg, identifier):
     private_key_delete = str(gpg.delete_keys(identifier, True))

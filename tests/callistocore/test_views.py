@@ -1,6 +1,6 @@
 import json
 
-from mock import patch, Mock
+from mock import Mock, patch
 from wizard_builder.forms import QuestionPageForm
 from wizard_builder.models import (
     Choice, QuestionPage, RadioButton, SingleLineText,
@@ -13,6 +13,7 @@ from django.test import TestCase
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
 from callisto.delivery.models import Report
 from callisto.evaluation.models import EvalRow
+
 from .forms import EncryptedFormWizard
 
 User = get_user_model()

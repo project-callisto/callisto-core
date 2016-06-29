@@ -3,10 +3,11 @@ import json
 
 import bugsnag
 import gnupg
+from wizard_builder.models import FormQuestion, MultipleChoice
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from wizard_builder.models import FormQuestion, MultipleChoice
 
 
 class EvalRow(models.Model):

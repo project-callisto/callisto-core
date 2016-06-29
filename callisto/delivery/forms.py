@@ -1,14 +1,17 @@
 import bugsnag
-from callisto.evaluation.models import EvalRow
+from nacl.exceptions import CryptoError
+from six.moves.urllib.parse import parse_qs, urlsplit
+from zxcvbn import password_strength
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
-from nacl.exceptions import CryptoError
-from six.moves.urllib.parse import urlsplit, parse_qs
-from zxcvbn import password_strength
+
+from callisto.evaluation.models import EvalRow
 
 REQUIRED_ERROR = "The {0} field is required."
+
 
 class NewSecretKeyForm(forms.Form):
     error_messages = {
