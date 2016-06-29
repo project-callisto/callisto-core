@@ -1,16 +1,19 @@
-from django.db import models
-from django.conf import settings
-from polymorphic.models import PolymorphicModel
-from django.utils import timezone
-from django.utils.html import strip_tags
+import hashlib
+
 import nacl.secret
 import nacl.utils
-import hashlib
 import six
-from django.utils.crypto import pbkdf2, get_random_string
-from django.template import Template, Context
+from polymorphic.models import PolymorphicModel
+
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail.message import EmailMultiAlternatives
+from django.db import models
+from django.template import Context, Template
+from django.utils import timezone
+from django.utils.crypto import get_random_string, pbkdf2
+from django.utils.html import strip_tags
+
 
 class Report(models.Model):
     encrypted = models.BinaryField(blank=False)

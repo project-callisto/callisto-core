@@ -1,20 +1,26 @@
-from django.core.mail.message import EmailMultiAlternatives
-from django.conf import settings
-import gnupg
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, ListFlowable, ListItem, KeepTogether
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle, ListStyle
-from reportlab.lib.enums import TA_CENTER
-from django.utils.timezone import localtime
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from reportlab.platypus.doctemplate import Indenter
 import json
-from django.utils import timezone
-import pytz
+from io import BytesIO
 
+import gnupg
+import pytz
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
+from reportlab.pdfgen import canvas
+from reportlab.platypus import (
+    KeepTogether, ListFlowable, ListItem, PageBreak, Paragraph,
+    SimpleDocTemplate, Spacer,
+)
+from reportlab.platypus.doctemplate import Indenter
 from wizard_builder.models import PageBase
+
+from django.conf import settings
+from django.core.mail.message import EmailMultiAlternatives
+from django.utils import timezone
+from django.utils.timezone import localtime
+
 from .models import EmailNotification, SentFullReport, SentMatchReport
+
 
 date_format = "%m/%d/%Y @%H:%M%p"
 # TODO: customize https://github.com/SexualHealthInnovations/callisto-core/issues/20

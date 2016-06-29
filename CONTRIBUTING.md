@@ -4,6 +4,9 @@ Thank you so much for considering contributing to callisto-core. We couldn't do 
 
 These guidelines are a work in progress and will be updated as we refine our contributing process. If you have any questions, don't hesitate to ask.
 
+We are adhering to [Django's coding style
+guide](https://docs.djangoproject.com/en/1.9/internals/contributing/writing-code/coding-style/). 
+
 We're working on moving relevant issues from our private bug tracker over to the [GitHub issues](https://github.com/SexualHealthInnovations/callisto-core/issues) on this repo. Beyond the features and bugs listed there, we would very much welcome contributions to improve our non-existent documentation, and are happy to provide extensive support!
 
 #### Your first contribution

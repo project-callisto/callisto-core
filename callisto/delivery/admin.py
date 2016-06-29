@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from .models import EmailNotification
+
 
 class EmailNotificationAdmin(admin.ModelAdmin):
     class Media:

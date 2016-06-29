@@ -1,17 +1,21 @@
 from datetime import datetime
-import PyPDF2
 from io import BytesIO
 
-from django.test import TestCase
+import PyPDF2
+from mock import call, patch
+
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.test import TestCase
 
-from mock import patch, call
-from callisto.delivery.models import Report, MatchReport, EmailNotification
 from callisto.delivery.matching import find_matches
-from callisto.delivery.report_delivery import PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport
+from callisto.delivery.models import EmailNotification, MatchReport, Report
+from callisto.delivery.report_delivery import (
+    PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport,
+)
 
 User = get_user_model()
+
 
 class MatchTest(TestCase):
     def setUp(self):
@@ -143,7 +147,7 @@ class MatchDiscoveryTest(MatchTest):
         match2.report.refresh_from_db()
         self.assertTrue(match1.report.match_found)
         self.assertTrue(match2.report.match_found)
-        
+
 
 @patch('callisto.delivery.matching.send_notification_email')
 @patch('callisto.delivery.report_delivery.PDFMatchReport.send_email_to_coordinator')
