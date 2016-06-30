@@ -1,7 +1,6 @@
 import json
 import logging
 
-import bugsnag
 from wizard_builder.forms import get_form_pages
 from wizard_builder.views import ConfigurableFormWizard
 

@@ -6,7 +6,6 @@ git+https://github.com/SexualHealthInnovations/django-wizard-builder.git#egg=wiz
 PyNaCl==1.0.1
 python-gnupg==0.3.8
 
-bugsnag
 environ
 psycopg2==2.6.1
 pytz==2016.4

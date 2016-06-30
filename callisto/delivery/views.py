@@ -1,4 +1,5 @@
-import bugsnag
+import logging
+
 from ratelimit.decorators import ratelimit
 
 from django.conf import settings
@@ -15,6 +16,7 @@ from .models import EmailNotification, MatchReport, Report
 from .report_delivery import PDFFullReport, PDFMatchReport
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 def _send_user_notification(form, notification_name):
@@ -58,16 +60,14 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                     row.anonymise_record(action=EvalRow.SUBMIT, report=report)
                     row.save()
                 except Exception as e:
-                    #TODO: real logging
-                    bugsnag.notify(e)
+                    logger.error(e)
                     pass
 
                 try:
                     _send_user_notification(form, 'submit_confirmation')
                 except Exception as e:
-                    #TODO: real logging
                     # report was sent even if confirmation email fails, so don't show an error if so
-                    bugsnag.notify(e)
+                    logger.error(e)
 
                 return render(request, confirmation_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'report': report})
@@ -107,8 +107,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     if settings.MATCH_IMMEDIATELY:
                         find_matches(report_class=report_class)
                 except Exception as e:
-                    #TODO: real logging
-                    bugsnag.notify(e)
+                    logger.error(e)
                     return render(request, form_template_name, {'form': form, 'formset': formset,
                                                                        'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'submit_error': True})
@@ -119,16 +118,15 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     row.anonymise_record(action=EvalRow.MATCH, report=report)
                     row.save()
                 except Exception as e:
-                    #TODO: real logging
-                    bugsnag.notify(e)
+                    logger.error(e)
                     pass
 
                 try:
                     _send_user_notification(form, 'match_confirmation')
                 except Exception as e:
-                    #TODO: real logging
                     # matching was entered even if confirmation email fails, so don't show an error if so
-                    bugsnag.notify(e)
+                    logger.error(e)
+
 
                 return render(request, confirmation_template_name, {'school_name': settings.SCHOOL_SHORTNAME,
                                                                                     'report': report})
@@ -155,8 +153,7 @@ def withdraw_from_matching(request, report_id, template_name):
             row.anonymise_record(action=EvalRow.WITHDRAW, report=report)
             row.save()
         except Exception as e:
-            #TODO: real logging
-            bugsnag.notify(e)
+            logger.error(e)
             pass
 
         return render(request, template_name, {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
