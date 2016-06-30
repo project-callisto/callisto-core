@@ -16,7 +16,7 @@ matrix:
         - python: "3.3"
           env: TOXENV=django19
 install:
-    - pip install pyflakes tox codecov
+    - pip install pyflakes tox codecov isort
 before_script:
     - isort --check-only --diff --quiet
 script:
