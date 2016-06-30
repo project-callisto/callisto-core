@@ -6,3 +6,4 @@ Contributors
 * Scot Hacker / @shacker
 * David Cook / @divergentdave
 * Kevin Daum / @kevindaum
+* Carol Willing / @willingc
