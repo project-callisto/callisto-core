@@ -12,13 +12,23 @@ from callisto.evaluation.models import EvalRow
 from .forms import SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import find_matches
 from .models import EmailNotification, MatchReport, Report
-from .report_delivery import PDFFullReport
+from .report_delivery import PDFFullReport, PDFMatchReport
 
 User = get_user_model()
 
 
+def _send_user_notification(form, notification_name):
+    if form.cleaned_data.get('email_confirmation') == "True":
+        notification = EmailNotification.objects.get(name=notification_name)
+        preferred_email = form.cleaned_data.get('email')
+        to_email = preferred_email
+        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
+        notification.send(to=[to_email], from_email=from_email)
+
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_to_school(request, report_id):
+def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
+                     confirmation_template_name="submit_to_school_confirmation.html",
+                     report_class=PDFFullReport):
     owner = request.user
     report = Report.objects.get(id=report_id)
     if owner == report.owner:
@@ -32,12 +42,14 @@ def submit_to_school(request, report_id):
                     report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
                     report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                     report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                    PDFFullReport(owner, report, form.decrypted_report).send_report_to_school()
+                    report_class(report=report, decrypted_report=form.decrypted_report).send_report_to_school()
                     report.save()
                 except Exception as e:
                     #TODO: real logging
-                    bugsnag.notify(e)
-                    return render(request, 'submit_to_school.html', {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
+
+                    import traceback
+                    traceback.print_exc()
+                    return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'submit_error': True})
 
                 #record submission in anonymous evaluation data
@@ -51,27 +63,25 @@ def submit_to_school(request, report_id):
                     pass
 
                 try:
-                    if form.cleaned_data.get('email_confirmation') == "True":
-                        notification = EmailNotification.objects.get(name='submit_confirmation')
-                        preferred_email = form.cleaned_data.get('email')
-                        to_email = set([owner.account.school_email, preferred_email])
-                        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-                        notification.send(to=to_email, from_email=from_email)
+                    _send_user_notification(form, 'submit_confirmation')
                 except Exception as e:
                     #TODO: real logging
                     # report was sent even if confirmation email fails, so don't show an error if so
                     bugsnag.notify(e)
 
-                return render(request, 'submit_to_school_confirmation.html', {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
+                return render(request, confirmation_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'report': report})
         else:
             form = SubmitToSchoolForm(owner, report)
-        return render(request, 'submit_to_school.html', {'form': form, 'school_name': settings.SCHOOL_SHORTNAME})
+        return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME})
     else:
         return HttpResponseForbidden()
 
+
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_to_matching(request, report_id):
+def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
+                       confirmation_template_name="submit_to_matching_confirmation.html",
+                       report_class=PDFMatchReport):
     owner = request.user
     report = Report.objects.get(id=report_id)
     if owner == report.owner:
@@ -95,11 +105,11 @@ def submit_to_matching(request, report_id):
                         match_reports.append(match_report)
                     MatchReport.objects.bulk_create(match_reports)
                     if settings.MATCH_IMMEDIATELY:
-                        find_matches()
+                        find_matches(report_class=report_class)
                 except Exception as e:
                     #TODO: real logging
                     bugsnag.notify(e)
-                    return render(request, 'submit_to_matching.html', {'form': form, 'formset': formset,
+                    return render(request, form_template_name, {'form': form, 'formset': formset,
                                                                        'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'submit_error': True})
 
@@ -114,29 +124,25 @@ def submit_to_matching(request, report_id):
                     pass
 
                 try:
-                    if form.cleaned_data.get('email_confirmation') == "True":
-                        notification = EmailNotification.objects.get(name='match_confirmation')
-                        preferred_email = form.cleaned_data.get('email')
-                        to_email = set([owner.account.school_email, preferred_email])
-                        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-                        notification.send(to=to_email, from_email=from_email)
+                    _send_user_notification(form, 'match_confirmation')
                 except Exception as e:
                     #TODO: real logging
                     # matching was entered even if confirmation email fails, so don't show an error if so
                     bugsnag.notify(e)
 
-                return render(request, 'submit_to_matching_confirmation.html', {'school_name': settings.SCHOOL_SHORTNAME,
+                return render(request, confirmation_template_name, {'school_name': settings.SCHOOL_SHORTNAME,
                                                                                     'report': report})
 
         else:
             form = SubmitToSchoolForm(owner, report)
             formset = SubmitToMatchingFormSet()
-        return render(request, 'submit_to_matching.html', {'form': form, 'formset': formset,
+        return render(request, form_template_name, {'form': form, 'formset': formset,
                                                            'school_name': settings.SCHOOL_SHORTNAME})
     else:
         return HttpResponseForbidden()
 
-def withdraw_from_matching(request, report_id):
+
+def withdraw_from_matching(request, report_id, template_name):
     owner = request.user
     report = Report.objects.get(id=report_id)
     if owner == report.owner:
@@ -153,7 +159,7 @@ def withdraw_from_matching(request, report_id):
             bugsnag.notify(e)
             pass
 
-        return render(request, 'dashboard.html', {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
+        return render(request, template_name, {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
                                                         'coordinator_name': settings.COORDINATOR_NAME,
                                                        'coordinator_email': settings.COORDINATOR_EMAIL,
                                                        'match_report_withdrawn': True})

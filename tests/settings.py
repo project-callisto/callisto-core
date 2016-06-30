@@ -25,7 +25,8 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',)
+MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
+                      'django.contrib.auth.middleware.AuthenticationMiddleware',)
 
 TEMPLATE_DIRS = ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
 
@@ -40,7 +41,7 @@ def get_test_key():
     return key_str
 
 COORDINATOR_NAME="Tatiana Nine"
-COORDINATOR_EMAIL = "test@example.com"
+COORDINATOR_EMAIL = "titleix@example.com"
 COORDINATOR_PUBLIC_KEY = get_test_key()
 
 SCHOOL_SHORTNAME = "test"
@@ -54,3 +55,5 @@ SECRET_KEY = "not needed"
 CALLISTO_EVAL_PUBLIC_KEY = get_test_key()
 
 DECRYPT_THROTTLE_RATE = '100/m'
+
+MATCH_IMMEDIATELY = True

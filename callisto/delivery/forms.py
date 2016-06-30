@@ -120,10 +120,10 @@ class SubmitToSchoolForm(SecretKeyForm):
                                                                                 "Wednesdays and Thursdays I have class the entire day, so those days don't work at all.",
                                                                  'max_length': 5000}),)
 
-    email_confirmation = forms.ChoiceField(choices = [(True, "Yes"), (False, "No, thanks")],
+    email_confirmation = forms.ChoiceField(choices=[(True, "Yes"), (False, "No, thanks")],
                                            label="Would you like us to send you a confirmation email with information about your rights in the reporting process, and where to get support and find resources on campus?",
                                            required=True,
-                                           widget = forms.RadioSelect)
+                                           widget=forms.RadioSelect)
 
     def __init__(self, user, report, *args, **kwargs):
         super(SecretKeyForm, self).__init__(*args, **kwargs)
