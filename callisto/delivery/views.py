@@ -12,7 +12,7 @@ from callisto.evaluation.models import EvalRow
 from .forms import SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import find_matches
 from .models import EmailNotification, MatchReport, Report
-from .report_delivery import PDFFullReport
+from .report_delivery import PDFFullReport, PDFMatchReport
 
 User = get_user_model()
 
