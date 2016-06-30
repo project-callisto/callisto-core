@@ -1,4 +1,5 @@
-import bugsnag
+import logging
+
 from nacl.exceptions import CryptoError
 from six.moves.urllib.parse import parse_qs, urlsplit
 from zxcvbn import password_strength
@@ -11,6 +12,8 @@ from django.forms.formsets import formset_factory
 from callisto.evaluation.models import EvalRow
 
 REQUIRED_ERROR = "The {0} field is required."
+
+logger = logging.getLogger(__name__)
 
 
 class NewSecretKeyForm(forms.Form):
@@ -80,8 +83,7 @@ class SecretKeyForm(forms.Form):
                     row.add_report_data(decrypted_report)
                     row.save()
             except Exception as e:
-                #TODO: real logging
-                bugsnag.notify(e)
+                logger.error(e)
                 pass
         except CryptoError:
             self.decrypted_report = None

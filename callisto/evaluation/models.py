@@ -1,13 +1,16 @@
 import hashlib
 import json
+import logging
 
-import bugsnag
 import gnupg
 from wizard_builder.models import FormQuestion, MultipleChoice
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+
+logger = logging.getLogger(__name__)
+
 
 
 class EvalRow(models.Model):
@@ -80,8 +83,7 @@ class EvalRow(models.Model):
                 except ObjectDoesNotExist:
                         pass
             except Exception as e:
-                #TODO: real logging
-                bugsnag.notify(e)
+                logger.error(e)
                 # extract other answers if we can
                 pass
 
@@ -100,8 +102,7 @@ class EvalRow(models.Model):
                     else:
                         extract_single_question(serialized_question, anonymised_answers)
             except Exception as e:
-                #TODO: real logging
-                bugsnag.notify(e)
+                logger.error(e)
                 # extract other answers if we can
                 pass
         return anonymised_answers

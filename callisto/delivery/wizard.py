@@ -1,4 +1,5 @@
 import json
+import logging
 
 import bugsnag
 from wizard_builder.forms import get_form_pages
@@ -12,6 +13,7 @@ from callisto.evaluation.models import EvalRow
 from .forms import NewSecretKeyForm, SecretKeyForm
 from .models import Report
 
+logger = logging.getLogger(__name__)
 
 class EncryptedFormBaseWizard(ConfigurableFormWizard):
 
@@ -78,8 +80,7 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             row.anonymise_record(action=action, report=report, decrypted_text=report_text)
             row.save()
         except Exception as e:
-            #TODO: real logging
-            bugsnag.notify(e)
+            logger.error(e)
             pass
 
         return self.wizard_complete(report, **kwargs)
