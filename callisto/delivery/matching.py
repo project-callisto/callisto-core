@@ -1,10 +1,14 @@
+import logging
 from django.conf import settings
 
 from .models import EmailNotification, MatchReport
 from .report_delivery import PDFMatchReport
 
+logger = logging.getLogger(__name__)
+
 
 def find_matches(report_class=PDFMatchReport):
+    logger.info("running matching")
     new_identifiers = MatchReport.objects.filter(seen=False).order_by('identifier').values('identifier').distinct()
     for row in new_identifiers.values():
         matches = MatchReport.objects.filter(identifier=row['identifier'])
@@ -25,6 +29,7 @@ def find_matches(report_class=PDFMatchReport):
         matches.update(seen=True)
 
 def process_new_matches(matches, report_class):
+    logger.info("new match found")
     owners_notified = []
     for match_report in matches:
         owner = match_report.report.owner

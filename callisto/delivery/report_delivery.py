@@ -1,4 +1,5 @@
 import json
+import logging
 from io import BytesIO
 
 import gnupg
@@ -25,6 +26,8 @@ date_format = "%m/%d/%Y @%H:%M%p"
 # TODO: customize https://github.com/SexualHealthInnovations/callisto-core/issues/20
 tzname = 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
+logger = logging.getLogger(__name__)
+
 
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -276,6 +279,7 @@ class PDFFullReport(PDFReport):
         self.decrypted_report = decrypted_report
 
     def send_report_to_school(self):
+        logger.info("sending report to reporting authority")
         report_id = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL).get_report_id()
         self.report.submitted_to_school = timezone.now()
         pdf = self.generate_pdf_report(report_id)
@@ -434,6 +438,7 @@ class PDFMatchReport(PDFReport):
         return result
 
     def send_matching_report_to_school(self):
+        logger.info("sending match report to reporting authority")
         sent_report = SentMatchReport.objects.create(to_address = settings.COORDINATOR_EMAIL)
         report_id = sent_report.get_report_id()
         sent_report.reports.add(*self.matches)
