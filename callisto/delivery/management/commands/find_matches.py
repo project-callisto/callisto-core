@@ -1,8 +1,9 @@
 import importlib
+
 from django.core.management.base import BaseCommand
 
-from callisto.delivery.report_delivery import PDFMatchReport
 from callisto.delivery.matching import find_matches
+from callisto.delivery.report_delivery import PDFMatchReport
 
 
 class Command(BaseCommand):

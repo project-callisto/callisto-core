@@ -9,6 +9,7 @@ from callisto.delivery.models import EmailNotification, Report
 from callisto.delivery.report_delivery import (
     PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport,
 )
+
 from .test_matching import MatchTest
 
 User = get_user_model()

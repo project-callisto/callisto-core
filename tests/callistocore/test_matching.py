@@ -1,13 +1,15 @@
 from datetime import datetime
 
-from django.test import TestCase
+from mock import call, patch
+
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
+from django.test import TestCase
 
-from mock import patch, call
-from callisto.delivery.models import Report, MatchReport
 from callisto.delivery.matching import find_matches
+from callisto.delivery.models import MatchReport, Report
 from callisto.delivery.report_delivery import PDFMatchReport
+
 from .forms import CustomMatchReport
 
 User = get_user_model()
@@ -208,4 +210,3 @@ class MatchingCommandTest(MatchTest):
         match2 = self.create_match(self.user2, 'dummy')
         call_command('find_matches', report_class="tests.callistocore.forms.CustomMatchReport")
         mock_process.assert_called_once_with([match1, match2], CustomMatchReport)
-

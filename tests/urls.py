@@ -1,8 +1,11 @@
 from django.conf.urls import url
-from .callistocore.views import new_test_report_view, edit_test_report_view
-from callisto.delivery.views import submit_to_school, submit_to_matching, withdraw_from_matching
-from .callistocore.forms import CustomReport, CustomMatchReport
 
+from callisto.delivery.views import (
+    submit_to_matching, submit_to_school, withdraw_from_matching,
+)
+
+from .callistocore.forms import CustomMatchReport, CustomReport
+from .callistocore.views import edit_test_report_view, new_test_report_view
 
 urlpatterns = [
     url(r'^test_reports/new/(?P<step>.+)/$', new_test_report_view, name="test_new_report"),
