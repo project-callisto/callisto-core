@@ -31,6 +31,8 @@ lint: ## check style with flake8
 	flake8 callisto tests
 
 test: ## run tests quickly with the default Python
+	pyflakes setup.py runtests.py tests callisto
+	isort -c
 	python runtests.py tests
 
 test-all: ## run tests on every Python version with tox
