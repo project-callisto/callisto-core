@@ -114,6 +114,20 @@ class MatchDiscoveryTest(MatchTest):
         self.assertTrue(match3.report.match_found)
         self.assertTrue(match4.report.match_found)
 
+    def test_multiple_match(self, mock_process):
+        match1 = self.create_match(self.user1, 'dummy')
+        match2 = self.create_match(self.user2, 'dummy')
+        user3 = User.objects.create_user(username="yumdm", password="dummy")
+        match3 = self.create_match(user3, 'dummy')
+        find_matches()
+        self.assertTrue(mock_process.called)
+        match1.report.refresh_from_db()
+        match2.report.refresh_from_db()
+        match3.report.refresh_from_db()
+        self.assertTrue(match1.report.match_found)
+        self.assertTrue(match2.report.match_found)
+        self.assertTrue(match3.report.match_found)
+
     def test_existing_match_still_triggers_on_new(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
@@ -160,6 +174,16 @@ class MatchNotificationTest(MatchTest):
         calls = [call(self.user1, report1), call(self.user2, report2)]
         mock_send_email.assert_has_calls(calls)
         self.assertEqual(mock_send_email.call_count, 2)
+
+    def test_multiple_match_sends_emails_to_all(self, mock_send_to_school, mock_send_email):
+        report1 = self.create_match(self.user1, 'dummy')
+        report2 = self.create_match(self.user2, 'dummy')
+        user3 = User.objects.create_user(username="yumdm", password="dummy")
+        report3 = self.create_match(user3, 'dummy')
+        find_matches()
+        calls = [call(self.user1, report1), call(self.user2, report2), call(user3, report3)]
+        mock_send_email.assert_has_calls(calls)
+        self.assertEqual(mock_send_email.call_count, 3)
 
     def test_only_new_matches_sent_emails(self, mock_send_to_school, mock_send_email):
         self.create_match(self.user1, 'dummy')
