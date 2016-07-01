@@ -1,3 +1,5 @@
+from mock import call, patch
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
@@ -88,7 +90,7 @@ class CreateKeyFormTest(TestCase):
             ["Your password isn't strong enough."]
         )
 
-
+@patch('callisto.delivery.forms.EvalRow.add_report_data')
 class DecryptKeyFormTest(TestCase):
 
     def setUp(self):
@@ -98,7 +100,7 @@ class DecryptKeyFormTest(TestCase):
         self.report.encrypt_report('this is a report', self.key)
         self.report.save()
 
-    def test_wrong_key_rejected(self):
+    def test_wrong_key_rejected(self, mock_add_report_data):
         bad_request = {'key': 'not my key'}
         form = SecretKeyForm(bad_request)
         form.report = self.report
@@ -108,7 +110,7 @@ class DecryptKeyFormTest(TestCase):
             ["The passphrase didn't match."]
         )
 
-    def test_right_key_accepted(self):
+    def test_right_key_accepted(self, mock_add_report_data):
         good_request = {'key': self.key}
         form = SecretKeyForm(good_request)
         form.report = self.report
