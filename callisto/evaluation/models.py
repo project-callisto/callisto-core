@@ -82,7 +82,7 @@ class EvalRow(models.Model):
                 except ObjectDoesNotExist:
                         pass
             except Exception:
-                logger.error(e)
+                logger.exception("could not extract an answer in creating eval row")
                 # extract other answers if we can
                 pass
 
@@ -101,7 +101,7 @@ class EvalRow(models.Model):
                     else:
                         extract_single_question(serialized_question, anonymised_answers)
             except Exception:
-                logger.error(e)
+                logger.exception("could not extract an answer in creating eval row")
                 # extract other answers if we can
                 pass
         return anonymised_answers
