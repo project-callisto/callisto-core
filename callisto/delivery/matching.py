@@ -10,24 +10,38 @@ logger = logging.getLogger(__name__)
 
 def find_matches(report_class=PDFMatchReport):
     logger.info("running matching")
-    new_identifiers = MatchReport.objects.filter(seen=False).order_by('identifier').values('identifier').distinct()
-    for row in new_identifiers.values():
-        matches = MatchReport.objects.filter(identifier=row['identifier'])
-        match_list = list(matches)
+    identifiers = [match_report.identifier for match_report in MatchReport.objects.filter(seen=False)]
+    run_matching(identifiers, report_class=report_class)
+
+
+def run_matching(identifiers, report_class=PDFMatchReport):
+    for identifier in identifiers:
+        match_list = []
+        for potential in MatchReport.objects.all():
+            if potential.get_match(identifier):
+                match_list.append(potential)
         if len(match_list) > 1:
             seen_match_owners = [match.report.owner for match in match_list if match.seen]
             new_match_owners = [match.report.owner for match in match_list if not match.seen]
             all_owners = seen_match_owners + new_match_owners
-            # filter out reports made by the same person
+            # filter out multiple reports made by the same person
             if len(set(all_owners)) > 1:
                 # only send notifications if new owners are actually new
                 if not set(new_match_owners).issubset(set(seen_match_owners)):
                     process_new_matches(match_list, report_class)
-                #new owners all already have existing matches
                 for match_report in match_list:
                     match_report.report.match_found = True
                     match_report.report.save()
-        matches.update(seen=True)
+        for match in match_list:
+            match.seen = True # TODO: delete identifier
+            match.save()
+
+# Tomorrow: save match_reports with encrypted blobs
+# if match_immediately, save match_report without identifier & call run_matching
+# if not, save match_report with identifier & wait for matching to run
+# write some tests for delayed matching?
+# db migration
+
 
 def process_new_matches(matches, report_class):
     logger.info("new match found")

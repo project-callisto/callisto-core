@@ -3,6 +3,7 @@ import hashlib
 import nacl.secret
 import nacl.utils
 import six
+from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
 
 from django.conf import settings
@@ -13,6 +14,21 @@ from django.template import Context, Template
 from django.utils import timezone
 from django.utils.crypto import get_random_string, pbkdf2
 from django.utils.html import strip_tags
+
+
+def _encrypt_report(salt, key, report_text):
+    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
+    box = nacl.secret.SecretBox(stretched_key)
+    message = report_text.encode('utf-8')
+    nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
+    return box.encrypt(message, nonce)
+
+
+def _decrypt_report(salt, key, encrypted):
+    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
+    box = nacl.secret.SecretBox(stretched_key)
+    decrypted = box.decrypt(bytes(encrypted))
+    return decrypted.decode('utf-8')
 
 
 class Report(models.Model):
@@ -47,18 +63,10 @@ class Report(models.Model):
             self.salt = get_random_string()
         else:
             self.last_edited = timezone.now()
-        stretched_key = pbkdf2(key, self.salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
-        box = nacl.secret.SecretBox(stretched_key)
-        message = report_text.encode('utf-8')
-        nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
-        encrypted = box.encrypt(message, nonce)
-        self.encrypted = encrypted
+        self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
 
     def decrypted_report(self, key):
-        stretched_key = pbkdf2(key, self.salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
-        box = nacl.secret.SecretBox(stretched_key)
-        decrypted = box.decrypt(bytes(self.encrypted))
-        return decrypted.decode('utf-8')
+        return _decrypt_report(salt=self.salt, key=key, encrypted=self.encrypted)
 
     def withdraw_from_matching(self):
         self.matchreport_set.all().delete()
@@ -115,8 +123,27 @@ class MatchReport(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(blank=False, default=False)
 
+    # TODO: make required after migration
+    encrypted = models.BinaryField(null=True)
+    salt = models.CharField(null=True, max_length=256)
+
+    # TODO: save identifier temporarily for delayed matching
+
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
+
+    def encrypt_report(self, report_text, key):
+        self.salt = get_random_string()
+        self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
+
+    def get_match(self, identifier):
+        decrypted_report = None
+        try:
+            decrypted_report = _decrypt_report(salt=self.salt, key=identifier, encrypted=self.encrypted)
+        except CryptoError:
+            pass
+        return decrypted_report
+
 
 class SentReport(PolymorphicModel):
     # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14

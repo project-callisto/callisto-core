@@ -1,3 +1,4 @@
+import json
 import logging
 
 from ratelimit.decorators import ratelimit
@@ -26,6 +27,7 @@ def _send_user_notification(form, notification_name):
         to_email = preferred_email
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
         notification.send(to=[to_email], from_email=from_email)
+
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
@@ -91,7 +93,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                 try:
                     match_reports = []
                     for perp_form in formset:
-                        #enter into matching
+                        # enter into matching
                         match_report = MatchReport(report=report)
                         match_report.contact_name = conditional_escape(form.cleaned_data.get('name'))
                         match_report.contact_email = form.cleaned_data.get('email')
@@ -100,6 +102,17 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                         match_report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                         match_report.identifier = perp_form.cleaned_data.get('perp')
                         match_report.name = conditional_escape(perp_form.cleaned_data.get('perp_name'))
+
+                        match_report_text = {}
+                        match_report_text['contact_name'] = conditional_escape(form.cleaned_data.get('name'))
+                        match_report_text['contact_email'] = form.cleaned_data.get('email')
+                        match_report_text['contact_phone'] = conditional_escape(form.cleaned_data.get('phone_number'))
+                        match_report_text['contact_voicemail'] = conditional_escape(form.cleaned_data.get('voicemail'))
+                        match_report_text['contact_notes'] = conditional_escape(form.cleaned_data.get('contact_notes'))
+                        match_report_text['identifier'] = perp_form.cleaned_data.get('perp')
+                        match_report_text['perp_name'] = conditional_escape(perp_form.cleaned_data.get('perp_name'))
+                        match_report.encrypt_report(report_text=json.dumps(match_report_text),
+                                                    key=match_report.identifier)
                         match_reports.append(match_report)
                     MatchReport.objects.bulk_create(match_reports)
                     if settings.MATCH_IMMEDIATELY:

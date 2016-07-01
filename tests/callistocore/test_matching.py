@@ -23,8 +23,10 @@ class MatchTest(TestCase):
         report = Report(owner = user)
         report.encrypt_report("test report 1", "key")
         report.save()
-        return MatchReport.objects.create(report=report, contact_phone='phone',
-                                          contact_email='test@example.com', identifier=identifier)
+        match_report = MatchReport(report=report, identifier=identifier)
+        match_report.encrypt_report('test', identifier)
+        match_report.save()
+        return match_report
 
 
 @patch('callisto.delivery.matching.process_new_matches')
@@ -120,7 +122,7 @@ class MatchDiscoveryTest(MatchTest):
         user3 = User.objects.create_user(username="yumdm", password="dummy")
         match3 = self.create_match(user3, 'dummy')
         find_matches()
-        self.assertTrue(mock_process.called)
+        mock_process.assert_called_once_with([match1, match2, match3], PDFMatchReport)
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         match3.report.refresh_from_db()
