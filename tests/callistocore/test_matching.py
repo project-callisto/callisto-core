@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from mock import call, patch
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import TestCase
+from django.utils import timezone
 
 from callisto.delivery.matching import find_matches
 from callisto.delivery.models import MatchReport, Report
@@ -187,7 +186,7 @@ class MatchNotificationTest(MatchTest):
     def test_doesnt_notify_on_reported_reports(self, mock_send_to_school, mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
         report2 = self.create_match(self.user2, 'dummy')
-        report2.report.submitted_to_school = datetime.now()
+        report2.report.submitted_to_school = timezone.now()
         report2.report.save()
         find_matches()
         mock_send_email.assert_called_once_with(self.user1, report1)
