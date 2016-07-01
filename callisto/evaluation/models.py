@@ -81,8 +81,8 @@ class EvalRow(models.Model):
                             eval_location[label + "_extra"] = question_dict['extra']['answer']
                 except ObjectDoesNotExist:
                         pass
-            except Exception as e:
-                logger.error(e)
+            except Exception:
+                logger.exception("could not extract an answer in creating eval row")
                 # extract other answers if we can
                 pass
 
@@ -100,8 +100,8 @@ class EvalRow(models.Model):
                         anonymised_answers[serialized_question['prompt'] + "_multiple"] = all_pages
                     else:
                         extract_single_question(serialized_question, anonymised_answers)
-            except Exception as e:
-                logger.error(e)
+            except Exception:
+                logger.exception("could not extract an answer in creating eval row")
                 # extract other answers if we can
                 pass
         return anonymised_answers

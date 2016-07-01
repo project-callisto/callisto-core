@@ -14,6 +14,7 @@ from .models import Report
 
 logger = logging.getLogger(__name__)
 
+
 class EncryptedFormBaseWizard(ConfigurableFormWizard):
 
     def get_form_initial(self, step):
@@ -78,8 +79,8 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             row = EvalRow()
             row.anonymise_record(action=action, report=report, decrypted_text=report_text)
             row.save()
-        except Exception as e:
-            logger.error(e)
+        except Exception:
+            logger.exception("couldn't save evaluation row on record creation")
             pass
 
         return self.wizard_complete(report, **kwargs)

@@ -82,11 +82,12 @@ class SecretKeyForm(forms.Form):
                     row.action = EvalRow.FIRST
                     row.add_report_data(decrypted_report)
                     row.save()
-            except Exception as e:
-                logger.error(e)
+            except Exception:
+                logger.exception("couldn't save anonymous row on catch-up save")
                 pass
         except CryptoError:
             self.decrypted_report = None
+            logger.info("decryption failure on report {}".format(report.id))
             raise forms.ValidationError(
                 self.error_messages['wrong_key'],
                 code='wrong_key',
@@ -157,6 +158,7 @@ class SubmitToMatchingForm(forms.Form):
         #check if Facebook
         domain = url_parts[1]
         if not (domain=='facebook.com' or domain.endswith('.facebook.com')):
+            logger.info("invalid facebook url entered with domain {}".format(domain))
             raise ValidationError('Please enter a valid Facebook profile URL.', code='notfacebook')
         path = url_parts[2].strip('/').split('/')[0]
         generic_fb_urls = ['messages', 'hashtag', 'events', 'pages', 'groups', 'bookmarks', 'lists', 'developers', 'topic', 'help',
