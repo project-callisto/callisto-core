@@ -82,7 +82,7 @@ class SecretKeyForm(forms.Form):
                     row.action = EvalRow.FIRST
                     row.add_report_data(decrypted_report)
                     row.save()
-            except Exception as e:
+            except Exception:
                 logger.exception("couldn't save anonymous row on catch-up save")
                 pass
         except CryptoError:

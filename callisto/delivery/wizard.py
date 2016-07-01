@@ -79,7 +79,7 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             row = EvalRow()
             row.anonymise_record(action=action, report=report, decrypted_text=report_text)
             row.save()
-        except Exception as e:
+        except Exception:
             logger.exception("couldn't save evaluation row on record creation")
             pass
 

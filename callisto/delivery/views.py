@@ -46,7 +46,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                     report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                     report_class(report=report, decrypted_report=form.decrypted_report).send_report_to_school()
                     report.save()
-                except Exception as e:
+                except Exception:
                     logger.exception("couldn't submit report for report {}".format(report_id))
                     return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'submit_error': True})
@@ -56,13 +56,13 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                     row = EvalRow()
                     row.anonymise_record(action=EvalRow.SUBMIT, report=report)
                     row.save()
-                except Exception as e:
+                except Exception:
                     logger.exception("couldn't save evaluation row on submission")
                     pass
 
                 try:
                     _send_user_notification(form, 'submit_confirmation')
-                except Exception as e:
+                except Exception:
                     # report was sent even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on submission")
 
@@ -104,7 +104,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     MatchReport.objects.bulk_create(match_reports)
                     if settings.MATCH_IMMEDIATELY:
                         find_matches(report_class=report_class)
-                except Exception as e:
+                except Exception:
                     logger.exception("couldn't submit match report for report {}".format(report_id))
                     return render(request, form_template_name, {'form': form, 'formset': formset,
                                                                 'school_name': settings.SCHOOL_SHORTNAME,
@@ -115,13 +115,13 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     row = EvalRow()
                     row.anonymise_record(action=EvalRow.MATCH, report=report)
                     row.save()
-                except Exception as e:
+                except Exception:
                     logger.exception("couldn't save evaluation row on match submission")
                     pass
 
                 try:
                     _send_user_notification(form, 'match_confirmation')
-                except Exception as e:
+                except Exception:
                     # matching was entered even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on match submission")
 
@@ -150,7 +150,7 @@ def withdraw_from_matching(request, report_id, template_name):
             row = EvalRow()
             row.anonymise_record(action=EvalRow.WITHDRAW, report=report)
             row.save()
-        except Exception as e:
+        except Exception:
             logger.exception("couldn't save evaluation row on match withdrawal")
             pass
 
