@@ -129,7 +129,7 @@ class SubmitToSchoolForm(SecretKeyForm):
                                            widget=forms.RadioSelect)
 
     def __init__(self, user, report, *args, **kwargs):
-        super(SecretKeyForm, self).__init__(*args, **kwargs)
+        super(SubmitToSchoolForm, self).__init__(*args, **kwargs)
         self.user = user
         self.report = report
         self.fields['key'].widget.attrs['placeholder'] = 'ex. I am a muffin baking ninja'
