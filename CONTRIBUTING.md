@@ -22,7 +22,31 @@ As Django's style guide explains, you can use `isort` to automatically sort impo
 ## How to submit
 We need all contributors to sign our [volunteer agreement](https://github.com/SexualHealthInnovations/callisto-core/blob/master/shi-volunteer-agreement.pdf) (PDF) in order to accept contributions. Signed agreements can be submitted to tech@sexualhealthinnovations.org. We can take fixes to documentation without a signed agreement.
 
-Coming soon: how to run tests
+#### How to run tests
+````
+git clone git@github.com:SexualHealthInnovations/callisto-core.git # first time only
+cd callisto-core
+pip install virtualenv # first time only
+virtualenv venv # localize your dependencies
+source venv/bin/activate
+pip install -r requirements-test.txt
+make test # run tests quickly with the default Python. Prefer this over running ``python runtests.py`` directly.
+deactivate # exit virtualenv
+````
+
+#### Supported versions:
+
+Django
+- 1.8
+- 1.9
+
+Python
+- 2.7
+- 3.3
+- 3.4
+- 3.5
+
+To see whether your pull request has passed the build on all of these versions, go to https://travis-ci.org/SexualHealthInnovations/callisto-core/pull_requests and click on your PR title to see all of the builds for your code with the above versions of Django and Python.
 
 ## How to report a bug
 
