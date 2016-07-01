@@ -31,10 +31,10 @@ Django
 - 1.9
 
 Python
-- 2.7 (coming soon in PR #35)
-- 3.3 (coming soon in PR #35)
+- 2.7
+- 3.3
 - 3.4
-- 3.5 (coming soon in PR #35)
+- 3.5
 
 To see whether your pull request has passed the build on all of these versions, go to https://travis-ci.org/SexualHealthInnovations/callisto-core/pull_requests and click on your PR title to see all of the builds for your code with the above versions of Django and Python.
 
