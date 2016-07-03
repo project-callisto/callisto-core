@@ -1,3 +1,4 @@
+import json
 from mock import call, patch
 
 from django.contrib.auth import get_user_model
@@ -19,12 +20,13 @@ class MatchTest(TestCase):
         self.user1 = User.objects.create_user(username="dummy", password="dummy")
         self.user2 = User.objects.create_user(username="ymmud", password="dummy")
 
-    def create_match(self, user, identifier):
-        report = Report(owner = user)
+    def create_match(self, user, identifier, match_report_dict=None):
+        report = Report(owner=user)
         report.encrypt_report("test report 1", "key")
         report.save()
         match_report = MatchReport(report=report, identifier=identifier)
-        match_report.encrypt_report('test', identifier)
+        match_report_dict = match_report_dict if match_report_dict else {'contact_email': 'test@example.com'}
+        match_report.encrypt_report(json.dumps(match_report_dict), identifier)
         match_report.save()
         return match_report
 
@@ -36,7 +38,7 @@ class MatchDiscoveryTest(MatchTest):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         find_matches()
-        mock_process.assert_called_once_with([match1, match2], PDFMatchReport)
+        mock_process.assert_called_once_with([match1, match2], 'dummy', PDFMatchReport)
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         self.assertTrue(match1.report.match_found)
@@ -106,7 +108,7 @@ class MatchDiscoveryTest(MatchTest):
         user4 = User.objects.create_user(username="mmudy", password="dummy")
         match4 = self.create_match(user4, 'dummy1')
         find_matches()
-        mock_process.assert_called_once_with([match2, match3, match4], PDFMatchReport)
+        mock_process.assert_called_once_with([match2, match3, match4], 'dummy1', PDFMatchReport)
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         match3.report.refresh_from_db()
@@ -122,7 +124,7 @@ class MatchDiscoveryTest(MatchTest):
         user3 = User.objects.create_user(username="yumdm", password="dummy")
         match3 = self.create_match(user3, 'dummy')
         find_matches()
-        mock_process.assert_called_once_with([match1, match2, match3], PDFMatchReport)
+        mock_process.assert_called_once_with([match1, match2, match3], 'dummy', PDFMatchReport)
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         match3.report.refresh_from_db()
@@ -139,7 +141,7 @@ class MatchDiscoveryTest(MatchTest):
         user3 = User.objects.create_user(username="yumdm", password="dummy")
         match3 = self.create_match(user3, 'dummy')
         find_matches()
-        mock_process.assert_called_once_with([match1, match2, match3], PDFMatchReport)
+        mock_process.assert_called_once_with([match1, match2, match3], 'dummy', PDFMatchReport)
 
     def test_error_during_processing_means_match_not_seen(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
@@ -155,7 +157,7 @@ class MatchDiscoveryTest(MatchTest):
         self.assertFalse(match2.report.match_found)
         mock_process.reset_mock()
         find_matches()
-        mock_process.assert_called_once_with([match1, match2], PDFMatchReport)
+        mock_process.assert_called_once_with([match1, match2], 'dummy', PDFMatchReport)
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         self.assertTrue(match1.report.match_found)
@@ -227,11 +229,11 @@ class MatchingCommandTest(MatchTest):
         args = []
         opts = {}
         call_command('find_matches', *args, **opts)
-        mock_process.assert_called_once_with([match1, match2], PDFMatchReport)
+        mock_process.assert_called_once_with([match1, match2], 'dummy', PDFMatchReport)
 
     @patch('callisto.delivery.matching.process_new_matches')
     def test_command_runs_matches_with_custom_class(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         call_command('find_matches', report_class="tests.callistocore.forms.CustomMatchReport")
-        mock_process.assert_called_once_with([match1, match2], CustomMatchReport)
+        mock_process.assert_called_once_with([match1, match2], 'dummy', CustomMatchReport)

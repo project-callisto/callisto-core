@@ -28,7 +28,7 @@ def run_matching(identifiers, report_class=PDFMatchReport):
             if len(set(all_owners)) > 1:
                 # only send notifications if new owners are actually new
                 if not set(new_match_owners).issubset(set(seen_match_owners)):
-                    process_new_matches(match_list, report_class)
+                    process_new_matches(match_list, identifier, report_class)
                 for match_report in match_list:
                     match_report.report.match_found = True
                     match_report.report.save()
@@ -43,7 +43,7 @@ def run_matching(identifiers, report_class=PDFMatchReport):
 # db migration
 
 
-def process_new_matches(matches, report_class):
+def process_new_matches(matches, identifier, report_class):
     logger.info("new match found")
     owners_notified = []
     for match_report in matches:
@@ -53,7 +53,7 @@ def process_new_matches(matches, report_class):
             send_notification_email(owner, match_report)
             owners_notified.append(owner)
     #send report to school
-    report_class(matches).send_matching_report_to_school()
+    report_class(matches, identifier).send_matching_report_to_school()
 
 def send_notification_email(user, match_report):
     notification = EmailNotification.objects.get(name='match_notification')

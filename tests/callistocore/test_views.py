@@ -677,7 +677,6 @@ class WithdrawMatchIntegrationTest(ExistingRecordTest):
         match_report = MatchReport()
         match_report.report = self.report
         match_report.contact_email = "test@example.com"
-        match_report.contact_phone = "555-555-1212"
         match_report.identifier = "http://www.facebook.com/test_withdrawal"
         match_report.save()
         self.match_report = match_report
