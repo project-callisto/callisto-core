@@ -17,6 +17,7 @@ matrix:
           env: TOXENV=django19
 install:
     - pip install -r requirements-test.txt
+    - pip install codecov
 before_script:
     - isort --check-only --diff --quiet
 script:
