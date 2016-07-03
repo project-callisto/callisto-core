@@ -39,12 +39,6 @@ def run_matching(identifiers, report_class=PDFMatchReport):
             match.identifier = None
             match.save()
 
-# Tomorrow: save match_reports with encrypted blobs
-# if match_immediately, save match_report without identifier & call run_matching
-# if not, save match_report with identifier & wait for matching to run
-# write some tests for delayed matching?
-# db migration
-
 
 def process_new_matches(matches, identifier, report_class):
     logger.info("new match found")
