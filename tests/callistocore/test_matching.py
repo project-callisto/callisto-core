@@ -34,6 +34,24 @@ class MatchTest(TestCase):
 @patch('callisto.delivery.matching.process_new_matches')
 class MatchDiscoveryTest(MatchTest):
 
+    def test_running_matching_sets_report_seen(self, mock_process):
+        self.create_match(self.user1, 'dummy')
+        self.create_match(self.user2, 'dummy2')
+        for report in MatchReport.objects.all():
+            self.assertFalse(report.seen)
+        find_matches()
+        for report in MatchReport.objects.all():
+            self.assertTrue(report.seen)
+
+    def test_running_matching_erases_identifier(self, mock_process):
+        self.create_match(self.user1, 'dummy')
+        self.create_match(self.user2, 'dummy2')
+        for report in MatchReport.objects.all():
+            self.assertIsNotNone(report.identifier)
+        find_matches()
+        for report in MatchReport.objects.all():
+            self.assertIsNone(report.identifier)
+
     def test_two_matching_reports_match(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')

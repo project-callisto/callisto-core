@@ -92,13 +92,13 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
             if form.is_valid() and formset.is_valid():
                 try:
                     match_reports = []
+                    identifiers = []
                     for perp_form in formset:
                         # enter into matching
                         match_report = MatchReport(report=report)
                         match_report_text = {}
 
-                        match_report.identifier = perp_form.cleaned_data.get('perp')
-                        match_report_text['identifier'] = perp_form.cleaned_data.get('perp')
+                        perp_identifier = match_report_text['identifier'] = perp_form.cleaned_data.get('perp')
                         match_report_text['perp_name'] = conditional_escape(perp_form.cleaned_data.get('perp_name'))
                         match_report_text['contact_name'] = conditional_escape(form.cleaned_data.get('name'))
                         match_report_text['contact_email'] = form.cleaned_data.get('email')
@@ -107,11 +107,16 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                         match_report_text['contact_voicemail'] = conditional_escape(form.cleaned_data.get('voicemail'))
                         match_report_text['contact_notes'] = conditional_escape(form.cleaned_data.get('contact_notes'))
                         match_report.encrypt_report(report_text=json.dumps(match_report_text),
-                                                    key=match_report.identifier)
+                                                    key=perp_identifier)
+
+                        if settings.MATCH_IMMEDIATELY:
+                            identifiers.append(perp_identifier)
+                        else:
+                            match_report.identifier = perp_identifier
                         match_reports.append(match_report)
                     MatchReport.objects.bulk_create(match_reports)
                     if settings.MATCH_IMMEDIATELY:
-                        find_matches(report_class=report_class)
+                        find_matches(identifiers=identifiers, report_class=report_class)
                 except Exception:
                     logger.exception("couldn't submit match report for report {}".format(report_id))
                     return render(request, form_template_name, {'form': form, 'formset': formset,

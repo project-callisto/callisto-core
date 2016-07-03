@@ -8,8 +8,10 @@ from wizard_builder.models import (
 
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.management import call_command
 from django.http import HttpRequest
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
 from callisto.delivery.models import EmailNotification, MatchReport, Report
@@ -18,9 +20,6 @@ from callisto.evaluation.models import EvalRow
 from .forms import EncryptedFormWizard
 
 User = get_user_model()
-
-
-
 
 
 def sort_json(text):
@@ -42,6 +41,7 @@ class RecordFormBaseTest(TestCase):
         # simulate what wizard does on final form submit
         wizard.processed_answers = wizard.process_answers(form_list=form_list, form_dict=dict(enumerate(form_list)))
         return get_body(wizard.done(form_list=form_list, form_dict=dict(enumerate(form_list)), **kwargs))
+
 
 class RecordFormIntegratedTest(RecordFormBaseTest):
 
@@ -382,7 +382,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
 
     def test_renders_default_confirmation_template(self):
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -393,7 +393,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
 
     def test_renders_custom_confirmation_template(self):
         response = self.client.post(('/test_reports/submit_custom/%s/' % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -404,7 +404,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
 
     def test_submit_sends_report(self):
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -420,7 +420,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
 
     def test_submit_sends_email_confirmation(self):
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': True,
@@ -436,7 +436,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
 
     def test_submit_sends_custom_report(self):
         response = self.client.post(('/test_reports/submit_custom/%s/' % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -476,7 +476,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def test_renders_default_confirmation_template(self):
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -491,7 +491,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def test_renders_custom_confirmation_template(self):
         response = self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -506,7 +506,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def test_submit_creates_match(self):
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -522,7 +522,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
     def test_multiple_perps_creates_multiple_matches(self):
         total_matches_before = MatchReport.objects.count()
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -539,7 +539,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def test_submit_match_sends_email_confirmation(self):
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': True,
@@ -557,9 +557,9 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertIn('Confirmation" <confirmation@', message.from_email)
         self.assertIn('test match confirmation body', message.body)
 
-    def test_match_sends_report(self):
+    def test_match_sends_report_immediately(self):
         self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter 1',
+                                    data={'name': 'test submitter 1',
                                           'email': 'test1@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -589,7 +589,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         report2.encrypt_report(report2_text, report2_key)
         report2.save()
         response = self.client.post((self.submission_url % report2.pk),
-                                    data={'name':'test submitter 2',
+                                    data={'name': 'test submitter 2',
                                           'email': 'test2@example.com',
                                           'phone_number': '555-555-1213',
                                           'email_confirmation': "False",
@@ -617,9 +617,72 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertIn('test match delivery body', message.body)
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
 
+    @override_settings(MATCH_IMMEDIATELY=False)
+    def test_match_sends_report_delayed(self):
+        self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter 1',
+                                          'email': 'test1@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/triggered_match',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        user2 = User.objects.create_user(username='dummy2', password='dummy')
+        self.client.login(username='dummy2', password='dummy')
+        report2_text = """[
+    { "answer": "test answer",
+      "id": %i,
+      "section": 1,
+      "question_text": "first question",
+      "type": "SingleLineText"
+    },
+    { "answer": "another answer to a different question",
+      "id": %i,
+      "section": 1,
+      "question_text": "2nd question",
+      "type": "SingleLineText"
+    }
+  ]""" % (self.question1.pk, self.question2.pk)
+        report2 = Report(owner = user2)
+        report2_key = 'a key a key a key a key key'
+        report2.encrypt_report(report2_text, report2_key)
+        report2.save()
+        response = self.client.post((self.submission_url % report2.pk),
+                                    data={'name': 'test submitter 2',
+                                          'email': 'test2@example.com',
+                                          'phone_number': '555-555-1213',
+                                          'email_confirmation': "False",
+                                          'key': report2_key,
+                                          'form-0-perp': 'facebook.com/triggered_match',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        self.assertNotIn('submit_error', response.context)
+        self.assertEqual(len(mail.outbox), 0)
+        call_command('find_matches')
+        self.assertEqual(len(mail.outbox), 3)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, 'test match notification')
+        self.assertEqual(message.to, ['test1@example.com'])
+        self.assertIn('Matching" <notification@', message.from_email)
+        self.assertIn('test match notification body', message.body)
+        message = mail.outbox[1]
+        self.assertEqual(message.subject, 'test match notification')
+        self.assertEqual(message.to, ['test2@example.com'])
+        self.assertIn('Matching" <notification@', message.from_email)
+        self.assertIn('test match notification body', message.body)
+        message = mail.outbox[2]
+        self.assertEqual(message.subject, 'test match delivery')
+        self.assertEqual(message.to, ['titleix@example.com'])
+        self.assertIn('"Reports" <reports@', message.from_email)
+        self.assertIn('test match delivery body', message.body)
+        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
+
     def test_match_sends_custom_report(self):
         self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
-                                    data={'name':'test submitter 1',
+                                    data={'name': 'test submitter 1',
                                           'email': 'test1@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -649,7 +712,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         report2.encrypt_report(report2_text, report2_key)
         report2.save()
         response = self.client.post(('/test_reports/match_custom/%s/' % report2.pk),
-                                    data={'name':'test submitter 2',
+                                    data={'name': 'test submitter 2',
                                           'email': 'test2@example.com',
                                           'phone_number': '555-555-1213',
                                           'email_confirmation': "False",

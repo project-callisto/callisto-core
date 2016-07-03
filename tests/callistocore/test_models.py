@@ -94,17 +94,20 @@ class MatchReportTest(TestCase):
         self.user = User.objects.create_user(username="dummy", password="dummy")
 
     def test_entered_into_matching_property_is_set(self):
-        report = Report(owner = self.user)
+        report = Report(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
-        MatchReport.objects.create(report=report, identifier='dummy')
+        match_report = MatchReport(report=report, identifier='dummy')
+        match_report.encrypt_report("test", match_report.identifier)
+        match_report.save()
         self.assertIsNotNone(Report.objects.first().entered_into_matching)
 
     def test_entered_into_matching_is_blank_before_entering_into_matching(self):
-        report = Report(owner = self.user)
+        report = Report(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
         self.assertIsNone(Report.objects.first().entered_into_matching)
+
 
 class SentReportTest(TestCase):
     def test_id_format_works(self):

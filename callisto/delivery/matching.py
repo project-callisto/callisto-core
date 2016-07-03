@@ -8,9 +8,10 @@ from .report_delivery import PDFMatchReport
 logger = logging.getLogger(__name__)
 
 
-def find_matches(report_class=PDFMatchReport):
+def find_matches(identifiers=None, report_class=PDFMatchReport):
     logger.info("running matching")
-    identifiers = [match_report.identifier for match_report in MatchReport.objects.filter(seen=False)]
+    if identifiers is None:
+        identifiers = [match_report.identifier for match_report in MatchReport.objects.filter(seen=False)]
     run_matching(identifiers, report_class=report_class)
 
 
@@ -33,7 +34,9 @@ def run_matching(identifiers, report_class=PDFMatchReport):
                     match_report.report.match_found = True
                     match_report.report.save()
         for match in match_list:
-            match.seen = True # TODO: delete identifier
+            match.seen = True
+            # delete identifier, which should only be filled for newly added match reports in delayed matching case
+            match.identifier = None
             match.save()
 
 # Tomorrow: save match_reports with encrypted blobs

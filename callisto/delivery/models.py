@@ -117,7 +117,7 @@ class MatchReport(models.Model):
     contact_email = models.EmailField(blank=False, max_length=256)
     contact_notes = models.TextField(blank=True, null=True)
 
-    identifier = models.CharField(blank=False, max_length=500)
+    identifier = models.CharField(blank=False, null=True, max_length=500)
     name = models.CharField(blank=True, null=True, max_length=500)
 
     added = models.DateTimeField(auto_now_add=True)
@@ -126,8 +126,6 @@ class MatchReport(models.Model):
     # TODO: make required after migration
     encrypted = models.BinaryField(null=True)
     salt = models.CharField(null=True, max_length=256)
-
-    # TODO: save identifier temporarily for delayed matching
 
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
