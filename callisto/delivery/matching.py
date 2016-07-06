@@ -17,17 +17,14 @@ def find_matches(identifiers=None, report_class=PDFMatchReport):
 
 def run_matching(identifiers, report_class=PDFMatchReport):
     for identifier in identifiers:
-        match_list = []
-        for potential in MatchReport.objects.all():
-            if potential.get_match(identifier):
-                match_list.append(potential)
+        match_list = [potential for potential in MatchReport.objects.all() if potential.get_match(identifier)]
         if len(match_list) > 1:
             seen_match_owners = [match.report.owner for match in match_list if match.seen]
             new_match_owners = [match.report.owner for match in match_list if not match.seen]
             all_owners = seen_match_owners + new_match_owners
             # filter out multiple reports made by the same person
             if len(set(all_owners)) > 1:
-                # only send notifications if new owners are actually new
+                # only send notifications if new matches are submitted by owners we don't know about
                 if not set(new_match_owners).issubset(set(seen_match_owners)):
                     process_new_matches(match_list, identifier, report_class)
                 for match_report in match_list:
