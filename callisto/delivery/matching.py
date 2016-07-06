@@ -21,9 +21,8 @@ def run_matching(identifiers, report_class=PDFMatchReport):
         if len(match_list) > 1:
             seen_match_owners = [match.report.owner for match in match_list if match.seen]
             new_match_owners = [match.report.owner for match in match_list if not match.seen]
-            all_owners = seen_match_owners + new_match_owners
             # filter out multiple reports made by the same person
-            if len(set(all_owners)) > 1:
+            if len(set(seen_match_owners + new_match_owners)) > 1:
                 # only send notifications if new matches are submitted by owners we don't know about
                 if not set(new_match_owners).issubset(set(seen_match_owners)):
                     process_new_matches(match_list, identifier, report_class)
