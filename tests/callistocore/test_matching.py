@@ -162,6 +162,19 @@ class MatchDiscoveryTest(MatchTest):
         find_matches()
         mock_process.assert_called_once_with([match1, match2, match3], 'dummy', PDFMatchReport)
 
+    def test_double_match(self, mock_process):
+        match1 = self.create_match(self.user1, 'dummy1')
+        match2 = self.create_match(self.user2, 'dummy2')
+        find_matches()
+        self.assertFalse(mock_process.called)
+        user3 = User.objects.create_user(username="yumdm", password="dummy")
+        match3 = self.create_match(user3, 'dummy1')
+        match4 = self.create_match(user3, 'dummy2')
+        find_matches()
+        call1 = call([match1, match3], 'dummy1', PDFMatchReport)
+        call2 = call([match2, match4], 'dummy2', PDFMatchReport)
+        mock_process.assert_has_calls([call1, call2])
+
     def test_error_during_processing_means_match_not_seen(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
