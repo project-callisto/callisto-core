@@ -27,7 +27,7 @@ class MatchTest(TestCase):
         report.save()
         match_report = MatchReport(report=report, identifier=identifier)
         match_report_dict = match_report_dict if match_report_dict else {'contact_email': 'test@example.com'}
-        match_report.encrypt_report(json.dumps(match_report_dict), identifier)
+        match_report.encrypt_match_report(json.dumps(match_report_dict), identifier)
         match_report.save()
         return match_report
 

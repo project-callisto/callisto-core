@@ -31,6 +31,20 @@ def _decrypt_report(salt, key, encrypted):
     return decrypted.decode('utf-8')
 
 
+def _pepper(encrypted_report):
+    pepper = settings.PEPPER
+    box = nacl.secret.SecretBox(pepper)
+    nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
+    return box.encrypt(encrypted_report, nonce)
+
+
+def _unpepper(peppered_report):
+    pepper = settings.PEPPER
+    box = nacl.secret.SecretBox(pepper)
+    decrypted = box.decrypt(peppered_report)
+    return decrypted
+
+
 class Report(models.Model):
     encrypted = models.BinaryField(blank=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -130,14 +144,14 @@ class MatchReport(models.Model):
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
 
-    def encrypt_report(self, report_text, key):
+    def encrypt_match_report(self, report_text, key):
         self.salt = get_random_string()
-        self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
+        self.encrypted = _pepper(_encrypt_report(salt=self.salt, key=key, report_text=report_text))
 
     def get_match(self, identifier):
         decrypted_report = None
         try:
-            decrypted_report = _decrypt_report(salt=self.salt, key=identifier, encrypted=self.encrypted)
+            decrypted_report = _decrypt_report(salt=self.salt, key=identifier, encrypted=_unpepper(self.encrypted))
         except CryptoError:
             pass
         return decrypted_report

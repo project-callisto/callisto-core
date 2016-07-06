@@ -106,8 +106,8 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                         match_report_text['contact_phone'] = conditional_escape(form.cleaned_data.get('phone_number'))
                         match_report_text['contact_voicemail'] = conditional_escape(form.cleaned_data.get('voicemail'))
                         match_report_text['contact_notes'] = conditional_escape(form.cleaned_data.get('contact_notes'))
-                        match_report.encrypt_report(report_text=json.dumps(match_report_text),
-                                                    key=perp_identifier)
+                        match_report.encrypt_match_report(report_text=json.dumps(match_report_text),
+                                                          key=perp_identifier)
 
                         if settings.MATCH_IMMEDIATELY:
                             identifiers.append(perp_identifier)
