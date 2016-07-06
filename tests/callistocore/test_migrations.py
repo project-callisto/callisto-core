@@ -6,7 +6,7 @@ from mock import ANY, patch
 from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 
-from callisto.delivery.matching import run_matching
+from callisto.delivery.matching import find_matches
 from callisto.delivery.models import (
     _decrypt_report, _encrypt_report, _pepper, _unpepper,
 )
@@ -88,6 +88,6 @@ class MatchReportMigrationTest(MigrationTest):
         encrypted_report = _pepper(_encrypt_report(salt, identifier, report_text))
         MatchReport.objects.create(report=report2, identifier=identifier, encrypted=encrypted_report,
                                             salt=salt)
-        run_matching([identifier])
+        find_matches([identifier])
         # have to use ANY because objects in migration tests are faked
         mock_process.assert_called_once_with([ANY, ANY], 'test_identifier', PDFMatchReport)

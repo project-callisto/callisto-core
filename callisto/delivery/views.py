@@ -12,7 +12,7 @@ from django.utils.html import conditional_escape
 from callisto.evaluation.models import EvalRow
 
 from .forms import SubmitToMatchingFormSet, SubmitToSchoolForm
-from .matching import find_matches
+from .matching import run_matching
 from .models import EmailNotification, MatchReport, Report
 from .report_delivery import PDFFullReport, PDFMatchReport
 
@@ -116,7 +116,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                         match_reports.append(match_report)
                     MatchReport.objects.bulk_create(match_reports)
                     if settings.MATCH_IMMEDIATELY:
-                        find_matches(identifiers=identifiers, report_class=report_class)
+                        run_matching(identifiers=identifiers, report_class=report_class)
                 except Exception:
                     logger.exception("couldn't submit match report for report {}".format(report_id))
                     return render(request, form_template_name, {'form': form, 'formset': formset,

@@ -2,7 +2,7 @@ import importlib
 
 from django.core.management.base import BaseCommand
 
-from callisto.delivery.matching import find_matches
+from callisto.delivery.matching import run_matching
 from callisto.delivery.report_delivery import PDFMatchReport
 
 
@@ -22,6 +22,6 @@ class Command(BaseCommand):
         else:
             ReportClass = PDFMatchReport
 
-        find_matches(report_class=ReportClass)
+        run_matching(report_class=ReportClass)
 
         self.stdout.write('Matching run')
