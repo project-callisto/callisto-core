@@ -294,7 +294,7 @@ class PDFFullReport(PDFReport):
 
         MetadataPage.append(Paragraph("Overview", self.section_title_style))
 
-        overview_body = "Submitted by: {0}<br/>".format(self.get_user_identifier(self.user))
+        overview_body = "Reported by: {0}<br/>".format(self.get_user_identifier(self.user))
         if recipient:
             overview_body = overview_body + "Submitted on:  {0}<br/>".format(localtime(self.report.submitted_to_school)
                                                                              .strftime(date_format))
@@ -441,7 +441,7 @@ class PDFMatchReport(PDFReport):
                 is_submitted = "No"
 
             overview_body = """Perpetrator name given: {0}
-                               Submitted by: {1}
+                               Reported by: {1}
                                Submitted to matching on: {2}
                                Record created: {3}
                                Full record submitted? {4}""".format(match_report_content.perp_name or "<i>None provided</i>",

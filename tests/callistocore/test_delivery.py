@@ -44,7 +44,7 @@ class ReportDeliveryTest(MatchTest):
         output = report.generate_pdf_report(recipient=None, report_id=None)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
-        self.assertIn("Submitted by: dummy", pdfReader.getPage(0).extractText())
+        self.assertIn("Reported by: dummy", pdfReader.getPage(0).extractText())
         self.assertIn("test answer", pdfReader.getPage(1).extractText())
         self.assertIn("answer to 2nd question", pdfReader.getPage(1).extractText())
 
@@ -87,7 +87,7 @@ class ReportDeliveryTest(MatchTest):
         self.assertIn("Name(s): Perpy, Perperick", pdf_text)
         # Report 1
         self.assertIn("Perpetrator name given: Perpy", pdf_text)
-        self.assertIn("Submitted by: ymmud", pdf_text)
+        self.assertIn("Reported by: ymmud", pdf_text)
         self.assertRegexpMatches(pdf_text,
                                  'Submitted to matching on: \d\d/\d\d/201\d @\d\d:\d\d[P|A]M')
         self.assertRegexpMatches(pdf_text,
@@ -100,7 +100,7 @@ class ReportDeliveryTest(MatchTest):
         self.assertIn("Notes on preferred contact time of day, gender of admin, etc.:\nNone provided", pdf_text)
         # Report 2
         self.assertIn("Perpetrator name given: Perperick", pdf_text)
-        self.assertIn("Submitted by: dummy", pdf_text)
+        self.assertIn("Reported by: dummy", pdf_text)
         self.assertIn("Name: Ni", pdf_text)
         self.assertIn("Phone: (000) 0000000", pdf_text)
         self.assertIn("Voicemail preferences: None provided", pdf_text)
@@ -131,4 +131,4 @@ class ReportDeliveryTest(MatchTest):
         output = pdf_report.generate_pdf_report(recipient=None, report_id=None)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
-        self.assertIn("Submitted by: test@example.com", pdfReader.getPage(0).extractText())
+        self.assertIn("Reported by: test@example.com", pdfReader.getPage(0).extractText())
