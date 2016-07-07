@@ -82,12 +82,16 @@ class EmailNotification(models.Model):
     def __str__(self):
         return self.name
 
-    def render_body(self, context={}):
+    def render_body(self, context=None):
+        if context is None:
+            context = {}
         current_site = Site.objects.get_current()
         context['domain'] = current_site.domain
         return Template(self.body).render(Context(context))
 
-    def render_body_plain(self, context={}):
+    def render_body_plain(self, context=None):
+        if context is None:
+            context = {}
         html = self.render_body(context)
         cleaned = html.replace('<br />','\n')
         cleaned = cleaned.replace('<br/>','\n')
@@ -95,7 +99,9 @@ class EmailNotification(models.Model):
         cleaned = cleaned.replace('</p>', '\n')
         return strip_tags(cleaned)
 
-    def send(self, to, from_email, context={}):
+    def send(self, to, from_email, context=None):
+        if context is None:
+            context = {}
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
