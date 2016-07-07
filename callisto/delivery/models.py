@@ -47,7 +47,11 @@ class Report(models.Model):
             self.salt = get_random_string()
         else:
             self.last_edited = timezone.now()
-        stretched_key = pbkdf2(key, self.salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
+        stretched_key = pbkdf2(
+            key,
+            self.salt,
+            settings.KEY_ITERATIONS,
+            digest=hashlib.sha256)
         box = nacl.secret.SecretBox(stretched_key)
         message = report_text.encode('utf-8')
         nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
@@ -55,7 +59,11 @@ class Report(models.Model):
         self.encrypted = encrypted
 
     def decrypted_report(self, key):
-        stretched_key = pbkdf2(key, self.salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
+        stretched_key = pbkdf2(
+            key,
+            self.salt,
+            settings.KEY_ITERATIONS,
+            digest=hashlib.sha256)
         box = nacl.secret.SecretBox(stretched_key)
         decrypted = box.decrypt(bytes(self.encrypted))
         return decrypted.decode('utf-8')
@@ -72,6 +80,7 @@ class Report(models.Model):
             return report_id
         else:
             return None
+
 
 @six.python_2_unicode_compatible
 class EmailNotification(models.Model):
@@ -93,18 +102,20 @@ class EmailNotification(models.Model):
         if context is None:
             context = {}
         html = self.render_body(context)
-        cleaned = html.replace('<br />','\n')
-        cleaned = cleaned.replace('<br/>','\n')
-        cleaned = cleaned.replace('<p>','\n')
+        cleaned = html.replace('<br />', '\n')
+        cleaned = cleaned.replace('<br/>', '\n')
+        cleaned = cleaned.replace('<p>', '\n')
         cleaned = cleaned.replace('</p>', '\n')
         return strip_tags(cleaned)
 
     def send(self, to, from_email, context=None):
         if context is None:
             context = {}
-        email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
+        email = EmailMultiAlternatives(
+            self.subject, self.render_body_plain(context), from_email, to)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
+
 
 @six.python_2_unicode_compatible
 class MatchReport(models.Model):
@@ -124,19 +135,29 @@ class MatchReport(models.Model):
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
 
+
 class SentReport(PolymorphicModel):
-    # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14
+    # TODO: store link to s3 backup
+    # https://github.com/SexualHealthInnovations/callisto-core/issues/14
     sent = models.DateTimeField(auto_now_add=True)
     to_address = models.EmailField(blank=False, null=False, max_length=256)
 
     def _get_id_for_schools(self, is_match):
-        return "{0}-{1}-{2}".format(settings.SCHOOL_REPORT_PREFIX, '%05d' % self.id, 0 if is_match else 1)
+        return "{0}-{1}-{2}".format(
+            settings.SCHOOL_REPORT_PREFIX, '%05d' %
+            self.id, 0 if is_match else 1)
+
 
 class SentFullReport(SentReport):
-    report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.SET_NULL)
+    report = models.ForeignKey(
+        Report,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL)
 
     def get_report_id(self):
         return self._get_id_for_schools(is_match=False)
+
 
 class SentMatchReport(SentReport):
     reports = models.ManyToManyField(MatchReport)

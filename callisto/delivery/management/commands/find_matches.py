@@ -18,7 +18,8 @@ class Command(BaseCommand):
         report_class_name = options['report_class']
         if report_class_name:
             module_name, class_name = report_class_name.rsplit(".", 1)
-            ReportClass = getattr(importlib.import_module(module_name), class_name)
+            ReportClass = getattr(
+                importlib.import_module(module_name), class_name)
         else:
             ReportClass = PDFMatchReport
 

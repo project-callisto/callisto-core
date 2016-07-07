@@ -15,16 +15,22 @@ User = get_user_model()
 
 
 class MatchTest(TestCase):
+
     def setUp(self):
-        self.user1 = User.objects.create_user(username="dummy", password="dummy")
-        self.user2 = User.objects.create_user(username="ymmud", password="dummy")
+        self.user1 = User.objects.create_user(
+            username="dummy", password="dummy")
+        self.user2 = User.objects.create_user(
+            username="ymmud", password="dummy")
 
     def create_match(self, user, identifier):
-        report = Report(owner = user)
+        report = Report(owner=user)
         report.encrypt_report("test report 1", "key")
         report.save()
-        return MatchReport.objects.create(report=report, contact_phone='phone',
-                                          contact_email='test@example.com', identifier=identifier)
+        return MatchReport.objects.create(
+            report=report,
+            contact_phone='phone',
+            contact_email='test@example.com',
+            identifier=identifier)
 
 
 @patch('callisto.delivery.matching.process_new_matches')
@@ -63,7 +69,8 @@ class MatchDiscoveryTest(MatchTest):
         self.assertFalse(match2.report.match_found)
         self.assertFalse(match3.report.match_found)
 
-    def test_existing_match_not_retriggered_by_same_reporter(self, mock_process):
+    def test_existing_match_not_retriggered_by_same_reporter(
+            self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         find_matches()
@@ -104,7 +111,8 @@ class MatchDiscoveryTest(MatchTest):
         user4 = User.objects.create_user(username="mmudy", password="dummy")
         match4 = self.create_match(user4, 'dummy1')
         find_matches()
-        mock_process.assert_called_once_with([match2, match3, match4], PDFMatchReport)
+        mock_process.assert_called_once_with(
+            [match2, match3, match4], PDFMatchReport)
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         match3.report.refresh_from_db()
@@ -123,7 +131,8 @@ class MatchDiscoveryTest(MatchTest):
         user3 = User.objects.create_user(username="yumdm", password="dummy")
         match3 = self.create_match(user3, 'dummy')
         find_matches()
-        mock_process.assert_called_once_with([match1, match2, match3], PDFMatchReport)
+        mock_process.assert_called_once_with(
+            [match1, match2, match3], PDFMatchReport)
 
     def test_error_during_processing_means_match_not_seen(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
@@ -149,11 +158,15 @@ class MatchDiscoveryTest(MatchTest):
 @patch('callisto.delivery.matching.send_notification_email')
 @patch('callisto.delivery.report_delivery.PDFMatchReport.send_email_to_coordinator')
 class MatchNotificationTest(MatchTest):
-    def setUp(self):
-        self.user1 = User.objects.create_user(username="dummy", password="dummy")
-        self.user2 = User.objects.create_user(username="ymmud", password="dummy")
 
-    def test_both_new_matches_sent_emails(self, mock_send_to_school, mock_send_email):
+    def setUp(self):
+        self.user1 = User.objects.create_user(
+            username="dummy", password="dummy")
+        self.user2 = User.objects.create_user(
+            username="ymmud", password="dummy")
+
+    def test_both_new_matches_sent_emails(
+            self, mock_send_to_school, mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
         report2 = self.create_match(self.user2, 'dummy')
         find_matches()
@@ -161,7 +174,8 @@ class MatchNotificationTest(MatchTest):
         mock_send_email.assert_has_calls(calls)
         self.assertEqual(mock_send_email.call_count, 2)
 
-    def test_only_new_matches_sent_emails(self, mock_send_to_school, mock_send_email):
+    def test_only_new_matches_sent_emails(
+            self, mock_send_to_school, mock_send_email):
         self.create_match(self.user1, 'dummy')
         self.create_match(self.user2, 'dummy')
         find_matches()
@@ -172,7 +186,10 @@ class MatchNotificationTest(MatchTest):
         find_matches()
         mock_send_email.assert_called_once_with(user3, report3)
 
-    def test_users_are_deduplicated(self, mock_send_to_school, mock_send_email):
+    def test_users_are_deduplicated(
+            self,
+            mock_send_to_school,
+            mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
         self.create_match(self.user1, 'dummy')
         find_matches()
@@ -183,7 +200,8 @@ class MatchNotificationTest(MatchTest):
         mock_send_email.assert_has_calls(calls)
         self.assertEqual(mock_send_email.call_count, 2)
 
-    def test_doesnt_notify_on_reported_reports(self, mock_send_to_school, mock_send_email):
+    def test_doesnt_notify_on_reported_reports(
+            self, mock_send_to_school, mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
         report2 = self.create_match(self.user2, 'dummy')
         report2.report.submitted_to_school = timezone.now()
@@ -207,5 +225,8 @@ class MatchingCommandTest(MatchTest):
     def test_command_runs_matches_with_custom_class(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        call_command('find_matches', report_class="tests.callistocore.forms.CustomMatchReport")
-        mock_process.assert_called_once_with([match1, match2], CustomMatchReport)
+        call_command(
+            'find_matches',
+            report_class="tests.callistocore.forms.CustomMatchReport")
+        mock_process.assert_called_once_with(
+            [match1, match2], CustomMatchReport)

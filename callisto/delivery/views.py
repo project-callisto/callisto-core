@@ -24,13 +24,23 @@ def _send_user_notification(form, notification_name):
         notification = EmailNotification.objects.get(name=notification_name)
         preferred_email = form.cleaned_data.get('email')
         to_email = preferred_email
-        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
+        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(
+            settings.APP_URL)
         notification.send(to=[to_email], from_email=from_email)
 
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
-                     confirmation_template_name="submit_to_school_confirmation.html",
-                     report_class=PDFFullReport):
+
+@ratelimit(
+    group='decrypt',
+    key='user',
+    method=ratelimit.UNSAFE,
+    rate=settings.DECRYPT_THROTTLE_RATE,
+    block=True)
+def submit_to_school(
+        request,
+        report_id,
+        form_template_name="submit_to_school.html",
+        confirmation_template_name="submit_to_school_confirmation.html",
+        report_class=PDFFullReport):
     owner = request.user
     report = Report.objects.get(id=report_id)
     if owner == report.owner:
@@ -39,47 +49,71 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
             form.report = report
             if form.is_valid():
                 try:
-                    report.contact_name = conditional_escape(form.cleaned_data.get('name'))
+                    report.contact_name = conditional_escape(
+                        form.cleaned_data.get('name'))
                     report.contact_email = form.cleaned_data.get('email')
-                    report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
-                    report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
-                    report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                    report_class(report=report, decrypted_report=form.decrypted_report).send_report_to_school()
+                    report.contact_phone = conditional_escape(
+                        form.cleaned_data.get('phone_number'))
+                    report.contact_voicemail = conditional_escape(
+                        form.cleaned_data.get('voicemail'))
+                    report.contact_notes = conditional_escape(
+                        form.cleaned_data.get('contact_notes'))
+                    report_class(
+                        report=report,
+                        decrypted_report=form.decrypted_report).send_report_to_school()
                     report.save()
                 except Exception:
-                    logger.exception("couldn't submit report for report {}".format(report_id))
-                    return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
-                                                                                  'submit_error': True})
+                    logger.exception(
+                        "couldn't submit report for report {}".format(report_id))
+                    return render(
+                        request, form_template_name, {
+                            'form': form, 'school_name': settings.SCHOOL_SHORTNAME, 'submit_error': True})
 
-                #record submission in anonymous evaluation data
+                # record submission in anonymous evaluation data
                 try:
                     row = EvalRow()
                     row.anonymise_record(action=EvalRow.SUBMIT, report=report)
                     row.save()
                 except Exception:
-                    logger.exception("couldn't save evaluation row on submission")
+                    logger.exception(
+                        "couldn't save evaluation row on submission")
                     pass
 
                 try:
                     _send_user_notification(form, 'submit_confirmation')
                 except Exception:
-                    # report was sent even if confirmation email fails, so don't show an error if so
-                    logger.exception("couldn't send confirmation to user on submission")
+                    # report was sent even if confirmation email fails, so
+                    # don't show an error if so
+                    logger.exception(
+                        "couldn't send confirmation to user on submission")
 
-                return render(request, confirmation_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
-                                                                                  'report': report})
+                return render(
+                    request, confirmation_template_name, {
+                        'form': form, 'school_name': settings.SCHOOL_SHORTNAME, 'report': report})
         else:
             form = SubmitToSchoolForm(owner, report)
-        return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME})
+        return render(
+            request, form_template_name, {
+                'form': form, 'school_name': settings.SCHOOL_SHORTNAME})
     else:
-        logger.warning("illegal submit attempt on record {} by user {}".format(report_id, owner.id))
+        logger.warning(
+            "illegal submit attempt on record {} by user {}".format(
+                report_id, owner.id))
         return HttpResponseForbidden()
 
 
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
-                       confirmation_template_name="submit_to_matching_confirmation.html",
-                       report_class=PDFMatchReport):
+@ratelimit(
+    group='decrypt',
+    key='user',
+    method=ratelimit.UNSAFE,
+    rate=settings.DECRYPT_THROTTLE_RATE,
+    block=True)
+def submit_to_matching(
+        request,
+        report_id,
+        form_template_name="submit_to_matching.html",
+        confirmation_template_name="submit_to_matching_confirmation.html",
+        report_class=PDFMatchReport):
     owner = request.user
     report = Report.objects.get(id=report_id)
     if owner == report.owner:
@@ -91,50 +125,68 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                 try:
                     match_reports = []
                     for perp_form in formset:
-                        #enter into matching
+                        # enter into matching
                         match_report = MatchReport(report=report)
-                        match_report.contact_name = conditional_escape(form.cleaned_data.get('name'))
-                        match_report.contact_email = form.cleaned_data.get('email')
-                        match_report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
-                        match_report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
-                        match_report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                        match_report.identifier = perp_form.cleaned_data.get('perp')
-                        match_report.name = conditional_escape(perp_form.cleaned_data.get('perp_name'))
+                        match_report.contact_name = conditional_escape(
+                            form.cleaned_data.get('name'))
+                        match_report.contact_email = form.cleaned_data.get(
+                            'email')
+                        match_report.contact_phone = conditional_escape(
+                            form.cleaned_data.get('phone_number'))
+                        match_report.contact_voicemail = conditional_escape(
+                            form.cleaned_data.get('voicemail'))
+                        match_report.contact_notes = conditional_escape(
+                            form.cleaned_data.get('contact_notes'))
+                        match_report.identifier = perp_form.cleaned_data.get(
+                            'perp')
+                        match_report.name = conditional_escape(
+                            perp_form.cleaned_data.get('perp_name'))
                         match_reports.append(match_report)
                     MatchReport.objects.bulk_create(match_reports)
                     if settings.MATCH_IMMEDIATELY:
                         find_matches(report_class=report_class)
                 except Exception:
-                    logger.exception("couldn't submit match report for report {}".format(report_id))
-                    return render(request, form_template_name, {'form': form, 'formset': formset,
-                                                                'school_name': settings.SCHOOL_SHORTNAME,
-                                                                'submit_error': True})
+                    logger.exception(
+                        "couldn't submit match report for report {}".format(report_id))
+                    return render(request,
+                                  form_template_name,
+                                  {'form': form,
+                                   'formset': formset,
+                                   'school_name': settings.SCHOOL_SHORTNAME,
+                                   'submit_error': True})
 
-                #record matching submission in anonymous evaluation data
+                # record matching submission in anonymous evaluation data
                 try:
                     row = EvalRow()
                     row.anonymise_record(action=EvalRow.MATCH, report=report)
                     row.save()
                 except Exception:
-                    logger.exception("couldn't save evaluation row on match submission")
+                    logger.exception(
+                        "couldn't save evaluation row on match submission")
                     pass
 
                 try:
                     _send_user_notification(form, 'match_confirmation')
                 except Exception:
-                    # matching was entered even if confirmation email fails, so don't show an error if so
-                    logger.exception("couldn't send confirmation to user on match submission")
+                    # matching was entered even if confirmation email fails, so
+                    # don't show an error if so
+                    logger.exception(
+                        "couldn't send confirmation to user on match submission")
 
-                return render(request, confirmation_template_name, {'school_name': settings.SCHOOL_SHORTNAME,
-                                                                                    'report': report})
+                return render(
+                    request, confirmation_template_name, {
+                        'school_name': settings.SCHOOL_SHORTNAME, 'report': report})
 
         else:
             form = SubmitToSchoolForm(owner, report)
             formset = SubmitToMatchingFormSet()
-        return render(request, form_template_name, {'form': form, 'formset': formset,
-                                                           'school_name': settings.SCHOOL_SHORTNAME})
+        return render(
+            request, form_template_name, {
+                'form': form, 'formset': formset, 'school_name': settings.SCHOOL_SHORTNAME})
     else:
-        logger.warning("illegal matching attempt on record {} by user {}".format(report_id, owner.id))
+        logger.warning(
+            "illegal matching attempt on record {} by user {}".format(
+                report_id, owner.id))
         return HttpResponseForbidden()
 
 
@@ -151,13 +203,19 @@ def withdraw_from_matching(request, report_id, template_name):
             row.anonymise_record(action=EvalRow.WITHDRAW, report=report)
             row.save()
         except Exception:
-            logger.exception("couldn't save evaluation row on match withdrawal")
+            logger.exception(
+                "couldn't save evaluation row on match withdrawal")
             pass
 
-        return render(request, template_name, {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
-                                                        'coordinator_name': settings.COORDINATOR_NAME,
-                                                       'coordinator_email': settings.COORDINATOR_EMAIL,
-                                                       'match_report_withdrawn': True})
+        return render(request,
+                      template_name,
+                      {'owner': request.user,
+                       'school_name': settings.SCHOOL_SHORTNAME,
+                       'coordinator_name': settings.COORDINATOR_NAME,
+                       'coordinator_email': settings.COORDINATOR_EMAIL,
+                       'match_report_withdrawn': True})
     else:
-        logger.warning("illegal matching withdrawal attempt on record {} by user {}".format(report_id, owner.id))
+        logger.warning(
+            "illegal matching withdrawal attempt on record {} by user {}".format(
+                report_id, owner.id))
         return HttpResponseForbidden()

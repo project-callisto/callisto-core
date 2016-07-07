@@ -20,9 +20,6 @@ from .forms import EncryptedFormWizard
 User = get_user_model()
 
 
-
-
-
 def sort_json(text):
     return sorted(json.loads(text), key=lambda x: x['id'])
 
@@ -32,16 +29,26 @@ def get_body(response):
 
 
 class RecordFormBaseTest(TestCase):
+
     def setUp(self):
         self.page1 = QuestionPage.objects.create()
         self.page2 = QuestionPage.objects.create()
-        self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
-        self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
+        self.question1 = SingleLineText.objects.create(
+            text="first question", page=self.page1)
+        self.question2 = SingleLineText.objects.create(
+            text="2nd question", page=self.page2)
 
     def _get_wizard_response(self, wizard, form_list, **kwargs):
         # simulate what wizard does on final form submit
-        wizard.processed_answers = wizard.process_answers(form_list=form_list, form_dict=dict(enumerate(form_list)))
-        return get_body(wizard.done(form_list=form_list, form_dict=dict(enumerate(form_list)), **kwargs))
+        wizard.processed_answers = wizard.process_answers(
+            form_list=form_list, form_dict=dict(enumerate(form_list)))
+        return get_body(
+            wizard.done(
+                form_list=form_list,
+                form_dict=dict(
+                    enumerate(form_list)),
+                **kwargs))
+
 
 class RecordFormIntegratedTest(RecordFormBaseTest):
 
@@ -65,10 +72,14 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
     def test_wizard_generates_correct_number_of_pages(self):
         page3 = QuestionPage.objects.create()
         SingleLineText.objects.create(text="first page question", page=page3)
-        SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
-        SingleLineText.objects.create(text="another first page question", page=page3, position=1)
+        SingleLineText.objects.create(
+            text="one more first page question",
+            page=page3,
+            position=2)
+        SingleLineText.objects.create(
+            text="another first page question", page=page3, position=1)
         wizard = EncryptedFormWizard.wizard_factory()()
-        #includes key page
+        # includes key page
         self.assertEqual(len(wizard.form_list), 4)
 
     def test_wizard_appends_key_page(self):
@@ -92,28 +103,41 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         page_two.is_valid()
         key_form = KeyForm({'key': self.report_key, 'key2': self.report_key})
         key_form.is_valid()
-        form_list=[page_one, page_two, key_form]
-        wizard.processed_answers = wizard.process_answers(form_list=form_list, form_dict=dict(enumerate(form_list)))
-        response = wizard.done(form_list=form_list, form_dict=dict(enumerate(form_list)), request=self.request)
+        form_list = [page_one, page_two, key_form]
+        wizard.processed_answers = wizard.process_answers(
+            form_list=form_list, form_dict=dict(enumerate(form_list)))
+        response = wizard.done(
+            form_list=form_list,
+            form_dict=dict(
+                enumerate(form_list)),
+            request=self.request)
         self.assertContains(response, 1)
 
     @patch('callisto.delivery.wizard.Report')
     def test_done_serializes_questions(self, mockReport):
         self.maxDiff = None
 
-        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
+        radio_button_q = RadioButton.objects.create(
+            text="this is a radio button question", page=self.page2)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
+            Choice.objects.create(
+                text="This is choice %i" %
+                i, question=radio_button_q)
         wizard = EncryptedFormWizard.wizard_factory()()
 
         PageOneForm = wizard.form_list[0]
         PageTwoForm = wizard.form_list[1]
         KeyForm = wizard.form_list[2]
 
-        page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
+        page_one = PageOneForm({'question_%i' %
+                                self.question1.pk: 'test answer'})
         page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'another answer to a different question',
-                                'question_%i' % radio_button_q.pk: radio_button_q.choice_set.all()[2].pk})
+        page_two = PageTwoForm(
+            {
+                'question_%i' %
+                self.question2.pk: 'another answer to a different question',
+                'question_%i' %
+                radio_button_q.pk: radio_button_q.choice_set.all()[2].pk})
         page_two.is_valid()
         key_form = KeyForm({'key': self.report_key, 'key2': self.report_key})
         key_form.is_valid()
@@ -157,12 +181,21 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         mockReport.return_value = mock_report
 
         def check_json():
-            self.assertEqual(sort_json(mock_report.decrypted_report(self.report_key)),
-                             sort_json(json_report))
+            self.assertEqual(
+                sort_json(
+                    mock_report.decrypted_report(
+                        self.report_key)),
+                sort_json(json_report))
 
         mock_report.save.side_effect = check_json
 
-        self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request = self.request)
+        self._get_wizard_response(
+            wizard,
+            form_list=[
+                page_one,
+                page_two,
+                key_form],
+            request=self.request)
         mock_report.save.assert_any_call()
 
     @patch('callisto.delivery.wizard.Report')
@@ -170,19 +203,27 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
     def test_done_saves_anonymised_qs(self, mockEvalRow, mockReport):
         self.maxDiff = None
 
-        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
+        radio_button_q = RadioButton.objects.create(
+            text="this is a radio button question", page=self.page2)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
+            Choice.objects.create(
+                text="This is choice %i" %
+                i, question=radio_button_q)
         wizard = EncryptedFormWizard.wizard_factory()()
 
         PageOneForm = wizard.form_list[0]
         PageTwoForm = wizard.form_list[1]
         KeyForm = wizard.form_list[2]
 
-        page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
+        page_one = PageOneForm({'question_%i' %
+                                self.question1.pk: 'test answer'})
         page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'another answer to a different question',
-                                'question_%i' % radio_button_q.pk: radio_button_q.choice_set.all()[2].pk})
+        page_two = PageTwoForm(
+            {
+                'question_%i' %
+                self.question2.pk: 'another answer to a different question',
+                'question_%i' %
+                radio_button_q.pk: radio_button_q.choice_set.all()[2].pk})
         page_two.is_valid()
         key_form = KeyForm({'key': self.report_key, 'key2': self.report_key})
         key_form.is_valid()
@@ -196,10 +237,18 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         mock_eval_row.save = Mock()
         mockEvalRow.return_value = mock_eval_row
 
-        self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request = self.request)
+        self._get_wizard_response(
+            wizard,
+            form_list=[
+                page_one,
+                page_two,
+                key_form],
+            request=self.request)
         mock_eval_row.save.assert_any_call()
 
+
 class ExistingRecordTest(RecordFormBaseTest):
+
     def setUp(self):
         super(ExistingRecordTest, self).setUp()
 
@@ -224,13 +273,17 @@ class ExistingRecordTest(RecordFormBaseTest):
       "type": "SingleLineText"
     }
   ]""" % (self.question1.pk, self.question2.pk)
-        self.report = Report(owner = self.request.user)
+        self.report = Report(owner=self.request.user)
         self.report_key = 'bananabread! is not my key'
         self.report.encrypt_report(self.report_text, self.report_key)
         self.report.save()
         row = EvalRow()
-        row.anonymise_record(action=EvalRow.CREATE, report=self.report, decrypted_text=self.report_text)
+        row.anonymise_record(
+            action=EvalRow.CREATE,
+            report=self.report,
+            decrypted_text=self.report_text)
         row.save()
+
 
 class EditRecordFormTest(ExistingRecordTest):
     record_form_url = '/test_reports/edit/%s/'
@@ -239,13 +292,15 @@ class EditRecordFormTest(ExistingRecordTest):
         return self.client.post(
             (self.record_form_url % self.report.pk),
             data={'0-key': self.report_key,
-                  'wizard_goto_step':1,
+                  'wizard_goto_step': 1,
                   'form_wizard' + str(self.report.id) + '-current_step': 0},
             follow=True
         )
 
     def test_edit_record_page_renders_key_prompt(self):
-        response = self.client.get(self.record_form_url % self.report.pk, follow=True)
+        response = self.client.get(
+            self.record_form_url %
+            self.report.pk, follow=True)
         self.assertTemplateUsed(response, 'decrypt_record_for_edit.html')
         self.assertIsInstance(response.context['form'], SecretKeyForm)
 
@@ -253,17 +308,26 @@ class EditRecordFormTest(ExistingRecordTest):
         response = self.enter_edit_key()
         self.assertTemplateUsed(response, 'record_form.html')
         self.assertIsInstance(response.context['form'], QuestionPageForm)
-        self.assertContains(response, 'name="1-question_%i"' % self.question1.pk)
-        self.assertNotContains(response, 'name="1-question_%i"' % self.question2.pk)
+        self.assertContains(
+            response,
+            'name="1-question_%i"' %
+            self.question1.pk)
+        self.assertNotContains(
+            response,
+            'name="1-question_%i"' %
+            self.question2.pk)
 
     def test_initial_is_passed_to_forms(self):
         response = self.enter_edit_key()
         form = response.context['form']
         self.assertIn('test answer', form.initial.values())
-        self.assertIn('another answer to a different question', form.initial.values())
+        self.assertIn(
+            'another answer to a different question',
+            form.initial.values())
 
     def edit_record(self, record_to_edit):
-        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=record_to_edit)()
+        wizard = EncryptedFormWizard.wizard_factory(
+            object_to_edit=record_to_edit)()
 
         KeyForm1 = wizard.form_list[0]
         PageOneForm = wizard.form_list[1]
@@ -273,14 +337,23 @@ class EditRecordFormTest(ExistingRecordTest):
         key_form_1 = KeyForm1({'key': self.report_key})
         key_form_1.is_valid()
 
-        page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
+        page_one = PageOneForm({'question_%i' %
+                                self.question1.pk: 'test answer'})
         page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question',})
+        page_two = PageTwoForm(
+            {'question_%i' % self.question2.pk: 'edited answer to second question', })
         page_two.is_valid()
         key_form_2 = KeyForm2({'key': self.report_key})
         key_form_2.is_valid()
 
-        self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2], request = self.request)
+        self._get_wizard_response(
+            wizard,
+            form_list=[
+                key_form_1,
+                page_one,
+                page_two,
+                key_form_2],
+            request=self.request)
 
     def test_edit_modifies_record(self):
         self.maxDiff = None
@@ -302,13 +375,18 @@ class EditRecordFormTest(ExistingRecordTest):
 
         self.edit_record(self.report)
         self.assertEqual(Report.objects.count(), 1)
-        self.assertEqual(sort_json(Report.objects.get(id=self.report.pk).decrypted_report(self.report_key)),
-                         sort_json(json_report))
+        self.assertEqual(
+            sort_json(
+                Report.objects.get(
+                    id=self.report.pk).decrypted_report(
+                    self.report_key)),
+            sort_json(json_report))
 
     def test_cant_edit_with_bad_key(self):
         self.maxDiff = None
 
-        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=self.report)()
+        wizard = EncryptedFormWizard.wizard_factory(
+            object_to_edit=self.report)()
 
         KeyForm1 = wizard.form_list[0]
 
@@ -316,7 +394,8 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertFalse(key_form_1.is_valid())
 
     def test_cant_save_edit_with_bad_key(self):
-        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=self.report)()
+        wizard = EncryptedFormWizard.wizard_factory(
+            object_to_edit=self.report)()
 
         KeyForm1 = wizard.form_list[0]
         PageOneForm = wizard.form_list[1]
@@ -326,16 +405,29 @@ class EditRecordFormTest(ExistingRecordTest):
         key_form_1 = KeyForm1({'key': self.report_key})
         key_form_1.is_valid()
 
-        page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
+        page_one = PageOneForm({'question_%i' %
+                                self.question1.pk: 'test answer'})
         page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question',})
+        page_two = PageTwoForm(
+            {'question_%i' % self.question2.pk: 'edited answer to second question', })
         page_two.is_valid()
         key_form_2 = KeyForm2({'key': "not the right key"})
         self.assertFalse(key_form_2.is_valid())
         with self.assertRaises(KeyError):
-            self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2], request = self.request)
-        self.assertEqual(sort_json(Report.objects.get(id=self.report.pk).decrypted_report(self.report_key)),
-                         sort_json(self.report_text))
+            self._get_wizard_response(
+                wizard,
+                form_list=[
+                    key_form_1,
+                    page_one,
+                    page_two,
+                    key_form_2],
+                request=self.request)
+        self.assertEqual(
+            sort_json(
+                Report.objects.get(
+                    id=self.report.pk).decrypted_report(
+                    self.report_key)), sort_json(
+                self.report_text))
 
     def test_edit_saves_anonymous_row(self):
         self.edit_record(self.report)
@@ -346,19 +438,30 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertEqual(Report.objects.count(), 1)
 
     def test_edit_saves_original_record_if_no_data_exists(self):
-        old_report = Report(owner = self.request.user)
+        old_report = Report(owner=self.request.user)
         old_report.encrypt_report(self.report_text, self.report_key)
         old_report.save()
 
         self.assertEqual(EvalRow.objects.count(), 1)
-        self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).count(), 0)
+        self.assertEqual(
+            EvalRow.objects.filter(
+                action=EvalRow.FIRST).count(), 0)
 
         self.edit_record(record_to_edit=old_report)
         self.assertEqual(EvalRow.objects.count(), 3)
-        self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).count(), 1)
+        self.assertEqual(
+            EvalRow.objects.filter(
+                action=EvalRow.FIRST).count(), 1)
         self.assertEqual(EvalRow.objects.last().action, EvalRow.EDIT)
-        self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().record_identifier, EvalRow.objects.last().record_identifier)
-        self.assertNotEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().row, EvalRow.objects.last().row)
+        self.assertEqual(
+            EvalRow.objects.filter(
+                action=EvalRow.FIRST).first().record_identifier,
+            EvalRow.objects.last().record_identifier)
+        self.assertNotEqual(
+            EvalRow.objects.filter(
+                action=EvalRow.FIRST).first().row,
+            EvalRow.objects.last().row)
+
 
 class SubmitReportIntegrationTest(ExistingRecordTest):
 
@@ -366,9 +469,14 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
 
     def setUp(self):
         super(SubmitReportIntegrationTest, self).setUp()
-        EmailNotification.objects.create(name='submit_confirmation', subject="test submit confirmation",
-                                         body="test submit confirmation body")
-        EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
+        EmailNotification.objects.create(
+            name='submit_confirmation',
+            subject="test submit confirmation",
+            body="test submit confirmation body")
+        EmailNotification.objects.create(
+            name='report_delivery',
+            subject="test delivery",
+            body="test body")
 
     def test_renders_default_template(self):
         response = self.client.get(self.submission_url % self.report.pk)
@@ -376,13 +484,15 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertTemplateUsed(response, 'submit_to_school.html')
 
     def test_renders_custom_template(self):
-        response = self.client.get('/test_reports/submit_custom/%s/' % self.report.pk)
+        response = self.client.get(
+            '/test_reports/submit_custom/%s/' %
+            self.report.pk)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'submit_to_school_custom.html')
 
     def test_renders_default_confirmation_template(self):
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -392,19 +502,23 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertTemplateUsed(response, 'submit_to_school_confirmation.html')
 
     def test_renders_custom_confirmation_template(self):
-        response = self.client.post(('/test_reports/submit_custom/%s/' % self.report.pk),
-                                    data={'name':'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key})
+        response = self.client.post(
+            ('/test_reports/submit_custom/%s/' %
+             self.report.pk),
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': "False",
+                'key': self.report_key})
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        self.assertTemplateUsed(response, 'submit_to_school_confirmation_custom.html')
+        self.assertTemplateUsed(
+            response, 'submit_to_school_confirmation_custom.html')
 
     def test_submit_sends_report(self):
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
@@ -416,11 +530,13 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.subject, 'test delivery')
         self.assertIn('"Reports" <reports', message.from_email)
         self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
+        self.assertRegexpMatches(
+            message.attachments[0][0],
+            'report_.*\.pdf\.gpg')
 
     def test_submit_sends_email_confirmation(self):
         response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
+                                    data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': True,
@@ -435,12 +551,15 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertIn('test submit confirmation body', message.body)
 
     def test_submit_sends_custom_report(self):
-        response = self.client.post(('/test_reports/submit_custom/%s/' % self.report.pk),
-                                    data={'name':'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key})
+        response = self.client.post(
+            ('/test_reports/submit_custom/%s/' %
+             self.report.pk),
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': "False",
+                'key': self.report_key})
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
         self.assertEqual(len(mail.outbox), 1)
@@ -448,7 +567,9 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.subject, 'test delivery')
         self.assertIn('"Custom" <custom', message.from_email)
         self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\.pdf\.gpg')
+        self.assertRegexpMatches(
+            message.attachments[0][0],
+            'custom_.*\.pdf\.gpg')
 
 
 class SubmitMatchIntegrationTest(ExistingRecordTest):
@@ -457,12 +578,18 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def setUp(self):
         super(SubmitMatchIntegrationTest, self).setUp()
-        EmailNotification.objects.create(name='match_confirmation', subject="test match confirmation",
-                                         body="test match confirmation body")
-        EmailNotification.objects.create(name='match_notification', subject="test match notification",
-                                         body="test match notification body")
-        EmailNotification.objects.create(name='match_delivery', subject="test match delivery",
-                                         body="test match delivery body")
+        EmailNotification.objects.create(
+            name='match_confirmation',
+            subject="test match confirmation",
+            body="test match confirmation body")
+        EmailNotification.objects.create(
+            name='match_notification',
+            subject="test match notification",
+            body="test match notification body")
+        EmailNotification.objects.create(
+            name='match_delivery',
+            subject="test match delivery",
+            body="test match delivery body")
 
     def test_renders_default_template(self):
         response = self.client.get(self.submission_url % self.report.pk)
@@ -470,84 +597,106 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertTemplateUsed(response, 'submit_to_matching.html')
 
     def test_renders_custom_template(self):
-        response = self.client.get('/test_reports/match_custom/%s/' % self.report.pk)
+        response = self.client.get(
+            '/test_reports/match_custom/%s/' %
+            self.report.pk)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'submit_to_matching_custom.html')
 
     def test_renders_default_confirmation_template(self):
-        response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/test_url',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+        response = self.client.post(
+            (self.submission_url % self.report.pk),
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': "False",
+                'key': self.report_key,
+                'form-0-perp': 'facebook.com/test_url',
+                'form-TOTAL_FORMS': '1',
+                'form-INITIAL_FORMS': '1',
+                'form-MAX_NUM_FORMS': '',
+            })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        self.assertTemplateUsed(response, 'submit_to_matching_confirmation.html')
+        self.assertTemplateUsed(
+            response, 'submit_to_matching_confirmation.html')
 
     def test_renders_custom_confirmation_template(self):
-        response = self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
-                                    data={'name':'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/test_url',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+        response = self.client.post(
+            ('/test_reports/match_custom/%s/' %
+             self.report.pk),
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': "False",
+                'key': self.report_key,
+                'form-0-perp': 'facebook.com/test_url',
+                'form-TOTAL_FORMS': '1',
+                'form-INITIAL_FORMS': '1',
+                'form-MAX_NUM_FORMS': '',
+            })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        self.assertTemplateUsed(response, 'submit_to_matching_confirmation_custom.html')
+        self.assertTemplateUsed(
+            response, 'submit_to_matching_confirmation_custom.html')
 
     def test_submit_creates_match(self):
-        response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/test_url',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+        response = self.client.post(
+            (self.submission_url % self.report.pk),
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': "False",
+                'key': self.report_key,
+                'form-0-perp': 'facebook.com/test_url',
+                'form-TOTAL_FORMS': '1',
+                'form-INITIAL_FORMS': '1',
+                'form-MAX_NUM_FORMS': '',
+            })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        self.assertEqual(self.report.id, MatchReport.objects.latest('id').report.id)
+        self.assertEqual(
+            self.report.id,
+            MatchReport.objects.latest('id').report.id)
 
     def test_multiple_perps_creates_multiple_matches(self):
         total_matches_before = MatchReport.objects.count()
-        response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/test_url1',
-                                          'form-1-perp': 'facebook.com/test_url2',
-                                          'form-TOTAL_FORMS': '2',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+        response = self.client.post(
+            (self.submission_url % self.report.pk),
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': "False",
+                'key': self.report_key,
+                'form-0-perp': 'facebook.com/test_url1',
+                'form-1-perp': 'facebook.com/test_url2',
+                'form-TOTAL_FORMS': '2',
+                'form-INITIAL_FORMS': '1',
+                'form-MAX_NUM_FORMS': '',
+            })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
         total_matches_after = MatchReport.objects.count()
         self.assertEqual(total_matches_after - total_matches_before, 2)
 
     def test_submit_match_sends_email_confirmation(self):
-        response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': True,
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/test_url',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+        response = self.client.post(
+            (self.submission_url % self.report.pk),
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': True,
+                'key': self.report_key,
+                'form-0-perp': 'facebook.com/test_url',
+                'form-TOTAL_FORMS': '1',
+                'form-INITIAL_FORMS': '1',
+                'form-MAX_NUM_FORMS': '',
+            })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
         self.assertEqual(len(mail.outbox), 1)
@@ -559,15 +708,15 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def test_match_sends_report(self):
         self.client.post((self.submission_url % self.report.pk),
-                                    data={'name':'test submitter 1',
-                                          'email': 'test1@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                         data={'name': 'test submitter 1',
+                               'email': 'test1@example.com',
+                               'phone_number': '555-555-1212',
+                               'email_confirmation': "False",
+                               'key': self.report_key,
+                               'form-0-perp': 'facebook.com/triggered_match',
+                               'form-TOTAL_FORMS': '1',
+                               'form-INITIAL_FORMS': '1',
+                               'form-MAX_NUM_FORMS': '', })
         user2 = User.objects.create_user(username='dummy2', password='dummy')
         self.client.login(username='dummy2', password='dummy')
         report2_text = """[
@@ -584,20 +733,23 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
       "type": "SingleLineText"
     }
   ]""" % (self.question1.pk, self.question2.pk)
-        report2 = Report(owner = user2)
+        report2 = Report(owner=user2)
         report2_key = 'a key a key a key a key key'
         report2.encrypt_report(report2_text, report2_key)
         report2.save()
-        response = self.client.post((self.submission_url % report2.pk),
-                                    data={'name':'test submitter 2',
-                                          'email': 'test2@example.com',
-                                          'phone_number': '555-555-1213',
-                                          'email_confirmation': "False",
-                                          'key': report2_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+        response = self.client.post(
+            (self.submission_url % report2.pk),
+            data={
+                'name': 'test submitter 2',
+                'email': 'test2@example.com',
+                'phone_number': '555-555-1213',
+                'email_confirmation': "False",
+                'key': report2_key,
+                'form-0-perp': 'facebook.com/triggered_match',
+                'form-TOTAL_FORMS': '1',
+                'form-INITIAL_FORMS': '1',
+                'form-MAX_NUM_FORMS': '',
+            })
         self.assertNotIn('submit_error', response.context)
         self.assertEqual(len(mail.outbox), 3)
         message = mail.outbox[0]
@@ -615,19 +767,21 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertIn('"Reports" <reports@', message.from_email)
         self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
+        self.assertRegexpMatches(
+            message.attachments[0][0],
+            'report_.*\.pdf\.gpg')
 
     def test_match_sends_custom_report(self):
         self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
-                                    data={'name':'test submitter 1',
-                                          'email': 'test1@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                         data={'name': 'test submitter 1',
+                               'email': 'test1@example.com',
+                               'phone_number': '555-555-1212',
+                               'email_confirmation': "False",
+                               'key': self.report_key,
+                               'form-0-perp': 'facebook.com/triggered_match',
+                               'form-TOTAL_FORMS': '1',
+                               'form-INITIAL_FORMS': '1',
+                               'form-MAX_NUM_FORMS': '', })
         user2 = User.objects.create_user(username='dummy2', password='dummy')
         self.client.login(username='dummy2', password='dummy')
         report2_text = """[
@@ -644,20 +798,24 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
       "type": "SingleLineText"
     }
   ]""" % (self.question1.pk, self.question2.pk)
-        report2 = Report(owner = user2)
+        report2 = Report(owner=user2)
         report2_key = 'a key a key a key a key key'
         report2.encrypt_report(report2_text, report2_key)
         report2.save()
-        response = self.client.post(('/test_reports/match_custom/%s/' % report2.pk),
-                                    data={'name':'test submitter 2',
-                                          'email': 'test2@example.com',
-                                          'phone_number': '555-555-1213',
-                                          'email_confirmation': "False",
-                                          'key': report2_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+        response = self.client.post(
+            ('/test_reports/match_custom/%s/' %
+             report2.pk),
+            data={
+                'name': 'test submitter 2',
+                'email': 'test2@example.com',
+                'phone_number': '555-555-1213',
+                'email_confirmation': "False",
+                'key': report2_key,
+                'form-0-perp': 'facebook.com/triggered_match',
+                'form-TOTAL_FORMS': '1',
+                'form-INITIAL_FORMS': '1',
+                'form-MAX_NUM_FORMS': '',
+            })
         self.assertNotIn('submit_error', response.context)
         self.assertEqual(len(mail.outbox), 3)
         message = mail.outbox[2]
@@ -665,7 +823,9 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertIn('"Custom" <custom@', message.from_email)
         self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\.pdf\.gpg')
+        self.assertRegexpMatches(
+            message.attachments[0][0],
+            'custom_.*\.pdf\.gpg')
 
 
 class WithdrawMatchIntegrationTest(ExistingRecordTest):
@@ -688,7 +848,11 @@ class WithdrawMatchIntegrationTest(ExistingRecordTest):
         self.assertTemplateUsed(response, 'after_withdraw.html')
 
     def test_match_report_is_withdrawn(self):
-        self.assertEqual(MatchReport.objects.filter(report=self.report).count(), 1)
+        self.assertEqual(
+            MatchReport.objects.filter(
+                report=self.report).count(), 1)
         response = self.client.get(self.withdrawal_url % self.report.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(MatchReport.objects.filter(report=self.report).count(), 0)
+        self.assertEqual(
+            MatchReport.objects.filter(
+                report=self.report).count(), 0)
