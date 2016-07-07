@@ -3,6 +3,7 @@ import hashlib
 import nacl.secret
 import nacl.utils
 import six
+from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
 
 from django.conf import settings
@@ -15,7 +16,86 @@ from django.utils.crypto import get_random_string, pbkdf2
 from django.utils.html import strip_tags
 
 
+def _encrypt_report(salt, key, report_text):
+    """Encrypts a report using the given secret key & salt. The secret key is stretched to 32 bytes using Django's
+    PBKDF2+SHA256 implementation. The encryption uses PyNacl & Salsa20 stream cipher.
+
+    Args:
+      salt (str): cryptographic salt
+      key (str): secret key
+      report_text (str): full report as a string
+
+    Returns:
+      bytes: the encrypted bytes of the report
+
+    """
+    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
+    box = nacl.secret.SecretBox(stretched_key)
+    message = report_text.encode('utf-8')
+    nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
+    return box.encrypt(message, nonce)
+
+
+def _decrypt_report(salt, key, encrypted):
+    """Decrypts an encrypted report.
+
+    Args:
+      salt (str): cryptographic salt
+      key (str): secret key
+      encrypted (bytes): full report encrypted
+
+    Returns:
+      str: the decrypted report as a string
+
+    Raises:
+      CryptoError: If the key and salt fail to decrypt the record.
+
+    """
+    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
+    box = nacl.secret.SecretBox(stretched_key)
+    decrypted = box.decrypt(bytes(encrypted))  # need to force to bytes bc BinaryField can return as memoryview
+    return decrypted.decode('utf-8')
+
+
+def _pepper(encrypted_report):
+    """Uses a secret value stored on the server to encrypt an already hashed report, to add protection if the database
+    is breached but the server is not. Requires settings.PEPPER to be set to a 32 byte value. In production, this value
+    should be set via environment parameter. Uses PyNacl's Salsa20 stream cipher.
+
+    Args:
+      encrypted_report (bytes): the encrypted report
+
+    Returns:
+      bytes: a further encrypted report
+
+    """
+    pepper = settings.PEPPER
+    box = nacl.secret.SecretBox(pepper)
+    nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
+    return box.encrypt(encrypted_report, nonce)
+
+
+def _unpepper(peppered_report):
+    """Decrypts a report that has been peppered with the _pepper method. Requires settings.PEPPER to be set to a 32
+    byte value. In production, this value should be set via environment parameter.
+
+    Args:
+      peppered_report(bytes): a report that has been encrypted using a secret key then encrypted using the pepper
+
+    Returns:
+      bytes: the report, still encrypted with the secret key
+
+    Raises:
+      CryptoError: If the pepper fails to decrypt the record.
+    """
+    pepper = settings.PEPPER
+    box = nacl.secret.SecretBox(pepper)
+    decrypted = box.decrypt(bytes(peppered_report))  # need to force to bytes bc BinaryField can return as memoryview
+    return decrypted
+
+
 class Report(models.Model):
+    """The full text of a reported incident."""
     encrypted = models.BinaryField(blank=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     added = models.DateTimeField(auto_now_add=True)
@@ -43,24 +123,34 @@ class Report(models.Model):
         ordering = ('-added',)
 
     def encrypt_report(self, report_text, key):
+        """Encrypts and attaches report text. Generates a random salt and stores it on the Report object.
+
+        Args:
+          report_text (str): the full text of the report
+          key (str): the secret key
+
+        """
         if not self.salt:
             self.salt = get_random_string()
         else:
             self.last_edited = timezone.now()
-        stretched_key = pbkdf2(key, self.salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
-        box = nacl.secret.SecretBox(stretched_key)
-        message = report_text.encode('utf-8')
-        nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
-        encrypted = box.encrypt(message, nonce)
-        self.encrypted = encrypted
+        self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
 
     def decrypted_report(self, key):
-        stretched_key = pbkdf2(key, self.salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
-        box = nacl.secret.SecretBox(stretched_key)
-        decrypted = box.decrypt(bytes(self.encrypted))
-        return decrypted.decode('utf-8')
+        """Decrypts the report text. Uses the salt stored on the Report object.
+        Args:
+          key (str): the secret key
+
+        Returns:
+          str: the decrypted report as a string
+
+        Raises:
+          CryptoError: If the key and saved salt fail to decrypt the record.
+        """
+        return _decrypt_report(salt=self.salt, key=key, encrypted=self.encrypted)
 
     def withdraw_from_matching(self):
+        """ Deletes all associated MatchReports """
         self.matchreport_set.all().delete()
         self.match_found = False
 
@@ -108,21 +198,50 @@ class EmailNotification(models.Model):
 
 @six.python_2_unicode_compatible
 class MatchReport(models.Model):
+    """A report that indicates the user wants to submit if a match is found. A single report can have multiple
+    MatchReports--one per perpetrator.
+    """
     report = models.ForeignKey('Report')
-    contact_phone = models.CharField(blank=False, max_length=256)
-    contact_voicemail = models.TextField(blank=True, null=True)
-    contact_name = models.TextField(blank=True, null=True)
     contact_email = models.EmailField(blank=False, max_length=256)
-    contact_notes = models.TextField(blank=True, null=True)
 
-    identifier = models.CharField(blank=False, max_length=500)
-    name = models.CharField(blank=True, null=True, max_length=500)
+    identifier = models.CharField(blank=False, null=True, max_length=500)
 
     added = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(blank=False, default=False)
 
+    encrypted = models.BinaryField(null=False)
+    salt = models.CharField(null=False, max_length=256)
+
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
+
+    def encrypt_match_report(self, report_text, key):
+        """Encrypts and attaches report text. Generates a random salt and stores it on the MatchReport object.
+
+        Args:
+          report_text (str): the full text of the report
+          key (str): the secret key
+
+        """
+        self.salt = get_random_string()
+        self.encrypted = _pepper(_encrypt_report(salt=self.salt, key=key, report_text=report_text))
+
+    def get_match(self, identifier):
+        """Checks if the given identifier triggers a match on this report. Returns report text if so.
+
+        Args:
+          identifier (str): the identifier provided by the user when entering matching.
+
+        Returns:
+            str or None: returns the decrypted report as a string if the identifier matches, or None otherwise.
+        """
+        decrypted_report = None
+        try:
+            decrypted_report = _decrypt_report(salt=self.salt, key=identifier, encrypted=_unpepper(self.encrypted))
+        except CryptoError:
+            pass
+        return decrypted_report
+
 
 class SentReport(PolymorphicModel):
     # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14

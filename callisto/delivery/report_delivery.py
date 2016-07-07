@@ -1,5 +1,6 @@
 import json
 import logging
+from collections import OrderedDict
 from io import BytesIO
 
 import gnupg
@@ -293,7 +294,7 @@ class PDFFullReport(PDFReport):
 
         MetadataPage.append(Paragraph("Overview", self.section_title_style))
 
-        overview_body = "Submitted by: {0}<br/>".format(self.get_user_identifier(self.user))
+        overview_body = "Reported by: {0}<br/>".format(self.get_user_identifier(self.user))
         if recipient:
             overview_body = overview_body + "Submitted on:  {0}<br/>".format(localtime(self.report.submitted_to_school)
                                                                              .strftime(date_format))
@@ -366,18 +367,44 @@ class PDFFullReport(PDFReport):
         return result
 
 
+class MatchReportContent:
+    """ Class to structure contact information collected from match submission form for report """
+    def __init__(self, identifier, perp_name, email, phone, contact_name=None, voicemail=None, notes=None):
+        self.identifier = identifier
+        self.perp_name = perp_name
+        self.contact_name = contact_name
+        self.email = email
+        self.phone = phone
+        self.voicemail = voicemail
+        self.notes = notes
+
+
 class PDFMatchReport(PDFReport):
 
     report_title = "Match Report"
 
-    def __init__(self, matches):
+    def __init__(self, matches, identifier):
         super(PDFMatchReport, self).__init__()
-        self.matches = matches
+        self.matches = sorted(matches, key=lambda m: m.added, reverse=True)
+        self.identifier = identifier
 
     def generate_match_report(self, report_id):
+        """
+        Generates PDF report about a discovered match.
+
+        Args:
+          report_id (str): id used to uniquely identify this report to receiving authority
+
+        Returns:
+          bytes: a PDF with the submitted perp information & contact information of the reporters for this match
+
+        """
+
+        matches_with_reports = [(match, MatchReportContent(**json.loads(match.get_match(self.identifier))))
+                                for match in self.matches]
 
         buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer,pagesize=letter,
+        doc = SimpleDocTemplate(buffer, pagesize=letter,
                                 rightMargin=72, leftMargin=72,
                                 topMargin=72, bottomMargin=72)
         # COVER PAGE
@@ -386,34 +413,40 @@ class PDFMatchReport(PDFReport):
         # MATCH REPORTS
         self.pdf_elements.append(Paragraph(self.report_title, self.report_title_style))
 
+        # perpetrator info
         self.pdf_elements.append(Paragraph("Perpetrator", self.section_title_style))
-        names = ', '.join(set([match.name.strip() for match in self.matches if match.name]))
+        names = ', '.join(OrderedDict.fromkeys([report.perp_name.strip() for _, report in matches_with_reports
+                               if report.perp_name]))
         if len(names) < 1:
             names = '<i>None provided</i>'
-        perp_info = ('Name(s): ' + names) + '<br/>'+ self.matches[0].identifier
+        perp_info = ('Name(s): ' + names) + '<br/>' + "Matching identifier: " + self.identifier
         self.pdf_elements.append(Paragraph(perp_info, self.body_style))
 
-        for idx, match in enumerate(sorted(self.matches, key=lambda match: match.added, reverse=True)):
+        # reporter info
+        for idx, (match_report, match_report_content) in enumerate(matches_with_reports):
             self.pdf_elements.append(Paragraph("Report " + str(idx + 1), self.section_title_style))
 
-            report = match.report
+            report = match_report.report
             user = report.owner
+
             if report.submitted_to_school:
                 sent_report = report.sentfullreport_set.first()
                 report_id = sent_report.get_report_id() if sent_report else "<i>Not found</i>"
                 is_submitted = """Yes
                                Submitted to school on: {0}
-                               Submitted report ID: {1}""".format(localtime(report.submitted_to_school).strftime(date_format),
-                                                                    report_id)
+                               Submitted report ID: {1}""".format(
+                        localtime(report.submitted_to_school).strftime(date_format),
+                        report_id)
             else:
                 is_submitted = "No"
+
             overview_body = """Perpetrator name given: {0}
-                               Submitted by: {1}
+                               Reported by: {1}
                                Submitted to matching on: {2}
-                               Record Created: {3}
-                               Full record submitted? {4}""".format(match.name or "<i>None provided</i>",
+                               Record created: {3}
+                               Full record submitted? {4}""".format(match_report_content.perp_name or "<i>None provided</i>",
                                                                     self.get_user_identifier(user),
-                                                                    localtime(match.added).strftime(date_format),
+                                                                    localtime(match_report.added).strftime(date_format),
                                                                     localtime(report.added).strftime(date_format),
                                                                     is_submitted).replace('\n','<br />\n')
 
@@ -423,13 +456,14 @@ class PDFMatchReport(PDFReport):
                               Phone: {1}
                               Voicemail preferences: {2}
                               Email: {3}
-                              Notes on preferred contact time of day, gender of admin, etc.:""".format(match.contact_name or "<i>None provided</i>",
-                                                                                                       match.contact_phone,
-                                                                                                       match.contact_voicemail or "<i>None provided</i>",
-                                                                                                       match.contact_email).replace('\n','<br />\n')
+                              Notes on preferred contact time of day, gender of admin, etc.:""".format(match_report_content.contact_name or "<i>None provided</i>",
+                                                                                                       match_report_content.phone,
+                                                                                                       match_report_content.voicemail or "<i>None provided</i>",
+                                                                                                       match_report_content.email).replace('\n','<br />\n')
 
             self.pdf_elements.append(Paragraph(contact_body, self.body_style))
-            self.pdf_elements.append(Paragraph(match.contact_notes or "None provided", self.notes_style))
+            self.pdf_elements.append(Paragraph(match_report_content.notes or "None provided",
+                                               self.notes_style))
 
         doc.build(self.pdf_elements, onFirstPage=self.get_header_footer(), onLaterPages=self.get_header_footer(),
                   canvasmaker=NumberedCanvas)
@@ -438,8 +472,9 @@ class PDFMatchReport(PDFReport):
         return result
 
     def send_matching_report_to_school(self):
+        """ Encrypts the generated PDF with GPG and attaches it to an email to the reporting authority """
         logger.info("sending match report to reporting authority")
-        sent_report = SentMatchReport.objects.create(to_address = settings.COORDINATOR_EMAIL)
+        sent_report = SentMatchReport.objects.create(to_address=settings.COORDINATOR_EMAIL)
         report_id = sent_report.get_report_id()
         sent_report.reports.add(*self.matches)
         sent_report.save()

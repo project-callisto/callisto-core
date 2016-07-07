@@ -7,7 +7,8 @@ from django.core import mail
 
 from callisto.delivery.models import EmailNotification, Report
 from callisto.delivery.report_delivery import (
-    PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport,
+    MatchReportContent, PDFFullReport, PDFMatchReport, SentFullReport,
+    SentMatchReport,
 )
 
 from .test_matching import MatchTest
@@ -43,7 +44,7 @@ class ReportDeliveryTest(MatchTest):
         output = report.generate_pdf_report(recipient=None, report_id=None)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
-        self.assertIn("Submitted by: dummy", pdfReader.getPage(0).extractText())
+        self.assertIn("Reported by: dummy", pdfReader.getPage(0).extractText())
         self.assertIn("test answer", pdfReader.getPage(1).extractText())
         self.assertIn("answer to 2nd question", pdfReader.getPage(1).extractText())
 
@@ -61,21 +62,58 @@ class ReportDeliveryTest(MatchTest):
     # TODO: test encryption of submitted report email
 
     def test_pdf_match_report_is_generated(self):
-        match1 = self.create_match(self.user1, 'dummy')
-        match2 = self.create_match(self.user2, 'dummy')
-        report = PDFMatchReport([match1, match2])
+        match1_report_content = MatchReportContent(identifier='perp',
+                                                   perp_name='Perperick',
+                                                   email='email1@example.com',
+                                                   phone='555-555-1212',
+                                                   contact_name='Una',
+                                                   voicemail='Yes')
+        match1 = self.create_match(self.user1, 'perp', match1_report_content)
+        match2_report_content = MatchReportContent(identifier='perp',
+                                                   perp_name='Perpy',
+                                                   email='email2@example.com',
+                                                   phone='(000) 0000000',
+                                                   contact_name='Ni',
+                                                   notes='Please only call after 5pm')
+        match2 = self.create_match(self.user2, 'perp', match2_report_content)
+        report = PDFMatchReport([match1, match2], "perp")
         output = report.generate_match_report(report_id=1)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
-        self.assertIn("Intended for: Title IX Coordinator Tatiana Nine", pdfReader.getPage(0).extractText())
-        self.assertIn("Submitted by: dummy", pdfReader.getPage(0).extractText())
-        self.assertIn("Submitted by: ymmud", pdfReader.getPage(0).extractText())
+
+        pdf_text = pdfReader.getPage(0).extractText()
+        self.assertIn("Intended for: Title IX Coordinator Tatiana Nine", pdf_text)
+        self.assertIn("Matching identifier: perp", pdf_text)
+        self.assertIn("Name(s): Perpy, Perperick", pdf_text)
+        # Report 1
+        self.assertIn("Perpetrator name given: Perpy", pdf_text)
+        self.assertIn("Reported by: ymmud", pdf_text)
+        self.assertRegexpMatches(pdf_text,
+                                 'Submitted to matching on: \d\d/\d\d/201\d @\d\d:\d\d[P|A]M')
+        self.assertRegexpMatches(pdf_text,
+                                 'Record created: \d\d/\d\d/201\d @\d\d:\d\d[P|A]M')
+        self.assertIn("Full record submitted? No", pdf_text)
+        self.assertIn("Name: Una", pdf_text)
+        self.assertIn("Phone: 555-555-1212", pdf_text)
+        self.assertIn("Voicemail preferences: Yes", pdf_text)
+        self.assertIn("Email: email1@example.com", pdf_text)
+        self.assertIn("Notes on preferred contact time of day, gender of admin, etc.:\nNone provided", pdf_text)
+        # Report 2
+        self.assertIn("Perpetrator name given: Perperick", pdf_text)
+        self.assertIn("Reported by: dummy", pdf_text)
+        self.assertIn("Name: Ni", pdf_text)
+        self.assertIn("Phone: (000) 0000000", pdf_text)
+        self.assertIn("Voicemail preferences: None provided", pdf_text)
+        self.assertIn("Email: email2@example.com", pdf_text)
+        self.assertIn("Notes on preferred contact time of day, gender of admin, etc.:\nPlease only call after 5pm", pdf_text)
+
+
 
     def test_matches_to_school(self):
         EmailNotification.objects.create(name='match_delivery', subject="test match delivery", body="test match body")
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        report = PDFMatchReport([match1, match2])
+        report = PDFMatchReport([match1, match2], "dummy")
         report.send_matching_report_to_school()
         sent_report_id = SentMatchReport.objects.latest('id').get_report_id()
         self.assertEqual(len(mail.outbox), 1)
@@ -93,4 +131,4 @@ class ReportDeliveryTest(MatchTest):
         output = pdf_report.generate_pdf_report(recipient=None, report_id=None)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
-        self.assertIn("Submitted by: test@example.com", pdfReader.getPage(0).extractText())
+        self.assertIn("Reported by: test@example.com", pdfReader.getPage(0).extractText())

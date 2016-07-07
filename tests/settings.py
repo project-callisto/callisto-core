@@ -57,3 +57,5 @@ CALLISTO_EVAL_PUBLIC_KEY = get_test_key()
 DECRYPT_THROTTLE_RATE = '100/m'
 
 MATCH_IMMEDIATELY = True
+
+PEPPER = os.urandom(32)
