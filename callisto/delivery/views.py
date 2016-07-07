@@ -14,7 +14,7 @@ from callisto.evaluation.models import EvalRow
 from .forms import SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import run_matching
 from .models import EmailNotification, MatchReport, Report
-from .report_delivery import PDFFullReport, PDFMatchReport
+from .report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -96,17 +96,18 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     for perp_form in formset:
                         # enter into matching
                         match_report = MatchReport(report=report)
-                        match_report_text = {}
 
-                        perp_identifier = match_report_text['identifier'] = perp_form.cleaned_data.get('perp')
-                        match_report_text['perp_name'] = conditional_escape(perp_form.cleaned_data.get('perp_name'))
-                        match_report_text['contact_name'] = conditional_escape(form.cleaned_data.get('name'))
-                        match_report_text['contact_email'] = form.cleaned_data.get('email')
+                        perp_identifier = perp_form.cleaned_data.get('perp')
                         match_report.contact_email = form.cleaned_data.get('email')
-                        match_report_text['contact_phone'] = conditional_escape(form.cleaned_data.get('phone_number'))
-                        match_report_text['contact_voicemail'] = conditional_escape(form.cleaned_data.get('voicemail'))
-                        match_report_text['contact_notes'] = conditional_escape(form.cleaned_data.get('contact_notes'))
-                        match_report.encrypt_match_report(report_text=json.dumps(match_report_text),
+                        match_report_content = \
+                            MatchReportContent(identifier=perp_identifier,
+                                               perp_name=conditional_escape(perp_form.cleaned_data.get('perp_name')),
+                                               contact_name=conditional_escape(form.cleaned_data.get('name')),
+                                               email=match_report.contact_email,
+                                               phone=conditional_escape(form.cleaned_data.get('phone_number')),
+                                               voicemail=conditional_escape(form.cleaned_data.get('voicemail')),
+                                               notes=conditional_escape(form.cleaned_data.get('contact_notes')))
+                        match_report.encrypt_match_report(report_text=json.dumps(match_report_content.__dict__),
                                                           key=perp_identifier)
 
                         if settings.MATCH_IMMEDIATELY:

@@ -10,7 +10,9 @@ from callisto.delivery.matching import find_matches
 from callisto.delivery.models import (
     _decrypt_report, _encrypt_report, _pepper, _unpepper,
 )
-from callisto.delivery.report_delivery import PDFMatchReport
+from callisto.delivery.report_delivery import (
+    MatchReportContent, PDFMatchReport,
+)
 
 User = get_user_model()
 
@@ -47,11 +49,11 @@ class MatchReportMigrationTest(MigrationTest):
         decrypted_report = json.loads(_decrypt_report(match_report.salt, identifier, _unpepper(match_report.encrypted)))
         self.assertEqual(decrypted_report['identifier'], identifier)
         self.assertEqual(decrypted_report['perp_name'], perp_name)
-        self.assertEqual(decrypted_report['contact_phone'], phone)
-        self.assertEqual(decrypted_report['contact_voicemail'], voicemail)
+        self.assertEqual(decrypted_report['phone'], phone)
+        self.assertEqual(decrypted_report['voicemail'], voicemail)
         self.assertEqual(decrypted_report['contact_name'], user_name)
-        self.assertEqual(decrypted_report['contact_email'], email)
-        self.assertEqual(decrypted_report['contact_notes'], None)
+        self.assertEqual(decrypted_report['email'], email)
+        self.assertEqual(decrypted_report['notes'], None)
 
     @patch('callisto.delivery.matching.process_new_matches')
     def test_matches_after_encryption(self, mock_process):
@@ -79,15 +81,12 @@ class MatchReportMigrationTest(MigrationTest):
         Report = self.get_model_after('Report')
         report2 = Report(owner_id=user2.pk)
         report2.save()
-        report_text = json.dumps({'identifier': 'test_identifier',
-                              'perp_name': "Perperick",
-                              'contact_name': 'Rita',
-                              'contact_email': 'email1@example.com',
-                              'contact_phone': '555-555-1212'})
+        report_content = MatchReportContent(identifier='test_identifier', perp_name='Perperick', contact_name='Rita',
+                                            email='email1@example.com', phone='555-555-1212')
         salt = get_random_string()
-        encrypted_report = _pepper(_encrypt_report(salt, identifier, report_text))
+        encrypted_report = _pepper(_encrypt_report(salt, identifier, json.dumps(report_content.__dict__)))
         MatchReport.objects.create(report=report2, identifier=identifier, encrypted=encrypted_report,
-                                            salt=salt)
+                                   salt=salt)
         find_matches([identifier])
         # have to use ANY because objects in migration tests are faked
         mock_process.assert_called_once_with([ANY, ANY], 'test_identifier', PDFMatchReport)

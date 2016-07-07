@@ -9,7 +9,9 @@ from django.utils import timezone
 
 from callisto.delivery.matching import run_matching
 from callisto.delivery.models import MatchReport, Report
-from callisto.delivery.report_delivery import PDFMatchReport
+from callisto.delivery.report_delivery import (
+    MatchReportContent, PDFMatchReport,
+)
 
 from .forms import CustomMatchReport
 
@@ -21,13 +23,16 @@ class MatchTest(TestCase):
         self.user1 = User.objects.create_user(username="dummy", password="dummy")
         self.user2 = User.objects.create_user(username="ymmud", password="dummy")
 
-    def create_match(self, user, identifier, match_report_dict=None):
+    def create_match(self, user, identifier, match_report_content=None):
         report = Report(owner=user)
         report.encrypt_report("test report 1", "key")
         report.save()
         match_report = MatchReport(report=report, identifier=identifier)
-        match_report_dict = match_report_dict if match_report_dict else {'contact_email': 'test@example.com'}
-        match_report.encrypt_match_report(json.dumps(match_report_dict), identifier)
+        match_report_object = match_report_content if match_report_content else MatchReportContent(identifier='test',
+                                                                                                 perp_name='test',
+                                                                                                 email='test@example.com',
+                                                                                                 phone="test")
+        match_report.encrypt_match_report(json.dumps(match_report_object.__dict__), identifier)
         match_report.save()
         return match_report
 

@@ -367,6 +367,17 @@ class PDFFullReport(PDFReport):
         return result
 
 
+class MatchReportContent:
+    def __init__(self, identifier, perp_name, email, phone, contact_name=None, voicemail=None, notes=None):
+        self.identifier = identifier
+        self.perp_name = perp_name
+        self.contact_name = contact_name
+        self.email = email
+        self.phone = phone
+        self.voicemail = voicemail
+        self.notes = notes
+
+
 class PDFMatchReport(PDFReport):
 
     report_title = "Match Report"
@@ -378,10 +389,11 @@ class PDFMatchReport(PDFReport):
 
     def generate_match_report(self, report_id):
 
-        matches_with_reports = [(match, json.loads(match.get_match(self.identifier))) for match in self.matches]
+        matches_with_reports = [(match, MatchReportContent(**json.loads(match.get_match(self.identifier))))
+                                for match in self.matches]
 
         buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer,pagesize=letter,
+        doc = SimpleDocTemplate(buffer, pagesize=letter,
                                 rightMargin=72, leftMargin=72,
                                 topMargin=72, bottomMargin=72)
         # COVER PAGE
@@ -392,15 +404,15 @@ class PDFMatchReport(PDFReport):
 
         # perpetrator info
         self.pdf_elements.append(Paragraph("Perpetrator", self.section_title_style))
-        names = ', '.join(OrderedDict.fromkeys([report['perp_name'].strip() for _, report in matches_with_reports
-                               if report.get('perp_name')]))
+        names = ', '.join(OrderedDict.fromkeys([report.perp_name.strip() for _, report in matches_with_reports
+                               if report.perp_name]))
         if len(names) < 1:
             names = '<i>None provided</i>'
         perp_info = ('Name(s): ' + names) + '<br/>' + "Matching identifier: " + self.identifier
         self.pdf_elements.append(Paragraph(perp_info, self.body_style))
 
         # reporter info
-        for idx, (match_report, match_report_text) in enumerate(matches_with_reports):
+        for idx, (match_report, match_report_content) in enumerate(matches_with_reports):
             self.pdf_elements.append(Paragraph("Report " + str(idx + 1), self.section_title_style))
 
             report = match_report.report
@@ -421,7 +433,7 @@ class PDFMatchReport(PDFReport):
                                Submitted by: {1}
                                Submitted to matching on: {2}
                                Record created: {3}
-                               Full record submitted? {4}""".format(match_report_text.get('perp_name') or "<i>None provided</i>",
+                               Full record submitted? {4}""".format(match_report_content.perp_name or "<i>None provided</i>",
                                                                     self.get_user_identifier(user),
                                                                     localtime(match_report.added).strftime(date_format),
                                                                     localtime(report.added).strftime(date_format),
@@ -433,13 +445,13 @@ class PDFMatchReport(PDFReport):
                               Phone: {1}
                               Voicemail preferences: {2}
                               Email: {3}
-                              Notes on preferred contact time of day, gender of admin, etc.:""".format(match_report_text.get('contact_name') or "<i>None provided</i>",
-                                                                                                       match_report_text.get('contact_phone'),
-                                                                                                       match_report_text.get('contact_voicemail') or "<i>None provided</i>",
-                                                                                                       match_report_text.get('contact_email')).replace('\n','<br />\n')
+                              Notes on preferred contact time of day, gender of admin, etc.:""".format(match_report_content.contact_name or "<i>None provided</i>",
+                                                                                                       match_report_content.phone,
+                                                                                                       match_report_content.voicemail or "<i>None provided</i>",
+                                                                                                       match_report_content.email).replace('\n','<br />\n')
 
             self.pdf_elements.append(Paragraph(contact_body, self.body_style))
-            self.pdf_elements.append(Paragraph(match_report_text.get('contact_notes') or "None provided",
+            self.pdf_elements.append(Paragraph(match_report_content.notes or "None provided",
                                                self.notes_style))
 
         doc.build(self.pdf_elements, onFirstPage=self.get_header_footer(), onLaterPages=self.get_header_footer(),

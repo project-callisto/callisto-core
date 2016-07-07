@@ -8,21 +8,22 @@ from django.db import migrations
 from django.utils.crypto import get_random_string
 
 from callisto.delivery.models import _encrypt_report, _pepper
+from callisto.delivery.report_delivery import MatchReportContent
 
 
 def encrypt_match_report(apps, schema_editor):
     MatchReport = apps.get_model('delivery', 'MatchReport')
     for match_report in MatchReport.objects.all():
-        match_report_text = {'identifier': match_report.identifier,
-                             'perp_name': match_report.name,
-                             'contact_name': match_report.contact_name,
-                             'contact_email': match_report.contact_email,
-                             'contact_phone': match_report.contact_phone,
-                             'contact_voicemail': match_report.contact_voicemail,
-                             'contact_notes': match_report.contact_notes}
+        match_report_content = MatchReportContent(identifier=match_report.identifier,
+                                                  perp_name=match_report.name,
+                                                  email=match_report.contact_email,
+                                                  phone=match_report.contact_phone,
+                                                  contact_name=match_report.contact_name,
+                                                  voicemail=match_report.contact_voicemail,
+                                                  notes=match_report.contact_notes)
         match_report.salt = get_random_string()
         encrypted_match_report = _pepper(_encrypt_report(salt=match_report.salt, key=match_report.identifier,
-                                                 report_text=json.dumps(match_report_text)))
+                                                 report_text=json.dumps(match_report_content.__dict__)))
         match_report.encrypted = encrypted_match_report
         if match_report.seen:
             match_report.identifier = None

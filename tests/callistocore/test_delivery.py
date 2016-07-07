@@ -7,7 +7,8 @@ from django.core import mail
 
 from callisto.delivery.models import EmailNotification, Report
 from callisto.delivery.report_delivery import (
-    PDFFullReport, PDFMatchReport, SentFullReport, SentMatchReport,
+    MatchReportContent, PDFFullReport, PDFMatchReport, SentFullReport,
+    SentMatchReport,
 )
 
 from .test_matching import MatchTest
@@ -61,20 +62,20 @@ class ReportDeliveryTest(MatchTest):
     # TODO: test encryption of submitted report email
 
     def test_pdf_match_report_is_generated(self):
-        match1_report_text = {'identifier': 'dummy',
-                              'perp_name': "Perperick",
-                              'contact_name': 'Una',
-                              'contact_email': 'email1@example.com',
-                              'contact_phone': '555-555-1212',
-                              'contact_voicemail': 'Yes'}
-        match1 = self.create_match(self.user1, 'perp', match1_report_text)
-        match2_report_text = {'identifier': 'dummy',
-                              'perp_name': "Perpy",
-                              'contact_name': 'Ni',
-                              'contact_email': 'email2@example.com',
-                              'contact_phone': '(000) 0000000',
-                              'contact_notes': 'Please only call after 5pm'}
-        match2 = self.create_match(self.user2, 'perp', match2_report_text)
+        match1_report_content = MatchReportContent(identifier='perp',
+                                                   perp_name='Perperick',
+                                                   email='email1@example.com',
+                                                   phone='555-555-1212',
+                                                   contact_name='Una',
+                                                   voicemail='Yes')
+        match1 = self.create_match(self.user1, 'perp', match1_report_content)
+        match2_report_content = MatchReportContent(identifier='perp',
+                                                   perp_name='Perpy',
+                                                   email='email2@example.com',
+                                                   phone='(000) 0000000',
+                                                   contact_name='Ni',
+                                                   notes='Please only call after 5pm')
+        match2 = self.create_match(self.user2, 'perp', match2_report_content)
         report = PDFMatchReport([match1, match2], "perp")
         output = report.generate_match_report(report_id=1)
         exported_report = BytesIO(output)
