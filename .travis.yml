@@ -23,6 +23,7 @@ before_script:
 script:
     - pyflakes setup.py runtests.py tests callisto
     - tox
+    - flake8 .
 after_success:
     - codecov -e TOXENV
 before_cache:
