@@ -368,6 +368,7 @@ class PDFFullReport(PDFReport):
 
 
 class MatchReportContent:
+    """ Class to structure contact information collected from match submission form for report """
     def __init__(self, identifier, perp_name, email, phone, contact_name=None, voicemail=None, notes=None):
         self.identifier = identifier
         self.perp_name = perp_name
@@ -388,6 +389,16 @@ class PDFMatchReport(PDFReport):
         self.identifier = identifier
 
     def generate_match_report(self, report_id):
+        """
+        Generates PDF report about a discovered match.
+
+        Args:
+          report_id (str): id used to uniquely identify this report to receiving authority
+
+        Returns:
+          bytes: a PDF with the submitted perp information & contact information of the reporters for this match
+
+        """
 
         matches_with_reports = [(match, MatchReportContent(**json.loads(match.get_match(self.identifier))))
                                 for match in self.matches]
@@ -461,8 +472,9 @@ class PDFMatchReport(PDFReport):
         return result
 
     def send_matching_report_to_school(self):
+        """ Encrypts the generated PDF with GPG and attaches it to an email to the reporting authority """
         logger.info("sending match report to reporting authority")
-        sent_report = SentMatchReport.objects.create(to_address = settings.COORDINATOR_EMAIL)
+        sent_report = SentMatchReport.objects.create(to_address=settings.COORDINATOR_EMAIL)
         report_id = sent_report.get_report_id()
         sent_report.reports.add(*self.matches)
         sent_report.save()
