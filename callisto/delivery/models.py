@@ -53,7 +53,7 @@ def _decrypt_report(salt, key, encrypted):
     """
     stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
     box = nacl.secret.SecretBox(stretched_key)
-    decrypted = box.decrypt(bytes(encrypted))
+    decrypted = box.decrypt(bytes(encrypted))  # need to force to bytes bc BinaryField can return as memoryview
     return decrypted.decode('utf-8')
 
 
@@ -90,7 +90,7 @@ def _unpepper(peppered_report):
     """
     pepper = settings.PEPPER
     box = nacl.secret.SecretBox(pepper)
-    decrypted = box.decrypt(peppered_report)
+    decrypted = box.decrypt(bytes(peppered_report))  # need to force to bytes bc BinaryField can return as memoryview
     return decrypted
 
 
