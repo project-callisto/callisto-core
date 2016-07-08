@@ -2,6 +2,8 @@ import logging
 
 from django.conf import settings
 
+from callisto.evaluation.models import EvalRow
+
 from .models import EmailNotification, MatchReport
 from .report_delivery import PDFMatchReport
 
@@ -69,6 +71,13 @@ def process_new_matches(matches, identifier, report_class):
     logger.info("new match found")
     owners_notified = []
     for match_report in matches:
+        try:
+            row = EvalRow()
+            row.anonymise_record(action=EvalRow.MATCH_FOUND, report=match_report.report)
+            row.save()
+        except Exception:
+            logger.exception("couldn't save evaluation row on triggered match")
+
         owner = match_report.report.owner
         # only send notification emails to new matches
         if owner not in owners_notified and not match_report.report.match_found and not match_report.report.submitted_to_school:

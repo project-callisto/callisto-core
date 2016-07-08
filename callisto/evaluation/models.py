@@ -18,6 +18,7 @@ class EvalRow(models.Model):
     SUBMIT = "s"
     VIEW = "v"
     MATCH = "m"
+    MATCH_FOUND = 'mf'
     FIRST = "f"
     WITHDRAW = "w"
 
@@ -28,6 +29,7 @@ class EvalRow(models.Model):
         (VIEW, 'View'),
         (SUBMIT, 'Submit'),
         (MATCH, 'Match'),
+        (MATCH_FOUND, 'Match found'),
         (WITHDRAW, 'Withdraw'),
         (FIRST, 'First'), #for records that were saved before evaluation was implemented--saved on any decryption action
     )
@@ -91,7 +93,6 @@ class EvalRow(models.Model):
             except Exception:
                 logger.exception("could not extract an answer in creating eval row")
                 # extract other answers if we can
-                pass
 
         anonymised_answers = {'answered': [], 'unanswered': []}
         for serialized_question in answered_questions_dict:
@@ -110,7 +111,7 @@ class EvalRow(models.Model):
             except Exception:
                 logger.exception("could not extract an answer in creating eval row")
                 # extract other answers if we can
-                pass
+
         return anonymised_answers
 
 class EvaluationField(models.Model):

@@ -60,7 +60,6 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                     row.save()
                 except Exception:
                     logger.exception("couldn't save evaluation row on submission")
-                    pass
 
                 try:
                     _send_user_notification(form, 'submit_confirmation')
@@ -131,7 +130,6 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     row.save()
                 except Exception:
                     logger.exception("couldn't save evaluation row on match submission")
-                    pass
 
                 try:
                     _send_user_notification(form, 'match_confirmation')
@@ -166,7 +164,6 @@ def withdraw_from_matching(request, report_id, template_name):
             row.save()
         except Exception:
             logger.exception("couldn't save evaluation row on match withdrawal")
-            pass
 
         return render(request, template_name, {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
                                                         'coordinator_name': settings.COORDINATOR_NAME,

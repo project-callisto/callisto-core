@@ -81,7 +81,6 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             row.save()
         except Exception:
             logger.exception("couldn't save evaluation row on record creation")
-            pass
 
         return self.wizard_complete(report, **kwargs)
 

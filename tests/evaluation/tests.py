@@ -2,7 +2,7 @@ import json
 
 import gnupg
 import six
-from mock import Mock, patch
+from mock import call, patch
 from wizard_builder.models import (
     Checkbox, Choice, QuestionPage, RadioButton, SingleLineText,
 )
@@ -12,9 +12,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
 
+from callisto.delivery.matching import run_matching
 from callisto.delivery.models import Report
 from callisto.evaluation.models import EvalRow, EvaluationField
 
+from ..callistocore.test_matching import MatchTest
 from .test_keypair import private_test_key, public_test_key
 
 User = get_user_model()
@@ -524,12 +526,11 @@ class ExtractAnswersTest(TestCase):
         self.assertEqual(json.loads(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row)))), self.expected)
 
 
-class EvalActionTest(TestCase):
+class EvalActionTest(MatchTest):
 
     def setUp(self):
         super(EvalActionTest, self).setUp()
 
-        self.user = User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')
         self.request = HttpRequest()
         self.request.GET = {}
@@ -541,7 +542,7 @@ class EvalActionTest(TestCase):
     def test_submission_to_matching_creates_eval_row(self, mock_anonymise_record, mock_run_matching):
         report_text = json.dumps({'test_question': 'test answer'})
         key = 'a key a key a key'
-        report = Report(owner=self.user)
+        report = Report(owner=self.user1)
         report.encrypt_report(report_text, key)
         report.save()
         response = self.client.post(('/test_reports/match/%s/' % report.pk),
@@ -556,7 +557,15 @@ class EvalActionTest(TestCase):
                                           'form-MAX_NUM_FORMS': '',})
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        # mock_row = EvalRow()
-        # mock_row.save = Mock()
-        # mockEvalRow.return_value = mock_row
         mock_anonymise_record.assert_called_with(action=EvalRow.MATCH, report=report, match_identifier="test_url")
+
+    @patch('callisto.delivery.matching.EvalRow.anonymise_record')
+    @patch('callisto.delivery.matching.send_notification_email')
+    @patch('callisto.delivery.matching.PDFMatchReport.send_matching_report_to_school')
+    def test_match_trigger_creates_eval_row(self, mock_send_to_school, mock_notify, mock_anonymise_record):
+        match1 = self.create_match(self.user1, 'dummy')
+        match2 = self.create_match(self.user2, 'dummy')
+        run_matching()
+        call1 = call(action=EvalRow.MATCH_FOUND, report=match1.report)
+        call2 = call(action=EvalRow.MATCH_FOUND, report=match2.report)
+        mock_anonymise_record.assert_has_calls([call1, call2])
