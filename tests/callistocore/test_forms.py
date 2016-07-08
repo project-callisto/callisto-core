@@ -63,6 +63,12 @@ class SubmitToMatchingFormTest(TestCase):
         self.verify_url_fails('https://www.facebook.com/hashtag/funny?source=feed_text&story_id=858583977551613')
         self.verify_url_fails('https://www.facebook.com/')
 
+    def test_trims_url(self):
+        self.verify_url_works('https://www.facebook.com/kelsey.gilmore.innis ', 'kelsey.gilmore.innis')
+        self.verify_url_works('  https://www.facebook.com/kelsey.gilmore.innis ', 'kelsey.gilmore.innis')
+        self.verify_url_works('https://www.facebook.com/kelsey.gilmore.innis    ', 'kelsey.gilmore.innis')
+
+
 class CreateKeyFormTest(TestCase):
     def test_nonmatching_keys_rejected(self):
         bad_request = {'key': 'this is a key',
