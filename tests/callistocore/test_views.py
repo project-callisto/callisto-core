@@ -166,8 +166,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         mock_report.save.assert_any_call()
 
     @patch('callisto.delivery.wizard.Report')
-    @patch('callisto.delivery.wizard.EvalRow')
-    def test_done_saves_anonymised_qs(self, mockEvalRow, mockReport):
+    def test_done_saves_anonymised_qs(self, mockReport):
         self.maxDiff = None
 
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
@@ -192,12 +191,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         mock_report.owner = self.request.user
         mockReport.return_value = mock_report
 
-        mock_eval_row = EvalRow()
-        mock_eval_row.save = Mock()
-        mockEvalRow.return_value = mock_eval_row
-
-        self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request = self.request)
-        mock_eval_row.save.assert_any_call()
+        self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request=self.request)
 
 class ExistingRecordTest(RecordFormBaseTest):
     def setUp(self):

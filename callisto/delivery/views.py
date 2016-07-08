@@ -53,13 +53,8 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                     return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'submit_error': True})
 
-                #record submission in anonymous evaluation data
-                try:
-                    row = EvalRow()
-                    row.anonymise_record(action=EvalRow.SUBMIT, report=report)
-                    row.save()
-                except Exception:
-                    logger.exception("couldn't save evaluation row on submission")
+                # record submission in anonymous evaluation data
+                EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
 
                 try:
                     _send_user_notification(form, 'submit_confirmation')
@@ -124,12 +119,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                                                                 'submit_error': True})
 
                 #record matching submission in anonymous evaluation data
-                try:
-                    row = EvalRow()
-                    row.anonymise_record(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
-                    row.save()
-                except Exception:
-                    logger.exception("couldn't save evaluation row on match submission")
+                EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
                 try:
                     _send_user_notification(form, 'match_confirmation')
@@ -158,12 +148,7 @@ def withdraw_from_matching(request, report_id, template_name):
         report.save()
 
         # record match withdrawal in anonymous evaluation data
-        try:
-            row = EvalRow()
-            row.anonymise_record(action=EvalRow.WITHDRAW, report=report)
-            row.save()
-        except Exception:
-            logger.exception("couldn't save evaluation row on match withdrawal")
+        EvalRow.store_eval_row(action=EvalRow.WITHDRAW, report=report)
 
         return render(request, template_name, {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
                                                         'coordinator_name': settings.COORDINATOR_NAME,

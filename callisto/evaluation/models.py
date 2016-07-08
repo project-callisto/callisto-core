@@ -114,6 +114,16 @@ class EvalRow(models.Model):
 
         return anonymised_answers
 
+    @classmethod
+    def store_eval_row(cls, action, report, decrypted_text=None, match_identifier=None):
+        try:
+            row = EvalRow()
+            row.anonymise_record(action=action, report=report, decrypted_text=decrypted_text,
+                                 match_identifier=match_identifier)
+            row.save()
+        except Exception:
+            logger.exception("couldn't save evaluation row on {}".format(dict(EvalRow.ACTIONS).get(action)))
+
 class EvaluationField(models.Model):
     #If an associated EvaluationField exists for a record form item, we record the contents
     #If not, we just save whether the question was answered or not

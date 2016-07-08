@@ -78,7 +78,7 @@ class SecretKeyForm(forms.Form):
             try:
                 row = EvalRow()
                 row.set_identifiers(report)
-                if (EvalRow.objects.filter(record_identifier = row.record_identifier).count() == 0):
+                if EvalRow.objects.filter(record_identifier=row.record_identifier).count() == 0:
                     row.action = EvalRow.FIRST
                     row.add_report_data(decrypted_report)
                     row.save()

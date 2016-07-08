@@ -104,6 +104,11 @@ class EvalRowTest(TestCase):
         row.full_clean()
         self.assertEqual(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row))), test_row)
 
+    def test_make_eval_row(self):
+        user = User.objects.create_user(username="dummy", password="dummy")
+        report = Report.objects.create(owner=user, encrypted=b'first report')
+        EvalRow.store_eval_row(EvalRow.CREATE, report=report)
+        self.assertEqual(EvalRow.objects.count(), 1)
 
 class EvalFieldTest(TestCase):
 
@@ -537,27 +542,29 @@ class EvalActionTest(MatchTest):
         self.request.method = 'GET'
         self.request.user = User.objects.get(username='dummy')
 
+        self.report_text = json.dumps({'test_question': 'test answer'})
+        self.key = 'a key a key a key'
+        self.report = Report(owner=self.user1)
+        self.report.encrypt_report(self.report_text, self.key)
+        self.report.save()
+
     @patch('callisto.delivery.views.run_matching')
     @patch('callisto.delivery.views.EvalRow.anonymise_record')
     def test_submission_to_matching_creates_eval_row(self, mock_anonymise_record, mock_run_matching):
-        report_text = json.dumps({'test_question': 'test answer'})
-        key = 'a key a key a key'
-        report = Report(owner=self.user1)
-        report.encrypt_report(report_text, key)
-        report.save()
-        response = self.client.post(('/test_reports/match/%s/' % report.pk),
+        response = self.client.post(('/test_reports/match/%s/' % self.report.pk),
                                     data={'name': 'test submitter',
                                           'email': 'test@example.com',
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "False",
-                                          'key': key,
+                                          'key': self.key,
                                           'form-0-perp': 'facebook.com/test_url',
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
                                           'form-MAX_NUM_FORMS': '',})
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        mock_anonymise_record.assert_called_with(action=EvalRow.MATCH, report=report, match_identifier="test_url")
+        mock_anonymise_record.assert_called_with(action=EvalRow.MATCH, report=self.report, match_identifier="test_url",
+                                                 decrypted_text=None)
 
     @patch('callisto.delivery.matching.EvalRow.anonymise_record')
     @patch('callisto.delivery.matching.send_notification_email')
@@ -566,6 +573,20 @@ class EvalActionTest(MatchTest):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         run_matching()
-        call1 = call(action=EvalRow.MATCH_FOUND, report=match1.report)
-        call2 = call(action=EvalRow.MATCH_FOUND, report=match2.report)
+        call1 = call(action=EvalRow.MATCH_FOUND, report=match1.report, decrypted_text=None, match_identifier=None)
+        call2 = call(action=EvalRow.MATCH_FOUND, report=match2.report, decrypted_text=None, match_identifier=None)
         mock_anonymise_record.assert_has_calls([call1, call2])
+
+    @patch('callisto.delivery.views.EvalRow.anonymise_record')
+    @patch('callisto.delivery.report_delivery.PDFFullReport.send_report_to_school')
+    def test_submit_creates_eval_row(self, mock_send_report, mock_anonymise_record):
+        response = self.client.post(('/test_reports/submit/%s/' % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.key})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        mock_anonymise_record.assert_called_with(action=EvalRow.SUBMIT, report=self.report, decrypted_text=None,
+                                                 match_identifier=None)
