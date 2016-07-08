@@ -2,12 +2,14 @@ import json
 
 import gnupg
 import six
+from mock import Mock, patch
 from wizard_builder.models import (
     Checkbox, Choice, QuestionPage, RadioButton, SingleLineText,
 )
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpRequest
 from django.test import TestCase
 
 from callisto.delivery.models import Report
@@ -73,7 +75,6 @@ class EvalRowTest(TestCase):
         self.assertNotEqual(EvalRow.objects.get(id=row1.pk).record_identifier, EvalRow.objects.get(id=row2.pk).record_identifier)
         self.assertEqual(EvalRow.objects.get(id=row3.pk).record_identifier, EvalRow.objects.get(id=row3_edit.pk).record_identifier)
 
-
     def test_can_encrypt_a_row(self):
         user = User.objects.create_user(username="dummy", password="dummy")
         report = Report.objects.create(owner=user, encrypted=b'first report')
@@ -86,7 +87,6 @@ class EvalRowTest(TestCase):
         self.assertEqual(EvalRow.objects.count(), 1)
         self.assertIsNotNone(EvalRow.objects.get(id=row.pk).row)
         self.assertNotEqual(EvalRow.objects.get(id=row.pk).row, test_row)
-
 
     def test_can_decrypt_a_row(self):
         gpg = gnupg.GPG()
@@ -101,6 +101,7 @@ class EvalRowTest(TestCase):
         row.save()
         row.full_clean()
         self.assertEqual(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row))), test_row)
+
 
 class EvalFieldTest(TestCase):
 
@@ -128,6 +129,7 @@ class EvalFieldTest(TestCase):
         q2.save()
         EvaluationField.objects.create(question=q2, label="question")
         self.assertEqual(EvaluationField.objects.all().count(), 2)
+
 
 class ExtractAnswersTest(TestCase):
 
@@ -191,6 +193,15 @@ class ExtractAnswersTest(TestCase):
         self.set_up_simple_report_scenario()
         anonymised = EvalRow()._extract_answers(json.loads(self.json_report))
         self.assertEqual(anonymised, self.expected)
+
+    def test_match_id_gets_appended(self):
+        self.set_up_simple_report_scenario()
+        anonymised1 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy1')
+        anonymised2 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy1')
+        anonymised3 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy2')
+        self.assertNotEqual(anonymised1['match_identifier'], 'dummy1')
+        self.assertEqual(anonymised1['match_identifier'], anonymised2['match_identifier'])
+        self.assertNotEqual(anonymised1['match_identifier'], anonymised3['match_identifier'])
 
     def test_extract_answers_with_extra(self):
         self.maxDiff = None
@@ -511,3 +522,41 @@ class ExtractAnswersTest(TestCase):
         row.save()
 
         self.assertEqual(json.loads(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row)))), self.expected)
+
+
+class EvalActionTest(TestCase):
+
+    def setUp(self):
+        super(EvalActionTest, self).setUp()
+
+        self.user = User.objects.create_user(username='dummy', password='dummy')
+        self.client.login(username='dummy', password='dummy')
+        self.request = HttpRequest()
+        self.request.GET = {}
+        self.request.method = 'GET'
+        self.request.user = User.objects.get(username='dummy')
+
+    @patch('callisto.delivery.views.run_matching')
+    @patch('callisto.delivery.views.EvalRow.anonymise_record')
+    def test_submission_to_matching_creates_eval_row(self, mock_anonymise_record, mock_run_matching):
+        report_text = json.dumps({'test_question': 'test answer'})
+        key = 'a key a key a key'
+        report = Report(owner=self.user)
+        report.encrypt_report(report_text, key)
+        report.save()
+        response = self.client.post(('/test_reports/match/%s/' % report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': key,
+                                          'form-0-perp': 'facebook.com/test_url',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '',})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        # mock_row = EvalRow()
+        # mock_row.save = Mock()
+        # mockEvalRow.return_value = mock_row
+        mock_anonymise_record.assert_called_with(action=EvalRow.MATCH, report=report, match_identifier="test_url")

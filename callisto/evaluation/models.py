@@ -40,18 +40,25 @@ class EvalRow(models.Model):
     row = models.BinaryField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def anonymise_record(self, action, report, decrypted_text=None, key=settings.CALLISTO_EVAL_PUBLIC_KEY):
+    def anonymise_record(self, action, report, decrypted_text=None, match_identifier=None, key=settings.CALLISTO_EVAL_PUBLIC_KEY):
         self.action = action
         self.set_identifiers(report)
         if decrypted_text:
-            self.add_report_data(decrypted_text, key=key)
+            self.add_report_data(decrypted_text, match_identifier=match_identifier, key=key)
 
     def set_identifiers(self, report):
         self.user_identifier = hashlib.sha256(str(report.owner.id).encode()).hexdigest()
         self.record_identifier = hashlib.sha256(str(report.id).encode()).hexdigest()
 
-    def add_report_data(self, decrypted_text, key=settings.CALLISTO_EVAL_PUBLIC_KEY):
-        self._encrypt_eval_row(json.dumps(self._extract_answers(json.loads(decrypted_text))), key=key)
+    def _create_eval_row_text(self, decrypted_text, match_identifier=None):
+        row = self._extract_answers(json.loads(decrypted_text))
+        if match_identifier:
+            row['match_identifier'] = hashlib.sha256(str(match_identifier).encode()).hexdigest()
+        return row
+
+    def add_report_data(self, decrypted_text, match_identifier=None, key=settings.CALLISTO_EVAL_PUBLIC_KEY):
+        self._encrypt_eval_row(json.dumps(self._create_eval_row_text(decrypted_text=decrypted_text,
+                                                                     match_identifier=match_identifier)), key=key)
 
     def _encrypt_eval_row(self, eval_row, key=settings.CALLISTO_EVAL_PUBLIC_KEY):
         gpg = gnupg.GPG()

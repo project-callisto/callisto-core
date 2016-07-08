@@ -127,7 +127,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                 #record matching submission in anonymous evaluation data
                 try:
                     row = EvalRow()
-                    row.anonymise_record(action=EvalRow.MATCH, report=report)
+                    row.anonymise_record(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
                     row.save()
                 except Exception:
                     logger.exception("couldn't save evaluation row on match submission")
