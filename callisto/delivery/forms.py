@@ -141,19 +141,26 @@ class SubmitToSchoolForm(SecretKeyForm):
         self.fields['email'].initial = report.contact_email or user.email
         self.fields['contact_notes'].initial = report.contact_notes
 
+
+# workaround for Django wontfix https://code.djangoproject.com/ticket/6717
+class StrippedURLField(forms.URLField):
+    def to_python(self, value):
+        return super(StrippedURLField, self).to_python(value and value.strip())
+
+
 class SubmitToMatchingForm(forms.Form):
     perp_name = forms.CharField(label="Perpetrator's Name",
                             required=False,
                             max_length=500,
                             widget=forms.TextInput(attrs={'placeholder': 'ex. John Jacob Jingleheimer Schmidt',}),)
 
-    perp = forms.URLField(label="Perpetrator's Facebook URL",
+    perp = StrippedURLField(label="Perpetrator's Facebook URL",
                             required=True,
                             max_length=500,
                             widget=forms.TextInput(attrs={'placeholder': 'ex. http://www.facebook.com/johnsmithfakename'}),)
 
     def clean_perp(self):
-        raw_url = self.cleaned_data.get('perp')
+        raw_url = self.cleaned_data.get('perp').strip()
         url_parts = urlsplit(raw_url)
         #check if Facebook
         domain = url_parts[1]
