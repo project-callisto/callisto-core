@@ -26,7 +26,7 @@ We need all contributors to sign our [volunteer agreement](https://github.com/Se
 ````
 git clone git@github.com:SexualHealthInnovations/callisto-core.git # first time only
 cd callisto-core
-brew install gnupg # first time only (make sure that gpg is installed)
+# install gpg (first time only) see http://blog.ghostinthemachines.com/2015/03/01/how-to-use-gpg-command-line/
 pip install virtualenv # first time only
 virtualenv venv # localize your dependencies
 source venv/bin/activate
