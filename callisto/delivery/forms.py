@@ -78,13 +78,13 @@ class SecretKeyForm(forms.Form):
             try:
                 row = EvalRow()
                 row.set_identifiers(report)
-                if (EvalRow.objects.filter(record_identifier = row.record_identifier).count() == 0):
+                if EvalRow.objects.filter(record_identifier=row.record_identifier).count() == 0:
                     row.action = EvalRow.FIRST
                     row.add_report_data(decrypted_report)
                     row.save()
             except Exception:
                 logger.exception("couldn't save anonymous row on catch-up save")
-                pass
+
         except CryptoError:
             self.decrypted_report = None
             logger.info("decryption failure on report {}".format(report.id))

@@ -70,18 +70,11 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         report.encrypt_report(report_text, key)
         report.save()
 
-        #save anonymised answers
-        try:
-            if self.object_to_edit:
-                action = EvalRow.EDIT
-            else:
-                action = EvalRow.CREATE
-            row = EvalRow()
-            row.anonymise_record(action=action, report=report, decrypted_text=report_text)
-            row.save()
-        except Exception:
-            logger.exception("couldn't save evaluation row on record creation")
-            pass
+        # save anonymised answers
+        if self.object_to_edit:
+            EvalRow.store_eval_row(action=EvalRow.EDIT, report=report, decrypted_text=report_text)
+        else:
+            EvalRow.store_eval_row(action=EvalRow.CREATE, report=report, decrypted_text=report_text)
 
         return self.wizard_complete(report, **kwargs)
 
