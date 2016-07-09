@@ -46,7 +46,8 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 setup(
     name='callisto-core',
     version=__version__,
-    description="""Report intake, escrow, matching and secure delivery code for Callisto, an online reporting system for sexual assault.""",
+    description="""Report intake, escrow, matching and secure delivery code for Callisto,
+    an online reporting system for sexual assault.""",
     long_description=readme + '\n\n' + history,
     author='Sexual Health Innovations',
     author_email='tech@sexualhealthinnovations.org',

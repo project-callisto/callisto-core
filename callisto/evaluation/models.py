@@ -31,7 +31,7 @@ class EvalRow(models.Model):
         (MATCH, 'Match'),
         (MATCH_FOUND, 'Match found'),
         (WITHDRAW, 'Withdraw'),
-        (FIRST, 'First'),  # for records that were saved before evaluation was implemented--saved on any decryption action
+        (FIRST, 'First'),  # for records that were created before evaluation was implemented--saved on any decryption
     )
 
     user_identifier = models.CharField(blank=False, max_length=500)

@@ -296,7 +296,7 @@ class EditRecordFormTest(ExistingRecordTest):
       "question_text": "2nd question",
       "type": "SingleLineText"
     }
-  ]"""  % (self.question1.pk, self.question2.pk)
+  ]""" % (self.question1.pk, self.question2.pk)
 
         self.edit_record(self.report)
         self.assertEqual(Report.objects.count(), 1)

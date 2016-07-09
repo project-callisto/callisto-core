@@ -105,30 +105,30 @@ class PDFReport(object):
         headline_style = styles["Heading1"]
         headline_style.alignment = TA_CENTER
         headline_style.fontSize = 48
-        #headline_style.fontName = 'Montserrat'
+        # headline_style.fontName = 'Montserrat'
 
         subtitle_style = styles["Heading2"]
         subtitle_style.fontSize = 24
-        #subtitle_style.fontName = 'OpenSans'
+        # subtitle_style.fontName = 'OpenSans'
         subtitle_style.leading = 26
         subtitle_style.alignment = TA_CENTER
 
         report_title_style = styles["Heading3"]
         report_title_style.fontSize = 28
-        #report_title_style.fontName = 'Montserrat'
+        # report_title_style.fontName = 'Montserrat'
         report_title_style.leading = 36
         report_title_style.spaceBefore = 0
         report_title_style.alignment = TA_CENTER
 
         section_title_style = styles["Heading4"]
         section_title_style.fontSize = 18
-        #section_title_style.fontName = 'Montserrat'
+        # section_title_style.fontName = 'Montserrat'
         section_title_style.leading = 22
         section_title_style.spaceBefore = 20
 
         body_style = styles["Normal"]
         body_style.fontSize = 14
-        #body_style.fontName = 'OpenSans'
+        # body_style.fontName = 'OpenSans'
         body_style.leading = 17
         body_style.leftIndent = 25
 
