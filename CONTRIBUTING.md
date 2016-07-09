@@ -5,7 +5,7 @@ Thank you so much for considering contributing to callisto-core. We couldn't do 
 These guidelines are a work in progress and will be updated as we refine our contributing process. If you have any questions, don't hesitate to ask.
 
 We are adhering to [Django's coding style
-guide](https://docs.djangoproject.com/en/1.9/internals/contributing/writing-code/coding-style/). 
+guide](https://docs.djangoproject.com/en/1.9/internals/contributing/writing-code/coding-style/).
 
 We're working on moving relevant issues from our private bug tracker over to the [GitHub issues](https://github.com/SexualHealthInnovations/callisto-core/issues) on this repo. Beyond the features and bugs listed there, we would very much welcome contributions to improve our non-existent documentation, and are happy to provide extensive support!
 
@@ -14,7 +14,7 @@ Working on your first open source contribution? We are so excited to have you! Y
 
 ## Coding style
 
-We are adhering to [Django's coding style guide](https://docs.djangoproject.com/en/1.9/internals/contributing/writing-code/coding-style/), including a maximum line length of 119 characters. You'll find relevant configuration in [`setup.cfg`](https://github.com/SexualHealthInnovations/callisto-core/blob/master/setup.cfg). 
+We are adhering to [Django's coding style guide](https://docs.djangoproject.com/en/1.9/internals/contributing/writing-code/coding-style/), including a maximum line length of 119 characters. You'll find relevant configuration in [`setup.cfg`](https://github.com/SexualHealthInnovations/callisto-core/blob/master/setup.cfg).
 
 As Django's style guide explains, you can use `isort` to automatically sort imports. Install `isort` into your virtual environment with `pip install isort`. Before opening your pull request, sort imports by running `isort -rc .` in the root directory of the project. Travis builds of your PR fail if imports aren't sorted correctly.
 
@@ -26,6 +26,7 @@ We need all contributors to sign our [volunteer agreement](https://github.com/Se
 ````
 git clone git@github.com:SexualHealthInnovations/callisto-core.git # first time only
 cd callisto-core
+# install gpg (first time only) see http://blog.ghostinthemachines.com/2015/03/01/how-to-use-gpg-command-line/
 pip install virtualenv # first time only
 virtualenv venv # localize your dependencies
 source venv/bin/activate
