@@ -22,15 +22,15 @@ class NewSecretKeyForm(forms.Form):
     }
 
     key = forms.CharField(max_length=64,
-                          label="Your passphrase",
-                          widget=forms.PasswordInput(attrs={'placeholder': 'Your passphrase',
-                                                            'autocomplete': 'off'}),
-                          error_messages={'required': REQUIRED_ERROR.format("passphrase")})
+                           label="Your passphrase",
+                           widget=forms.PasswordInput(attrs={'placeholder': 'Your passphrase',
+                                                         'autocomplete': 'off'}),
+                           error_messages = {'required': REQUIRED_ERROR.format("passphrase")})
     key2 = forms.CharField(max_length=64,
                            label="Repeat your passphrase",
                            widget=forms.PasswordInput(attrs={'placeholder': 'Repeat your passphrase',
-                                                             'autocomplete': 'off'}),
-                           error_messages={'required': REQUIRED_ERROR.format("passphrase confirmation")})
+                                                         'autocomplete': 'off'}),
+                           error_messages = {'required': REQUIRED_ERROR.format("passphrase confirmation")})
 
     # from http://birdhouse.org/blog/2015/06/16/sane-password-strength-validation-for-django-with-zxcvbn/
 
@@ -46,6 +46,7 @@ class NewSecretKeyForm(forms.Form):
             raise forms.ValidationError("Your password isn't strong enough.")
         return password
 
+
     def clean_key2(self):
         key1 = self.cleaned_data.get("key")
         key2 = self.cleaned_data.get("key2")
@@ -56,7 +57,6 @@ class NewSecretKeyForm(forms.Form):
             )
         return key2
 
-
 class SecretKeyForm(forms.Form):
     error_messages = {
         'wrong_key': "The passphrase didn't match.",
@@ -65,8 +65,8 @@ class SecretKeyForm(forms.Form):
     key = forms.CharField(max_length=254,
                           label="Your passphrase",
                           widget=forms.PasswordInput(attrs={'placeholder': 'Your passphrase',
-                                                            'autocomplete': 'off'}),
-                          error_messages={'required': REQUIRED_ERROR.format("passphrase")})
+                                                        'autocomplete': 'off'}),
+                          error_messages = {'required': REQUIRED_ERROR.format("passphrase")})
 
     def clean_key(self):
         key = self.cleaned_data.get('key')
@@ -74,17 +74,17 @@ class SecretKeyForm(forms.Form):
         try:
             decrypted_report = report.decrypted_report(key)
             self.decrypted_report = decrypted_report
-            # save anonymous row if one wasn't saved on creation
+            #save anonymous row if one wasn't saved on creation
             try:
                 row = EvalRow()
                 row.set_identifiers(report)
-                if (EvalRow.objects.filter(record_identifier=row.record_identifier).count() == 0):
+                if EvalRow.objects.filter(record_identifier=row.record_identifier).count() == 0:
                     row.action = EvalRow.FIRST
                     row.add_report_data(decrypted_report)
                     row.save()
             except Exception:
                 logger.exception("couldn't save anonymous row on catch-up save")
-                pass
+
         except CryptoError:
             self.decrypted_report = None
             logger.info("decryption failure on report {}".format(report.id))
@@ -97,48 +97,36 @@ class SecretKeyForm(forms.Form):
 
 class SubmitToSchoolForm(SecretKeyForm):
     name = forms.CharField(label="Your preferred first name:",
-                           required=False,
-                           max_length=500,
-                           widget=forms.TextInput(attrs={'placeholder': 'ex. Chris'}),)
+                                    required=False,
+                                    max_length=500,
+                                    widget=forms.TextInput(attrs={'placeholder': 'ex. Chris'}),)
 
     phone_number = forms.CharField(label="Preferred phone number to call:",
-                                   required=True,
-                                   max_length=50,
-                                   widget=forms.TextInput(attrs={'placeholder': 'ex. (555) 555-5555'}),)
+                                    required=True,
+                                    max_length=50,
+                                    widget=forms.TextInput(attrs={'placeholder': 'ex. (555) 555-5555'}),)
 
-    voicemail = forms.CharField(
-        label="Is it ok to leave a voicemail? If so, what would you like the message to refer to?",
-        required=False,
-        max_length=256,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': "ex. Yes, please just say you're following up from Callisto."}),
-        )
+    voicemail = forms.CharField(label="Is it ok to leave a voicemail? If so, what would you like the message to refer to?",
+                                    required=False,
+                                    max_length=256,
+                                    widget=forms.TextInput(attrs={'placeholder': "ex. Yes, please just say you're following up from Callisto."}),)
 
     email = forms.EmailField(label="If you can't be reached by phone, what's the best email address to reach you?",
-                             required=True,
-                             max_length=256,
-                             widget=forms.TextInput(attrs={'placeholder': 'ex. myname@gmail.com'}),)
+                                    required=True,
+                                    max_length=256,
+                                    widget=forms.TextInput(attrs={'placeholder': 'ex. myname@gmail.com'}),)
 
-    contact_notes = forms.CharField(
-        label=("Any notes on what time of day is best to reach you? A {school} staff member will"
-               " try their best to accommodate your needs.".format(
-                   school=settings.SCHOOL_SHORTNAME)),
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                'placeholder': ("ex. I have class from 9-2 most weekdays and work"
-                                " in the evenings, so mid afternoon is best (around 2:30-5pm)."
-                                " Wednesdays and Thursdays I have class the entire day,"
-                                " so those days don't work at all."),
-                'max_length': 5000}),)
+    contact_notes = forms.CharField(label="Any notes on what time of day is best to reach you? A {0} staff member will "
+                                          "try their best to accommodate your needs.".format(settings.SCHOOL_SHORTNAME),
+                                    required=False,
+                                    widget=forms.Textarea(attrs={'placeholder': "ex. I have class from 9-2 most weekdays and work in the evenings, so mid afternoon is best (around 2:30-5pm)."
+                                                                                "Wednesdays and Thursdays I have class the entire day, so those days don't work at all.",
+                                                                 'max_length': 5000}),)
 
-    email_confirmation = forms.ChoiceField(
-        choices=[(True, "Yes"), (False, "No, thanks")],
-        label=("Would you like us to send you a confirmation email with information"
-               " about your rights in the reporting process, and where to get support"
-               " and find resources on campus?"),
-        required=True, widget=forms.RadioSelect)
+    email_confirmation = forms.ChoiceField(choices=[(True, "Yes"), (False, "No, thanks")],
+                                           label="Would you like us to send you a confirmation email with information about your rights in the reporting process, and where to get support and find resources on campus?",
+                                           required=True,
+                                           widget=forms.RadioSelect)
 
     def __init__(self, user, report, *args, **kwargs):
         super(SubmitToSchoolForm, self).__init__(*args, **kwargs)
@@ -146,7 +134,7 @@ class SubmitToSchoolForm(SecretKeyForm):
         self.report = report
         self.fields['key'].widget.attrs['placeholder'] = 'ex. I am a muffin baking ninja'
 
-        # TODO: populate these intelligently if we have the data elsewhere (in match reports, other reports)
+        #TODO: populate these intelligently if we have the data elsewhere (in match reports, other reports)
         self.fields['name'].initial = report.contact_name
         self.fields['phone_number'].initial = report.contact_phone
         self.fields['voicemail'].initial = report.contact_voicemail
@@ -154,52 +142,34 @@ class SubmitToSchoolForm(SecretKeyForm):
         self.fields['contact_notes'].initial = report.contact_notes
 
 
-class SubmitToMatchingForm(forms.Form):
-    perp_name = forms.CharField(
-        label="Perpetrator's Name",
-        required=False,
-        max_length=500,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': 'ex. John Jacob Jingleheimer Schmidt',
-            }),
-        )
+# workaround for Django wontfix https://code.djangoproject.com/ticket/6717
+class StrippedURLField(forms.URLField):
+    def to_python(self, value):
+        return super(StrippedURLField, self).to_python(value and value.strip())
 
-    perp = forms.URLField(
-        label="Perpetrator's Facebook URL",
-        required=True,
-        max_length=500,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': 'ex. http://www.facebook.com/johnsmithfakename'}),
-        )
+
+class SubmitToMatchingForm(forms.Form):
+    perp_name = forms.CharField(label="Perpetrator's Name",
+                            required=False,
+                            max_length=500,
+                            widget=forms.TextInput(attrs={'placeholder': 'ex. John Jacob Jingleheimer Schmidt',}),)
+
+    perp = StrippedURLField(label="Perpetrator's Facebook URL",
+                            required=True,
+                            max_length=500,
+                            widget=forms.TextInput(attrs={'placeholder': 'ex. http://www.facebook.com/johnsmithfakename'}),)
 
     def clean_perp(self):
-        raw_url = self.cleaned_data.get('perp')
+        raw_url = self.cleaned_data.get('perp').strip()
         url_parts = urlsplit(raw_url)
-        # check if Facebook
+        #check if Facebook
         domain = url_parts[1]
-        if not (domain == 'facebook.com' or domain.endswith('.facebook.com')):
+        if not (domain=='facebook.com' or domain.endswith('.facebook.com')):
             logger.info("invalid facebook url entered with domain {}".format(domain))
             raise ValidationError('Please enter a valid Facebook profile URL.', code='notfacebook')
         path = url_parts[2].strip('/').split('/')[0]
-        generic_fb_urls = [
-            'messages',
-            'hashtag',
-            'events',
-            'pages',
-            'groups',
-            'bookmarks',
-            'lists',
-            'developers',
-            'topic',
-            'help',
-            'privacy',
-            'campaign',
-            'policies',
-            'support',
-            'settings',
-            'games']
+        generic_fb_urls = ['messages', 'hashtag', 'events', 'pages', 'groups', 'bookmarks', 'lists', 'developers', 'topic', 'help',
+                           'privacy', 'campaign', 'policies', 'support', 'settings', 'games']
         if path == "profile.php":
             path = parse_qs(url_parts[3]).get('id')[0]
         if not path or path == "" or path.endswith('.php') or path in generic_fb_urls:

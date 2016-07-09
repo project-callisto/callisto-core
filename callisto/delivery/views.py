@@ -1,3 +1,4 @@
+import json
 import logging
 
 from ratelimit.decorators import ratelimit
@@ -11,9 +12,9 @@ from django.utils.html import conditional_escape
 from callisto.evaluation.models import EvalRow
 
 from .forms import SubmitToMatchingFormSet, SubmitToSchoolForm
-from .matching import find_matches
+from .matching import run_matching
 from .models import EmailNotification, MatchReport, Report
-from .report_delivery import PDFFullReport, PDFMatchReport
+from .report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ def _send_user_notification(form, notification_name):
         to_email = preferred_email
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
         notification.send(to=[to_email], from_email=from_email)
+
 
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
@@ -51,14 +53,8 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                     return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
                                                                                   'submit_error': True})
 
-                #record submission in anonymous evaluation data
-                try:
-                    row = EvalRow()
-                    row.anonymise_record(action=EvalRow.SUBMIT, report=report)
-                    row.save()
-                except Exception:
-                    logger.exception("couldn't save evaluation row on submission")
-                    pass
+                # record submission in anonymous evaluation data
+                EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
 
                 try:
                     _send_user_notification(form, 'submit_confirmation')
@@ -90,20 +86,32 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
             if form.is_valid() and formset.is_valid():
                 try:
                     match_reports = []
+                    identifiers = []
                     for perp_form in formset:
-                        #enter into matching
+                        # enter into matching
                         match_report = MatchReport(report=report)
-                        match_report.contact_name = conditional_escape(form.cleaned_data.get('name'))
+
+                        perp_identifier = perp_form.cleaned_data.get('perp')
                         match_report.contact_email = form.cleaned_data.get('email')
-                        match_report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
-                        match_report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
-                        match_report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                        match_report.identifier = perp_form.cleaned_data.get('perp')
-                        match_report.name = conditional_escape(perp_form.cleaned_data.get('perp_name'))
+                        match_report_content = \
+                            MatchReportContent(identifier=perp_identifier,
+                                               perp_name=conditional_escape(perp_form.cleaned_data.get('perp_name')),
+                                               contact_name=conditional_escape(form.cleaned_data.get('name')),
+                                               email=match_report.contact_email,
+                                               phone=conditional_escape(form.cleaned_data.get('phone_number')),
+                                               voicemail=conditional_escape(form.cleaned_data.get('voicemail')),
+                                               notes=conditional_escape(form.cleaned_data.get('contact_notes')))
+                        match_report.encrypt_match_report(report_text=json.dumps(match_report_content.__dict__),
+                                                          key=perp_identifier)
+
+                        if settings.MATCH_IMMEDIATELY:
+                            identifiers.append(perp_identifier)
+                        else:
+                            match_report.identifier = perp_identifier
                         match_reports.append(match_report)
                     MatchReport.objects.bulk_create(match_reports)
                     if settings.MATCH_IMMEDIATELY:
-                        find_matches(report_class=report_class)
+                        run_matching(identifiers=identifiers, report_class=report_class)
                 except Exception:
                     logger.exception("couldn't submit match report for report {}".format(report_id))
                     return render(request, form_template_name, {'form': form, 'formset': formset,
@@ -111,13 +119,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                                                                 'submit_error': True})
 
                 #record matching submission in anonymous evaluation data
-                try:
-                    row = EvalRow()
-                    row.anonymise_record(action=EvalRow.MATCH, report=report)
-                    row.save()
-                except Exception:
-                    logger.exception("couldn't save evaluation row on match submission")
-                    pass
+                EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
                 try:
                     _send_user_notification(form, 'match_confirmation')
@@ -146,13 +148,7 @@ def withdraw_from_matching(request, report_id, template_name):
         report.save()
 
         # record match withdrawal in anonymous evaluation data
-        try:
-            row = EvalRow()
-            row.anonymise_record(action=EvalRow.WITHDRAW, report=report)
-            row.save()
-        except Exception:
-            logger.exception("couldn't save evaluation row on match withdrawal")
-            pass
+        EvalRow.store_eval_row(action=EvalRow.WITHDRAW, report=report)
 
         return render(request, template_name, {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
                                                         'coordinator_name': settings.COORDINATOR_NAME,
