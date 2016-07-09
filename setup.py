@@ -53,7 +53,8 @@ setup(
     url='https://github.com/SexualHealthInnovations/callisto-core',
     packages=[
         'callisto.delivery',
-        'callisto.evaluation'],
+        'callisto.evaluation'
+    ],
     include_package_data=True,
     install_requires=[],
     zip_safe=False,

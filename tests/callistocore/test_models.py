@@ -13,8 +13,7 @@ User = get_user_model()
 class ReportModelTest(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="dummy", password="dummy")
+        self.user = User.objects.create_user(username="dummy", password="dummy")
 
     def test_reports_have_owners(self):
         report = Report()
@@ -24,7 +23,7 @@ class ReportModelTest(TestCase):
 
     # need to at minimum save which fields were displayed
     def test_cannot_save_empty_reports(self):
-        report = Report(owner=self.user, encrypted=b'')
+        report = Report(owner=self.user , encrypted=b'')
         with self.assertRaises(ValidationError):
             report.save()
             report.full_clean()
@@ -36,11 +35,9 @@ class ReportModelTest(TestCase):
             report.full_clean()
 
     def test_report_ordering(self):
-        report1 = Report.objects.create(
-            owner=self.user, encrypted=b'first report')
+        report1 = Report.objects.create(owner=self.user, encrypted=b'first report')
         report2 = Report.objects.create(owner=self.user, encrypted=b'2 report')
-        report3 = Report.objects.create(
-            owner=self.user, encrypted=b'report #3')
+        report3 = Report.objects.create(owner=self.user, encrypted=b'report #3')
         self.assertEqual(
             list(Report.objects.all()),
             [report3, report2, report1]
@@ -48,9 +45,7 @@ class ReportModelTest(TestCase):
 
     def test_can_encrypt_report(self):
         report = Report(owner=self.user)
-        report.encrypt_report(
-            "this text should be encrypted",
-            key='this is my key')
+        report.encrypt_report("this text should be encrypted", key='this is my key')
         report.save()
         saved_report = Report.objects.first()
         self.assertIsNotNone(saved_report.salt)
@@ -60,14 +55,10 @@ class ReportModelTest(TestCase):
 
     def test_can_decrypt_report(self):
         report = Report(owner=self.user)
-        report.encrypt_report(
-            "this text should be encrypted, yes it should by golly!",
-            key='this is my key')
+        report.encrypt_report("this text should be encrypted, yes it should by golly!", key='this is my key')
         report.save()
         saved_report = Report.objects.first()
-        self.assertEqual(
-            saved_report.decrypted_report('this is my key'),
-            "this text should be encrypted, yes it should by golly!")
+        self.assertEqual(saved_report.decrypted_report('this is my key'), "this text should be encrypted, yes it should by golly!")
 
     def test_no_times_by_default(self):
         report = Report(owner=self.user)
@@ -89,11 +80,8 @@ class ReportModelTest(TestCase):
         report = Report(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
-        MatchReport.objects.create(
-            report=report,
-            contact_phone='phone',
-            contact_email='test@example.com',
-            identifier='dummy')
+        MatchReport.objects.create(report = report, contact_phone='phone',
+                                   contact_email='test@example.com', identifier='dummy')
         self.assertIsNotNone(Report.objects.first().entered_into_matching)
         report.match_found = True
         report.save()
@@ -102,34 +90,25 @@ class ReportModelTest(TestCase):
         self.assertIsNone(Report.objects.first().entered_into_matching)
         self.assertFalse(Report.objects.first().match_found)
 
-
 class MatchReportTest(TestCase):
-
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="dummy", password="dummy")
+        self.user = User.objects.create_user(username="dummy", password="dummy")
 
     def test_entered_into_matching_property_is_set(self):
-        report = Report(owner=self.user)
+        report = Report(owner = self.user)
         report.encrypt_report("test report", "key")
         report.save()
-        MatchReport.objects.create(
-            report=report,
-            contact_phone='phone',
-            contact_email='test@example.com',
-            identifier='dummy')
+        MatchReport.objects.create(report = report, contact_phone='phone',
+                                   contact_email='test@example.com', identifier='dummy')
         self.assertIsNotNone(Report.objects.first().entered_into_matching)
 
-    def test_entered_into_matching_is_blank_before_entering_into_matching(
-            self):
-        report = Report(owner=self.user)
+    def test_entered_into_matching_is_blank_before_entering_into_matching(self):
+        report = Report(owner = self.user)
         report.encrypt_report("test report", "key")
         report.save()
         self.assertIsNone(Report.objects.first().entered_into_matching)
 
-
 class SentReportTest(TestCase):
-
     def test_id_format_works(self):
         sent_full_report = SentFullReport.objects.create()
         sent_full_report_id = sent_full_report.get_report_id()

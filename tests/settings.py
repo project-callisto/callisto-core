@@ -4,11 +4,11 @@ DEBUG = True
 
 USE_TZ = True
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-    }
-}
+DATABASES={
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+            }
+        }
 
 
 ROOT_URLCONF = "tests.urls"
@@ -25,10 +25,8 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-)
+MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
+                      'django.contrib.auth.middleware.AuthenticationMiddleware',)
 
 TEMPLATE_DIRS = ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
 
@@ -36,14 +34,13 @@ SCHOOL_REPORT_PREFIX = "000"
 
 KEY_ITERATIONS = 100
 
-
 def get_test_key():
     with open(os.path.join(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))),
                            'test_publickey.gpg'), 'r') as key_file:
         key_str = key_file.read()
     return key_str
 
-COORDINATOR_NAME = "Tatiana Nine"
+COORDINATOR_NAME="Tatiana Nine"
 COORDINATOR_EMAIL = "titleix@example.com"
 COORDINATOR_PUBLIC_KEY = get_test_key()
 
