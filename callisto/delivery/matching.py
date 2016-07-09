@@ -80,6 +80,7 @@ def process_new_matches(matches, identifier, report_class):
     # send report to school
     report_class(matches, identifier).send_matching_report_to_school()
 
+
 def send_notification_email(user, match_report):
     """Notifies reporting user that a match has been found. Requires an EmailNotification called "match_notification."
 

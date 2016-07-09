@@ -13,7 +13,7 @@ env = environ.Env()
 
 
 class Command(BaseCommand):
-    help='decrypts eval data. can only be run in local environments (import data from prod)'
+    help = 'decrypts eval data. can only be run in local environments (import data from prod)'
 
     def handle(self, *args, **options):
         if not settings.DEBUG:
@@ -32,6 +32,6 @@ class Command(BaseCommand):
             if decrypted_eval_row:
                 decrypted_row.update(json.loads(decrypted_eval_row))
             decrypted_eval_data.append(decrypted_row)
-        with open('eval_data.json','w') as output:
+        with open('eval_data.json', 'w') as output:
             json.dump(decrypted_eval_data, output)
         self.stdout.write("Decrypted eval data written to eval_data.json")

@@ -51,7 +51,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 except Exception:
                     logger.exception("couldn't submit report for report {}".format(report_id))
                     return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
-                                                                                  'submit_error': True})
+                                                                'submit_error': True})
 
                 # record submission in anonymous evaluation data
                 EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
@@ -62,8 +62,9 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                     # report was sent even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on submission")
 
-                return render(request, confirmation_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
-                                                                                  'report': report})
+                return render(
+                    request, confirmation_template_name,
+                    {'form': form, 'school_name': settings.SCHOOL_SHORTNAME, 'report': report})
         else:
             form = SubmitToSchoolForm(owner, report)
         return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME})
@@ -118,7 +119,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                                                                 'school_name': settings.SCHOOL_SHORTNAME,
                                                                 'submit_error': True})
 
-                #record matching submission in anonymous evaluation data
+                # record matching submission in anonymous evaluation data
                 EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
                 try:
@@ -128,13 +129,13 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     logger.exception("couldn't send confirmation to user on match submission")
 
                 return render(request, confirmation_template_name, {'school_name': settings.SCHOOL_SHORTNAME,
-                                                                                    'report': report})
+                                                                    'report': report})
 
         else:
             form = SubmitToSchoolForm(owner, report)
             formset = SubmitToMatchingFormSet()
         return render(request, form_template_name, {'form': form, 'formset': formset,
-                                                           'school_name': settings.SCHOOL_SHORTNAME})
+                                                    'school_name': settings.SCHOOL_SHORTNAME})
     else:
         logger.warning("illegal matching attempt on record {} by user {}".format(report_id, owner.id))
         return HttpResponseForbidden()
@@ -151,9 +152,9 @@ def withdraw_from_matching(request, report_id, template_name):
         EvalRow.store_eval_row(action=EvalRow.WITHDRAW, report=report)
 
         return render(request, template_name, {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
-                                                        'coordinator_name': settings.COORDINATOR_NAME,
-                                                       'coordinator_email': settings.COORDINATOR_EMAIL,
-                                                       'match_report_withdrawn': True})
+                                               'coordinator_name': settings.COORDINATOR_NAME,
+                                               'coordinator_email': settings.COORDINATOR_EMAIL,
+                                               'match_report_withdrawn': True})
     else:
         logger.warning("illegal matching withdrawal attempt on record {} by user {}".format(report_id, owner.id))
         return HttpResponseForbidden()

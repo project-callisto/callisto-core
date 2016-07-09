@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 class NumberedCanvas(canvas.Canvas):
+
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
         self._saved_page_states = []
@@ -52,8 +53,9 @@ class NumberedCanvas(canvas.Canvas):
         width, height = letter
         margin = 0.66 * 72
         self.setFillColor('gray')
-        #self.setFont('OpenSans',12)
+        # self.setFont('OpenSans',12)
         self.drawRightString(width - margin, margin, "Page %d of %d" % (self._pageNumber, page_count))
+
 
 class PDFReport(object):
 
@@ -75,7 +77,6 @@ class PDFReport(object):
         self.section_title_style = self.styles['Heading4']
         self.report_title_style = self.styles['Heading3']
         self.pdf_elements = []
-
 
     def set_up_styles(self, *args, **kwargs):
         """
@@ -139,7 +140,7 @@ class PDFReport(object):
                                   alias='notes'))
         styles.add(ListStyle(
             name='AnswersList',
-            #bulletFontName='DejaVuSans',
+            # bulletFontName='DejaVuSans',
         ))
 
         styles.add(ParagraphStyle(name='Answers',
@@ -147,10 +148,9 @@ class PDFReport(object):
                                   leftIndent=0,
                                   alias='answers'))
 
-
         return styles
 
-    #FORMATTING HELPERS
+    # FORMATTING HELPERS
 
     def format_question(self, question, strikethrough=False):
         markup_open, markup_close = ('<strike>', '</strike>') if strikethrough else ('', '')
@@ -166,9 +166,9 @@ class PDFReport(object):
 
     def format_answer_list(self, answers, keep_together=True):
         answers = ListFlowable(
-                    answers,
-                    bulletType='bullet',
-                    style=self.answers_list_style)
+            answers,
+            bulletType='bullet',
+            style=self.answers_list_style)
         if keep_together:
             answers = KeepTogether(answers)
         return [answers, Spacer(1, 16)]
@@ -207,9 +207,9 @@ class PDFReport(object):
             if extra:
                 choices.append("<i>{0}</i>: {1}".format(extra.get('extra_text'), extra.get('answer')))
             self.add_multiple_choice(question.get('question_text'), choices, answers, last_is_free_text=bool(extra))
-        elif question_type == 'SingleLineText' or question_type == 'Date' or question_type =='MultiLineText':
+        elif question_type == 'SingleLineText' or question_type == 'Date' or question_type == 'MultiLineText':
             self.add_question(question.get('question_text'))
-            answer = question.get('answer').replace('\n','<br />\n') or '<i>Not answered</i>'
+            answer = question.get('answer').replace('\n', '<br />\n') or '<i>Not answered</i>'
             self.add_answer_list([self.format_answer(answer, self.free_text)], keep_together=False)
         elif question_type == 'FormSet':
             forms = question.get('answers')
@@ -240,7 +240,7 @@ class PDFReport(object):
             margin = 0.66 * 72
             canvas.saveState()
             canvas.setFillColor('gray')
-            #canvas.setFont('OpenSans',12)
+            # canvas.setFont('OpenSans',12)
             canvas.drawString(margin, height - margin, "CONFIDENTIAL")
             canvas.drawRightString(width - margin, height - margin, localtime(timezone.now()).strftime(date_format))
             if recipient:
@@ -281,11 +281,12 @@ class PDFFullReport(PDFReport):
 
     def send_report_to_school(self):
         logger.info("sending report to reporting authority")
-        report_id = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL).get_report_id()
+        report_id = SentFullReport.objects.create(
+            report=self.report, to_address=settings.COORDINATOR_EMAIL).get_report_id()
         self.report.submitted_to_school = timezone.now()
         pdf = self.generate_pdf_report(report_id)
         self.send_email_to_coordinator(pdf, 'report_delivery', report_id)
-        #save report timestamp only if generation & email work
+        # save report timestamp only if generation & email work
         self.report.save()
 
     def get_metadata_page(self, recipient):
@@ -314,12 +315,11 @@ class PDFFullReport(PDFReport):
             Phone: {1}
             Voicemail preferences: {2}
             Email: {3}
-            Notes on preferred contact time of day, gender of admin, etc.:""".format(self.report.contact_name or
-                                                                                     "<i>None provided</i>",
-                                                                                     self.report.contact_phone,
-                                                                                     self.report.contact_voicemail or
-                                                                                     "None provided",
-                                                                                     self.report.contact_email).replace('\n','<br />\n')
+            Notes on preferred contact time of day, gender of admin, etc.:""".format(
+                self.report.contact_name or "<i>None provided</i>",
+                self.report.contact_phone,
+                self.report.contact_voicemail or "None provided",
+                self.report.contact_email).replace('\n', '<br />\n')
 
             MetadataPage.append(Paragraph(contact_body, self.body_style))
             MetadataPage.append(Paragraph(self.report.contact_notes or "None provided", self.notes_style))
@@ -329,7 +329,7 @@ class PDFFullReport(PDFReport):
         key = ListFlowable(
             [ListItem(Paragraph("Unselected option", self.answers_style), value=self.unselected, leftIndent=45),
              ListItem(Paragraph("<b>Selected option</b>", self.answers_style), value=self.selected, leftIndent=45),
-             ListItem(Paragraph("Free text response", self.answers_style), value= self.free_text, leftIndent=45)],
+             ListItem(Paragraph("Free text response", self.answers_style), value=self.free_text, leftIndent=45)],
             bulletType='bullet',
             style=self.answers_list_style)
         MetadataPage.append(key)
@@ -369,6 +369,7 @@ class PDFFullReport(PDFReport):
 
 class MatchReportContent:
     """ Class to structure contact information collected from match submission form for report """
+
     def __init__(self, identifier, perp_name, email, phone, contact_name=None, voicemail=None, notes=None):
         self.identifier = identifier
         self.perp_name = perp_name
@@ -416,7 +417,7 @@ class PDFMatchReport(PDFReport):
         # perpetrator info
         self.pdf_elements.append(Paragraph("Perpetrator", self.section_title_style))
         names = ', '.join(OrderedDict.fromkeys([report.perp_name.strip() for _, report in matches_with_reports
-                               if report.perp_name]))
+                                                if report.perp_name]))
         if len(names) < 1:
             names = '<i>None provided</i>'
         perp_info = ('Name(s): ' + names) + '<br/>' + "Matching identifier: " + self.identifier
@@ -435,8 +436,8 @@ class PDFMatchReport(PDFReport):
                 is_submitted = """Yes
                                Submitted to school on: {0}
                                Submitted report ID: {1}""".format(
-                        localtime(report.submitted_to_school).strftime(date_format),
-                        report_id)
+                    localtime(report.submitted_to_school).strftime(date_format),
+                    report_id)
             else:
                 is_submitted = "No"
 
@@ -444,11 +445,12 @@ class PDFMatchReport(PDFReport):
                                Reported by: {1}
                                Submitted to matching on: {2}
                                Record created: {3}
-                               Full record submitted? {4}""".format(match_report_content.perp_name or "<i>None provided</i>",
-                                                                    self.get_user_identifier(user),
-                                                                    localtime(match_report.added).strftime(date_format),
-                                                                    localtime(report.added).strftime(date_format),
-                                                                    is_submitted).replace('\n','<br />\n')
+                               Full record submitted? {4}""".format(
+                match_report_content.perp_name or "<i>None provided</i>",
+                self.get_user_identifier(user),
+                localtime(match_report.added).strftime(date_format),
+                localtime(report.added).strftime(date_format),
+                is_submitted).replace('\n', '<br />\n')
 
             self.pdf_elements.append(Paragraph(overview_body, self.body_style))
 
@@ -456,10 +458,11 @@ class PDFMatchReport(PDFReport):
                               Phone: {1}
                               Voicemail preferences: {2}
                               Email: {3}
-                              Notes on preferred contact time of day, gender of admin, etc.:""".format(match_report_content.contact_name or "<i>None provided</i>",
-                                                                                                       match_report_content.phone,
-                                                                                                       match_report_content.voicemail or "<i>None provided</i>",
-                                                                                                       match_report_content.email).replace('\n','<br />\n')
+                              Notes on preferred contact time of day, gender of admin, etc.:""".format(
+                match_report_content.contact_name or "<i>None provided</i>",
+                match_report_content.phone,
+                match_report_content.voicemail or "<i>None provided</i>",
+                match_report_content.email).replace('\n', '<br />\n')
 
             self.pdf_elements.append(Paragraph(contact_body, self.body_style))
             self.pdf_elements.append(Paragraph(match_report_content.notes or "None provided",

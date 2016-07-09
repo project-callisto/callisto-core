@@ -23,7 +23,7 @@ class ReportModelTest(TestCase):
 
     # need to at minimum save which fields were displayed
     def test_cannot_save_empty_reports(self):
-        report = Report(owner=self.user , encrypted=b'')
+        report = Report(owner=self.user, encrypted=b'')
         with self.assertRaises(ValidationError):
             report.save()
             report.full_clean()
@@ -58,7 +58,8 @@ class ReportModelTest(TestCase):
         report.encrypt_report("this text should be encrypted, yes it should by golly!", key='this is my key')
         report.save()
         saved_report = Report.objects.first()
-        self.assertEqual(saved_report.decrypted_report('this is my key'), "this text should be encrypted, yes it should by golly!")
+        self.assertEqual(saved_report.decrypted_report('this is my key'),
+                         "this text should be encrypted, yes it should by golly!")
 
     def test_no_times_by_default(self):
         report = Report(owner=self.user)
@@ -89,7 +90,9 @@ class ReportModelTest(TestCase):
         self.assertIsNone(Report.objects.first().entered_into_matching)
         self.assertFalse(Report.objects.first().match_found)
 
+
 class MatchReportTest(TestCase):
+
     def setUp(self):
         self.user = User.objects.create_user(username="dummy", password="dummy")
         self.report = Report(owner=self.user)
@@ -121,6 +124,7 @@ class MatchReportTest(TestCase):
 
 
 class SentReportTest(TestCase):
+
     def test_id_format_works(self):
         sent_full_report = SentFullReport.objects.create()
         sent_full_report_id = sent_full_report.get_report_id()

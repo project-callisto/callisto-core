@@ -4,6 +4,7 @@ from .models import EmailNotification
 
 
 class EmailNotificationAdmin(admin.ModelAdmin):
+
     class Media:
         js = [
             '/static/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',

@@ -22,7 +22,7 @@ class EvalRow(models.Model):
     FIRST = "f"
     WITHDRAW = "w"
 
-    #TODO: delete
+    # TODO: delete
     ACTIONS = (
         (CREATE, 'Create'),
         (EDIT, 'Edit'),
@@ -31,7 +31,7 @@ class EvalRow(models.Model):
         (MATCH, 'Match'),
         (MATCH_FOUND, 'Match found'),
         (WITHDRAW, 'Withdraw'),
-        (FIRST, 'First'), #for records that were saved before evaluation was implemented--saved on any decryption action
+        (FIRST, 'First'),  # for records that were saved before evaluation was implemented--saved on any decryption action
     )
 
     user_identifier = models.CharField(blank=False, max_length=500)
@@ -42,7 +42,12 @@ class EvalRow(models.Model):
     row = models.BinaryField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def anonymise_record(self, action, report, decrypted_text=None, match_identifier=None, key=settings.CALLISTO_EVAL_PUBLIC_KEY):
+    def anonymise_record(self,
+                         action,
+                         report,
+                         decrypted_text=None,
+                         match_identifier=None,
+                         key=settings.CALLISTO_EVAL_PUBLIC_KEY):
         self.action = action
         self.set_identifiers(report)
         if decrypted_text:
@@ -89,7 +94,7 @@ class EvalRow(models.Model):
                         if 'extra' in question_dict:
                             eval_location[label + "_extra"] = question_dict['extra']['answer']
                 except ObjectDoesNotExist:
-                        pass
+                    pass
             except Exception:
                 logger.exception("could not extract an answer in creating eval row")
                 # extract other answers if we can
@@ -124,8 +129,9 @@ class EvalRow(models.Model):
         except Exception:
             logger.exception("couldn't save evaluation row on {}".format(dict(EvalRow.ACTIONS).get(action)))
 
+
 class EvaluationField(models.Model):
-    #If an associated EvaluationField exists for a record form item, we record the contents
-    #If not, we just save whether the question was answered or not
+    # If an associated EvaluationField exists for a record form item, we record the contents
+    # If not, we just save whether the question was answered or not
     question = models.OneToOneField(FormQuestion)
     label = models.CharField(blank=False, null=False, max_length=500)

@@ -19,6 +19,7 @@ User = get_user_model()
 
 
 class MatchTest(TestCase):
+
     def setUp(self):
         self.user1 = User.objects.create_user(username="dummy", password="dummy")
         self.user2 = User.objects.create_user(username="ymmud", password="dummy")
@@ -28,10 +29,8 @@ class MatchTest(TestCase):
         report.encrypt_report("test report 1", "key")
         report.save()
         match_report = MatchReport(report=report, identifier=identifier)
-        match_report_object = match_report_content if match_report_content else MatchReportContent(identifier='test',
-                                                                                                 perp_name='test',
-                                                                                                 email='test@example.com',
-                                                                                                 phone="test")
+        match_report_object = match_report_content if match_report_content else MatchReportContent(
+            identifier='test', perp_name='test', email='test@example.com', phone="test")
         match_report.encrypt_match_report(json.dumps(match_report_object.__dict__), identifier)
         match_report.save()
         return match_report
@@ -204,6 +203,7 @@ class MatchDiscoveryTest(MatchTest):
 @patch('callisto.delivery.matching.send_notification_email')
 @patch('callisto.delivery.report_delivery.PDFMatchReport.send_email_to_coordinator')
 class MatchNotificationTest(MatchTest):
+
     def setUp(self):
         self.user1 = User.objects.create_user(username="dummy", password="dummy")
         self.user2 = User.objects.create_user(username="ymmud", password="dummy")

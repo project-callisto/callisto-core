@@ -20,8 +20,8 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
     def get_form_initial(self, step):
         # TODO: store decrypted record with other intermediate form data
         # https://github.com/SexualHealthInnovations/callisto-core/issues/33
-        if self.object_to_edit and step and step !='0' and not self.form_to_edit:
-            #decrypt record and store in memory
+        if self.object_to_edit and step and step != '0' and not self.form_to_edit:
+            # decrypt record and store in memory
             cleaned_data = self.get_cleaned_data_for_step('0')
             if cleaned_data:
                 key = cleaned_data.get('key')
@@ -45,7 +45,7 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
 
     @classmethod
     def calculate_real_page_index(cls, raw_idx, pages, record_to_edit, **kwargs):
-        #add one for decryption page if editing
+        # add one for decryption page if editing
         return raw_idx + 1 if record_to_edit else raw_idx
 
     def wizard_complete(self, report, **kwargs):
@@ -53,7 +53,7 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         This method must be overridden by a subclass to redirect wizard after the report has been processed.
         """
         raise NotImplementedError("Your %s class has not defined a wizard_complete() "
-            "method, which is required." % self.__class__.__name__)
+                                  "method, which is required." % self.__class__.__name__)
 
     def done(self, form_list, **kwargs):
         req = kwargs.get('request') or self.request
@@ -79,18 +79,18 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         return self.wizard_complete(report, **kwargs)
 
     def get_template_names(self):
-         # render key page with separate template
-         if self.object_to_edit and self.steps.current == self.steps.first:
+        # render key page with separate template
+        if self.object_to_edit and self.steps.current == self.steps.first:
             return ['decrypt_record_for_edit.html']
-         elif self.object_to_edit and self.steps.current == self.steps.last:
+        elif self.object_to_edit and self.steps.current == self.steps.last:
             return ['encrypt_record_for_edit.html']
-         elif self.steps.current == self.steps.last:
+        elif self.steps.current == self.steps.last:
             return ['create_key.html']
-         else:
+        else:
             return ['record_form.html']
 
     def get_step_url(self, step):
-        kwargs={'step': step,}
+        kwargs = {'step': step, }
         if self.object_to_edit:
             kwargs['report_id'] = self.object_to_edit.id
         return reverse(self.url_name, kwargs=kwargs)
