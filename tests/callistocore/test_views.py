@@ -30,6 +30,22 @@ def get_body(response):
     return response.content.decode('utf-8')
 
 
+class RecordFormFailureTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='dummy', password='dummy')
+        self.client.login(username='dummy', password='dummy')
+
+    def test_new_without_pages_causes_500(self):
+        response = self.client.get('/test_reports/new/0/')
+        self.assertEqual(response.status_code, 500)
+
+    def test_edit_without_pages_causes_500(self):
+        report = Report.objects.create(owner=self.user, encrypted=b'encrypted report')
+        response = self.client.get('/test_reports/edit/%s/' % report.pk)
+        self.assertEqual(response.status_code, 500)
+
+
 class RecordFormBaseTest(TestCase):
 
     def setUp(self):
@@ -279,6 +295,12 @@ class EditRecordFormTest(ExistingRecordTest):
         key_form_2.is_valid()
 
         self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2], request=self.request)
+
+    def test_record_cannot_be_edited_by_non_owning_user(self):
+        other_user = User.objects.create_user(username='other_user', password='dummy')
+        report = Report.objects.create(owner=other_user, encrypted=b'first report')
+        response = self.client.get(self.record_form_url % report.id)
+        self.assertEqual(response.status_code, 403)
 
     def test_edit_modifies_record(self):
         self.maxDiff = None

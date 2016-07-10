@@ -2,10 +2,11 @@ import json
 import logging
 
 from ratelimit.decorators import ratelimit
+from wizard_builder.models import PageBase
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseServerError
 from django.shortcuts import render
 from django.utils.html import conditional_escape
 
@@ -18,6 +19,29 @@ from .report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
+
+
+def new_record_form_view(request, wizard, step=None, url_name="record_form"):
+    if PageBase.objects.count() > 0:
+        return wizard.wizard_factory().as_view(url_name=url_name)(request, step=step)
+    else:
+        logger.error("no pages in record form")
+        return HttpResponseServerError()
+
+
+@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
+def edit_record_form_view(request, report_id, wizard, step=None, url_name="edit_report"):
+    owner = request.user
+    report = Report.objects.get(id=report_id)
+    if owner == report.owner:
+        if PageBase.objects.count() > 0:
+            return wizard.wizard_factory(object_to_edit=report).as_view(url_name=url_name)(request, step=step)
+        else:
+            logger.error("no pages in record form")
+            return HttpResponseServerError()
+    else:
+        logger.warning("illegal edit attempt on record {} by user {}".format(report_id, owner.id))
+        return HttpResponseForbidden()
 
 
 def _send_user_notification(form, notification_name):
