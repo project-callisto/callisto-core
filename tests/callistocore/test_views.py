@@ -30,6 +30,22 @@ def get_body(response):
     return response.content.decode('utf-8')
 
 
+class RecordFormFailureTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='dummy', password='dummy')
+        self.client.login(username='dummy', password='dummy')
+
+    def test_new_without_pages_causes_500(self):
+        response = self.client.get('/test_reports/new/0/')
+        self.assertEqual(response.status_code, 500)
+
+    def test_edit_without_pages_causes_500(self):
+        report = Report.objects.create(owner=self.user, encrypted=b'encrypted report')
+        response = self.client.get('/test_reports/edit/%s/' % report.pk)
+        self.assertEqual(response.status_code, 500)
+
+
 class RecordFormBaseTest(TestCase):
 
     def setUp(self):
