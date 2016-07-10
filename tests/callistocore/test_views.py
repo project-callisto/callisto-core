@@ -280,6 +280,12 @@ class EditRecordFormTest(ExistingRecordTest):
 
         self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2], request=self.request)
 
+    def test_record_cannot_be_edited_by_non_owning_user(self):
+        other_user = User.objects.create_user(username='other_user', password='dummy')
+        report = Report.objects.create(owner=other_user, encrypted=b'first report')
+        response = self.client.get(self.record_form_url % report.id)
+        self.assertEqual(response.status_code, 403)
+
     def test_edit_modifies_record(self):
         self.maxDiff = None
 

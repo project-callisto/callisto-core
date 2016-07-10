@@ -1,16 +1,21 @@
 from django.conf.urls import url
 
 from callisto.delivery.views import (
-    submit_to_matching, submit_to_school, withdraw_from_matching,
+    edit_record_form_view, new_record_form_view, submit_to_matching,
+    submit_to_school, withdraw_from_matching,
 )
 
-from .callistocore.forms import CustomMatchReport, CustomReport
-from .callistocore.views import edit_test_report_view, new_test_report_view
+from .callistocore.forms import (
+    CustomMatchReport, CustomReport, EncryptedFormWizard,
+)
 
 urlpatterns = [
-    url(r'^test_reports/new/(?P<step>.+)/$', new_test_report_view, name="test_new_report"),
-    url(r'^test_reports/edit/(?P<report_id>\d+)/$', edit_test_report_view, name='test_edit_report'),
-    url(r'^test_reports/edit/(?P<report_id>\d+)/(?P<step>.+)/$', edit_test_report_view, name='test_edit_report'),
+    url(r'^test_reports/new/(?P<step>.+)/$', new_record_form_view,
+        {'wizard': EncryptedFormWizard}, name="test_new_report"),
+    url(r'^test_reports/edit/(?P<report_id>\d+)/$', edit_record_form_view,
+        {'wizard': EncryptedFormWizard, 'url_name': 'test_edit_report'}, name='test_edit_report'),
+    url(r'^test_reports/edit/(?P<report_id>\d+)/(?P<step>.+)/$', edit_record_form_view,
+        {'wizard': EncryptedFormWizard, 'url_name': 'test_edit_report'}, name='test_edit_report'),
     url(r'^test_reports/submit/(?P<report_id>\d+)/$', submit_to_school, name="test_submit_report"),
     url(r'^test_reports/submit_custom/(?P<report_id>\d+)/$', submit_to_school,
         {'form_template_name': 'submit_to_school_custom.html',
