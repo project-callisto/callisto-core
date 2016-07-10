@@ -16,6 +16,7 @@ from callisto.delivery.report_delivery import (
 
 User = get_user_model()
 
+
 class MatchReportMigrationTest(MigrationTest):
 
     app_name = 'delivery'
@@ -46,7 +47,8 @@ class MatchReportMigrationTest(MigrationTest):
         self.assertEqual(MatchReport.objects.count(), 1)
         match_report = MatchReport.objects.first()
         self.assertEqual(match_report.identifier, None)
-        decrypted_report = json.loads(_decrypt_report(match_report.salt, identifier, _unpepper(match_report.encrypted)))
+        decrypted_report = json.loads(
+            _decrypt_report(match_report.salt, identifier, _unpepper(match_report.encrypted)))
         self.assertEqual(decrypted_report['identifier'], identifier)
         self.assertEqual(decrypted_report['perp_name'], perp_name)
         self.assertEqual(decrypted_report['phone'], phone)

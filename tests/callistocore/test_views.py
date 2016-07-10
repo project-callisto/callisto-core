@@ -31,6 +31,7 @@ def get_body(response):
 
 
 class RecordFormBaseTest(TestCase):
+
     def setUp(self):
         self.page1 = QuestionPage.objects.create()
         self.page2 = QuestionPage.objects.create()
@@ -68,7 +69,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
         SingleLineText.objects.create(text="another first page question", page=page3, position=1)
         wizard = EncryptedFormWizard.wizard_factory()()
-        #includes key page
+        # includes key page
         self.assertEqual(len(wizard.form_list), 4)
 
     def test_wizard_appends_key_page(self):
@@ -92,7 +93,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         page_two.is_valid()
         key_form = KeyForm({'key': self.report_key, 'key2': self.report_key})
         key_form.is_valid()
-        form_list=[page_one, page_two, key_form]
+        form_list = [page_one, page_two, key_form]
         wizard.processed_answers = wizard.process_answers(form_list=form_list, form_dict=dict(enumerate(form_list)))
         response = wizard.done(form_list=form_list, form_dict=dict(enumerate(form_list)), request=self.request)
         self.assertContains(response, 1)
@@ -162,7 +163,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
 
         mock_report.save.side_effect = check_json
 
-        self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request = self.request)
+        self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request=self.request)
         mock_report.save.assert_any_call()
 
     @patch('callisto.delivery.wizard.Report')
@@ -171,7 +172,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
 
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question = radio_button_q)
+            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
         wizard = EncryptedFormWizard.wizard_factory()()
 
         PageOneForm = wizard.form_list[0]
@@ -193,7 +194,9 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
 
         self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request=self.request)
 
+
 class ExistingRecordTest(RecordFormBaseTest):
+
     def setUp(self):
         super(ExistingRecordTest, self).setUp()
 
@@ -218,13 +221,14 @@ class ExistingRecordTest(RecordFormBaseTest):
       "type": "SingleLineText"
     }
   ]""" % (self.question1.pk, self.question2.pk)
-        self.report = Report(owner = self.request.user)
+        self.report = Report(owner=self.request.user)
         self.report_key = 'bananabread! is not my key'
         self.report.encrypt_report(self.report_text, self.report_key)
         self.report.save()
         row = EvalRow()
         row.anonymise_record(action=EvalRow.CREATE, report=self.report, decrypted_text=self.report_text)
         row.save()
+
 
 class EditRecordFormTest(ExistingRecordTest):
     record_form_url = '/test_reports/edit/%s/'
@@ -233,7 +237,7 @@ class EditRecordFormTest(ExistingRecordTest):
         return self.client.post(
             (self.record_form_url % self.report.pk),
             data={'0-key': self.report_key,
-                  'wizard_goto_step':1,
+                  'wizard_goto_step': 1,
                   'form_wizard' + str(self.report.id) + '-current_step': 0},
             follow=True
         )
@@ -269,12 +273,12 @@ class EditRecordFormTest(ExistingRecordTest):
 
         page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
         page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question',})
+        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question', })
         page_two.is_valid()
         key_form_2 = KeyForm2({'key': self.report_key})
         key_form_2.is_valid()
 
-        self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2], request = self.request)
+        self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2], request=self.request)
 
     def test_edit_modifies_record(self):
         self.maxDiff = None
@@ -292,7 +296,7 @@ class EditRecordFormTest(ExistingRecordTest):
       "question_text": "2nd question",
       "type": "SingleLineText"
     }
-  ]"""  % (self.question1.pk, self.question2.pk)
+  ]""" % (self.question1.pk, self.question2.pk)
 
         self.edit_record(self.report)
         self.assertEqual(Report.objects.count(), 1)
@@ -322,12 +326,14 @@ class EditRecordFormTest(ExistingRecordTest):
 
         page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
         page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question',})
+        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question', })
         page_two.is_valid()
         key_form_2 = KeyForm2({'key': "not the right key"})
         self.assertFalse(key_form_2.is_valid())
         with self.assertRaises(KeyError):
-            self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2], request = self.request)
+            self._get_wizard_response(wizard,
+                                      form_list=[key_form_1, page_one, page_two, key_form_2],
+                                      request=self.request)
         self.assertEqual(sort_json(Report.objects.get(id=self.report.pk).decrypted_report(self.report_key)),
                          sort_json(self.report_text))
 
@@ -340,7 +346,7 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertEqual(Report.objects.count(), 1)
 
     def test_edit_saves_original_record_if_no_data_exists(self):
-        old_report = Report(owner = self.request.user)
+        old_report = Report(owner=self.request.user)
         old_report.encrypt_report(self.report_text, self.report_key)
         old_report.save()
 
@@ -351,8 +357,10 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertEqual(EvalRow.objects.count(), 3)
         self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).count(), 1)
         self.assertEqual(EvalRow.objects.last().action, EvalRow.EDIT)
-        self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().record_identifier, EvalRow.objects.last().record_identifier)
+        self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().record_identifier,
+                         EvalRow.objects.last().record_identifier)
         self.assertNotEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().row, EvalRow.objects.last().row)
+
 
 class SubmitReportIntegrationTest(ExistingRecordTest):
 
@@ -478,7 +486,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-0-perp': 'facebook.com/test_url',
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                                          'form-MAX_NUM_FORMS': '', })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
         self.assertTemplateUsed(response, 'submit_to_matching_confirmation.html')
@@ -493,7 +501,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-0-perp': 'facebook.com/test_url',
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                                          'form-MAX_NUM_FORMS': '', })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
         self.assertTemplateUsed(response, 'submit_to_matching_confirmation_custom.html')
@@ -508,7 +516,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-0-perp': 'facebook.com/test_url',
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                                          'form-MAX_NUM_FORMS': '', })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
         self.assertEqual(self.report.id, MatchReport.objects.latest('id').report.id)
@@ -525,7 +533,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-1-perp': 'facebook.com/test_url2',
                                           'form-TOTAL_FORMS': '2',
                                           'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                                          'form-MAX_NUM_FORMS': '', })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
         total_matches_after = MatchReport.objects.count()
@@ -541,7 +549,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-0-perp': 'facebook.com/test_url',
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                                          'form-MAX_NUM_FORMS': '', })
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
         self.assertEqual(len(mail.outbox), 1)
@@ -553,15 +561,15 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def test_match_sends_report_immediately(self):
         self.client.post((self.submission_url % self.report.pk),
-                                    data={'name': 'test submitter 1',
-                                          'email': 'test1@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                         data={'name': 'test submitter 1',
+                               'email': 'test1@example.com',
+                               'phone_number': '555-555-1212',
+                               'email_confirmation': "False",
+                               'key': self.report_key,
+                               'form-0-perp': 'facebook.com/triggered_match',
+                               'form-TOTAL_FORMS': '1',
+                               'form-INITIAL_FORMS': '1',
+                               'form-MAX_NUM_FORMS': '', })
         user2 = User.objects.create_user(username='dummy2', password='dummy')
         self.client.login(username='dummy2', password='dummy')
         report2_text = """[
@@ -578,7 +586,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
       "type": "SingleLineText"
     }
   ]""" % (self.question1.pk, self.question2.pk)
-        report2 = Report(owner = user2)
+        report2 = Report(owner=user2)
         report2_key = 'a key a key a key a key key'
         report2.encrypt_report(report2_text, report2_key)
         report2.save()
@@ -591,7 +599,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-0-perp': 'facebook.com/triggered_match',
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                                          'form-MAX_NUM_FORMS': '', })
         self.assertNotIn('submit_error', response.context)
         self.assertEqual(len(mail.outbox), 3)
         message = mail.outbox[0]
@@ -614,15 +622,15 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
     @override_settings(MATCH_IMMEDIATELY=False)
     def test_match_sends_report_delayed(self):
         self.client.post((self.submission_url % self.report.pk),
-                                    data={'name': 'test submitter 1',
-                                          'email': 'test1@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                         data={'name': 'test submitter 1',
+                               'email': 'test1@example.com',
+                               'phone_number': '555-555-1212',
+                               'email_confirmation': "False",
+                               'key': self.report_key,
+                               'form-0-perp': 'facebook.com/triggered_match',
+                               'form-TOTAL_FORMS': '1',
+                               'form-INITIAL_FORMS': '1',
+                               'form-MAX_NUM_FORMS': '', })
         user2 = User.objects.create_user(username='dummy2', password='dummy')
         self.client.login(username='dummy2', password='dummy')
         report2_text = """[
@@ -639,7 +647,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
       "type": "SingleLineText"
     }
   ]""" % (self.question1.pk, self.question2.pk)
-        report2 = Report(owner = user2)
+        report2 = Report(owner=user2)
         report2_key = 'a key a key a key a key key'
         report2.encrypt_report(report2_text, report2_key)
         report2.save()
@@ -652,7 +660,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-0-perp': 'facebook.com/triggered_match',
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                                          'form-MAX_NUM_FORMS': '', })
         self.assertNotIn('submit_error', response.context)
         self.assertEqual(len(mail.outbox), 0)
         call_command('find_matches')
@@ -676,15 +684,15 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def test_match_sends_custom_report(self):
         self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
-                                    data={'name': 'test submitter 1',
-                                          'email': 'test1@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                         data={'name': 'test submitter 1',
+                               'email': 'test1@example.com',
+                               'phone_number': '555-555-1212',
+                               'email_confirmation': "False",
+                               'key': self.report_key,
+                               'form-0-perp': 'facebook.com/triggered_match',
+                               'form-TOTAL_FORMS': '1',
+                               'form-INITIAL_FORMS': '1',
+                               'form-MAX_NUM_FORMS': '', })
         user2 = User.objects.create_user(username='dummy2', password='dummy')
         self.client.login(username='dummy2', password='dummy')
         report2_text = """[
@@ -701,7 +709,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
       "type": "SingleLineText"
     }
   ]""" % (self.question1.pk, self.question2.pk)
-        report2 = Report(owner = user2)
+        report2 = Report(owner=user2)
         report2_key = 'a key a key a key a key key'
         report2.encrypt_report(report2_text, report2_key)
         report2.save()
@@ -714,7 +722,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-0-perp': 'facebook.com/triggered_match',
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '',})
+                                          'form-MAX_NUM_FORMS': '', })
         self.assertNotIn('submit_error', response.context)
         self.assertEqual(len(mail.outbox), 3)
         message = mail.outbox[2]

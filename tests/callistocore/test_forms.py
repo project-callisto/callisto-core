@@ -19,7 +19,7 @@ class SubmitToMatchingFormTest(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['perp'], expected_result)
 
-    def verify_url_fails(self, url, expected_error = 'Please enter a valid Facebook profile URL.'):
+    def verify_url_fails(self, url, expected_error='Please enter a valid Facebook profile URL.'):
         request = {'perp': url}
         form = SubmitToMatchingForm(request)
         self.assertFalse(form.is_valid())
@@ -38,11 +38,15 @@ class SubmitToMatchingFormTest(TestCase):
 
     def test_accept_with_querystring(self):
         self.verify_url_works('https://www.facebook.com/kate.kirschner1?fref=nf', 'kate.kirschner1')
-        self.verify_url_works('https://www.facebook.com/kate.kirschner1/posts/2854650216685?pnref=story', 'kate.kirschner1')
+        self.verify_url_works(
+            'https://www.facebook.com/kate.kirschner1/posts/2854650216685?pnref=story',
+            'kate.kirschner1')
 
     def test_accept_posts_and_others(self):
         self.verify_url_works('https://www.facebook.com/trendinginchina/videos/600128603423960/', 'trendinginchina')
-        self.verify_url_works('https://www.facebook.com/kelsey.gilmore.innis/posts/10106474072154380', 'kelsey.gilmore.innis')
+        self.verify_url_works(
+            'https://www.facebook.com/kelsey.gilmore.innis/posts/10106474072154380',
+            'kelsey.gilmore.innis')
         self.verify_url_works('https://www.facebook.com/jessica.h.ladd/music?pnref=lhc', 'jessica.h.ladd')
 
     def test_accepts_old_profile_link(self):
@@ -70,6 +74,7 @@ class SubmitToMatchingFormTest(TestCase):
 
 
 class CreateKeyFormTest(TestCase):
+
     def test_nonmatching_keys_rejected(self):
         bad_request = {'key': 'this is a key',
                        'key2': 'this is also a key'}
@@ -96,12 +101,13 @@ class CreateKeyFormTest(TestCase):
             ["Your password isn't strong enough."]
         )
 
+
 @patch('callisto.delivery.forms.EvalRow.add_report_data')
 class DecryptKeyFormTest(TestCase):
 
     def setUp(self):
         user = User.objects.create(username="dummy", password="dummy")
-        self.report = Report(owner = user)
+        self.report = Report(owner=user)
         self.key = '~*~*~*~my key~*~*~*~'
         self.report.encrypt_report('this is a report', self.key)
         self.report.save()

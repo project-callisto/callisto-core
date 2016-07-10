@@ -51,7 +51,7 @@ xUTsSKWKQ+l+umzq5eiRny47QQuRtg==
 =ChyB
 -----END PGP PUBLIC KEY BLOCK-----"""
 
-private_test_key="""-----BEGIN PGP PUBLIC KEY BLOCK-----
+private_test_key = """-----BEGIN PGP PUBLIC KEY BLOCK-----
 Comment: GPGTools - https://gpgtools.org
 
 mQINBFZ0oz0BEADOjf625JTVCWwZQJN0p2xNR87efBqSLqQNw980j965WGocuVfs

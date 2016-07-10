@@ -105,9 +105,9 @@ class ReportDeliveryTest(MatchTest):
         self.assertIn("Phone: (000) 0000000", pdf_text)
         self.assertIn("Voicemail preferences: None provided", pdf_text)
         self.assertIn("Email: email2@example.com", pdf_text)
-        self.assertIn("Notes on preferred contact time of day, gender of admin, etc.:\nPlease only call after 5pm", pdf_text)
-
-
+        self.assertIn(
+            "Notes on preferred contact time of day, gender of admin, etc.:\nPlease only call after 5pm",
+            pdf_text)
 
     def test_matches_to_school(self):
         EmailNotification.objects.create(name='match_delivery', subject="test match delivery", body="test match body")

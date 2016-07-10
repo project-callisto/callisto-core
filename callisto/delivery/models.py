@@ -163,6 +163,7 @@ class Report(models.Model):
         else:
             return None
 
+
 @six.python_2_unicode_compatible
 class EmailNotification(models.Model):
     name = models.CharField(blank=False, max_length=50, primary_key=True)
@@ -183,9 +184,9 @@ class EmailNotification(models.Model):
         if context is None:
             context = {}
         html = self.render_body(context)
-        cleaned = html.replace('<br />','\n')
-        cleaned = cleaned.replace('<br/>','\n')
-        cleaned = cleaned.replace('<p>','\n')
+        cleaned = html.replace('<br />', '\n')
+        cleaned = cleaned.replace('<br/>', '\n')
+        cleaned = cleaned.replace('<p>', '\n')
         cleaned = cleaned.replace('</p>', '\n')
         return strip_tags(cleaned)
 
@@ -195,6 +196,7 @@ class EmailNotification(models.Model):
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
+
 
 @six.python_2_unicode_compatible
 class MatchReport(models.Model):
@@ -251,11 +253,13 @@ class SentReport(PolymorphicModel):
     def _get_id_for_schools(self, is_match):
         return "{0}-{1}-{2}".format(settings.SCHOOL_REPORT_PREFIX, '%05d' % self.id, 0 if is_match else 1)
 
+
 class SentFullReport(SentReport):
     report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.SET_NULL)
 
     def get_report_id(self):
         return self._get_id_for_schools(is_match=False)
+
 
 class SentMatchReport(SentReport):
     reports = models.ManyToManyField(MatchReport)

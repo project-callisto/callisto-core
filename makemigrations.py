@@ -1,5 +1,6 @@
 # script to generate migrations without an implementing Django project
 
+
 def make_migrations():
     from django.core.management import call_command
     call_command('makemigrations', 'delivery')

@@ -2,10 +2,6 @@ bumpversion==0.5.3
 wheel==0.29.0
 
 # Coding style compliance
-isort>=4.2.5
-flake8>=2.5.4
-mccabe>=0.4.0
-pep8>=1.7.0
-pyflakes>=1.0.0
+autopep8>=1.2.4
 
--r requirements.txt
+-r requirements-test.txt

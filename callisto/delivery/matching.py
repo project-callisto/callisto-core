@@ -74,11 +74,13 @@ def process_new_matches(matches, identifier, report_class):
         EvalRow.store_eval_row(action=EvalRow.MATCH_FOUND, report=match_report.report)
         owner = match_report.report.owner
         # only send notification emails to new matches
-        if owner not in owners_notified and not match_report.report.match_found and not match_report.report.submitted_to_school:
+        if owner not in owners_notified and not match_report.report.match_found \
+                and not match_report.report.submitted_to_school:
             send_notification_email(owner, match_report)
             owners_notified.append(owner)
     # send report to school
     report_class(matches, identifier).send_matching_report_to_school()
+
 
 def send_notification_email(user, match_report):
     """Notifies reporting user that a match has been found. Requires an EmailNotification called "match_notification."
