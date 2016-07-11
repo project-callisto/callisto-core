@@ -1,5 +1,7 @@
 import json
+from io import BytesIO
 
+import PyPDF2
 from mock import Mock, patch
 from wizard_builder.forms import QuestionPageForm
 from wizard_builder.models import (
@@ -778,3 +780,38 @@ class WithdrawMatchIntegrationTest(ExistingRecordTest):
         response = self.client.get(self.withdrawal_url % self.report.pk)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(MatchReport.objects.filter(report=self.report).count(), 0)
+
+
+class ExportRecordViewTest(ExistingRecordTest):
+
+    export_url = "/test_reports/export/%i/"
+
+    def test_export_requires_key(self):
+        response = self.client.get(self.export_url % self.report.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'export_record.html')
+        self.assertIsInstance(response.context['form'], SecretKeyForm)
+
+    def test_export_returns_pdf(self):
+        response = self.client.post(
+            (self.export_url % self.report.id),
+            data={'key': self.report_key},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEquals(
+            response.get('Content-Disposition'),
+            'attachment; filename="report.pdf"'
+        )
+
+    def test_export_pdf_has_report(self):
+        response = self.client.post(
+            (self.export_url % self.report.id),
+            data={'key': self.report_key},
+        )
+        self.assertEqual(response.status_code, 200)
+        exported_report = BytesIO(response.content)
+        pdf_reader = PyPDF2.PdfFileReader(exported_report)
+        self.assertNotIn("Tatiana Nine", pdf_reader.getPage(0).extractText())
+        self.assertIn("Reported by: dummy", pdf_reader.getPage(0).extractText())
+        self.assertIn("test answer", pdf_reader.getPage(1).extractText())
+        self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())

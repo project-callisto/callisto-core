@@ -6,13 +6,15 @@ from wizard_builder.models import PageBase
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.http import HttpResponseForbidden, HttpResponseServerError
+from django.http import (
+    HttpResponse, HttpResponseForbidden, HttpResponseServerError,
+)
 from django.shortcuts import render
 from django.utils.html import conditional_escape
 
 from callisto.evaluation.models import EvalRow
 
-from .forms import SubmitToMatchingFormSet, SubmitToSchoolForm
+from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import run_matching
 from .models import EmailNotification, MatchReport, Report
 from .report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
@@ -181,4 +183,38 @@ def withdraw_from_matching(request, report_id, template_name):
                                                'match_report_withdrawn': True})
     else:
         logger.warning("illegal matching withdrawal attempt on record {} by user {}".format(report_id, owner.id))
+        return HttpResponseForbidden()
+
+
+@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
+def export_as_pdf(request, report_id, force_download=True, filename='report.pdf', report_class=PDFFullReport,
+                  template_name='export_record.html'):
+    owner = request.user
+    report = Report.objects.get(id=report_id)
+    if owner == report.owner:
+        if request.method == 'POST':
+            form = SecretKeyForm(request.POST)
+            form.report = report
+            if form.is_valid():
+
+                # record viewing in anonymous evaluation data
+                EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)
+
+                try:
+                    response = HttpResponse(content_type='application/pdf')
+                    response['Content-Disposition'] = '{}; filename="{}"'\
+                        .format('attachment' if force_download else 'inline', filename)
+                    pdf = report_class(report=report, decrypted_report=form.decrypted_report)\
+                        .generate_pdf_report(recipient=None, report_id=None)
+                    response.write(pdf)
+                    return response
+                except Exception:
+                    logger.exception("could not export report {}".format(report_id))
+                    form.add_error(None, "There was an error exporting your report.")
+        else:
+            form = SecretKeyForm()
+            form.report = report
+        return render(request, template_name, {'form': form})
+    else:
+        logger.warning("illegal export attempt on record {} by user {}".format(report_id, owner.id))
         return HttpResponseForbidden()
