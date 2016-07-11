@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from callisto.delivery.views import (
-    edit_record_form_view, export_as_pdf, new_record_form_view,
+    delete_report, edit_record_form_view, export_as_pdf, new_record_form_view,
     submit_to_matching, submit_to_school, withdraw_from_matching,
 )
 
@@ -30,5 +30,6 @@ urlpatterns = [
         {'template_name': 'after_withdraw.html'}, name="test_withdraw_match"),
     url(r'^test_reports/export/(?P<report_id>\d+)/$', export_as_pdf, name="test_export"),
     url(r'^test_reports/export_custom/(?P<report_id>\d+)/$', export_as_pdf,
-        {'report_class': CustomReport}, name="test_export_custom")
+        {'report_class': CustomReport}, name="test_export_custom"),
+    url(r'^test_reports/delete/(?P<report_id>\d+)/$', delete_report, name="delete_report")
 ]

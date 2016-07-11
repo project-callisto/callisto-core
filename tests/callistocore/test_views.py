@@ -789,8 +789,19 @@ class ExportRecordViewTest(ExistingRecordTest):
     def test_export_requires_key(self):
         response = self.client.get(self.export_url % self.report.id)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'export_record.html')
+        self.assertTemplateUsed(response, 'export_report.html')
         self.assertIsInstance(response.context['form'], SecretKeyForm)
+
+    def test_export_requires_correct_key(self):
+        response = self.client.post(
+            (self.export_url % self.report.id),
+            data={'key': "abracadabra"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'export_report.html')
+        form = response.context['form']
+        self.assertIsInstance(form, SecretKeyForm)
+        self.assertContains(response, "The passphrase didn&#39;t match.")
 
     def test_export_returns_pdf(self):
         response = self.client.post(
@@ -821,3 +832,40 @@ class ExportRecordViewTest(ExistingRecordTest):
         report = Report.objects.create(owner=other_user, encrypted=b'first report')
         response = self.client.get(self.export_url % report.id)
         self.assertEqual(response.status_code, 403)
+
+
+class DeleteRecordTest(ExistingRecordTest):
+
+    delete_url = "/test_reports/delete/%i/"
+
+    def test_record_cannot_be_deleted_by_non_owning_user(self):
+        other_user = User.objects.create_user(username='other_user', password='dummy')
+        report = Report.objects.create(owner=other_user, encrypted=b'first report')
+        response = self.client.get(self.delete_url % report.id)
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_requires_key(self):
+        response = self.client.get(self.delete_url % self.report.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'delete_report.html')
+        self.assertIsInstance(response.context['form'], SecretKeyForm)
+
+    def test_delete_requires_correct_key(self):
+        response = self.client.post(
+            (self.delete_url % self.report.id),
+            data={'key': "abracadabra"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'delete_report.html')
+        form = response.context['form']
+        self.assertIsInstance(form, SecretKeyForm)
+        self.assertContains(response, "The passphrase didn&#39;t match.")
+
+    def test_deletes_report(self):
+        self.assertEqual(Report.objects.count(), 1)
+        response = self.client.post(
+            (self.delete_url % self.report.id),
+            data={'key': self.report_key},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Report.objects.count(), 0)

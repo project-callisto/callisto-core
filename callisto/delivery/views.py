@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 def check_owner(action_name):
     def decorator(view_func):
         @wraps(view_func, assigned=available_attrs(view_func))
-        def _wrapped_view(request, report_id,  *args, **kwargs):
+        def _wrapped_view(request, report_id, *args, **kwargs):
             owner = request.user
             report = Report.objects.get(id=report_id)
             if owner == report.owner:
@@ -192,16 +192,13 @@ def withdraw_from_matching(request, report_id, template_name):
 @check_owner('export')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def export_as_pdf(request, report_id, force_download=True, filename='report.pdf', report_class=PDFFullReport,
-                  template_name='export_record.html'):
+                  template_name='export_report.html'):
     report = Report.objects.get(id=report_id)
     if request.method == 'POST':
         form = SecretKeyForm(request.POST)
         form.report = report
         if form.is_valid():
-
-            # record viewing in anonymous evaluation data
             EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)
-
             try:
                 response = HttpResponse(content_type='application/pdf')
                 response['Content-Disposition'] = '{}; filename="{}"'\
@@ -213,6 +210,27 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
             except Exception:
                 logger.exception("could not export report {}".format(report_id))
                 form.add_error(None, "There was an error exporting your report.")
+    else:
+        form = SecretKeyForm()
+        form.report = report
+    return render(request, template_name, {'form': form})
+
+
+@check_owner('delete')
+@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
+def delete_report(request, report_id, template_name='delete_report.html'):
+    report = Report.objects.get(id=report_id)
+    if request.method == 'POST':
+        form = SecretKeyForm(request.POST)
+        form.report = report
+        if form.is_valid():
+            # EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)
+            try:
+                report.delete()
+                # return template with confirmation
+            except Exception:
+                logger.exception("could not delete report {}".format(report_id))
+                form.add_error(None, "There was an error deleting your report.")
     else:
         form = SecretKeyForm()
         form.report = report
