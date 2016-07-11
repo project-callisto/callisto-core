@@ -815,3 +815,9 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertIn("Reported by: dummy", pdf_reader.getPage(0).extractText())
         self.assertIn("test answer", pdf_reader.getPage(1).extractText())
         self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())
+
+    def test_record_cannot_be_exported_by_non_owning_user(self):
+        other_user = User.objects.create_user(username='other_user', password='dummy')
+        report = Report.objects.create(owner=other_user, encrypted=b'first report')
+        response = self.client.get(self.export_url % report.id)
+        self.assertEqual(response.status_code, 403)
