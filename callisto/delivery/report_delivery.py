@@ -30,6 +30,19 @@ timezone.activate(pytz.timezone(tzname))
 logger = logging.getLogger(__name__)
 
 
+class MatchReportContent:
+    """ Class to structure contact information collected from match submission form for report """
+
+    def __init__(self, identifier, perp_name, email, phone, contact_name=None, voicemail=None, notes=None):
+        self.identifier = identifier
+        self.perp_name = perp_name
+        self.contact_name = contact_name
+        self.email = email
+        self.phone = phone
+        self.voicemail = voicemail
+        self.notes = notes
+
+
 class NumberedCanvas(canvas.Canvas):
 
     def __init__(self, *args, **kwargs):
@@ -365,19 +378,6 @@ class PDFFullReport(PDFReport):
         result = report_buffer.getvalue()
         report_buffer.close()
         return result
-
-
-class MatchReportContent:
-    """ Class to structure contact information collected from match submission form for report """
-
-    def __init__(self, identifier, perp_name, email, phone, contact_name=None, voicemail=None, notes=None):
-        self.identifier = identifier
-        self.perp_name = perp_name
-        self.contact_name = contact_name
-        self.email = email
-        self.phone = phone
-        self.voicemail = voicemail
-        self.notes = notes
 
 
 class PDFMatchReport(PDFReport):

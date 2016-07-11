@@ -18,8 +18,12 @@ if __name__ == '__main__':
                 'django.contrib.auth',
                 'django.contrib.contenttypes',
                 'django.contrib.sites',
+                'wizard_builder',
                 'callisto.delivery',
+
             ],
+            APP_URL="test",
+            COORDINATOR_NAME="Tatiana Nine"
         )
 
         import django
