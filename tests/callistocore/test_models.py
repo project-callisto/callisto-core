@@ -178,6 +178,10 @@ class DeleteReportTest(TestCase):
         match_report2.save()
         sent_match_report = SentMatchReport.objects.create()
         sent_match_report.reports.add(match_report, match_report2)
+        self.report.match_found = True
+        self.report.save()
+        report2.match_found = True
+        report2.save()
         self.assertIsNotNone(match_report.sentmatchreport_set.first())
         self.assertIsNotNone(match_report2.sentmatchreport_set.first())
         self.assertEqual(match_report, SentMatchReport.objects.first().reports.all()[0])
@@ -188,6 +192,7 @@ class DeleteReportTest(TestCase):
         self.assertEqual(SentMatchReport.objects.first(), sent_match_report)
         self.assertEqual(SentMatchReport.objects.first().reports.count(), 1)
         self.assertEqual(SentMatchReport.objects.first().reports.first(), match_report2)
+        self.assertTrue(Report.objects.first().match_found)
         report2.delete()
         self.assertEqual(Report.objects.count(), 0)
         self.assertEqual(SentMatchReport.objects.first(), sent_match_report)
