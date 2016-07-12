@@ -868,4 +868,5 @@ class DeleteRecordTest(ExistingRecordTest):
             data={'key': self.report_key},
         )
         self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context.get('report_deleted'))
         self.assertEqual(Report.objects.count(), 0)

@@ -218,7 +218,8 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
 
 @check_owner('delete')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def delete_report(request, report_id, template_name='delete_report.html'):
+def delete_report(request, report_id, form_template_name='delete_report.html',
+                  confirmation_template='delete_report.html'):
     report = Report.objects.get(id=report_id)
     if request.method == 'POST':
         form = SecretKeyForm(request.POST)
@@ -227,11 +228,11 @@ def delete_report(request, report_id, template_name='delete_report.html'):
             # EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)
             try:
                 report.delete()
-                # return template with confirmation
+                return render(request, confirmation_template, {'report_deleted': True})
             except Exception:
                 logger.exception("could not delete report {}".format(report_id))
                 form.add_error(None, "There was an error deleting your report.")
     else:
         form = SecretKeyForm()
         form.report = report
-    return render(request, template_name, {'form': form})
+    return render(request, form_template_name, {'form': form})
