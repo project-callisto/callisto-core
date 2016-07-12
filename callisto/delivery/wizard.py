@@ -4,8 +4,9 @@ import logging
 from wizard_builder.forms import get_form_pages
 from wizard_builder.views import ConfigurableFormWizard
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 
 from callisto.evaluation.models import EvalRow
 
@@ -62,7 +63,9 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             if self.object_to_edit.owner == req.user:
                 report = self.object_to_edit
             else:
-                return HttpResponseForbidden()
+                logger.error("user {} and report {} don't match in wizard.done".format(req.user,
+                                                                                       self.object_to_edit.id))
+                return HttpResponseForbidden() if settings.DEBUG else HttpResponseNotFound()
 
         key = list(form_list)[-1].cleaned_data['key']
 

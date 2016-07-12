@@ -7,8 +7,10 @@ from wizard_builder.models import PageBase
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import (
-    HttpResponse, HttpResponseForbidden, HttpResponseServerError,
+    HttpResponse, HttpResponseForbidden, HttpResponseNotFound,
+    HttpResponseServerError,
 )
 from django.shortcuts import render
 from django.utils.decorators import available_attrs
@@ -30,12 +32,16 @@ def check_owner(action_name):
         @wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view(request, report_id, *args, **kwargs):
             owner = request.user
-            report = Report.objects.get(id=report_id)
-            if owner == report.owner:
-                return view_func(request, report_id, *args, **kwargs)
-            else:
-                logger.warning("illegal {} attempt on record {} by user {}".format(action_name, report_id, owner.id))
-                return HttpResponseForbidden()
+            try:
+                report = Report.objects.get(id=report_id)
+                if owner == report.owner:
+                    return view_func(request, report_id, *args, **kwargs)
+                else:
+                    logger.warning("illegal {} attempt on record {} by user {}".format(action_name,
+                                                                                       report_id, owner.id))
+                    return HttpResponseForbidden() if settings.DEBUG else HttpResponseNotFound()
+            except ObjectDoesNotExist:
+                return HttpResponseNotFound()
         return _wrapped_view
     return decorator
 
