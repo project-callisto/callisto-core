@@ -78,9 +78,12 @@ def _send_user_notification(form, notification_name):
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
                      confirmation_template_name="submit_to_school_confirmation.html",
-                     report_class=PDFFullReport):
+                     report_class=PDFFullReport, extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
+    context = {'owner': owner, 'report': report}
+    context.update(extra_context or {})
+
     if request.method == 'POST':
         form = SubmitToSchoolForm(owner, report, request.POST)
         form.report = report
@@ -95,8 +98,8 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
-                return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME,
-                                                            'submit_error': True})
+                context.update({'form': form, 'submit_error': True})
+                return render(request, form_template_name, context)
 
             # record submission in anonymous evaluation data
             EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
@@ -107,21 +110,24 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 # report was sent even if confirmation email fails, so don't show an error if so
                 logger.exception("couldn't send confirmation to user on submission")
 
-            return render(
-                request, confirmation_template_name,
-                {'form': form, 'school_name': settings.SCHOOL_SHORTNAME, 'report': report})
+            context.update({'form': form})
+            return render(request, confirmation_template_name, context)
     else:
         form = SubmitToSchoolForm(owner, report)
-    return render(request, form_template_name, {'form': form, 'school_name': settings.SCHOOL_SHORTNAME})
+    context.update({'form': form})
+    return render(request, form_template_name, context)
 
 
 @check_owner('matching')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
                        confirmation_template_name="submit_to_matching_confirmation.html",
-                       report_class=PDFMatchReport):
+                       report_class=PDFMatchReport, extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
+    context = {'owner': owner, 'report': report}
+    context.update(extra_context or {})
+
     if request.method == 'POST':
         form = SubmitToSchoolForm(owner, report, request.POST)
         formset = SubmitToMatchingFormSet(request.POST)
@@ -157,9 +163,8 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     run_matching(identifiers=identifiers, report_class=report_class)
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))
-                return render(request, form_template_name, {'form': form, 'formset': formset,
-                                                            'school_name': settings.SCHOOL_SHORTNAME,
-                                                            'submit_error': True})
+                context.update({'form': form, 'formset': formset, 'submit_error': True})
+                return render(request, form_template_name, context)
 
             # record matching submission in anonymous evaluation data
             EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
@@ -170,36 +175,37 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                 # matching was entered even if confirmation email fails, so don't show an error if so
                 logger.exception("couldn't send confirmation to user on match submission")
 
-            return render(request, confirmation_template_name, {'school_name': settings.SCHOOL_SHORTNAME,
-                                                                'report': report})
+            return render(request, confirmation_template_name, context)
 
     else:
         form = SubmitToSchoolForm(owner, report)
         formset = SubmitToMatchingFormSet()
-    return render(request, form_template_name, {'form': form, 'formset': formset,
-                                                'school_name': settings.SCHOOL_SHORTNAME})
+    context.update({'form': form, 'formset': formset})
+    return render(request, form_template_name, context)
 
 
 @check_owner('matching withdrawal')
-def withdraw_from_matching(request, report_id, template_name):
+def withdraw_from_matching(request, report_id, template_name, extra_context=None):
     report = Report.objects.get(id=report_id)
+    context = {'owner': request.user}
+    context.update(extra_context or {})
+
     report.withdraw_from_matching()
     report.save()
-
     # record match withdrawal in anonymous evaluation data
     EvalRow.store_eval_row(action=EvalRow.WITHDRAW, report=report)
 
-    return render(request, template_name, {'owner': request.user, 'school_name': settings.SCHOOL_SHORTNAME,
-                                           'coordinator_name': settings.COORDINATOR_NAME,
-                                           'coordinator_email': settings.COORDINATOR_EMAIL,
-                                           'match_report_withdrawn': True})
+    context.update({'match_report_withdrawn': True})
+    return render(request, template_name, context)
 
 
 @check_owner('export')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def export_as_pdf(request, report_id, force_download=True, filename='report.pdf', report_class=PDFFullReport,
-                  template_name='export_report.html'):
+                  template_name='export_report.html', extra_context=None):
     report = Report.objects.get(id=report_id)
+    context = {'owner': request.user, 'report': report}
+    context.update(extra_context or {})
     if request.method == 'POST':
         form = SecretKeyForm(request.POST)
         form.report = report
@@ -219,14 +225,17 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
     else:
         form = SecretKeyForm()
         form.report = report
-    return render(request, template_name, {'form': form})
+    context.update({'form': form})
+    return render(request, template_name, context)
 
 
 @check_owner('delete')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def delete_report(request, report_id, form_template_name='delete_report.html',
-                  confirmation_template='delete_report.html'):
+                  confirmation_template='delete_report.html', extra_context=None):
     report = Report.objects.get(id=report_id)
+    context = {'owner': request.user}
+    context.update(extra_context or {})
     if request.method == 'POST':
         form = SecretKeyForm(request.POST)
         form.report = report
@@ -234,11 +243,13 @@ def delete_report(request, report_id, form_template_name='delete_report.html',
             # EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)
             try:
                 report.delete()
-                return render(request, confirmation_template, {'report_deleted': True})
+                context.update({'report_deleted': True})
+                return render(request, confirmation_template, context)
             except Exception:
                 logger.exception("could not delete report {}".format(report_id))
                 form.add_error(None, "There was an error deleting your report.")
     else:
         form = SecretKeyForm()
         form.report = report
-    return render(request, form_template_name, {'form': form})
+    context.update({'form': form})
+    return render(request, form_template_name, context)
