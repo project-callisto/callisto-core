@@ -1,15 +1,21 @@
-import json
 import inspect
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.http import HttpRequest
+import json
 from unittest import skip
 
-from .views import TestWizard
-from wizard_builder.models import (SingleLineText, RadioButton, Choice, QuestionPage, TextPage,
-                                   Date, Checkbox, Conditional)
 from wizard_builder.forms import QuestionPageForm, TextPageForm
-from wizard_builder.views import ConfigurableFormWizard, calculate_page_count_map
+from wizard_builder.models import (
+    Checkbox, Choice, Conditional, Date, QuestionPage, RadioButton,
+    SingleLineText, TextPage,
+)
+from wizard_builder.views import (
+    ConfigurableFormWizard, calculate_page_count_map,
+)
+
+from django.contrib.auth import get_user_model
+from django.http import HttpRequest
+from django.test import TestCase
+
+from .views import TestWizard
 
 User = get_user_model()
 

@@ -1,12 +1,18 @@
-from django.contrib import admin
-from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin
-from .models import (FormQuestion, SingleLineText, MultiLineText, RadioButton, Choice, PageBase,
-                     QuestionPage, TextPage, Date, Checkbox, SingleLineTextWithMap, Conditional)
 # TODO: remove grappelli dependency
 from grappelli.forms import GrappelliSortableHiddenMixin
+from polymorphic.admin import (
+    PolymorphicChildModelAdmin, PolymorphicParentModelAdmin,
+)
+
+from django import forms
+from django.contrib import admin
 from django.core.urlresolvers import reverse_lazy
 from django.db import models
-from django import forms
+
+from .models import (
+    Checkbox, Choice, Conditional, Date, FormQuestion, MultiLineText, PageBase,
+    QuestionPage, RadioButton, SingleLineText, SingleLineTextWithMap, TextPage,
+)
 
 
 class FormQuestionChildAdmin(PolymorphicChildModelAdmin):

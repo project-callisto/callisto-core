@@ -1,11 +1,12 @@
-from django.db import models
-from polymorphic.models import PolymorphicModel
-from django import forms
-from django.utils.safestring import mark_safe
-from django.utils.html import conditional_escape
-from django.core.exceptions import ObjectDoesNotExist
-
 import copy
+
+from polymorphic.models import PolymorphicModel
+
+from django import forms
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from django.utils.html import conditional_escape
+from django.utils.safestring import mark_safe
 
 
 def get_page_position():

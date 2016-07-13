@@ -1,9 +1,9 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.utils.safestring import mark_safe
 from django.forms.formsets import formset_factory
+from django.utils.safestring import mark_safe
 
-from .models import QuestionPage, TextPage, PageBase, MultipleChoice, Date
+from .models import Date, MultipleChoice, PageBase, QuestionPage, TextPage
 
 User = get_user_model()
 

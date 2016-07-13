@@ -1,13 +1,15 @@
-from formtools.wizard.views import NamedUrlSessionWizardView
-from formtools.wizard.forms import ManagementForm
 from collections import OrderedDict
+from functools import partial
+
+from formtools.wizard.forms import ManagementForm
+from formtools.wizard.views import NamedUrlSessionWizardView
+
 from django.core.exceptions import ValidationError
 from django.forms.formsets import BaseFormSet
-from functools import partial
 from django.utils.html import conditional_escape, mark_safe
 
-from .forms import get_form_pages, QuestionPageForm
-from .models import QuestionPage, TextPage, Conditional, PageBase
+from .forms import QuestionPageForm, get_form_pages
+from .models import Conditional, PageBase, QuestionPage, TextPage
 
 
 # rearranged from django-formtools to allow binding forms before skipping steps & submission

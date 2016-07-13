@@ -1,7 +1,9 @@
+import json
+
 from wizard_builder.views import ConfigurableFormWizard
+
 # from .models import Report
 from django.http import HttpResponse
-import json
 
 
 class TestWizard(ConfigurableFormWizard):
