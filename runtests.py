@@ -5,26 +5,7 @@ try:
     from django.conf import settings
     from django.test.utils import get_runner
 
-    settings.configure(
-        DEBUG=True,
-        USE_TZ=True,
-        DATABASES={
-            "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-            }
-        },
-        ROOT_URLCONF="tests.urls",
-        INSTALLED_APPS=[
-            "django.contrib.auth",
-            "django.contrib.contenttypes",
-            "django.contrib.sessions",
-            "django.contrib.sites",
-            "wizard_builder",
-        ],
-        SITE_ID=1,
-        MIDDLEWARE_CLASSES=('django.contrib.sessions.middleware.SessionMiddleware',),
-        TEMPLATE_DIRS=['%s/tests/templates' % os.path.abspath(os.path.dirname(__file__))]
-    )
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 
     try:
         import django

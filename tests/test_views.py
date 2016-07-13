@@ -2,6 +2,7 @@ import inspect
 import json
 from unittest import skip
 
+from tests.test_app.views import TestWizard
 from wizard_builder.forms import QuestionPageForm, TextPageForm
 from wizard_builder.models import (
     Checkbox, Choice, Conditional, Date, QuestionPage, RadioButton,
@@ -14,8 +15,6 @@ from wizard_builder.views import (
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
-
-from .views import TestWizard
 
 User = get_user_model()
 
