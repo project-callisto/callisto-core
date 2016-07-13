@@ -385,7 +385,7 @@ class WizardIntegratedTest(FormBaseTest):
           "section": 1
          }""" % tuple(first_q_object_ids)
 
-        second_q_object_ids = [choice.pk for choice in question2.choice_set.all()]
+        second_q_object_ids = [q_choice.pk for q_choice in question2.choice_set.all()]
         selected_id = second_q_object_ids[3]
         second_q_object_ids.insert(0, question2.pk)
         second_q_object_ids.insert(0, selected_id)
@@ -406,7 +406,7 @@ class WizardIntegratedTest(FormBaseTest):
                     }
          }""" % tuple(second_q_object_ids)
 
-        third_q_object_ids = [choice.pk for choice in question3.choice_set.all()]
+        third_q_object_ids = [q_choice.pk for q_choice in question3.choice_set.all()]
         selected_id = third_q_object_ids[0]
         third_q_object_ids.insert(0, question3.pk)
         third_q_object_ids.insert(0, selected_id)
