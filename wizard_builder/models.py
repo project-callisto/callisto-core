@@ -86,7 +86,7 @@ class FormQuestion(PolymorphicModel):
     added = models.DateTimeField(auto_now_add=True)
 
     def __init__(self, *args, **kwargs):
-        super(PolymorphicModel, self).__init__(*args, **kwargs)
+        super(FormQuestion, self).__init__(*args, **kwargs)
         self.section = self.page.section
 
     def __str__(self):

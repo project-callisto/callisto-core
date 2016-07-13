@@ -14,7 +14,7 @@ class BasePageForm(forms.Form):
 
 class QuestionPageForm(BasePageForm):
     def __init__(self, *args, **kwargs):
-        super(BasePageForm, self).__init__(*args, **kwargs)
+        super(QuestionPageForm, self).__init__(*args, **kwargs)
         self.has_tooltip = False
         extra_fields = {}
         date_fields = []
