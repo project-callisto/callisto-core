@@ -433,6 +433,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
                                           'key': self.report_key})
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
+        self.assertIn('custom context', get_body(response))
         self.assertTemplateUsed(response, 'submit_to_school_confirmation_custom.html')
 
     def test_submit_sends_report(self):
@@ -505,6 +506,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
     def test_renders_custom_template(self):
         response = self.client.get('/test_reports/match_custom/%s/' % self.report.pk)
         self.assertEqual(response.status_code, 200)
+        self.assertIn('custom context', get_body(response))
         self.assertTemplateUsed(response, 'submit_to_matching_custom.html')
 
     def test_renders_default_confirmation_template(self):
@@ -780,6 +782,7 @@ class WithdrawMatchIntegrationTest(ExistingRecordTest):
     def test_renders_specified_template(self):
         response = self.client.get(self.withdrawal_url % self.report.pk)
         self.assertEqual(response.status_code, 200)
+        self.assertIn('custom context', get_body(response))
         self.assertTemplateUsed(response, 'after_withdraw.html')
 
     def test_match_report_is_withdrawn(self):
@@ -798,6 +801,11 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'export_report.html')
         self.assertIsInstance(response.context['form'], SecretKeyForm)
+
+    def test_export_passes_custom_context(self):
+        response = self.client.get("/test_reports/export_custom/%i/" % self.report.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('custom context', get_body(response))
 
     def test_export_requires_correct_key(self):
         response = self.client.post(
@@ -833,6 +841,16 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertIn("Reported by: dummy", pdf_reader.getPage(0).extractText())
         self.assertIn("test answer", pdf_reader.getPage(1).extractText())
         self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())
+
+    def test_export_pdf_uses_custom_report(self):
+        response = self.client.post(
+            ("/test_reports/export_custom/%i/" % self.report.id),
+            data={'key': self.report_key},
+        )
+        self.assertEqual(response.status_code, 200)
+        exported_report = BytesIO(response.content)
+        pdf_reader = PyPDF2.PdfFileReader(exported_report)
+        self.assertIn("Custom", pdf_reader.getPage(0).extractText())
 
     @override_settings(DEBUG=True)
     def test_record_cannot_be_exported_by_non_owning_user(self):
@@ -879,3 +897,8 @@ class DeleteRecordTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context.get('report_deleted'))
         self.assertEqual(Report.objects.count(), 0)
+
+    def test_delete_passes_custom_context(self):
+        response = self.client.get(self.delete_url % self.report.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('custom context', get_body(response))
