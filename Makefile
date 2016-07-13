@@ -31,6 +31,8 @@ lint: ## check style with flake8
 	flake8 wizard_builder tests
 
 test: ## run tests quickly with the default Python
+	flake8 .
+	isort -c
 	python runtests.py tests
 
 test-all: ## run tests on every Python version with tox
@@ -43,7 +45,7 @@ coverage: ## check code coverage quickly with the default Python
 	open htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/django-wizard-builder.rst
+	rm -f docs/wizard_builder.rst
 	rm -f docs/modules.rst
 	sphinx-apidoc -o docs/ wizard_builder
 	$(MAKE) -C docs clean
