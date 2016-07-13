@@ -15,22 +15,23 @@ REQUIRED_ERROR = "The {0} field is required."
 
 logger = logging.getLogger(__name__)
 
+
 def make_key(length, confirmation=False):
     """Create key with optional boolean argument for confirmation form."""
     if confirmation:
         key = forms.CharField(max_length=length,
                               label="Repeat your passphrase",
                               widget=forms.PasswordInput(attrs={'placeholder':
-                              'Repeat your passphrase',
-                              'autocomplete': 'off'}),
+                                                                'Repeat your passphrase',
+                                                                'autocomplete': 'off'}),
                               error_messages={'required':
-                              REQUIRED_ERROR.format("passphrase confirmation")})
+                                              REQUIRED_ERROR.format("passphrase confirmation")})
     else:
         key = forms.CharField(max_length=length,
                               label="Your passphrase",
                               widget=forms.PasswordInput(attrs={'placeholder':
-                              'Your passphrase',
-                              'autocomplete': 'off'}),
+                                                                'Your passphrase',
+                                                                'autocomplete': 'off'}),
                               error_messages={'required': REQUIRED_ERROR.format("passphrase")})
     return key
 
