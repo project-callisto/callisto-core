@@ -28,6 +28,7 @@ def get_body(response):
 
 
 class FormBaseTest(TestCase):
+
     def setUp(self):
         self.page1 = QuestionPage.objects.create()
         self.page2 = QuestionPage.objects.create()
@@ -245,7 +246,7 @@ class WizardIntegratedTest(FormBaseTest):
     def test_form_saves_updated_choice_selection(self):
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page1)
         for i in range(5):
-                Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
+            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
 
         updated_pk = radio_button_q.choice_set.all()[4].pk
 
@@ -432,6 +433,7 @@ class WizardIntegratedTest(FormBaseTest):
 
 
 class PageCountTest(FormBaseTest):
+
     def test_only_question_pages_are_counted(self):
         page3 = TextPage.objects.create()
         pages = [self.page1, self.page2, page3]

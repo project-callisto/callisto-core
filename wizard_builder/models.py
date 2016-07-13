@@ -104,6 +104,7 @@ class FormQuestion(PolymorphicModel):
 
 
 class SingleLineText(FormQuestion):
+
     def make_field(self):
         return forms.CharField(label=self.text,
                                required=False,
@@ -134,6 +135,7 @@ class SingleLineTextWithMap(FormQuestion):
 
 
 class MultiLineText(FormQuestion):
+
     def make_field(self):
         return forms.CharField(label=self.text,
                                required=False,
@@ -169,6 +171,7 @@ class MultipleChoice(FormQuestion):
 
 
 class Checkbox(MultipleChoice):
+
     def make_field(self):
         choices = self.get_choices()
         choice_tuples = [(choice.pk, choice.make_choice()) for choice in choices]
@@ -226,6 +229,7 @@ class Choice(models.Model):
 
 
 class Date(FormQuestion):
+
     def make_field(self):
         return forms.CharField(label=self.text,
                                required=False,

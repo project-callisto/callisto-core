@@ -27,6 +27,4 @@ MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',)
 
 TEMPLATE_DIRS = ['%s/test_app/templates' % os.path.abspath(os.path.dirname(__file__))]
 
-print(TEMPLATE_DIRS)
-
 SECRET_KEY = "not important"

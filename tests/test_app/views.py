@@ -8,6 +8,7 @@ from .models import Report
 
 
 class TestWizard(ConfigurableFormWizard):
+
     def get_form_to_edit(self, object_to_edit):
         super(TestWizard, self).get_form_to_edit(object_to_edit)
         if object_to_edit:

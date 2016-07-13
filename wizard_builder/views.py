@@ -19,6 +19,7 @@ from .models import Conditional, PageBase, QuestionPage, TextPage
 # are under the BSD-3 Clause License:
 # https://github.com/django/django-formtools/blob/master/LICENSE
 class ModifiedSessionWizardView(NamedUrlSessionWizardView):
+
     def __init__(self, **kwargs):
         super(ModifiedSessionWizardView, self).__init__(**kwargs)
         self.processed_answers = []
@@ -101,6 +102,7 @@ class ModifiedSessionWizardView(NamedUrlSessionWizardView):
 
 
 class ConfigurableFormWizard(ModifiedSessionWizardView):
+
     def get_form_to_edit(self, object_to_edit):
         return []
 
@@ -262,7 +264,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
 
 def predicate(passed_condition, depends_on_page_idx, depends_on_question_field, wizard):
     cleaned_data = wizard.get_cleaned_data_for_step(str(depends_on_page_idx)) \
-                   or {depends_on_question_field: 'none'}
+        or {depends_on_question_field: 'none'}
     condition_type = passed_condition.condition_type
 
     form_answer = cleaned_data.get(depends_on_question_field)
