@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from callisto.delivery.views import (
-    edit_record_form_view, export_as_pdf, new_record_form_view,
+    delete_report, edit_record_form_view, export_as_pdf, new_record_form_view,
     submit_to_matching, submit_to_school, withdraw_from_matching,
 )
 
@@ -20,15 +20,21 @@ urlpatterns = [
     url(r'^test_reports/submit_custom/(?P<report_id>\d+)/$', submit_to_school,
         {'form_template_name': 'submit_to_school_custom.html',
          'confirmation_template_name': 'submit_to_school_confirmation_custom.html',
-         'report_class': CustomReport}, name="test_submit_confirmation"),
+         'report_class': CustomReport,
+         'extra_context': {'test': 'custom context'}}, name="test_submit_confirmation"),
     url(r'^test_reports/match/(?P<report_id>\d+)/$', submit_to_matching, name="test_submit_match"),
     url(r'^test_reports/match_custom/(?P<report_id>\d+)/$', submit_to_matching,
         {'form_template_name': 'submit_to_matching_custom.html',
          'confirmation_template_name': 'submit_to_matching_confirmation_custom.html',
-         'report_class': CustomMatchReport}, name="test_match_confirmation"),
+         'report_class': CustomMatchReport,
+         'extra_context': {'test': 'custom context'}}, name="test_match_confirmation"),
     url(r'^test_reports/withdraw_match/(?P<report_id>\d+)/$', withdraw_from_matching,
-        {'template_name': 'after_withdraw.html'}, name="test_withdraw_match"),
+        {'template_name': 'after_withdraw.html',
+         'extra_context': {'test': 'custom context'}}, name="test_withdraw_match"),
     url(r'^test_reports/export/(?P<report_id>\d+)/$', export_as_pdf, name="test_export"),
     url(r'^test_reports/export_custom/(?P<report_id>\d+)/$', export_as_pdf,
-        {'report_class': CustomReport}, name="test_export_custom")
+        {'report_class': CustomReport,
+         'extra_context': {'test': 'custom context'}}, name="test_export_custom"),
+    url(r'^test_reports/delete/(?P<report_id>\d+)/$', delete_report,
+        {'extra_context': {'test': 'custom context'}}, name="delete_report")
 ]

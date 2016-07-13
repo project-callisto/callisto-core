@@ -133,3 +133,66 @@ class SentReportTest(TestCase):
         self.assertNotEqual(sent_match_report_id, sent_full_report_id)
         self.assertTrue(sent_full_report_id.endswith('-1'))
         self.assertTrue(sent_match_report_id.endswith('-0'))
+
+
+class DeleteReportTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="dummy", password="dummy")
+        self.report = Report(owner=self.user)
+        self.report.encrypt_report("test report", "key")
+        self.report.save()
+
+    def test_can_delete_report(self):
+        self.assertEqual(Report.objects.count(), 1)
+        self.report.delete()
+        self.assertEqual(Report.objects.count(), 0)
+        self.assertEqual(User.objects.first(), self.user)
+
+    def test_deleted_report_deletes_match_report(self):
+        match_report = MatchReport(report=self.report, identifier='dummy')
+        match_report.encrypt_match_report("test match report", match_report.identifier)
+        match_report.save()
+        self.assertEqual(MatchReport.objects.count(), 1)
+        self.report.delete()
+        self.assertEqual(MatchReport.objects.count(), 0)
+
+    def test_deleted_report_doesnt_delete_sent_report(self):
+        sent_report = SentFullReport.objects.create(report=self.report)
+        self.assertIsNotNone(self.report.sentfullreport_set.first())
+        self.assertEqual(self.report, SentFullReport.objects.first().report)
+        self.report.delete()
+        self.assertEqual(Report.objects.count(), 0)
+        self.assertEqual(SentFullReport.objects.first(), sent_report)
+
+    def test_deleted_report_doesnt_delete_sent_match_report(self):
+        match_report = MatchReport(report=self.report, identifier='dummy')
+        match_report.encrypt_match_report("test match report", 'dummy')
+        match_report.save()
+        user2 = User.objects.create_user(username="dummy2", password="dummy")
+        report2 = Report(owner=user2)
+        report2.encrypt_report("test report 2", "key")
+        report2.save()
+        match_report2 = MatchReport(report=report2, identifier='dummy')
+        match_report2.encrypt_match_report("test match report 2", 'dummy')
+        match_report2.save()
+        sent_match_report = SentMatchReport.objects.create()
+        sent_match_report.reports.add(match_report, match_report2)
+        self.report.match_found = True
+        self.report.save()
+        report2.match_found = True
+        report2.save()
+        self.assertIsNotNone(match_report.sentmatchreport_set.first())
+        self.assertIsNotNone(match_report2.sentmatchreport_set.first())
+        self.assertEqual(match_report, SentMatchReport.objects.first().reports.all()[0])
+        self.assertEqual(match_report2, SentMatchReport.objects.first().reports.all()[1])
+        self.report.delete()
+        self.assertEqual(Report.objects.count(), 1)
+        self.assertEqual(MatchReport.objects.count(), 1)
+        self.assertEqual(SentMatchReport.objects.first(), sent_match_report)
+        self.assertEqual(SentMatchReport.objects.first().reports.count(), 1)
+        self.assertEqual(SentMatchReport.objects.first().reports.first(), match_report2)
+        self.assertTrue(Report.objects.first().match_found)
+        report2.delete()
+        self.assertEqual(Report.objects.count(), 0)
+        self.assertEqual(SentMatchReport.objects.first(), sent_match_report)
