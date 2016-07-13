@@ -368,7 +368,7 @@ class WizardIntegratedTest(FormBaseTest):
                   'form_wizard-current_step': 0},
             follow=True)
 
-        first_q_object_ids = [choice.pk for choice in question1.choice_set.all()]
+        first_q_object_ids = [q_choice.pk for q_choice in question1.choice_set.all()]
         selected_id = first_q_object_ids[1]
         first_q_object_ids.insert(0, question1.pk)
         first_q_object_ids.insert(0, selected_id)
