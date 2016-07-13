@@ -311,6 +311,10 @@ class EditRecordFormTest(ExistingRecordTest):
         response = self.client.get(self.record_form_url % report.id)
         self.assertEqual(response.status_code, 404)
 
+    def test_nonexistent_record(self):
+        response = self.client.get(self.record_form_url % 1000)
+        self.assertEqual(response.status_code, 404)
+
     def test_edit_modifies_record(self):
         self.maxDiff = None
 
