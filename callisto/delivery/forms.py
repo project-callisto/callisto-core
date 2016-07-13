@@ -16,10 +16,10 @@ REQUIRED_ERROR = "The {0} field is required."
 logger = logging.getLogger(__name__)
 
 
-def make_key(length, confirmation=False):
+def make_key(confirmation=False):
     """Create key with optional boolean argument for confirmation form."""
     if confirmation:
-        key = forms.CharField(max_length=length,
+        key = forms.CharField(max_length=64,
                               label="Repeat your passphrase",
                               widget=forms.PasswordInput(attrs={'placeholder':
                                                                 'Repeat your passphrase',
@@ -27,7 +27,7 @@ def make_key(length, confirmation=False):
                               error_messages={'required':
                                               REQUIRED_ERROR.format("passphrase confirmation")})
     else:
-        key = forms.CharField(max_length=length,
+        key = forms.CharField(max_length=64,
                               label="Your passphrase",
                               widget=forms.PasswordInput(attrs={'placeholder':
                                                                 'Your passphrase',
@@ -41,8 +41,8 @@ class NewSecretKeyForm(forms.Form):
         'key_mismatch': "The two passphrase fields didn't match.",
     }
 
-    key = make_key(64)
-    key2 = make_key(64, confirmation=True)
+    key = make_key()
+    key2 = make_key(confirmation=True)
 
     # from http://birdhouse.org/blog/2015/06/16/sane-password-strength-validation-for-django-with-zxcvbn/
 
@@ -74,7 +74,7 @@ class SecretKeyForm(forms.Form):
         'wrong_key': "The passphrase didn't match.",
     }
 
-    key = make_key(254)
+    key = make_key()
 
     def clean_key(self):
         key = self.cleaned_data.get('key')
