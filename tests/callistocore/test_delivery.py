@@ -48,6 +48,14 @@ class ReportDeliveryTest(MatchTest):
         self.assertIn("test answer", pdfReader.getPage(1).extractText())
         self.assertIn("answer to 2nd question", pdfReader.getPage(1).extractText())
 
+    def test_pdf_report_generated_with_timestamp(self):
+        @override_settings(TIME_ZONE="Europe/Paris")
+        report = PDFFullReport(self.report, self.decrypted_report)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        exported_report = BytesIO(output)
+        pdfReader = PyPDF2.PdfFileReader(exported_report)
+        self.assertIn("")
+
     def test_submission_to_school(self):
         EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
         report = PDFFullReport(self.report, self.decrypted_report)

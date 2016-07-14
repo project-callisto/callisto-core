@@ -25,7 +25,10 @@ from .models import EmailNotification, SentFullReport, SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"
 # TODO: customize https://github.com/SexualHealthInnovations/callisto-core/issues/20
-tzname = 'America/Los_Angeles'
+if settings.TIME_ZONE is None:
+    tzname = 'America/Los_Angeles'
+else:
+    tzname = settings.TIME_ZONE
 timezone.activate(pytz.timezone(tzname))
 logger = logging.getLogger(__name__)
 
