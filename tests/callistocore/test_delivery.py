@@ -4,6 +4,7 @@ import PyPDF2
 
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.test.utils import override_settings
 
 from callisto.delivery.models import EmailNotification, Report
 from callisto.delivery.report_delivery import (
@@ -48,8 +49,8 @@ class ReportDeliveryTest(MatchTest):
         self.assertIn("test answer", pdfReader.getPage(1).extractText())
         self.assertIn("answer to 2nd question", pdfReader.getPage(1).extractText())
 
+    @override_settings(TIME_ZONE="Europe/Paris")
     def test_pdf_report_generated_with_timestamp(self):
-        @override_settings(TIME_ZONE="Europe/Paris")
         report = PDFFullReport(self.report, self.decrypted_report)
         output = report.generate_pdf_report(recipient=None, report_id=None)
         exported_report = BytesIO(output)
