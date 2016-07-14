@@ -2,6 +2,7 @@ import inspect
 import json
 from unittest import skip
 
+from tests.test_app.models import Report
 from tests.test_app.views import TestWizard
 from wizard_builder.forms import QuestionPageForm, TextPageForm
 from wizard_builder.models import (
@@ -52,7 +53,7 @@ class WizardIntegratedTest(FormBaseTest):
         self.request.method = 'GET'
         self.request.user = User.objects.get(username='dummy')
 
-    form_url = '/wizard/0/'
+    form_url = '/wizard/new/0/'
     report_key = 'solidasarock1234rock'
 
     def _answer_page_one(self):
@@ -112,7 +113,7 @@ class WizardIntegratedTest(FormBaseTest):
                   'form_wizard-current_step': 0},
             follow=True)
 
-        self.assertTrue(response.redirect_chain[0][0].endswith("/wizard/1/"))
+        self.assertTrue(response.redirect_chain[0][0].endswith("/wizard/new/1/"))
         self.assertContains(response, 'name="1-question_%i"' % self.question2.pk)
         self.assertNotContains(response, 'name="1-question_%i"' % self.question1.pk)
 
@@ -462,161 +463,81 @@ class PageCountTest(FormBaseTest):
         self.assertEqual(calculate_page_count_map(pages)[4], 4)
         self.assertEqual(calculate_page_count_map(pages)['page_count'], 4)
 
-# TODO: re-enable below when separate app
-#
-# class EditRecordFormTest(RecordFormBaseTest):
-#     form_url = '/reports/edit/%s/'
-#
-#     def setUp(self):
-#         super().setUp()
-#         self.report_text = """[
-#     { "answer": "test answer",
-#       "id": %i,
-#       "section": 1,
-#       "question_text": "first question",
-#       "type": "SingleLineText"
-#     },
-#     { "answer": "another answer to a different question",
-#       "id": %i,
-#       "section": 1,
-#       "question_text": "2nd question",
-#       "type": "SingleLineText"
-#     }
-#   ]""" % (self.question1.pk, self.question2.pk)
-#         self.report = Report(owner = self.request.user)
-#         self.report_key = 'bananabread! is not my key'
-#         self.report.encrypt_report(self.report_text, self.report_key)
-#         self.report.save()
-#         row = EvalRow()
-#         row.anonymise_record(action=EvalRow.CREATE, report=self.report, decrypted_text=self.report_text)
-#         row.save()
-#
-#     def enter_edit_key(self):
-#         return self.client.post(
-#             (self.form_url % self.report.pk),
-#             data={'0-key': self.report_key,
-#                   'wizard_goto_step':1,
-#                   'form_wizard' + str(self.report.id) + '-current_step': 0},
-#             follow=True
-#         )
-#
-#     def test_edit_record_page_renders_key_prompt(self):
-#         response = self.client.get(self.form_url % self.report.pk, follow=True)
-#         self.assertTemplateUsed(response, 'decrypt_record_for_edit.html')
-#         self.assertIsInstance(response.context['form'], SecretKeyForm)
-#
-#     def test_edit_form_advances_to_second_page(self):
-#         response = self.enter_edit_key()
-#         self.assertTemplateUsed(response, 'form.html')
-#         self.assertIsInstance(response.context['form'], QuestionPageForm)
-#         self.assertContains(response, 'name="1-question_%i"' % self.question1.pk)
-#         self.assertNotContains(response, 'name="1-question_%i"' % self.question2.pk)
-#
-#     def test_initial_is_passed_to_forms(self):
-#         response = self.enter_edit_key()
-#         form = response.context['form']
-#         self.assertIn('test answer', form.initial.values())
-#         self.assertIn('another answer to a different question', form.initial.values())
-#
-#     def edit_record(self, record_to_edit):
-#         wizard = EncryptedBaseWizard.wizard_factory([self.page1, self.page2], object_to_edit=record_to_edit)()
-#
-#         KeyForm1 = wizard.form_list[0]
-#         PageOneForm = wizard.form_list[1]
-#         PageTwoForm = wizard.form_list[2]
-#         KeyForm2 = wizard.form_list[3]
-#
-#         key_form_1 = KeyForm1({'key': self.report_key})
-#         key_form_1.is_valid()
-#
-#         page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
-#         page_one.is_valid()
-#         page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question',})
-#         page_two.is_valid()
-#         key_form_2 = KeyForm2({'key': self.report_key})
-#         key_form_2.is_valid()
-#
-#         self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2],
-#         request = self.request)
-#
-#     def test_edit_modifies_record(self):
-#         self.maxDiff = None
-#
-#         json_report = """[
-#     { "answer": "test answer",
-#       "id": %i,
-#       "section": 1,
-#       "question_text": "first question",
-#       "type": "SingleLineText"
-#     },
-#     { "answer": "edited answer to second question",
-#       "id": %i,
-#       "section": 1,
-#       "question_text": "2nd question",
-#       "type": "SingleLineText"
-#     }
-#   ]"""  % (self.question1.pk, self.question2.pk)
-#
-#         self.edit_record(self.report)
-#         self.assertEqual(Report.objects.count(), 1)
-#         self.assertEqual(sort_json(Report.objects.get(id=self.report.pk).decrypted_report(self.report_key)),
-#                          sort_json(json_report))
-#
-#     def test_cant_edit_with_bad_key(self):
-#         self.maxDiff = None
-#
-#         wizard = EncryptedBaseWizard.wizard_factory([self.page1, self.page2], object_to_edit=self.report)()
-#
-#         KeyForm1 = wizard.form_list[0]
-#
-#         key_form_1 = KeyForm1({'key': "not the right key!!!"})
-#         self.assertFalse(key_form_1.is_valid())
-#
-#     def test_cant_save_edit_with_bad_key(self):
-#         wizard = EncryptedBaseWizard.wizard_factory([self.page1, self.page2], object_to_edit=self.report)()
-#
-#         KeyForm1 = wizard.form_list[0]
-#         PageOneForm = wizard.form_list[1]
-#         PageTwoForm = wizard.form_list[2]
-#         KeyForm2 = wizard.form_list[3]
-#
-#         key_form_1 = KeyForm1({'key': self.report_key})
-#         key_form_1.is_valid()
-#
-#         page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
-#         page_one.is_valid()
-#         page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question',})
-#         page_two.is_valid()
-#         key_form_2 = KeyForm2({'key': "not the right key"})
-#         self.assertFalse(key_form_2.is_valid())
-#         with self.assertRaises(KeyError):
-#             self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2],
-#               request = self.request)
-#         self.assertEqual(sort_json(Report.objects.get(id=self.report.pk).decrypted_report(self.report_key)),
-#                          sort_json(self.report_text))
-#
-#     def test_edit_saves_anonymous_row(self):
-#         self.edit_record(self.report)
-#         self.assertEqual(EvalRow.objects.count(), 2)
-#         self.assertEqual(EvalRow.objects.last().action, EvalRow.EDIT)
-#         self.edit_record(self.report)
-#         self.assertEqual(EvalRow.objects.count(), 3)
-#         self.assertEqual(Report.objects.count(), 1)
-#
-#     def test_edit_saves_original_record_if_no_data_exists(self):
-#         old_report = Report(owner = self.request.user)
-#         old_report.encrypt_report(self.report_text, self.report_key)
-#         old_report.save()
-#
-#         self.assertEqual(EvalRow.objects.count(), 1)
-#         self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).count(), 0)
-#
-#         self.edit_record(record_to_edit=old_report)
-#         self.assertEqual(EvalRow.objects.count(), 3)
-#         self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).count(), 1)
-#         self.assertEqual(EvalRow.objects.last().action, EvalRow.EDIT)
-#         self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().record_identifier,
-#               EvalRow.objects.last().record_identifier)
-#         self.assertNotEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().row, EvalRow.objects.last().row)
-#
-#
+
+class EditRecordFormTest(FormBaseTest):
+    form_url = '/wizard/edit/%s/0/'
+
+    def setUp(self):
+        super(EditRecordFormTest, self).setUp()
+        self.report_text = """[
+    { "answer": "test answer",
+      "id": %i,
+      "section": 1,
+      "question_text": "first question",
+      "type": "SingleLineText"
+    },
+    { "answer": "another answer to a different question",
+      "id": %i,
+      "section": 1,
+      "question_text": "2nd question",
+      "type": "SingleLineText"
+    }
+  ]""" % (self.question1.pk, self.question2.pk)
+        self.report = Report.objects.create(text=self.report_text)
+
+    def test_edit_record_page_renders_first_page(self):
+        response = self.client.get(self.form_url % self.report.pk, follow=True)
+        self.assertTemplateUsed(response, 'wizard_form.html')
+        self.assertIsInstance(response.context['form'], QuestionPageForm)
+        self.assertContains(response, 'name="0-question_%i"' % self.question1.pk)
+        self.assertNotContains(response, 'name="0-question_%i"' % self.question2.pk)
+
+    def test_edit_form_advances_to_second_page(self):
+        response = self.client.post(
+            (self.form_url % self.report.pk),
+            data={'0-question_1': "first answer",
+                  'wizard_goto_step': 1,
+                  'form_wizard' + str(self.report.id) + '-current_step': 0},
+            follow=True
+        )
+        self.assertTemplateUsed(response, 'wizard_form.html')
+        self.assertIsInstance(response.context['form'], QuestionPageForm)
+        self.assertContains(response, 'name="1-question_%i"' % self.question2.pk)
+        self.assertNotContains(response, 'name="1-question_%i"' % self.question1.pk)
+
+    def test_initial_is_passed_to_forms(self):
+        response = self.client.get(self.form_url % self.report.pk, follow=True)
+        form = response.context['form']
+        self.assertIn('test answer', form.initial.values())
+        self.assertIn('another answer to a different question', form.initial.values())
+        self.assertIn('test answer', get_body(response))
+        self.assertNotIn('another answer to a different question', get_body(response))
+        response = self.client.post(
+            self.form_url % self.report.pk,
+            data={'0-question_1': "first answer",
+                  'wizard_goto_step': 1,
+                  'form_wizard' + str(self.report.id) + '-current_step': 0},
+            follow=True
+        )
+        self.assertNotIn('test answer', get_body(response))
+        self.assertIn('another answer to a different question', get_body(response))
+
+    def test_edit_modifies_record(self):
+        response = self.client.post(
+            (self.form_url % self.report.pk),
+            data={'0-question_1': "first answer edited",
+                  'wizard_goto_step': 1,
+                  'form_wizard' + str(self.report.id) + '-current_step': 0},
+            follow=True
+        )
+
+        response = self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question2.pk: '2nd edited answer',
+                  'wizard_goto_step': 2,
+                  'form_wizard' + str(self.report.id) + '-current_step': 1},
+            follow=True)
+
+        edited_form = json.loads(get_body(response))
+        self.assertEqual(edited_form[0]['answer'], 'first answer edited')
+        self.assertEqual(edited_form[1]['answer'], '2nd edited answer')

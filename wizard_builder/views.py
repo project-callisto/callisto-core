@@ -5,6 +5,7 @@ from formtools.wizard.forms import ManagementForm
 from formtools.wizard.views import NamedUrlSessionWizardView
 
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
 from django.utils.html import conditional_escape, mark_safe
 
@@ -104,6 +105,7 @@ class ModifiedSessionWizardView(NamedUrlSessionWizardView):
 class ConfigurableFormWizard(ModifiedSessionWizardView):
 
     def get_form_to_edit(self, object_to_edit):
+        '''Takes the passed in object and returns a list of dicts representing the answered questions'''
         return []
 
     def __init__(self, *args, **kwargs):
@@ -260,6 +262,13 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                      "condition_dict": condition_dict,
                      "page_count": page_count_map['page_count'],
                      "page_count_map": page_count_map})
+
+    def get_step_url(self, step):
+        '''Passes record to edit along to the next step. Edit url must have a named 'edit_id' group'''
+        kwargs = {'step': step, }
+        if self.object_to_edit:
+            kwargs['edit_id'] = self.object_to_edit.id
+        return reverse(self.url_name, kwargs=kwargs)
 
 
 def predicate(passed_condition, depends_on_page_idx, depends_on_question_field, wizard):
