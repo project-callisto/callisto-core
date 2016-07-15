@@ -5,7 +5,6 @@ import pytz
 
 from django.contrib.auth import get_user_model
 from django.core import mail
-from django.test.utils import override_settings
 from django.utils import timezone
 from django.utils.timezone import localtime
 
