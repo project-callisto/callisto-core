@@ -5,7 +5,6 @@ from wizard_builder.forms import get_form_pages
 from wizard_builder.views import ConfigurableFormWizard
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 
 from callisto.evaluation.models import EvalRow
@@ -91,9 +90,3 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             return ['create_key.html']
         else:
             return ['record_form.html']
-
-    def get_step_url(self, step):
-        kwargs = {'step': step, }
-        if self.object_to_edit:
-            kwargs['report_id'] = self.object_to_edit.id
-        return reverse(self.url_name, kwargs=kwargs)

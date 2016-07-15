@@ -27,18 +27,20 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
-def check_owner(action_name):
+def check_owner(action_name, report_id_arg='report_id'):
     def decorator(view_func):
         @wraps(view_func, assigned=available_attrs(view_func))
-        def _wrapped_view(request, report_id, *args, **kwargs):
+        def _wrapped_view(request, *args, **kwargs):
             owner = request.user
+            # kludgy assumption that report_id will be first arg after request
+            id_to_fetch = kwargs.get(report_id_arg) or args[0]
             try:
-                report = Report.objects.get(id=report_id)
+                report = Report.objects.get(id=id_to_fetch)
                 if owner == report.owner:
-                    return view_func(request, report_id, *args, **kwargs)
+                    return view_func(request, *args, **kwargs)
                 else:
                     logger.warning("illegal {} attempt on record {} by user {}".format(action_name,
-                                                                                       report_id, owner.id))
+                                                                                       id_to_fetch, owner.id))
                     return HttpResponseForbidden() if settings.DEBUG else HttpResponseNotFound()
             except ObjectDoesNotExist:
                 return HttpResponseNotFound()
@@ -54,10 +56,10 @@ def new_record_form_view(request, wizard, step=None, url_name="record_form"):
         return HttpResponseServerError()
 
 
-@check_owner('edit')
+@check_owner('edit', 'edit_id')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def edit_record_form_view(request, report_id, wizard, step=None, url_name="edit_report"):
-    report = Report.objects.get(id=report_id)
+def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_report"):
+    report = Report.objects.get(id=edit_id)
     if PageBase.objects.count() > 0:
         return wizard.wizard_factory(object_to_edit=report).as_view(url_name=url_name)(request, step=step)
     else:

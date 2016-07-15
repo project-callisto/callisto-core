@@ -12,9 +12,9 @@ from .callistocore.forms import (
 urlpatterns = [
     url(r'^test_reports/new/(?P<step>.+)/$', new_record_form_view,
         {'wizard': EncryptedFormWizard}, name="test_new_report"),
-    url(r'^test_reports/edit/(?P<report_id>\d+)/$', edit_record_form_view,
+    url(r'^test_reports/edit/(?P<edit_id>\d+)/$', edit_record_form_view,
         {'wizard': EncryptedFormWizard, 'url_name': 'test_edit_report'}, name='test_edit_report'),
-    url(r'^test_reports/edit/(?P<report_id>\d+)/(?P<step>.+)/$', edit_record_form_view,
+    url(r'^test_reports/edit/(?P<edit_id>\d+)/(?P<step>.+)/$', edit_record_form_view,
         {'wizard': EncryptedFormWizard, 'url_name': 'test_edit_report'}, name='test_edit_report'),
     url(r'^test_reports/submit/(?P<report_id>\d+)/$', submit_to_school, name="test_submit_report"),
     url(r'^test_reports/submit_custom/(?P<report_id>\d+)/$', submit_to_school,
