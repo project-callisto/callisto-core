@@ -13,6 +13,7 @@ class BasePageForm(forms.Form):
 
 
 class QuestionPageForm(BasePageForm):
+
     def __init__(self, *args, **kwargs):
         super(QuestionPageForm, self).__init__(*args, **kwargs)
         self.has_tooltip = False

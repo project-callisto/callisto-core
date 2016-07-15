@@ -5,6 +5,7 @@ from formtools.wizard.forms import ManagementForm
 from formtools.wizard.views import NamedUrlSessionWizardView
 
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
 from django.utils.html import conditional_escape, mark_safe
 
@@ -19,6 +20,7 @@ from .models import Conditional, PageBase, QuestionPage, TextPage
 # are under the BSD-3 Clause License:
 # https://github.com/django/django-formtools/blob/master/LICENSE
 class ModifiedSessionWizardView(NamedUrlSessionWizardView):
+
     def __init__(self, **kwargs):
         super(ModifiedSessionWizardView, self).__init__(**kwargs)
         self.processed_answers = []
@@ -101,7 +103,9 @@ class ModifiedSessionWizardView(NamedUrlSessionWizardView):
 
 
 class ConfigurableFormWizard(ModifiedSessionWizardView):
+
     def get_form_to_edit(self, object_to_edit):
+        '''Takes the passed in object and returns a list of dicts representing the answered questions'''
         return []
 
     def __init__(self, *args, **kwargs):
@@ -259,10 +263,17 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                      "page_count": page_count_map['page_count'],
                      "page_count_map": page_count_map})
 
+    def get_step_url(self, step):
+        '''Passes record to edit along to the next step. Edit url must have a named 'edit_id' group'''
+        kwargs = {'step': step, }
+        if self.object_to_edit:
+            kwargs['edit_id'] = self.object_to_edit.id
+        return reverse(self.url_name, kwargs=kwargs)
+
 
 def predicate(passed_condition, depends_on_page_idx, depends_on_question_field, wizard):
     cleaned_data = wizard.get_cleaned_data_for_step(str(depends_on_page_idx)) \
-                   or {depends_on_question_field: 'none'}
+        or {depends_on_question_field: 'none'}
     condition_type = passed_condition.condition_type
 
     form_answer = cleaned_data.get(depends_on_question_field)

@@ -10,6 +10,7 @@ from django.test import TestCase
 
 
 class PageTest(TestCase):
+
     def test_page_can_have_position(self):
         page = QuestionPage.objects.create(position=10)
         self.assertEqual(QuestionPage.objects.get(pk=page.pk).position, 10)
@@ -39,6 +40,7 @@ class PageTest(TestCase):
 
 
 class ItemTestCase(TestCase):
+
     def setUp(self):
         self.page = QuestionPage.objects.create()
 
@@ -200,6 +202,7 @@ class RadioButtonTestCase(ItemTestCase):
 
 
 class CheckboxTestCase(ItemTestCase):
+
     def setUp(self):
         self.page = QuestionPage.objects.create()
         self.question = Checkbox.objects.create(text="this is a checkbox question")
@@ -240,6 +243,7 @@ class CheckboxTestCase(ItemTestCase):
 
 
 class DateTestCase(ItemTestCase):
+
     def test_make_field_is_text_input(self):
         question = Date.objects.create(text="When did it happen?").make_field()
         self.assertIsInstance(question.widget, forms.TextInput)
@@ -259,6 +263,7 @@ class DateTestCase(ItemTestCase):
 
 
 class QuestionPageTest(TestCase):
+
     def test_can_save_encouragement(self):
         page_id = QuestionPage.objects.create(encouragement="you can do it!").pk
         self.assertEqual(QuestionPage.objects.get(pk=page_id).encouragement, "you can do it!")
@@ -269,6 +274,7 @@ class QuestionPageTest(TestCase):
 
 
 class TextPageTest(TestCase):
+
     def test_can_save_with_or_without_title(self):
         without_title = TextPage.objects.create(text="here's some instructions")
         with_title = TextPage.objects.create(title="This Page's Title", text="more instructions")
