@@ -57,7 +57,8 @@ class ModifiedSessionWizardView(NamedUrlSessionWizardView):
                 return self.render_goto_step(wizard_goto_step)
 
             # check if the current step is the last step
-            if self.steps.current == self.steps.last:
+            # render done if "skip to end" has been sent (modification from original)
+            if self.steps.current == self.steps.last or wizard_goto_step == "end":
                 # no more steps, render done view
                 return self.render_done(form, **kwargs)
             else:

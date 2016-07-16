@@ -432,6 +432,16 @@ class WizardIntegratedTest(FormBaseTest):
         output = get_body(response)
         self.assertEqual(sort_json(desired_output), sort_json(output))
 
+    def test_can_skip_to_end(self):
+        response = self.client.post(
+            self.form_url,
+            data={'0-question_%i' % self.question1.pk: 'test answer',
+                  'wizard_goto_step': 'end',
+                  'form_wizard-current_step': 0},
+            follow=True)
+        output = get_body(response)
+        self.assertIn('"answer": "test answer"', output)
+
 
 class PageCountTest(FormBaseTest):
 
