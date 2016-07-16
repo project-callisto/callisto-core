@@ -52,16 +52,16 @@ class ReportDeliveryTest(MatchTest):
         self.assertIn("answer to 2nd question", pdfReader.getPage(1).extractText())
 
     def test_pdf_report_generated_with_timestamp(self):
-        tzname = 'Europe/Paris'
-        timezone.activate(pytz.timezone(tzname))
+        # test_tzname matches TIME_ZONE in tests/settings.py
+        test_tzname = 'Europe/Paris'
         report = PDFFullReport(self.report, self.decrypted_report)
         output = report.generate_pdf_report(recipient=None, report_id=None)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
-        timezone.deactivate()
         date_format = "%m/%d/%Y @%H:%M%p"
-        timezone.activate(pytz.timezone(tzname))
+        timezone.activate(pytz.timezone(test_tzname))
         expected_time = localtime(timezone.now()).strftime(date_format)
+        print(pdfReader.getPage(0).extractText())
         self.assertIn(expected_time, pdfReader.getPage(0).extractText())
 
     def test_submission_to_school(self):
