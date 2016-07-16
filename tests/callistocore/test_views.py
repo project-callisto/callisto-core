@@ -76,10 +76,27 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
     record_form_url = '/test_reports/new/0/'
     report_key = 'solidasarock1234rock'
 
-    def test_new_record_page_renders_record_template(self):
+    def create_key(self):
+        return self.client.post(
+            self.record_form_url,
+            data={'0-key': self.report_key,
+                  '0-key2': self.report_key,
+                  'wizard_goto_step': 1,
+                  'form_wizard-current_step': 0},
+            follow=True
+        )
+
+    def test_new_record_page_renders_key_template(self):
         response = self.client.get(self.record_form_url)
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'create_key.html')
+
+    def test_new_record_form_advances_to_second_page(self):
+        response = self.create_key()
         self.assertTemplateUsed(response, 'record_form.html')
+        self.assertIsInstance(response.context['form'], QuestionPageForm)
+        self.assertContains(response, 'name="1-question_%i"' % self.question1.pk)
+        self.assertNotContains(response, 'name="1-question_%i"' % self.question2.pk)
 
     def test_wizard_generates_correct_number_of_pages(self):
         page3 = QuestionPage.objects.create()
@@ -93,28 +110,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
     def test_wizard_appends_key_page(self):
         wizard = EncryptedFormWizard.wizard_factory()()
         self.assertEqual(len(wizard.form_list), 3)
-        self.assertEqual(wizard.form_list[-1], NewSecretKeyForm)
-
-    @patch('callisto.delivery.wizard.Report')
-    def test_wizard_done_is_called(self, mockReport):
-        mock_report = Report()
-        mock_report.id = 1
-        mock_report.owner = self.request.user
-        mockReport.return_value = mock_report
-        wizard = EncryptedFormWizard.wizard_factory()()
-        PageOneForm = wizard.form_list[0]
-        PageTwoForm = wizard.form_list[1]
-        KeyForm = wizard.form_list[2]
-        page_one = PageOneForm({'question_%i' % self.question1.pk: ""})
-        page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: ""})
-        page_two.is_valid()
-        key_form = KeyForm({'key': self.report_key, 'key2': self.report_key})
-        key_form.is_valid()
-        form_list = [page_one, page_two, key_form]
-        wizard.processed_answers = wizard.process_answers(form_list=form_list, form_dict=dict(enumerate(form_list)))
-        response = wizard.done(form_list=form_list, form_dict=dict(enumerate(form_list)), request=self.request)
-        self.assertContains(response, 1)
+        self.assertEqual(wizard.form_list[0], NewSecretKeyForm)
 
     @patch('callisto.delivery.wizard.Report')
     def test_done_serializes_questions(self, mockReport):
@@ -123,19 +119,6 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
-        wizard = EncryptedFormWizard.wizard_factory()()
-
-        PageOneForm = wizard.form_list[0]
-        PageTwoForm = wizard.form_list[1]
-        KeyForm = wizard.form_list[2]
-
-        page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
-        page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'another answer to a different question',
-                                'question_%i' % radio_button_q.pk: radio_button_q.choice_set.all()[2].pk})
-        page_two.is_valid()
-        key_form = KeyForm({'key': self.report_key, 'key2': self.report_key})
-        key_form.is_valid()
 
         object_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
         selected_id = object_ids[2]
@@ -181,36 +164,37 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
 
         mock_report.save.side_effect = check_json
 
-        self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request=self.request)
+        response = self.create_key()
+        response = self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question1.pk: 'test answer',
+                  'wizard_goto_step': 2,
+                  'form_wizard-current_step': 1},
+            follow=True)
+        self.client.post(
+            response.redirect_chain[0][0],
+            data={'2-question_%i' % self.question2.pk: 'another answer to a different question',
+                  '2-question_%i' % radio_button_q.pk: radio_button_q.choice_set.all()[2].pk,
+                  'form_wizard-current_step': 2},
+            follow=True)
+
         mock_report.save.assert_any_call()
 
-    @patch('callisto.delivery.wizard.Report')
-    def test_done_saves_anonymised_qs(self, mockReport):
-        self.maxDiff = None
-
-        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
-        for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
-        wizard = EncryptedFormWizard.wizard_factory()()
-
-        PageOneForm = wizard.form_list[0]
-        PageTwoForm = wizard.form_list[1]
-        KeyForm = wizard.form_list[2]
-
-        page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
-        page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'another answer to a different question',
-                                'question_%i' % radio_button_q.pk: radio_button_q.choice_set.all()[2].pk})
-        page_two.is_valid()
-        key_form = KeyForm({'key': self.report_key, 'key2': self.report_key})
-        key_form.is_valid()
-
-        mock_report = Report()
-        mock_report.save = Mock()
-        mock_report.owner = self.request.user
-        mockReport.return_value = mock_report
-
-        self._get_wizard_response(wizard, form_list=[page_one, page_two, key_form], request=self.request)
+    def test_back_button_works(self):
+        response = self.create_key()
+        response = self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question1.pk: 'test answer',
+                  'wizard_goto_step': 2,
+                  'form_wizard-current_step': 1},
+            follow=True)
+        response = self.client.post(
+            response.redirect_chain[0][0],
+            data={'2-question_%i' % self.question2.pk: 'another answer to a different question',
+                  'form_wizard-current_step': 2,
+                  'wizard_goto_step': 1},
+            follow=True)
+        self.assertContains(response, 'value="test answer"')
 
 
 class ExistingRecordTest(RecordFormBaseTest):
@@ -284,7 +268,6 @@ class EditRecordFormTest(ExistingRecordTest):
         KeyForm1 = wizard.form_list[0]
         PageOneForm = wizard.form_list[1]
         PageTwoForm = wizard.form_list[2]
-        KeyForm2 = wizard.form_list[3]
 
         key_form_1 = KeyForm1({'key': self.report_key})
         key_form_1.is_valid()
@@ -293,10 +276,8 @@ class EditRecordFormTest(ExistingRecordTest):
         page_one.is_valid()
         page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question', })
         page_two.is_valid()
-        key_form_2 = KeyForm2({'key': self.report_key})
-        key_form_2.is_valid()
 
-        self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two, key_form_2], request=self.request)
+        self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two], request=self.request)
 
     @override_settings(DEBUG=True)
     def test_record_cannot_be_edited_by_non_owning_user(self):
@@ -354,20 +335,18 @@ class EditRecordFormTest(ExistingRecordTest):
         KeyForm1 = wizard.form_list[0]
         PageOneForm = wizard.form_list[1]
         PageTwoForm = wizard.form_list[2]
-        KeyForm2 = wizard.form_list[3]
 
-        key_form_1 = KeyForm1({'key': self.report_key})
+        key_form_1 = KeyForm1({'key': "not the right key"})
         key_form_1.is_valid()
 
         page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
         page_one.is_valid()
         page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question', })
         page_two.is_valid()
-        key_form_2 = KeyForm2({'key': "not the right key"})
-        self.assertFalse(key_form_2.is_valid())
+
         with self.assertRaises(KeyError):
             self._get_wizard_response(wizard,
-                                      form_list=[key_form_1, page_one, page_two, key_form_2],
+                                      form_list=[key_form_1, page_one, page_two],
                                       request=self.request)
         self.assertEqual(sort_json(Report.objects.get(id=self.report.pk).decrypted_report(self.report_key)),
                          sort_json(self.report_text))

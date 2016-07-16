@@ -38,15 +38,13 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
     @classmethod
     def generate_form_list(cls, page_map, pages, record_to_edit, **kwargs):
         form_list = get_form_pages(page_map)
-        if record_to_edit:
-            form_list.insert(0, cls.get_key_form(record_to_edit))
-        form_list.append(cls.get_key_form(record_to_edit))
+        form_list.insert(0, cls.get_key_form(record_to_edit))
         return form_list
 
     @classmethod
     def calculate_real_page_index(cls, raw_idx, pages, record_to_edit, **kwargs):
-        # add one for decryption page if editing
-        return raw_idx + 1 if record_to_edit else raw_idx
+        # add one for key creation/entry page
+        return raw_idx + 1
 
     def wizard_complete(self, report, **kwargs):
         """
@@ -66,7 +64,7 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
                                                                                        self.object_to_edit.id))
                 return HttpResponseForbidden() if settings.DEBUG else HttpResponseNotFound()
 
-        key = list(form_list)[-1].cleaned_data['key']
+        key = list(form_list)[0].cleaned_data['key']
 
         report_text = json.dumps(self.processed_answers, sort_keys=True)
         report.encrypt_report(report_text, key)
@@ -82,11 +80,10 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
 
     def get_template_names(self):
         # render key page with separate template
-        if self.object_to_edit and self.steps.current == self.steps.first:
-            return ['decrypt_record_for_edit.html']
-        elif self.object_to_edit and self.steps.current == self.steps.last:
-            return ['encrypt_record_for_edit.html']
-        elif self.steps.current == self.steps.last:
-            return ['create_key.html']
+        if self.steps.current == self.steps.first:
+            if self.object_to_edit:
+                return ['decrypt_record_for_edit.html']
+            else:
+                return ['create_key.html']
         else:
             return ['record_form.html']
