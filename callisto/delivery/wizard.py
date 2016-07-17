@@ -70,7 +70,7 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         if not report.owner == req.user:
             self._unauthorized_access(req, report)
 
-        key = form_list['0'].cleaned_data['key']
+        key = list(form_list)[0].cleaned_data['key']
 
         report_text = json.dumps(self.processed_answers, sort_keys=True)
         report.encrypt_report(report_text, key)

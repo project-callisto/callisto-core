@@ -28,8 +28,6 @@ SITE_ID = 1
 MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
                       'django.contrib.auth.middleware.AuthenticationMiddleware',)
 
-TEMPLATE_DIRS = ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
-
 SCHOOL_REPORT_PREFIX = "000"
 
 KEY_ITERATIONS = 100
@@ -60,3 +58,11 @@ DECRYPT_THROTTLE_RATE = '100/m'
 MATCH_IMMEDIATELY = True
 
 PEPPER = os.urandom(32)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
+    },
+]
