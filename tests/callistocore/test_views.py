@@ -194,6 +194,36 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         self.assertEqual(Report.objects.count(), 1)
         self.assertIn("test answer", Report.objects.first().decrypted_report(self.report_key))
 
+    def test_auto_save_is_set_correctly(self):
+        # record flagged as autosave on an autosaved record
+        response = self.create_key()
+        self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question1.pk: 'test answer',
+                  'form_wizard-current_step': 1,
+                  'wizard_goto_step': 2},
+            follow=True)
+        self.client.get("www.google.com")
+        self.assertTrue(Report.objects.first().autosaved)
+
+        # record is not flagged as autosave on an explicitly saved record
+        # need to load first page of record form because that's how storage gets reset
+        self.client.get(self.record_form_url, follow=True)
+        self.assertTemplateUsed('record_form.html')
+        response = self.create_key()
+        response = self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question1.pk: 'test answer',
+                  'form_wizard-current_step': 1},
+            follow=True)
+        response = self.client.post(
+            response.redirect_chain[0][0],
+            data={'2-question_%i' % self.question2.pk: 'another answer to a different question',
+                  'form_wizard-current_step': 2},
+            follow=True)
+        self.assertEqual(Report.objects.count(), 2)
+        self.assertFalse(Report.objects.latest('id').autosaved)
+
 
 class ExistingRecordTest(RecordFormBaseTest):
 
@@ -233,11 +263,12 @@ class ExistingRecordTest(RecordFormBaseTest):
 class EditRecordFormTest(ExistingRecordTest):
     record_form_url = '/test_reports/edit/%s/'
 
-    def enter_edit_key(self):
+    def enter_edit_key(self, record=None):
+        report = record or self.report
         return self.client.post(
-            (self.record_form_url % self.report.pk),
+            self.record_form_url % report.pk,
             data={'0-key': self.report_key,
-                  'form_wizard' + str(self.report.id) + '-current_step': 0},
+                  'form_wizard' + str(report.id) + '-current_step': 0},
             follow=True
         )
 
@@ -260,21 +291,18 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertIn('another answer to a different question', form.initial.values())
 
     def edit_record(self, record_to_edit):
-        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=record_to_edit)()
-
-        KeyForm1 = wizard.form_list[0]
-        PageOneForm = wizard.form_list[1]
-        PageTwoForm = wizard.form_list[2]
-
-        key_form_1 = KeyForm1({'key': self.report_key})
-        key_form_1.is_valid()
-
-        page_one = PageOneForm({'question_%i' % self.question1.pk: 'test answer'})
-        page_one.is_valid()
-        page_two = PageTwoForm({'question_%i' % self.question2.pk: 'edited answer to second question', })
-        page_two.is_valid()
-
-        self._get_wizard_response(wizard, form_list=[key_form_1, page_one, page_two], request=self.request)
+        response = self.enter_edit_key(record=record_to_edit)
+        response = self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question1.pk: 'test answer',
+                  'form_wizard' + str(record_to_edit.pk) + '-current_step': 1},
+            follow=True)
+        response = self.client.post(
+            response.redirect_chain[0][0],
+            data={'2-question_%i' % self.question2.pk: 'edited answer to second question',
+                  'form_wizard' + str(record_to_edit.pk) + '-current_step': 2},
+            follow=True)
+        return response
 
     @override_settings(DEBUG=True)
     def test_record_cannot_be_edited_by_non_owning_user(self):
@@ -315,6 +343,7 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertEqual(Report.objects.count(), 1)
         self.assertEqual(sort_json(Report.objects.get(id=self.report.pk).decrypted_report(self.report_key)),
                          sort_json(json_report))
+        self.assertIsNotNone(Report.objects.get(id=self.report.pk).last_edited)
 
     def test_cant_edit_with_bad_key(self):
         self.maxDiff = None
@@ -356,7 +385,7 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertEqual(EvalRow.objects.count(), 3)
         self.assertEqual(Report.objects.count(), 1)
 
-    def test_edit_saves_original_record_if_no_data_exists(self):
+    def test_edit_saves_original_record_if_no_eval_data_exists(self):
         old_report = Report(owner=self.request.user)
         old_report.encrypt_report(self.report_text, self.report_key)
         old_report.save()
@@ -371,6 +400,19 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().record_identifier,
                          EvalRow.objects.last().record_identifier)
         self.assertNotEqual(EvalRow.objects.filter(action=EvalRow.FIRST).first().row, EvalRow.objects.last().row)
+
+    def edit_resets_autosave(self):
+        self.report.autosaved = True
+        self.report.save()
+
+        response = self.edit_record()
+        self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question1.pk: 'test answer',
+                  'form_wizard-current_step': 1,
+                  'wizard_goto_step': 2},
+            follow=True)
+        self.assertFalse(Report.objects.get(id=self.report.pk).autosaved)
 
 
 class SubmitReportIntegrationTest(ExistingRecordTest):

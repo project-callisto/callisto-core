@@ -71,9 +71,9 @@ class ReportModelTest(TestCase):
 
     def test_edit_sets_edited_time(self):
         report = Report(owner=self.user)
-        report.encrypt_report("test report", "key")
+        report.encrypt_report("test report", "key", edit=False)
         report.save()
-        report.encrypt_report("a different report", "key")
+        report.encrypt_report("a different report", "key", edit=True)
         report.save()
         self.assertIsNotNone(Report.objects.first().last_edited)
 

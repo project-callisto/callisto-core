@@ -21,7 +21,7 @@ class MatchReportMigrationTest(MigrationTest):
 
     app_name = 'delivery'
     before = '0003_allow_deletion_of_identifier'
-    after = '0005_delete_encrypted_fields_from_match_report'
+    after = '0006_report_autosaved'
 
     def test_fields_are_encrypted(self):
 

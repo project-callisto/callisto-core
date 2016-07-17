@@ -99,6 +99,7 @@ class Report(models.Model):
     encrypted = models.BinaryField(blank=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     added = models.DateTimeField(auto_now_add=True)
+    autosaved = models.BooleanField(null=False, default=False)
     last_edited = models.DateTimeField(blank=True, null=True)
     salt = models.CharField(blank=False, max_length=256)
 
@@ -122,18 +123,22 @@ class Report(models.Model):
     class Meta:
         ordering = ('-added',)
 
-    def encrypt_report(self, report_text, key):
+    def encrypt_report(self, report_text, key, edit=False, autosave=False):
         """Encrypts and attaches report text. Generates a random salt and stores it on the Report object.
 
         Args:
           report_text (str): the full text of the report
           key (str): the secret key
+          edit (obj): the object to edit
+          autosave (bool): whether or not this encryption is part of an automatic save
 
         """
         if not self.salt:
             self.salt = get_random_string()
         else:
-            self.last_edited = timezone.now()
+            self.autosaved = autosave
+            if edit:
+                self.last_edited = timezone.now()
         self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
 
     def decrypted_report(self, key):

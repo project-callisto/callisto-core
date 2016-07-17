@@ -73,7 +73,7 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         key = list(form_list)[0].cleaned_data['key']
 
         report_text = json.dumps(self.processed_answers, sort_keys=True)
-        report.encrypt_report(report_text, key)
+        report.encrypt_report(report_text, key, self.object_to_edit)
         report.save()
 
         # save anonymised answers
@@ -115,10 +115,20 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             report_text = json.dumps(self.process_answers(forms_so_far.values(), form_dict=forms_so_far),
                                      sort_keys=True)
             key = forms_so_far['0'].cleaned_data['key']
-            report.encrypt_report(report_text, key)
+            report.encrypt_report(report_text, key, edit=self.object_to_edit, autosave=True)
             report.save()
             self.storage.extra_data['report_id'] = report.id
 
     def render(self, form=None, **kwargs):
         self.auto_save()
         return super(EncryptedFormBaseWizard, self).render(form, **kwargs)
+
+    def get(self, *args, **kwargs):
+        """
+        Restart the wizard (including associated autosaved record) when the first page is requested
+        """
+        step_url = kwargs.get('step', None)
+        if step_url is None or step_url == '0':
+            self.storage.reset()
+            self.storage.current_step = self.steps.first
+        return super(EncryptedFormBaseWizard, self).get(*args, **kwargs)
