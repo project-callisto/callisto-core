@@ -108,8 +108,12 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         return forms_so_far
 
     def auto_save(self, **kwargs):
-        '''Automatically save what's been entered so far before rendering the next step'''
-        if not self.object_to_edit and int(self.steps.current) > 0:
+        """
+        Automatically save what's been entered so far before rendering the next step.
+        We only do this on steps after the first non-key form because we can only save completed steps
+        https://github.com/SexualHealthInnovations/callisto-core/issues/89
+        """
+        if not self.object_to_edit and int(self.steps.current) > 1:
             if self.storage.extra_data.get('report_id'):
                 report = Report.objects.get(id=self.storage.extra_data.get('report_id'))
             else:

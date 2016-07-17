@@ -135,10 +135,9 @@ class Report(models.Model):
         """
         if not self.salt:
             self.salt = get_random_string()
-        else:
-            self.autosaved = autosave
-            if edit:
-                self.last_edited = timezone.now()
+        elif edit:
+            self.last_edited = timezone.now()
+        self.autosaved = autosave
         self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
 
     def decrypted_report(self, key):
