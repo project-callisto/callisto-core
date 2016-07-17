@@ -124,7 +124,3 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
     def render(self, form=None, **kwargs):
         self.auto_save()
         return super(EncryptedFormBaseWizard, self).render(form, **kwargs)
-
-    def render_next_step(self, form, **kwargs):
-        self.auto_save()
-        return super(EncryptedFormBaseWizard, self).render_next_step(form)
