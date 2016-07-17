@@ -2,7 +2,6 @@ import json
 from io import BytesIO
 
 import PyPDF2
-from mock import Mock, patch
 from wizard_builder.forms import QuestionPageForm
 from wizard_builder.models import (
     Choice, QuestionPage, RadioButton, SingleLineText,
@@ -81,7 +80,6 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
             self.record_form_url,
             data={'0-key': self.report_key,
                   '0-key2': self.report_key,
-                  'wizard_goto_step': 1,
                   'form_wizard-current_step': 0},
             follow=True
         )
@@ -112,8 +110,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         self.assertEqual(len(wizard.form_list), 3)
         self.assertEqual(wizard.form_list[0], NewSecretKeyForm)
 
-    @patch('callisto.delivery.wizard.Report')
-    def test_done_serializes_questions(self, mockReport):
+    def test_done_serializes_questions(self):
         self.maxDiff = None
 
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
@@ -153,22 +150,10 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
     }
   ]""" % tuple(object_ids)
 
-        mock_report = Report()
-        mock_report.save = Mock()
-        mock_report.owner = self.request.user
-        mockReport.return_value = mock_report
-
-        def check_json():
-            self.assertEqual(sort_json(mock_report.decrypted_report(self.report_key)),
-                             sort_json(json_report))
-
-        mock_report.save.side_effect = check_json
-
         response = self.create_key()
         response = self.client.post(
             response.redirect_chain[0][0],
             data={'1-question_%i' % self.question1.pk: 'test answer',
-                  'wizard_goto_step': 2,
                   'form_wizard-current_step': 1},
             follow=True)
         self.client.post(
@@ -178,14 +163,15 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
                   'form_wizard-current_step': 2},
             follow=True)
 
-        mock_report.save.assert_any_call()
+        self.assertTrue(Report.objects.count(), 1)
+        self.assertEqual(sort_json(Report.objects.first().decrypted_report(self.report_key)),
+                         sort_json(json_report))
 
     def test_back_button_works(self):
         response = self.create_key()
         response = self.client.post(
             response.redirect_chain[0][0],
             data={'1-question_%i' % self.question1.pk: 'test answer',
-                  'wizard_goto_step': 2,
                   'form_wizard-current_step': 1},
             follow=True)
         response = self.client.post(
@@ -195,6 +181,18 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
                   'wizard_goto_step': 1},
             follow=True)
         self.assertContains(response, 'value="test answer"')
+
+    def test_auto_save(self):
+        response = self.create_key()
+        self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question1.pk: 'test answer',
+                  'form_wizard-current_step': 1,
+                  'wizard_goto_step': 2},
+            follow=True)
+        self.client.get("www.google.com")
+        self.assertEqual(Report.objects.count(), 1)
+        self.assertIn("test answer", Report.objects.first().decrypted_report(self.report_key))
 
 
 class ExistingRecordTest(RecordFormBaseTest):
@@ -239,7 +237,6 @@ class EditRecordFormTest(ExistingRecordTest):
         return self.client.post(
             (self.record_form_url % self.report.pk),
             data={'0-key': self.report_key,
-                  'wizard_goto_step': 1,
                   'form_wizard' + str(self.report.id) + '-current_step': 0},
             follow=True
         )
