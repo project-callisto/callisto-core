@@ -599,3 +599,15 @@ class EvalActionTest(MatchTest):
         self.assertNotIn('submit_error', response.context)
         mock_anonymise_record.assert_called_with(action=EvalRow.SUBMIT, report=self.report, decrypted_text=None,
                                                  match_identifier=None)
+
+    @patch('callisto.delivery.views.EvalRow.anonymise_record')
+    @patch('callisto.delivery.views.Report.delete')
+    def test_delete_creates_eval_row(self, mock_delete, mock_anonymise_record):
+        response = self.client.post(
+            '/test_reports/delete/%s/' % self.report.id,
+            data={'key': self.key},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        mock_anonymise_record.assert_called_with(action=EvalRow.DELETE, report=self.report, decrypted_text=None,
+                                                 match_identifier=None)
