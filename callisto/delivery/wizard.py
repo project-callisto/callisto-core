@@ -94,24 +94,28 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         else:
             return ['record_form.html']
 
+    def _get_forms_with_data(self):
+        form_list = self.get_form_list()
+        forms_so_far = {}
+        for form_key in form_list:
+            form_obj = self.get_form(
+                step=form_key,
+                data=self.storage.get_step_data(form_key),
+                files=self.storage.get_step_files(form_key)
+            )
+            form_obj.is_valid()
+            forms_so_far[form_key] = form_obj
+        return forms_so_far
+
     def auto_save(self, **kwargs):
         '''Automatically save what's been entered so far before rendering the next step'''
         if not self.object_to_edit and int(self.steps.current) > 0:
-            form_list = self.get_form_list()
-            forms_so_far = {}
-            for form_key in form_list:
-                form_obj = self.get_form(
-                    step=form_key,
-                    data=self.storage.get_step_data(form_key),
-                    files=self.storage.get_step_files(form_key)
-                )
-                form_obj.is_valid()
-                forms_so_far[form_key] = form_obj
             if self.storage.extra_data.get('report_id'):
                 report = Report.objects.get(id=self.storage.extra_data.get('report_id'))
             else:
                 req = kwargs.get('request') or self.request
                 report = Report(owner=req.user)
+            forms_so_far = self._get_forms_with_data()
             report_text = json.dumps(self.process_answers(forms_so_far.values(), form_dict=forms_so_far),
                                      sort_keys=True)
             key = forms_so_far['0'].cleaned_data['key']
