@@ -5,7 +5,7 @@ from wizard_builder.forms import get_form_pages
 from wizard_builder.views import ConfigurableFormWizard
 
 from django.conf import settings
-from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseForbidden, HttpResponseServerError
 
 from callisto.evaluation.models import EvalRow
 
@@ -53,21 +53,27 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         raise NotImplementedError("Your %s class has not defined a wizard_complete() "
                                   "method, which is required." % self.__class__.__name__)
 
+    def _unauthorized_access(self, req, report):
+        logger.error("user {} and report {} don't match in wizard.done".format(req.user, report.id))
+        return HttpResponseForbidden() if settings.DEBUG else HttpResponseServerError()
+
     def done(self, form_list, **kwargs):
         req = kwargs.get('request') or self.request
-        report = Report(owner=req.user)
+
         if self.object_to_edit:
-            if self.object_to_edit.owner == req.user:
-                report = self.object_to_edit
-            else:
-                logger.error("user {} and report {} don't match in wizard.done".format(req.user,
-                                                                                       self.object_to_edit.id))
-                return HttpResponseForbidden() if settings.DEBUG else HttpResponseNotFound()
+            report = self.object_to_edit
+        elif self.storage.extra_data.get('report_id'):
+            report = Report.objects.get(id=self.storage.extra_data.get('report_id'))
+        else:
+            report = Report(owner=req.user)
+
+        if not report.owner == req.user:
+            self._unauthorized_access(req, report)
 
         key = list(form_list)[0].cleaned_data['key']
 
         report_text = json.dumps(self.processed_answers, sort_keys=True)
-        report.encrypt_report(report_text, key)
+        report.encrypt_report(report_text, key, self.object_to_edit)
         report.save()
 
         # save anonymised answers
@@ -87,3 +93,46 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
                 return ['create_key.html']
         else:
             return ['record_form.html']
+
+    def _get_forms_with_data(self):
+        form_list = self.get_form_list()
+        forms_so_far = {}
+        for form_key in form_list:
+            form_obj = self.get_form(
+                step=form_key,
+                data=self.storage.get_step_data(form_key),
+                files=self.storage.get_step_files(form_key)
+            )
+            form_obj.is_valid()
+            forms_so_far[form_key] = form_obj
+        return forms_so_far
+
+    def auto_save(self, **kwargs):
+        '''Automatically save what's been entered so far before rendering the next step'''
+        if not self.object_to_edit and int(self.steps.current) > 0:
+            if self.storage.extra_data.get('report_id'):
+                report = Report.objects.get(id=self.storage.extra_data.get('report_id'))
+            else:
+                req = kwargs.get('request') or self.request
+                report = Report(owner=req.user)
+            forms_so_far = self._get_forms_with_data()
+            report_text = json.dumps(self.process_answers(forms_so_far.values(), form_dict=forms_so_far),
+                                     sort_keys=True)
+            key = forms_so_far['0'].cleaned_data['key']
+            report.encrypt_report(report_text, key, edit=self.object_to_edit, autosave=True)
+            report.save()
+            self.storage.extra_data['report_id'] = report.id
+
+    def render(self, form=None, **kwargs):
+        self.auto_save()
+        return super(EncryptedFormBaseWizard, self).render(form, **kwargs)
+
+    def get(self, *args, **kwargs):
+        """
+        Restart the wizard (including associated autosaved record) when the first page is requested
+        """
+        step_url = kwargs.get('step', None)
+        if step_url is None or step_url == '0':
+            self.storage.reset()
+            self.storage.current_step = self.steps.first
+        return super(EncryptedFormBaseWizard, self).get(*args, **kwargs)
