@@ -53,26 +53,24 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         raise NotImplementedError("Your %s class has not defined a wizard_complete() "
                                   "method, which is required." % self.__class__.__name__)
 
+    def _unauthorized_access(self, req, report):
+        logger.error("user {} and report {} don't match in wizard.done".format(req.user, report.id))
+        return HttpResponseForbidden() if settings.DEBUG else HttpResponseServerError()
+
     def done(self, form_list, **kwargs):
         req = kwargs.get('request') or self.request
 
         if self.object_to_edit:
-            if self.object_to_edit.owner == req.user:
-                report = self.object_to_edit
-            else:
-                logger.error("user {} and report {} don't match in wizard.done on edit".format(req.user,
-                                                                                               self.object_to_edit.id))
-                return HttpResponseForbidden() if settings.DEBUG else HttpResponseServerError()
+            report = self.object_to_edit
         elif self.storage.extra_data.get('report_id'):
             report = Report.objects.get(id=self.storage.extra_data.get('report_id'))
-            if not report.owner == req.user:
-                logger.error("user {} and report {} don't match in wizard.done on new".format(req.user,
-                                                                                              report.id))
-                return HttpResponseForbidden() if settings.DEBUG else HttpResponseServerError()
         else:
             report = Report(owner=req.user)
 
-        key = list(form_list)[0].cleaned_data['key']
+        if not report.owner == req.user:
+            self._unauthorized_access(req, report)
+
+        key = form_list['0'].cleaned_data['key']
 
         report_text = json.dumps(self.processed_answers, sort_keys=True)
         report.encrypt_report(report_text, key)
