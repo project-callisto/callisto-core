@@ -19,6 +19,7 @@ from wizard_builder.models import PageBase
 from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
+from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
 from .models import EmailNotification, SentFullReport, SentMatchReport
@@ -175,6 +176,9 @@ class PDFReport(object):
             self.pdf_elements.append(element)
 
     def format_answer(self, text, answer_type):
+        """
+        Expects text to be already escaped
+        """
         return ListItem(Paragraph(text, self.answers_style), value=answer_type, leftIndent=60)
 
     def format_answer_list(self, answers, keep_together=True):
@@ -196,7 +200,7 @@ class PDFReport(object):
 
         def build_list_item(index, text):
             markup_open, markup_close = ('<b>', '</b>') if (index in selected_answers) else ('', '')
-            return self.format_answer((markup_open + text + markup_close),
+            return self.format_answer((markup_open + conditional_escape(text) + markup_close),
                                       self.free_text if last_is_free_text and (index == len(answers) - 1)
                                       else self.selected if (index in selected_answers)
                                       else self.unselected)
@@ -207,7 +211,7 @@ class PDFReport(object):
         question_type = question.get('type')
         if question_type == 'RadioButton' or question_type == 'Checkbox':
             choices = []
-            answer_ids = question.get('answer')
+            answer_ids = conditional_escape(question.get('answer'))
             # RadioButton answers need to be stored as single int to keep edit working
             if answer_ids and question_type == 'RadioButton':
                 answer_ids = [answer_ids]
@@ -222,7 +226,7 @@ class PDFReport(object):
             self.add_multiple_choice(question.get('question_text'), choices, answers, last_is_free_text=bool(extra))
         elif question_type == 'SingleLineText' or question_type == 'Date' or question_type == 'MultiLineText':
             self.add_question(question.get('question_text'))
-            answer = question.get('answer').replace('\n', '<br />\n') or '<i>Not answered</i>'
+            answer = conditional_escape(question.get('answer')).replace('\n', '<br />\n') or '<i>Not answered</i>'
             self.add_answer_list([self.format_answer(answer, self.free_text)], keep_together=False)
         elif question_type == 'FormSet':
             forms = question.get('answers')
