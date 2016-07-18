@@ -216,7 +216,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
             data={'1-question_%i' % self.question1.pk: 'test answer',
                   'form_wizard-current_step': 1},
             follow=True)
-        response = self.client.post(
+        self.client.post(
             response.redirect_chain[0][0],
             data={'2-question_%i' % self.question2.pk: 'another answer to a different question',
                   'form_wizard-current_step': 2},

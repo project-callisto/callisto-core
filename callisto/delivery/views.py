@@ -242,7 +242,7 @@ def delete_report(request, report_id, form_template_name='delete_report.html',
         form = SecretKeyForm(request.POST)
         form.report = report
         if form.is_valid():
-            # EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)
+            EvalRow.store_eval_row(action=EvalRow.DELETE, report=report)
             try:
                 report.delete()
                 context.update({'report_deleted': True})

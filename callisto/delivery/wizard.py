@@ -126,6 +126,7 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
             report.encrypt_report(report_text, key, edit=self.object_to_edit, autosave=True)
             report.save()
             self.storage.extra_data['report_id'] = report.id
+            EvalRow.store_eval_row(action=EvalRow.AUTOSAVE, report=report, decrypted_text=report_text)
 
     def render(self, form=None, **kwargs):
         self.auto_save()
