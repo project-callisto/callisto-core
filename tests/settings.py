@@ -3,7 +3,7 @@ import os
 DEBUG = True
 
 USE_TZ = True
-TIME_ZONE = 'Europe/Paris'
+REPORT_TIME_ZONE = 'Europe/Paris'
 
 DATABASES = {
     "default": {

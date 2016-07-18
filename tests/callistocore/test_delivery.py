@@ -61,7 +61,6 @@ class ReportDeliveryTest(MatchTest):
         date_format = "%m/%d/%Y @%H:%M%p"
         timezone.activate(pytz.timezone(test_tzname))
         expected_time = localtime(timezone.now()).strftime(date_format)
-        print(pdfReader.getPage(0).extractText())
         self.assertIn(expected_time, pdfReader.getPage(0).extractText())
 
     def test_submission_to_school(self):

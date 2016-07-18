@@ -24,7 +24,7 @@ from django.utils.timezone import localtime
 from .models import EmailNotification, SentFullReport, SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"
-tzname = settings.TIME_ZONE
+tzname = settings.REPORT_TIME_ZONE
 timezone.activate(pytz.timezone(tzname))
 logger = logging.getLogger(__name__)
 
