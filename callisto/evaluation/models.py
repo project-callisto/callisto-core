@@ -22,6 +22,7 @@ class EvalRow(models.Model):
     FIRST = "f"
     WITHDRAW = "w"
     DELETE = "d"
+    AUTOSAVE = "a"
 
     ACTIONS = (
         (CREATE, 'Create'),
@@ -32,6 +33,7 @@ class EvalRow(models.Model):
         (MATCH_FOUND, 'Match found'),
         (WITHDRAW, 'Withdraw'),
         (DELETE, 'Delete'),
+        (AUTOSAVE, 'Autosave'),
         (FIRST, 'First'),  # for records that were created before evaluation was implemented--saved on any decryption
     )
 

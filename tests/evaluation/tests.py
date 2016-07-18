@@ -545,6 +545,11 @@ class EvalActionTest(MatchTest):
     def setUp(self):
         super(EvalActionTest, self).setUp()
 
+        self.page1 = QuestionPage.objects.create()
+        self.page2 = QuestionPage.objects.create()
+        self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
+        self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
+
         self.client.login(username='dummy', password='dummy')
         self.request = HttpRequest()
         self.request.GET = {}
@@ -611,3 +616,25 @@ class EvalActionTest(MatchTest):
         self.assertNotIn('submit_error', response.context)
         mock_anonymise_record.assert_called_with(action=EvalRow.DELETE, report=self.report, decrypted_text=None,
                                                  match_identifier=None)
+
+    @patch('callisto.delivery.views.EvalRow.anonymise_record')
+    def test_autosave_creates_eval_row(self, mock_anonymise_record):
+        response = self.client.post(
+            '/test_reports/new/0/',
+            data={'0-key': self.key,
+                  '0-key2': self.key,
+                  'form_wizard-current_step': 0},
+            follow=True
+        )
+        self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question1.pk: 'test answer',
+                  'form_wizard-current_step': 1,
+                  'wizard_goto_step': 2},
+            follow=True)
+        self.client.get("www.google.com")
+        decrypted_text = '[{"answer": "test answer", "id": 1, "question_text": "first question", "section": 1, ' \
+                         '"type": "SingleLineText"}, {"answer": "", "id": 2, "question_text": "2nd question", ' \
+                         '"section": 1, "type": "SingleLineText"}]'
+        mock_anonymise_record.assert_called_with(action=EvalRow.AUTOSAVE, report=Report.objects.first(),
+                                                 decrypted_text=decrypted_text, match_identifier=None)
