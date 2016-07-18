@@ -200,7 +200,7 @@ class PDFReport(object):
 
         def build_list_item(index, text):
             markup_open, markup_close = ('<b>', '</b>') if (index in selected_answers) else ('', '')
-            return self.format_answer((markup_open + conditional_escape(text) + markup_close),
+            return self.format_answer((markup_open + text + markup_close),
                                       self.free_text if last_is_free_text and (index == len(answers) - 1)
                                       else self.selected if (index in selected_answers)
                                       else self.unselected)
@@ -222,7 +222,8 @@ class PDFReport(object):
                     answers.append(idx)
             extra = question.get('extra')
             if extra:
-                choices.append("<i>{0}</i>: {1}".format(extra.get('extra_text'), extra.get('answer')))
+                choices.append("<i>{0}</i>: {1}".format(extra.get('extra_text'),
+                                                        conditional_escape(extra.get('answer'))))
             self.add_multiple_choice(question.get('question_text'), choices, answers, last_is_free_text=bool(extra))
         elif question_type == 'SingleLineText' or question_type == 'Date' or question_type == 'MultiLineText':
             self.add_question(question.get('question_text'))
