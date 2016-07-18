@@ -7,7 +7,6 @@ from formtools.wizard.views import NamedUrlSessionWizardView
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
-from django.utils.html import conditional_escape, mark_safe
 
 from .forms import QuestionPageForm, get_form_pages
 from .models import Conditional, PageBase, QuestionPage, TextPage
@@ -124,7 +123,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 extra_prompt = self.items.get(extra_key)
                 extra_context = None
                 if extra_prompt:
-                    extra_context = {'answer': conditional_escape(cleaned_data.get(extra_key, '')),
+                    extra_context = {'answer': cleaned_data.get(extra_key, ''),
                                      'extra_text': extra_prompt}
 
                 output_location.append(question.serialize_for_report(answer, extra_context))
@@ -171,12 +170,12 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             answer = question.get('answer')
             question_id = question.get('id')
             if answer and question_id:
-                answers["question_%i" % question_id] = mark_safe(answer)  # answers are escaped before saving
+                answers["question_%i" % question_id] = answer
                 extra = question.get('extra')
                 if extra:
                     extra_answer = extra.get('answer')
                     if extra_answer:
-                        answers['question_%i_extra-%s' % (question_id, answer)] = mark_safe(extra_answer)
+                        answers['question_%i_extra-%s' % (question_id, answer)] = extra_answer
         return answers
 
     def _process_formset_answers_for_edit(self, json_questions, page_id):

@@ -5,7 +5,6 @@ from polymorphic.models import PolymorphicModel
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
 
@@ -112,7 +111,7 @@ class SingleLineText(FormQuestion):
                                                              'placeholder': self.example}),)
 
     def serialize_for_report(self, answer="", *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': conditional_escape(answer),
+        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
                 'type': 'SingleLineText', 'section': self.section}
 
 
@@ -130,7 +129,7 @@ class SingleLineTextWithMap(FormQuestion):
                                                              'placeholder': self.example}),)
 
     def serialize_for_report(self, answer="", *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': conditional_escape(answer),
+        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
                 'type': 'SingleLineText', 'section': self.section}
 
 
@@ -144,7 +143,7 @@ class MultiLineText(FormQuestion):
                                                             'max_length': 30000}),)
 
     def serialize_for_report(self, answer="", *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': conditional_escape(answer),
+        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
                 'type': 'MultiLineText', 'section': self.section}
 
 
@@ -237,7 +236,7 @@ class Date(FormQuestion):
                                                              'placeholder': self.example}),)
 
     def serialize_for_report(self, answer, *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': conditional_escape(answer),
+        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
                 'type': 'Date', 'section': self.section}
 
 
