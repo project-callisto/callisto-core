@@ -472,7 +472,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.subject, 'test delivery')
         self.assertIn('"Reports" <reports', message.from_email)
         self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
+        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
     def test_submit_sends_email_confirmation(self):
         response = self.client.post((self.submission_url % self.report.pk),
@@ -504,7 +504,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.subject, 'test delivery')
         self.assertIn('"Custom" <custom', message.from_email)
         self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\.pdf\.gpg')
+        self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\\.pdf\\.gpg')
 
 
 class SubmitMatchIntegrationTest(ExistingRecordTest):
@@ -672,7 +672,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertIn('"Reports" <reports@', message.from_email)
         self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
+        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
     @override_settings(MATCH_IMMEDIATELY=False)
     def test_match_sends_report_delayed(self):
@@ -735,7 +735,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertIn('"Reports" <reports@', message.from_email)
         self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\.pdf\.gpg')
+        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
     def test_match_sends_custom_report(self):
         self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
@@ -785,7 +785,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertIn('"Custom" <custom@', message.from_email)
         self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\.pdf\.gpg')
+        self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\\.pdf\\.gpg')
 
 
 class WithdrawMatchIntegrationTest(ExistingRecordTest):
