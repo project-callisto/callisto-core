@@ -58,7 +58,7 @@ def _decrypt_report(salt, key, encrypted):
 
 
 def _pepper(encrypted_report):
-    """Uses a secret value stored on the server to encrypt an already hashed report, to add protection if the database
+    """Uses a secret value stored on the server to encrypt an already encrypted report, to add protection if the database
     is breached but the server is not. Requires settings.PEPPER to be set to a 32 byte value. In production, this value
     should be set via environment parameter. Uses PyNacl's Salsa20 stream cipher.
 
