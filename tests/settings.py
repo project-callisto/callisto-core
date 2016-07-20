@@ -30,6 +30,7 @@ MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
 
 SCHOOL_REPORT_PREFIX = "000"
 
+# This low number is for testing purposes only, and is insufficient for production by several orders of magnitude
 KEY_ITERATIONS = 100
 
 
