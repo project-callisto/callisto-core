@@ -25,8 +25,7 @@ from django.utils.timezone import localtime
 from .models import EmailNotification, SentFullReport, SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"
-# TODO: customize https://github.com/SexualHealthInnovations/callisto-core/issues/20
-tzname = 'America/Los_Angeles'
+tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
 logger = logging.getLogger(__name__)
 
