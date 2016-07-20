@@ -34,6 +34,9 @@ logger = logging.getLogger(__name__)
 class MatchReportContent:
     """ Class to structure contact information collected from match submission form for report """
 
+    # This constructor is called with keyword arguments populated by
+    # encrypted data. Existing arguments should not be removed or renamed,
+    # and new arguments must have default values.
     def __init__(self, identifier, perp_name, email, phone, contact_name=None, voicemail=None, notes=None):
         self.identifier = identifier
         self.perp_name = perp_name
