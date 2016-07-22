@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class EvalRow(models.Model):
+    """Provides an auditing trail for various records"""
     EDIT = "e"
     CREATE = "c"
     SUBMIT = "s"
