@@ -85,7 +85,7 @@ class PBKDF2KeyHasher(BaseKeyHasher):
         if not iterations:
             iterations = self.iterations
         stretched_key = pbkdf2(key, salt, iterations, self.digest)
-        return "{0}${1}${2}${3}${4}".format(self.algorithm, iterations, salt, stretched_key)
+        return "{0}${1}${2}${3}".format(self.algorithm, iterations, salt, stretched_key)
 
     def verify(self, key, encoded):
         algorithm, iterations, salt, stretched_key = encoded.split('$', 3)
@@ -118,10 +118,10 @@ class Argon2KeyHasher(BaseKeyHasher):
             time_cost=self.time_cost,
             memory_cost=self.memory_cost,
             parallelism=self.parallelism,
-            hash_len=argon2.DEFAULT_HASH_LENGTH,
+            hash_len=32,
             type=argon2.low_level.Type.I,
         )
-        return self.algorithm + data.decode('utf-8')
+        return "{0}{1}".format(self.algorithm, str(data))
 
     def verify(self, key, encoded):
         algorithm, rest = encoded.split('$', 1)

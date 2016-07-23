@@ -11,6 +11,7 @@ from django.db import models
 from django.template import Context, Template
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from django.utils.encoding import force_bytes
 from django.utils.html import strip_tags
 
 from callisto.delivery.hashers import get_hasher, identify_hasher
@@ -130,8 +131,8 @@ class Report(models.Model):
         ordering = ('-added',)
 
     def encrypt_report(self, report_text, key, edit=False, autosave=False):
-        """Encrypts and attaches report text. Generates a random salt and stores it in the Report object's
-        encode prefix.
+        """Encrypts and attaches report text. Generates a random salt and stores it in the Report object's encode
+        prefix.
 
         Args:
           report_text (str): the full text of the report
@@ -151,10 +152,10 @@ class Report(models.Model):
             self.last_edited = timezone.now()
         self.autosaved = autosave
 
-        encoded = hasher.encode(key, salt=salt)
-        algorithm, iterations, salt, stretched_key = encoded.split('$')
-        self.encode_prefix = "{0}${1}${2}$".format(algorithm, iterations, salt)
-        self.encrypted = _encrypt_report(salt=salt, key=key, report_text=report_text)
+        encoded = hasher.encode(key, salt)
+        stretched_key = force_bytes(encoded.split('$')[-1])
+        self.encode_prefix = "$".join(encoded.split('$')[0:-1])
+        self.encrypted = _encrypt_report(salt=salt, stretched_key=stretched_key, report_text=report_text)
 
     def decrypted_report(self, key):
         """Decrypts the report text. Uses the salt stored on the Report object.
@@ -173,12 +174,11 @@ class Report(models.Model):
         if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
             iterations = self.encode_prefix.split('$')[1]
         elif not self.encode_prefix:
-            # this will only be used in the case of entries made before encode
-            # prefixes were used
+            # this will only be used in the case of entries made before encode prefixes were used
             iterations = ORIGINAL_KEY_ITERATIONS
             salt = self.salt
 
-        encoded = hasher.encode(key, salt=salt, iterations=iterations)
+        encoded = hasher.encode(key, salt, iterations=iterations)
         algorithm, iterations, salt, stretched_key = encoded.split('$')
 
         return _decrypt_report(salt=self.salt, key=stretched_key, encrypted=self.encrypted)
@@ -247,6 +247,7 @@ class MatchReport(models.Model):
 
     encrypted = models.BinaryField(null=False)
 
+    # DEPRECIATED: only kept to decrypt old entries before upgrade
     salt = models.CharField(blank=False, null=True, max_length=256)
 
     # <algorithm>$<iterations>$<salt>$
@@ -268,11 +269,11 @@ class MatchReport(models.Model):
         hasher = get_hasher()
         salt = get_random_string()
 
-        encoded = hasher.encode(key, salt=salt)
+        encoded = hasher.encode(key, salt)
         algorithm, iterations, salt, stretched_key = encoded.split('$')
         self.encode_prefix = "{0}${1}${2}$".format(algorithm, iterations, salt)
 
-        self.encrypted = _pepper(_encrypt_report(salt=salt, key=stretched_key, report_text=report_text))
+        self.encrypted = _pepper(_encrypt_report(salt=salt, stretched_key=stretched_key, report_text=report_text))
 
     def get_match(self, identifier):
         """Checks if the given identifier triggers a match on this report. Returns report text if so.
@@ -290,12 +291,11 @@ class MatchReport(models.Model):
         if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
             iterations = self.encode_prefix.split('$')[1]
         elif not self.encode_prefix:
-            # this will only be used in the case of entries made before encode
-            # prefixes were used
+            # this will only be used in the case of entries made before encode prefixes were used
             iterations = ORIGINAL_KEY_ITERATIONS
             salt = self.salt
 
-        encoded = hasher.encode(identifier, salt=salt, iterations=iterations)
+        encoded = hasher.encode(identifier, salt, iterations=iterations)
         algorithm, iterations, salt, stretched_identifier = encoded.split('$')
 
         try:
