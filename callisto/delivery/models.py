@@ -1,5 +1,3 @@
-import hashlib
-
 import nacl.secret
 import nacl.utils
 import six
@@ -12,36 +10,40 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.db import models
 from django.template import Context, Template
 from django.utils import timezone
-from django.utils.crypto import get_random_string, pbkdf2
+from django.utils.crypto import get_random_string
 from django.utils.html import strip_tags
 
+from callisto.delivery.hashers import get_hasher, identify_hasher
 
-def _encrypt_report(salt, key, report_text):
+# change this to the value previously used
+ORIGINAL_KEY_ITERATIONS = 100
+
+
+def _encrypt_report(salt, stretched_key, report_text):
     """Encrypts a report using the given secret key & salt. The secret key is stretched to 32 bytes using Django's
     PBKDF2+SHA256 implementation. The encryption uses PyNacl & Salsa20 stream cipher.
 
     Args:
       salt (str): cryptographic salt
-      key (str): secret key
+      stretched_key (str): secret key after being stretched
       report_text (str): full report as a string
 
     Returns:
       bytes: the encrypted bytes of the report
 
     """
-    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
     box = nacl.secret.SecretBox(stretched_key)
     message = report_text.encode('utf-8')
     nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
     return box.encrypt(message, nonce)
 
 
-def _decrypt_report(salt, key, encrypted):
+def _decrypt_report(salt, stretched_key, encrypted):
     """Decrypts an encrypted report.
 
     Args:
       salt (str): cryptographic salt
-      key (str): secret key
+      stretched_key (str): secret key after being stretched
       encrypted (bytes): full report encrypted
 
     Returns:
@@ -51,7 +53,6 @@ def _decrypt_report(salt, key, encrypted):
       CryptoError: If the key and salt fail to decrypt the record.
 
     """
-    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
     box = nacl.secret.SecretBox(stretched_key)
     decrypted = box.decrypt(bytes(encrypted))  # need to force to bytes bc BinaryField can return as memoryview
     return decrypted.decode('utf-8')
@@ -101,7 +102,12 @@ class Report(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     autosaved = models.BooleanField(null=False, default=False)
     last_edited = models.DateTimeField(blank=True, null=True)
-    salt = models.CharField(blank=False, max_length=256)
+
+    # DEPRECIATED: only kept to decrypt old entries before upgrade
+    salt = models.CharField(blank=False, null=True, max_length=256)
+
+    # <algorithm>$<iterations>$<salt>$
+    encode_prefix = models.CharField(blank=False, null=True, max_length=500)
 
     submitted_to_school = models.DateTimeField(blank=True, null=True)
     contact_phone = models.CharField(blank=True, null=True, max_length=256)
@@ -124,7 +130,8 @@ class Report(models.Model):
         ordering = ('-added',)
 
     def encrypt_report(self, report_text, key, edit=False, autosave=False):
-        """Encrypts and attaches report text. Generates a random salt and stores it on the Report object.
+        """Encrypts and attaches report text. Generates a random salt and stores it in the Report object's
+        encode prefix.
 
         Args:
           report_text (str): the full text of the report
@@ -133,12 +140,21 @@ class Report(models.Model):
           autosave (bool): whether or not this encryption is part of an automatic save
 
         """
-        if not self.salt:
-            self.salt = get_random_string()
-        elif edit:
+        # start removing salt fields when updating old entries
+        if self.salt:
+            self.salt = None
+
+        hasher = get_hasher()
+        salt = get_random_string()
+
+        if edit:
             self.last_edited = timezone.now()
         self.autosaved = autosave
-        self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
+
+        encoded = hasher.encode(key, salt=salt)
+        algorithm, iterations, salt, stretched_key = encoded.split('$')
+        self.encode_prefix = "{0}${1}${2}$".format(algorithm, iterations, salt)
+        self.encrypted = _encrypt_report(salt=salt, key=key, report_text=report_text)
 
     def decrypted_report(self, key):
         """Decrypts the report text. Uses the salt stored on the Report object.
@@ -151,7 +167,21 @@ class Report(models.Model):
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
-        return _decrypt_report(salt=self.salt, key=key, encrypted=self.encrypted)
+        iterations = None
+        hasher = identify_hasher(self.encode_prefix)
+
+        if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
+            iterations = self.encode_prefix.split('$')[1]
+        elif not self.encode_prefix:
+            # this will only be used in the case of entries made before encode
+            # prefixes were used
+            iterations = ORIGINAL_KEY_ITERATIONS
+            salt = self.salt
+
+        encoded = hasher.encode(key, salt=salt, iterations=iterations)
+        algorithm, iterations, salt, stretched_key = encoded.split('$')
+
+        return _decrypt_report(salt=self.salt, key=stretched_key, encrypted=self.encrypted)
 
     def withdraw_from_matching(self):
         """ Deletes all associated MatchReports """
@@ -216,7 +246,11 @@ class MatchReport(models.Model):
     seen = models.BooleanField(blank=False, default=False)
 
     encrypted = models.BinaryField(null=False)
-    salt = models.CharField(null=False, max_length=256)
+
+    salt = models.CharField(blank=False, null=True, max_length=256)
+
+    # <algorithm>$<iterations>$<salt>$
+    encode_prefix = models.CharField(blank=False, null=True, max_length=500)
 
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
@@ -229,8 +263,16 @@ class MatchReport(models.Model):
           key (str): the secret key
 
         """
-        self.salt = get_random_string()
-        self.encrypted = _pepper(_encrypt_report(salt=self.salt, key=key, report_text=report_text))
+        if self.salt:
+            self.salt = None
+        hasher = get_hasher()
+        salt = get_random_string()
+
+        encoded = hasher.encode(key, salt=salt)
+        algorithm, iterations, salt, stretched_key = encoded.split('$')
+        self.encode_prefix = "{0}${1}${2}$".format(algorithm, iterations, salt)
+
+        self.encrypted = _pepper(_encrypt_report(salt=salt, key=stretched_key, report_text=report_text))
 
     def get_match(self, identifier):
         """Checks if the given identifier triggers a match on this report. Returns report text if so.
@@ -242,8 +284,23 @@ class MatchReport(models.Model):
             str or None: returns the decrypted report as a string if the identifier matches, or None otherwise.
         """
         decrypted_report = None
+        iterations = None
+        hasher = identify_hasher(self.encode_prefix)
+
+        if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
+            iterations = self.encode_prefix.split('$')[1]
+        elif not self.encode_prefix:
+            # this will only be used in the case of entries made before encode
+            # prefixes were used
+            iterations = ORIGINAL_KEY_ITERATIONS
+            salt = self.salt
+
+        encoded = hasher.encode(identifier, salt=salt, iterations=iterations)
+        algorithm, iterations, salt, stretched_identifier = encoded.split('$')
+
         try:
-            decrypted_report = _decrypt_report(salt=self.salt, key=identifier, encrypted=_unpepper(self.encrypted))
+            decrypted_report = _decrypt_report(salt=salt, key=stretched_identifier,
+                                               encrypted=_unpepper(self.encrypted))
         except CryptoError:
             pass
         return decrypted_report
