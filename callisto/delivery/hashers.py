@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import warnings
 
@@ -84,7 +85,8 @@ class PBKDF2KeyHasher(BaseKeyHasher):
         assert salt and '$' not in salt
         if not iterations:
             iterations = self.iterations
-        stretched_key = pbkdf2(key, salt, iterations, self.digest)
+        iterations = int(iterations)
+        stretched_key = pbkdf2(key, salt, iterations, digest=self.digest)
         return "{0}${1}${2}${3}".format(self.algorithm, iterations, salt, stretched_key)
 
     def verify(self, key, encoded):
@@ -103,6 +105,15 @@ class PBKDF2KeyHasher(BaseKeyHasher):
         if extra_iterations > 0:
             self.encode(key, salt, extra_iterations)
 
+    def split_encoded(self, encoded):
+        """
+        Splits the encoded string into a separate prefix and stretched key.
+
+        Returns a prefix and a stretched key.
+        """
+        prefix, stretched_key = encoded.rsplit('$', 1)
+        return prefix, stretched_key
+
 
 class Argon2KeyHasher(BaseKeyHasher):
     algorithm = 'argon2'
@@ -111,7 +122,10 @@ class Argon2KeyHasher(BaseKeyHasher):
     memory_cost = settings.ARGON2_MEM_COST
     parallelism = settings.ARGON2_PARALLELISM
 
+    # accept **kwargs to allow a single encode statement across different hashers
     def encode(self, key, salt, **kwargs):
+        assert key is not None
+        assert salt and '$' not in salt
         data = argon2.low_level.hash_secret(
             force_bytes(key),
             force_bytes(salt),
@@ -145,6 +159,29 @@ class Argon2KeyHasher(BaseKeyHasher):
             self.memory_cost != memory_cost or
             self.parallelism != parallelism
         )
+
+    def split_encoded(self, encoded):
+        """
+        Splits the encoded string into a separate prefix and stretched key.
+        Also decodes the salt and key from base64 encoding automatically done by argon2.low_level.secret_hash().
+
+        Returns a prefix and a stretched key.
+        """
+        prefix_minus_salt, b64salt, b64stretched = encoded.rsplit('$', 2)
+        missing_padding_salt = 4 - len(b64salt) % 4
+        missing_padding_hash = 4 - len(b64stretched) % 4
+
+        # argon2's secret_hash() output doesn't include padding so to decode it we have to add it back in
+        if missing_padding_hash:
+            b64stretched += '=' * missing_padding_hash
+        if missing_padding_salt:
+            b64salt += '=' * missing_padding_salt
+
+        stretched_key = base64.b64decode(b64stretched)
+
+        salt = base64.b64decode(b64salt).decode('utf-8').rstrip('=')
+        prefix = "$".join((prefix_minus_salt, salt))
+        return prefix, stretched_key
 
     def _decode(self, encoded):
         """
