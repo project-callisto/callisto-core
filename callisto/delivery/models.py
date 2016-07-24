@@ -1,3 +1,5 @@
+import base64
+
 import nacl.secret
 import nacl.utils
 import six
@@ -11,7 +13,7 @@ from django.db import models
 from django.template import Context, Template
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from django.utils.encoding import force_bytes
+# from django.utils.encoding import force_bytes
 from django.utils.html import strip_tags
 
 from callisto.delivery.hashers import get_hasher, identify_hasher
@@ -153,7 +155,14 @@ class Report(models.Model):
         self.autosaved = autosave
 
         encoded = hasher.encode(key, salt)
-        stretched_key = force_bytes(encoded.split('$')[-1])
+        stretched_key = encoded.split('$')[-1]
+
+        # in order for nacl.SecretBox to be used, key must be 32-bytes and argon2's hash length corresponds to
+        # raw bytes; when encoded using argon2.low_level.hash_secret() it returns the hash in base64 which increases
+        # the byte length
+        if hasher.algorithm == "argon2":
+            stretched_key = base64.b64decode(stretched_key + '=')
+
         self.encode_prefix = "$".join(encoded.split('$')[0:-1])
         self.encrypted = _encrypt_report(salt=salt, stretched_key=stretched_key, report_text=report_text)
 
@@ -171,17 +180,26 @@ class Report(models.Model):
         iterations = None
         hasher = identify_hasher(self.encode_prefix)
 
-        if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
-            iterations = self.encode_prefix.split('$')[1]
-        elif not self.encode_prefix:
+        if not self.encode_prefix:
             # this will only be used in the case of entries made before encode prefixes were used
             iterations = ORIGINAL_KEY_ITERATIONS
             salt = self.salt
+        else:
+            salt = self.encode_prefix.split('$')[-2]
+
+        if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
+            iterations = self.encode_prefix.split('$')[1]
 
         encoded = hasher.encode(key, salt, iterations=iterations)
-        algorithm, iterations, salt, stretched_key = encoded.split('$')
+        salt, stretched_key = encoded.split('$')[-2:]
 
-        return _decrypt_report(salt=self.salt, key=stretched_key, encrypted=self.encrypted)
+        # in order for nacl.SecretBox to be used, key must be 32-bytes and argon2's hash length corresponds to
+        # raw bytes; when encoded using argon2.low_level.hash_secret() it returns the hash in base64 which increases
+        # the byte length
+        if hasher.algorithm == "argon2":
+            stretched_key = base64.b64decode(stretched_key + '=')
+
+        return _decrypt_report(salt=self.salt, stretched_key=stretched_key, encrypted=self.encrypted)
 
     def withdraw_from_matching(self):
         """ Deletes all associated MatchReports """
@@ -270,8 +288,15 @@ class MatchReport(models.Model):
         salt = get_random_string()
 
         encoded = hasher.encode(key, salt)
-        algorithm, iterations, salt, stretched_key = encoded.split('$')
-        self.encode_prefix = "{0}${1}${2}$".format(algorithm, iterations, salt)
+
+        stretched_key = encoded.split('$')[-1]
+        self.encode_prefix = "$".join(encoded.split('$')[0:-1])
+
+        # in order for nacl.SecretBox to be used, key must be 32-bytes and argon2's hash length corresponds to
+        # raw bytes; when encoded using argon2.low_level.hash_secret() it returns the hash in base64 which increases
+        # the byte length
+        if hasher.algorithm == "argon2":
+            stretched_key = base64.b64decode(stretched_key + '=')
 
         self.encrypted = _pepper(_encrypt_report(salt=salt, stretched_key=stretched_key, report_text=report_text))
 
@@ -288,18 +313,30 @@ class MatchReport(models.Model):
         iterations = None
         hasher = identify_hasher(self.encode_prefix)
 
-        if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
-            iterations = self.encode_prefix.split('$')[1]
-        elif not self.encode_prefix:
+        if not self.encode_prefix:
             # this will only be used in the case of entries made before encode prefixes were used
             iterations = ORIGINAL_KEY_ITERATIONS
             salt = self.salt
+            hasher = get_hasher(algorithm="pbkdf2_sha256")
+        else:
+            salt = self.encode_prefix.split('$')[-2]
+            hasher = identify_hasher(self.encode_prefix)
+
+        # if pbkdf2 is used and the number of iterations changes
+        if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
+            iterations = self.encode_prefix.split('$')[1]
 
         encoded = hasher.encode(identifier, salt, iterations=iterations)
-        algorithm, iterations, salt, stretched_identifier = encoded.split('$')
+        salt, stretched_identifier = encoded.split('$')[-2:]
+
+        # in order for nacl.SecretBox to be used, key must be 32-bytes and argon2's hash length corresponds to
+        # raw bytes; when encoded using argon2.low_level.hash_secret() it returns the hash in base64 which increases
+        # the byte length
+        if hasher.algorithm == "argon2":
+            stretched_identifier = base64.b64decode(stretched_identifier + '=')
 
         try:
-            decrypted_report = _decrypt_report(salt=salt, key=stretched_identifier,
+            decrypted_report = _decrypt_report(salt=salt, stretched_key=stretched_identifier,
                                                encrypted=_unpepper(self.encrypted))
         except CryptoError:
             pass

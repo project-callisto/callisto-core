@@ -111,7 +111,7 @@ class Argon2KeyHasher(BaseKeyHasher):
     memory_cost = settings.ARGON2_MEM_COST
     parallelism = settings.ARGON2_PARALLELISM
 
-    def encode(self, key, salt):
+    def encode(self, key, salt, **kwargs):
         data = argon2.low_level.hash_secret(
             force_bytes(key),
             force_bytes(salt),
@@ -121,7 +121,7 @@ class Argon2KeyHasher(BaseKeyHasher):
             hash_len=32,
             type=argon2.low_level.Type.I,
         )
-        return "{0}{1}".format(self.algorithm, str(data))
+        return self.algorithm + data.decode('utf-8')
 
     def verify(self, key, encoded):
         algorithm, rest = encoded.split('$', 1)
