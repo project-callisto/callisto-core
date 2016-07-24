@@ -88,6 +88,17 @@ class PBKDF2KeyHasherTest(TestCase):
         self.assertTrue(correct)
         self.assertFalse(incorrect)
 
+    def test_split_encoded_returns_valid_prefix(self):
+        encoded = self.hasher.encode("Yet Another Test Key", "salt for humans", iterations=144)
+        prefix, stretched = self.hasher.split_encoded(encoded)
+        expected = "pbkdf2_sha256$144$salt for humans"
+        self.assertEqual(prefix, expected)
+
+    def test_stretched_key_is_32_bytes(self):
+        encoded = self.hasher.encode("Yet Another Test Key", "salt for humans", iterations=144)
+        prefix, stretched = self.hasher.split_encoded(encoded)
+        self.assertEqual(len(stretched), 32)
+
 
 class Argon2KeyHasherTest(TestCase):
 
@@ -120,3 +131,14 @@ class Argon2KeyHasherTest(TestCase):
         prefix, stretched = self.hasher.split_encoded(encoded)
         expected = "argon2$argon2i$v=19$m=512,t=2,p=2$also here is a salt"
         self.assertEqual(prefix, expected)
+
+    def test_split_encoded_returns_valid_prefix(self):
+        encoded = self.hasher.encode("Yet Another Test Key", "salt for humans")
+        prefix, stretched = self.hasher.split_encoded(encoded)
+        expected = "argon2$argon2i$v=19$m=512,t=2,p=2$salt for humans"
+        self.assertEqual(prefix, expected)
+
+    def test_stretched_key_is_32_bytes(self):
+        encoded = self.hasher.encode("Yet Another Test Key", "salt for humans")
+        prefix, stretched = self.hasher.split_encoded(encoded)
+        self.assertEqual(len(stretched), 32)

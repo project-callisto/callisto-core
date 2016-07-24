@@ -105,10 +105,11 @@ class Report(models.Model):
     last_edited = models.DateTimeField(blank=True, null=True)
 
     # DEPRECIATED: only kept to decrypt old entries before upgrade
-    salt = models.CharField(blank=False, null=True, max_length=256)
+    salt = models.CharField(blank=False, max_length=256)
 
+    # accept blank values for now, as old reports won't have them
     # <algorithm>$<iterations>$<salt>$
-    encode_prefix = models.CharField(blank=False, null=True, max_length=500)
+    encode_prefix = models.CharField(blank=False, max_length=500)
 
     submitted_to_school = models.DateTimeField(blank=True, null=True)
     contact_phone = models.CharField(blank=True, null=True, max_length=256)
@@ -171,14 +172,14 @@ class Report(models.Model):
         iterations = None
         hasher = identify_hasher(self.encode_prefix)
 
-        if not self.encode_prefix:
+        if self.encode_prefix == '':
             # this will only be used in the case of entries made before encode prefixes were used
             iterations = ORIGINAL_KEY_ITERATIONS
             salt = self.salt
         else:
             salt = self.encode_prefix.rsplit('$', 1)[1]
 
-        if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
+        if self.encode_prefix != '' and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
             iterations = self.encode_prefix.split('$')[1]
 
         encoded = hasher.encode(key, salt, iterations=iterations)
@@ -251,10 +252,10 @@ class MatchReport(models.Model):
     encrypted = models.BinaryField(null=False)
 
     # DEPRECIATED: only kept to decrypt old entries before upgrade
-    salt = models.CharField(blank=False, null=True, max_length=256)
+    salt = models.CharField(blank=False, max_length=256)
 
     # <algorithm>$<iterations>$<salt>$
-    encode_prefix = models.CharField(blank=False, null=True, max_length=500)
+    encode_prefix = models.CharField(blank=False, max_length=500)
 
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
@@ -290,7 +291,7 @@ class MatchReport(models.Model):
         iterations = None
         hasher = identify_hasher(self.encode_prefix)
 
-        if not self.encode_prefix:
+        if self.encode_prefix == '':
             # this will only be used in the case of entries made before encode prefixes were used
             iterations = ORIGINAL_KEY_ITERATIONS
             salt = self.salt
@@ -300,7 +301,7 @@ class MatchReport(models.Model):
             hasher = identify_hasher(self.encode_prefix)
 
         # if pbkdf2 is used and the number of iterations changes
-        if self.encode_prefix and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
+        if self.encode_prefix != '' and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
             iterations = self.encode_prefix.split('$')[1]
 
         encoded = hasher.encode(identifier, salt, iterations=iterations)

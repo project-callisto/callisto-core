@@ -87,6 +87,7 @@ class PBKDF2KeyHasher(BaseKeyHasher):
             iterations = self.iterations
         iterations = int(iterations)
         stretched_key = pbkdf2(key, salt, iterations, digest=self.digest)
+        stretched_key = base64.b64encode(stretched_key).decode('utf-8')
         return "{0}${1}${2}${3}".format(self.algorithm, iterations, salt, stretched_key)
 
     def verify(self, key, encoded):
@@ -111,8 +112,9 @@ class PBKDF2KeyHasher(BaseKeyHasher):
 
         Returns a prefix and a stretched key.
         """
-        prefix, stretched_key = encoded.rsplit('$', 1)
-        return prefix, stretched_key
+        prefix, b64stretched = encoded.rsplit('$', 1)
+        stretched_key = base64.b64decode(b64stretched)
+        return prefix, force_bytes(stretched_key)
 
 
 class Argon2KeyHasher(BaseKeyHasher):

@@ -6,6 +6,7 @@ from django.test import TestCase
 from callisto.delivery.models import (
     MatchReport, Report, SentFullReport, SentMatchReport,
 )
+from .models import LegacyMatchReportData, LegacyReportData
 
 User = get_user_model()
 
@@ -48,8 +49,8 @@ class ReportModelTest(TestCase):
         report.encrypt_report("this text should be encrypted", key='this is my key')
         report.save()
         saved_report = Report.objects.first()
-        self.assertIsNotNone(saved_report.salt)
-        self.assertNotEqual(saved_report.salt, '')
+        self.assertIsNotNone(saved_report.encode_prefix)
+        self.assertNotEqual(saved_report.encode_prefix, '')
         self.assertIsNotNone(saved_report.encrypted)
         self.assertTrue(len(saved_report.encrypted) > 0)
 
@@ -60,6 +61,15 @@ class ReportModelTest(TestCase):
         saved_report = Report.objects.first()
         self.assertEqual(saved_report.decrypted_report('this is my key'),
                          "this text should be encrypted, yes it should by golly!")
+
+    def test_can_decrypt_old_reports(self):
+        legacy_report = LegacyReportData()
+        legacy_report.encrypt_report("this text should be encrypted otherwise bad things", key='this is my key')
+        report = Report(owner=self.user, encrypted=legacy_report.encrypted, salt=legacy_report.salt)
+        report.save()
+        saved_report = Report.objects.first()
+        self.assertEqual(saved_report.decrypted_report('this is my key'),
+                         "this text should be encrypted otherwise bad things")
 
     def test_no_times_by_default(self):
         report = Report(owner=self.user)
@@ -113,14 +123,28 @@ class MatchReportTest(TestCase):
 
     def test_can_encrypt_match_report(self):
         saved_match_report = MatchReport.objects.first()
-        self.assertIsNotNone(saved_match_report.salt)
-        self.assertNotEqual(saved_match_report.salt, '')
+        self.assertIsNotNone(saved_match_report.encode_prefix)
+        self.assertNotEqual(saved_match_report.encode_prefix, '')
         self.assertIsNotNone(saved_match_report.encrypted)
         self.assertTrue(len(saved_match_report.encrypted) > 0)
 
     def test_can_decrypt_match_report(self):
         saved_match_report = MatchReport.objects.first()
         self.assertEqual(saved_match_report.get_match('dummy'), "test match report")
+
+    def test_can_decrypt_old_match_report(self):
+        legacy_match_report = LegacyMatchReportData()
+        legacy_match_report.encrypt_match_report("test legacy match report", "dumbo")
+
+        legacy_report = LegacyReportData()
+        legacy_report.encrypt_report("this text should be encrypted otherwise bad things", key='this is my key')
+        report = Report(owner=self.user, encrypted=legacy_report.encrypted, salt=legacy_report.salt)
+        report.save()
+
+        new_match_report = MatchReport(report=report, encrypted=legacy_match_report.encrypted,
+                                       salt=legacy_match_report.salt, identifier="dumbo")
+        new_match_report.save()
+        self.assertEqual(new_match_report.get_match("dumbo"), "test legacy match report")
 
 
 class SentReportTest(TestCase):
