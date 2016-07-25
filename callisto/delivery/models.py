@@ -21,8 +21,8 @@ ORIGINAL_KEY_ITERATIONS = 100
 
 
 def _encrypt_report(salt, stretched_key, report_text):
-    """Encrypts a report using the given secret key & salt. The secret key is stretched to 32 bytes using Django's
-    PBKDF2+SHA256 implementation. The encryption uses PyNacl & Salsa20 stream cipher.
+    """Encrypts a report using the given secret key & salt. Requires a stretched key with a length of 32 bytes.
+    The encryption uses PyNacl & Salsa20 stream cipher.
 
     Args:
       salt (str): cryptographic salt
@@ -159,7 +159,7 @@ class Report(models.Model):
         self.encrypted = _encrypt_report(salt=salt, stretched_key=stretched_key, report_text=report_text)
 
     def decrypted_report(self, key):
-        """Decrypts the report text. Uses the salt stored on the Report object.
+        """Decrypts the report text. Uses the salt from the encode prefix stored on the Report object.
         Args:
           key (str): the secret key
 
@@ -170,19 +170,27 @@ class Report(models.Model):
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
         iterations = None
+        harden_runtime = False
         hasher = identify_hasher(self.encode_prefix)
 
         if self.encode_prefix == '':
             # this will only be used in the case of entries made before encode prefixes were used
             iterations = ORIGINAL_KEY_ITERATIONS
             salt = self.salt
+            if hasher.iterations > iterations:
+                harden_runtime = True
         else:
             salt = self.encode_prefix.rsplit('$', 1)[1]
 
+        # if pbkdf2 is used and the number of iterations changes
         if self.encode_prefix != '' and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
             iterations = self.encode_prefix.split('$')[1]
+            harden_runtime = True
 
         encoded = hasher.encode(key, salt, iterations=iterations)
+        if harden_runtime:
+            hasher.harden_runtime(key, encoded)
+
         prefix, stretched_key = hasher.split_encoded(encoded)
 
         return _decrypt_report(salt=self.salt, stretched_key=stretched_key, encrypted=self.encrypted)
@@ -261,7 +269,8 @@ class MatchReport(models.Model):
         return "Match report for report {0}".format(self.report.pk)
 
     def encrypt_match_report(self, report_text, key):
-        """Encrypts and attaches report text. Generates a random salt and stores it on the MatchReport object.
+        """Encrypts and attaches report text. Generates a random salt and stores it in an encode prefix on the
+        MatchReport object.
 
         Args:
           report_text (str): the full text of the report
@@ -289,22 +298,27 @@ class MatchReport(models.Model):
         """
         decrypted_report = None
         iterations = None
+        harden_runtime = False
         hasher = identify_hasher(self.encode_prefix)
 
         if self.encode_prefix == '':
             # this will only be used in the case of entries made before encode prefixes were used
             iterations = ORIGINAL_KEY_ITERATIONS
             salt = self.salt
-            hasher = get_hasher(algorithm="pbkdf2_sha256")
+            if hasher.iterations > iterations:
+                harden_runtime = True
         else:
             salt = self.encode_prefix.rsplit('$', 1)[1]
-            hasher = identify_hasher(self.encode_prefix)
 
         # if pbkdf2 is used and the number of iterations changes
         if self.encode_prefix != '' and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
             iterations = self.encode_prefix.split('$')[1]
+            harden_runtime = True
 
         encoded = hasher.encode(identifier, salt, iterations=iterations)
+        if harden_runtime:
+            hasher.harden_runtime(identifier, encoded)
+
         prefix, stretched_identifier = hasher.split_encoded(encoded)
         salt = prefix.rsplit('$', 1)[1]
 

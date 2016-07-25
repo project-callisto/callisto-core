@@ -76,9 +76,14 @@ class BaseKeyHasher(object):
 
 
 class PBKDF2KeyHasher(BaseKeyHasher):
+    """
+    Key stretching using Django's PBKDF2 + SHA256 implementation.
+
+    Iterations may be changed safely in settings,
+    """
     algorithm = 'pbkdf2_sha256'
-    iterations = settings.KEY_ITERATIONS
     digest = hashlib.sha256
+    iterations = settings.KEY_ITERATIONS
 
     def encode(self, key, salt, iterations=None):
         assert key is not None
@@ -101,10 +106,13 @@ class PBKDF2KeyHasher(BaseKeyHasher):
         return int(iterations) != self.iterations
 
     def harden_runtime(self, key, encoded):
+        """
+        Attempts to bridge the runtime gap when encoding keys that have fewer iterations than the current default.
+        """
         algorithm, iterations, salt, stretched_key = encoded.split('$', 3)
         extra_iterations = self.iterations - int(iterations)
         if extra_iterations > 0:
-            self.encode(key, salt, extra_iterations)
+            self.encode(key, salt, iterations=extra_iterations)
 
     def split_encoded(self, encoded):
         """
@@ -161,6 +169,10 @@ class Argon2KeyHasher(BaseKeyHasher):
             self.memory_cost != memory_cost or
             self.parallelism != parallelism
         )
+
+    def harden_runtime(self, key, encoded):
+        # The runtime for Argon2 is too complicated to implement a sensible hardening algorithm.
+        pass
 
     def split_encoded(self, encoded):
         """

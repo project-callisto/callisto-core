@@ -4,7 +4,7 @@ django-ratelimit==1.0.0
 django-wizard-builder==0.0.3
 
 PyNaCl==1.0.1
-python-gnupg==0.3.8
+gnupg==2.0.22
 
 environ
 pytz==2016.6.1

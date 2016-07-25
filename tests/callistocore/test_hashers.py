@@ -1,4 +1,5 @@
 import base64
+import datetime
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -6,6 +7,7 @@ from django.test import TestCase, override_settings
 from django.utils.encoding import force_bytes
 
 import callisto.delivery.hashers as hashers
+from .hashers import PBKDF2TestKeyHasher
 
 
 class BaseKeyHasherTest(TestCase):
@@ -98,6 +100,25 @@ class PBKDF2KeyHasherTest(TestCase):
         encoded = self.hasher.encode("Yet Another Test Key", "salt for humans", iterations=144)
         prefix, stretched = self.hasher.split_encoded(encoded)
         self.assertEqual(len(stretched), 32)
+
+    def test_harden_runtime(self):
+        key = "Yet Another Test Key"
+        salt = "salt for humans"
+        hasher = PBKDF2TestKeyHasher(iterations=100000)
+        # get duration of the default encoding
+        start_default = datetime.datetime.now()
+        encoded = hasher.encode(key, salt)
+        end_default = datetime.datetime.now()
+        duration_default = end_default - start_default
+
+        start_harden = datetime.datetime.now()
+        encoded = hasher.encode(key, salt, iterations=100)
+        hasher.harden_runtime(key, encoded)
+        end_harden = datetime.datetime.now()
+        duration_harden = end_harden - start_harden
+
+        # this delta seems reasonable, however I am not sure if that is enough to get anything meaningful for attacks
+        self.assertAlmostEqual(duration_harden.total_seconds(), duration_default.total_seconds(), delta=0.05)
 
 
 class Argon2KeyHasherTest(TestCase):
