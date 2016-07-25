@@ -59,7 +59,7 @@ def _decrypt_report(salt, stretched_key, encrypted):
 
 
 def _pepper(encrypted_report):
-    """Uses a secret value stored on the server to encrypt an already hashed report, to add protection if the database
+    """Uses a secret value stored on the server to encrypt an already encrypted report, to add protection if the database
     is breached but the server is not. Requires settings.PEPPER to be set to a 32 byte value. In production, this value
     should be set via environment parameter. Uses PyNacl's Salsa20 stream cipher.
 
@@ -201,6 +201,7 @@ class Report(models.Model):
 
     @property
     def get_submitted_report_id(self):
+        """Return the ID of the first time a FullReport was submitted."""
         if self.submitted_to_school:
             sent_report = self.sentfullreport_set.first()
             report_id = sent_report.get_report_id() if sent_report else None
@@ -211,6 +212,7 @@ class Report(models.Model):
 
 @six.python_2_unicode_compatible
 class EmailNotification(models.Model):
+    """Record of Email constructed in and sent via the project"""
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
     body = models.TextField(blank=False)
@@ -219,6 +221,7 @@ class EmailNotification(models.Model):
         return self.name
 
     def render_body(self, context=None):
+        """Format the email as HTML."""
         if context is None:
             context = {}
         current_site = Site.objects.get_current()
@@ -226,6 +229,7 @@ class EmailNotification(models.Model):
         return Template(self.body).render(Context(context))
 
     def render_body_plain(self, context=None):
+        """Format the email as plain text."""
         if context is None:
             context = {}
         html = self.render_body(context)
@@ -236,6 +240,11 @@ class EmailNotification(models.Model):
         return strip_tags(cleaned)
 
     def send(self, to, from_email, context=None):
+        """Send the email as plain text.
+
+        Includes an HTML equivalent version as an attachment.
+        """
+
         if context is None:
             context = {}
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
@@ -330,6 +339,7 @@ class MatchReport(models.Model):
 
 
 class SentReport(PolymorphicModel):
+    """Report of one or more incidents, sent to the monitoring organization"""
     # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14
     sent = models.DateTimeField(auto_now_add=True)
     to_address = models.EmailField(blank=False, null=False, max_length=256)
@@ -339,6 +349,7 @@ class SentReport(PolymorphicModel):
 
 
 class SentFullReport(SentReport):
+    """Report of a single incident since to the monitoring organization"""
     report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.SET_NULL)
 
     def get_report_id(self):
@@ -346,6 +357,7 @@ class SentFullReport(SentReport):
 
 
 class SentMatchReport(SentReport):
+    """Report of multiple incidents, sent to the monitoring organization"""
     reports = models.ManyToManyField(MatchReport)
 
     def get_report_id(self):

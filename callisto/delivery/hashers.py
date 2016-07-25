@@ -129,7 +129,7 @@ class Argon2KeyHasher(BaseKeyHasher):
     """
     Key stretching using Argon2i.
 
-    Requires argon2_cffi which may cause portability due to it vendoring its own C code. See:
+    Requires argon2_cffi which may cause portability issues due to it vendoring its own C code. See:
     https://argon2-cffi.readthedocs.io/en/stable/installation.html for more information.
     """
     algorithm = 'argon2'
