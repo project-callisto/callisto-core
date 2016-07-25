@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.html import strip_tags
 
-from callisto.delivery.hashers import get_hasher, identify_hasher
+from callisto.delivery.hashers import get_hasher, make_key
 
 
 def _encrypt_report(salt, stretched_key, report_text):
@@ -165,31 +165,11 @@ class Report(models.Model):
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
-        iterations = None
-        harden_runtime = False
-        hasher = identify_hasher(self.encode_prefix)
+        prefix, stretched_key = make_key(self.encode_prefix, key, self.salt)
 
-        if self.encode_prefix == '':
-            # this will only be used in the case of entries made before encode prefixes were used
-            iterations = settings.ORIGINAL_KEY_ITERATIONS
-            salt = self.salt
-            if hasher.iterations > iterations:
-                harden_runtime = True
-        else:
-            salt = self.encode_prefix.rsplit('$', 1)[1]
+        salt = prefix.rsplit('$', 1)[1]
 
-        # if pbkdf2 is used and the number of iterations changes
-        if self.encode_prefix != '' and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
-            iterations = self.encode_prefix.split('$')[1]
-            harden_runtime = True
-
-        encoded = hasher.encode(key, salt, iterations=iterations)
-        if harden_runtime:
-            hasher.harden_runtime(key, encoded)
-
-        prefix, stretched_key = hasher.split_encoded(encoded)
-
-        return _decrypt_report(salt=self.salt, stretched_key=stretched_key, encrypted=self.encrypted)
+        return _decrypt_report(salt=salt, stretched_key=stretched_key, encrypted=self.encrypted)
 
     def withdraw_from_matching(self):
         """ Deletes all associated MatchReports """
@@ -302,29 +282,8 @@ class MatchReport(models.Model):
             str or None: returns the decrypted report as a string if the identifier matches, or None otherwise.
         """
         decrypted_report = None
-        iterations = None
-        harden_runtime = False
-        hasher = identify_hasher(self.encode_prefix)
 
-        if self.encode_prefix == '':
-            # this will only be used in the case of entries made before encode prefixes were used
-            iterations = settings.ORIGINAL_KEY_ITERATIONS
-            salt = self.salt
-            if hasher.iterations > iterations:
-                harden_runtime = True
-        else:
-            salt = self.encode_prefix.rsplit('$', 1)[1]
-
-        # if pbkdf2 is used and the number of iterations changes
-        if self.encode_prefix != '' and hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(self.encode_prefix):
-            iterations = self.encode_prefix.split('$')[1]
-            harden_runtime = True
-
-        encoded = hasher.encode(identifier, salt, iterations=iterations)
-        if harden_runtime:
-            hasher.harden_runtime(identifier, encoded)
-
-        prefix, stretched_identifier = hasher.split_encoded(encoded)
+        prefix, stretched_identifier = make_key(self.encode_prefix, identifier, self.salt)
         salt = prefix.rsplit('$', 1)[1]
 
         try:

@@ -52,6 +52,27 @@ def identify_hasher(encoded):
     return get_hasher(algorithm)
 
 
+def make_key(encode_prefix, key, salt):
+    iterations = None
+    hasher = identify_hasher(encode_prefix)
+
+    if not encode_prefix:
+        assert salt is not None
+        iterations = settings.ORIGINAL_KEY_ITERATIONS
+    else:
+        salt = encode_prefix.rsplit('$', 1)[1]
+
+    if encode_prefix and hasher.algorithm == 'pbkdf2_sha256':
+        iterations = encode_prefix.split('$')[1]
+
+    encoded = hasher.encode(key, salt, iterations=iterations)
+    if hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(encode_prefix):
+        hasher.harden_runtime(key, encoded)
+
+    prefix, key = hasher.split_encoded(encoded)
+    return prefix, key
+
+
 class PBKDF2KeyHasher(PBKDF2PasswordHasher):
     """
     Key stretching using Django's PBKDF2 + SHA256 implementation.
@@ -61,7 +82,10 @@ class PBKDF2KeyHasher(PBKDF2PasswordHasher):
     iterations = settings.KEY_ITERATIONS
 
     def must_update(self, encode_prefix):
-        algorithm, iterations, salt = encode_prefix.split('$', 2)
+        if not encode_prefix:
+            iterations = settings.ORIGINAL_KEY_ITERATIONS
+        else:
+            algorithm, iterations, salt = encode_prefix.split('$', 2)
         return int(iterations) != self.iterations
 
     def split_encoded(self, encoded):
@@ -86,6 +110,7 @@ class Argon2KeyHasher(BasePasswordHasher):
     https://argon2-cffi.readthedocs.io/en/stable/installation.html for more information.
     """
     algorithm = 'argon2'
+    library = 'argon2'
 
     time_cost = settings.ARGON2_TIME_COST
     memory_cost = settings.ARGON2_MEM_COST
