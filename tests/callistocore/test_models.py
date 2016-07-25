@@ -6,6 +6,7 @@ from django.test import TestCase
 from callisto.delivery.models import (
     MatchReport, Report, SentFullReport, SentMatchReport,
 )
+
 from .models import LegacyMatchReportData, LegacyReportData
 
 User = get_user_model()
