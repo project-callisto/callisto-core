@@ -79,7 +79,7 @@ class PBKDF2KeyHasher(BaseKeyHasher):
     """
     Key stretching using Django's PBKDF2 + SHA256 implementation.
 
-    Iterations may be changed safely in settings,
+    Iterations may be changed safely in settings.
     """
     algorithm = 'pbkdf2_sha256'
     digest = hashlib.sha256
@@ -126,6 +126,12 @@ class PBKDF2KeyHasher(BaseKeyHasher):
 
 
 class Argon2KeyHasher(BaseKeyHasher):
+    """
+    Key stretching using Argon2i.
+
+    Requires argon2_cffi which may cause portability due to it vendoring its own C code. See:
+    https://argon2-cffi.readthedocs.io/en/stable/installation.html for more information.
+    """
     algorithm = 'argon2'
 
     time_cost = settings.ARGON2_TIME_COST
