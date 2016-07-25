@@ -15,8 +15,7 @@ from django.utils.html import strip_tags
 
 from callisto.delivery.hashers import get_hasher, identify_hasher
 
-# change this to the value previously used
-ORIGINAL_KEY_ITERATIONS = 100
+ORIGINAL_KEY_ITERATIONS = 100000
 
 
 def _encrypt_report(salt, stretched_key, report_text):
