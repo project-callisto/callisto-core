@@ -11,20 +11,15 @@ import callisto.delivery.hashers as hashers
 from .hashers import PBKDF2TestKeyHasher
 
 
-class BaseKeyHasherTest(TestCase):
+class KeyHasherFunctionsTest(TestCase):
 
-    def setUp(self):
-        self.hasher = hashers.BaseKeyHasher()
-
-    def test_base_class_algorithm_is_none(self):
-        self.assertIsNone(self.hasher.algorithm)
-
-    @override_settings(KEY_HASHERS=['callisto.delivery.hashers.BaseKeyHasher'])
+    @override_settings(KEY_HASHERS=['callisto.delivery.hashers.BasePasswordHasher'])
     def test_get_hashers_raises_improperly_configured_for_no_algorithm(self):
         with self.assertRaises(ImproperlyConfigured) as cm:
             hashers.get_hashers()
         ex = cm.exception
-        self.assertEqual(str(ex), "hasher doesn't specify an algorithm name: callisto.delivery.hashers.BaseKeyHasher")
+        self.assertEqual(str(ex), "hasher doesn't specify an algorithm name: "
+                                  "callisto.delivery.hashers.BasePasswordHasher")
 
     def test_get_hashers_returns_correct_hashers(self):
         hs = hashers.get_hashers()
@@ -50,9 +45,11 @@ class BaseKeyHasherTest(TestCase):
     def test_identify_hasher_returns_correct_hashers(self):
         hs = []
         hs.append(hashers.identify_hasher(None))                                    # pbkdf2
+        hs.append(hashers.identify_hasher(''))                                      # pbkdf2
         hs.append(hashers.identify_hasher("pbkdf2_sha256$100$a_salt_probably"))     # pbkdf2
         hs.append(hashers.identify_hasher("argon2$argon2i$v=19$more,params$salt"))  # argon2
         self.assertIsInstance(hs.pop(), hashers.Argon2KeyHasher)
+        self.assertIsInstance(hs.pop(), hashers.PBKDF2KeyHasher)
         self.assertIsInstance(hs.pop(), hashers.PBKDF2KeyHasher)
         self.assertIsInstance(hs.pop(), hashers.PBKDF2KeyHasher)
 

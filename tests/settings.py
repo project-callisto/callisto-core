@@ -38,6 +38,7 @@ KEY_HASHERS = [
 
 # This low number is for testing purposes only, and is insufficient for production by several orders of magnitude
 KEY_ITERATIONS = 100
+ORIGINAL_KEY_ITERATIONS = 100000
 
 ARGON2_TIME_COST = 2
 ARGON2_MEM_COST = 512

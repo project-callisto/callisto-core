@@ -20,7 +20,7 @@ def _encrypt_report(salt, key, report_text):
       bytes: the encrypted bytes of the report
 
     """
-    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
+    stretched_key = pbkdf2(key, salt, settings.ORIGINAL_KEY_ITERATIONS, digest=hashlib.sha256)
     box = nacl.secret.SecretBox(stretched_key)
     message = report_text.encode('utf-8')
     nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
@@ -42,7 +42,7 @@ def _decrypt_report(salt, key, encrypted):
       CryptoError: If the key and salt fail to decrypt the record.
 
     """
-    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
+    stretched_key = pbkdf2(key, salt, settings.ORIGINAL_KEY_ITERATIONS, digest=hashlib.sha256)
     box = nacl.secret.SecretBox(stretched_key)
     decrypted = box.decrypt(bytes(encrypted))  # need to force to bytes bc BinaryField can return as memoryview
     return decrypted.decode('utf-8')

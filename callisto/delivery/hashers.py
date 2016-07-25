@@ -1,14 +1,12 @@
 import base64
-import hashlib
-import warnings
 
 import argon2
 
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.crypto import (
-    constant_time_compare, get_random_string, pbkdf2,
+from django.contrib.auth.hashers import (
+    BasePasswordHasher, PBKDF2PasswordHasher,
 )
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 
@@ -54,65 +52,17 @@ def identify_hasher(encoded):
     return get_hasher(algorithm)
 
 
-class BaseKeyHasher(object):
-    """
-    Abstract base class for key hashers based on django password hashers.
-
-    New hashers must override algorithm, verify(), and encode().
-    """
-    algorithm = None
-
-    def salt(self):
-        return get_random_string()
-
-    def verify(self, key, encoded):
-        raise NotImplementedError('subclasses of BaseKeyHasher must provide a verify() method')
-
-    def encode(self, key, salt):
-        raise NotImplementedError('subclasses of BaseKeyHasher must provide a encode() method')
-
-    def harden_runtime(self, key, encoded):
-        warnings.warn('subclasses of BaseKeyHasher should provide a harden_runtime() method')
-
-
-class PBKDF2KeyHasher(BaseKeyHasher):
+class PBKDF2KeyHasher(PBKDF2PasswordHasher):
     """
     Key stretching using Django's PBKDF2 + SHA256 implementation.
 
     Iterations may be changed safely in settings.
     """
-    algorithm = 'pbkdf2_sha256'
-    digest = hashlib.sha256
     iterations = settings.KEY_ITERATIONS
-
-    def encode(self, key, salt, iterations=None):
-        assert key is not None
-        assert salt and '$' not in salt
-        if not iterations:
-            iterations = self.iterations
-        iterations = int(iterations)
-        stretched_key = pbkdf2(key, salt, iterations, digest=self.digest)
-        stretched_key = base64.b64encode(stretched_key).decode('utf-8')
-        return "{0}${1}${2}${3}".format(self.algorithm, iterations, salt, stretched_key)
-
-    def verify(self, key, encoded):
-        algorithm, iterations, salt, stretched_key = encoded.split('$', 3)
-        assert algorithm == self.algorithm
-        encoded_2 = self.encode(key, salt, int(iterations))
-        return constant_time_compare(encoded, encoded_2)
 
     def must_update(self, encode_prefix):
         algorithm, iterations, salt = encode_prefix.split('$', 2)
         return int(iterations) != self.iterations
-
-    def harden_runtime(self, key, encoded):
-        """
-        Attempts to bridge the runtime gap when encoding keys that have fewer iterations than the current default.
-        """
-        algorithm, iterations, salt, stretched_key = encoded.split('$', 3)
-        extra_iterations = self.iterations - int(iterations)
-        if extra_iterations > 0:
-            self.encode(key, salt, iterations=extra_iterations)
 
     def split_encoded(self, encoded):
         """
@@ -125,7 +75,10 @@ class PBKDF2KeyHasher(BaseKeyHasher):
         return prefix, force_bytes(stretched_key)
 
 
-class Argon2KeyHasher(BaseKeyHasher):
+# Portions of the below implementation are copyright the Django Software Foundation and individual contributors, and
+# are under the BSD-3 Clause License:
+# https://github.com/django/django-formtools/blob/master/LICENSE
+class Argon2KeyHasher(BasePasswordHasher):
     """
     Key stretching using Argon2i.
 

@@ -15,8 +15,6 @@ from django.utils.html import strip_tags
 
 from callisto.delivery.hashers import get_hasher, identify_hasher
 
-ORIGINAL_KEY_ITERATIONS = 100000
-
 
 def _encrypt_report(salt, stretched_key, report_text):
     """Encrypts a report using the given secret key & salt. Requires a stretched key with a length of 32 bytes.
@@ -173,7 +171,7 @@ class Report(models.Model):
 
         if self.encode_prefix == '':
             # this will only be used in the case of entries made before encode prefixes were used
-            iterations = ORIGINAL_KEY_ITERATIONS
+            iterations = settings.ORIGINAL_KEY_ITERATIONS
             salt = self.salt
             if hasher.iterations > iterations:
                 harden_runtime = True
@@ -310,7 +308,7 @@ class MatchReport(models.Model):
 
         if self.encode_prefix == '':
             # this will only be used in the case of entries made before encode prefixes were used
-            iterations = ORIGINAL_KEY_ITERATIONS
+            iterations = settings.ORIGINAL_KEY_ITERATIONS
             salt = self.salt
             if hasher.iterations > iterations:
                 harden_runtime = True
