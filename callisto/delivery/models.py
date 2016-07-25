@@ -11,7 +11,6 @@ from django.db import models
 from django.template import Context, Template
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-# from django.utils.encoding import force_bytes
 from django.utils.html import strip_tags
 
 from callisto.delivery.hashers import get_hasher, identify_hasher
