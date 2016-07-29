@@ -21,7 +21,7 @@ before_script:
     - isort --check-only --diff --quiet
 script:
     - flake8 .
-    - tox
+    - make test-all
 after_success:
     - codecov -e TOXENV
 before_cache:
