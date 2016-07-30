@@ -12,10 +12,12 @@ endef
 export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
+TOX_REQUIREMENTS := requirements-test.txt requirements.txt
+
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
-clean: clean-build clean-pyc
+clean: clean-build clean-pyc clean-tox
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -27,6 +29,9 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
+clean-tox:
+	rm -f tox.ini
+
 lint: ## check style with flake8
 	flake8 callisto tests
 
@@ -35,7 +40,10 @@ test: ## run tests quickly with the default Python
 	isort -c
 	python runtests.py tests
 
-test-all: ## run tests on every Python version with tox
+tox.ini: tox.ini.in $(TOX_REQUIREMENTS)
+	{ cat $< | grep -v '^    -rrequirements-test\.txt$$' ; cat $(TOX_REQUIREMENTS) | grep -v '^-r requirements\.txt' | sed -e 's/^/    /' ; } > $@
+
+test-all: tox.ini ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
