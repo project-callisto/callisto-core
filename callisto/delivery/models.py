@@ -16,7 +16,7 @@ from django.utils.html import strip_tags
 from callisto.delivery.hashers import get_hasher, make_key
 
 
-def _encrypt_report(salt, stretched_key, report_text):
+def _encrypt_report(stretched_key, report_text):
     """Encrypts a report using the given secret key & salt. Requires a stretched key with a length of 32 bytes.
     The encryption uses PyNacl & Salsa20 stream cipher.
 
@@ -35,7 +35,7 @@ def _encrypt_report(salt, stretched_key, report_text):
     return box.encrypt(message, nonce)
 
 
-def _decrypt_report(salt, stretched_key, encrypted):
+def _decrypt_report(stretched_key, encrypted):
     """Decrypts an encrypted report.
 
     Args:
@@ -152,7 +152,7 @@ class Report(models.Model):
         encoded = hasher.encode(key, salt)
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
 
-        self.encrypted = _encrypt_report(salt=salt, stretched_key=stretched_key, report_text=report_text)
+        self.encrypted = _encrypt_report(stretched_key=stretched_key, report_text=report_text)
 
     def decrypted_report(self, key):
         """Decrypts the report text. Uses the salt from the encode prefix stored on the Report object.
@@ -167,9 +167,7 @@ class Report(models.Model):
         """
         prefix, stretched_key = make_key(self.encode_prefix, key, self.salt)
 
-        salt = prefix.rsplit('$', 1)[1]
-
-        return _decrypt_report(salt=salt, stretched_key=stretched_key, encrypted=self.encrypted)
+        return _decrypt_report(stretched_key=stretched_key, encrypted=self.encrypted)
 
     def withdraw_from_matching(self):
         """ Deletes all associated MatchReports """
@@ -270,7 +268,7 @@ class MatchReport(models.Model):
         encoded = hasher.encode(key, salt)
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
 
-        self.encrypted = _pepper(_encrypt_report(salt=salt, stretched_key=stretched_key, report_text=report_text))
+        self.encrypted = _pepper(_encrypt_report(stretched_key=stretched_key, report_text=report_text))
 
     def get_match(self, identifier):
         """Checks if the given identifier triggers a match on this report. Returns report text if so.
@@ -284,10 +282,9 @@ class MatchReport(models.Model):
         decrypted_report = None
 
         prefix, stretched_identifier = make_key(self.encode_prefix, identifier, self.salt)
-        salt = prefix.rsplit('$', 1)[1]
 
         try:
-            decrypted_report = _decrypt_report(salt=salt, stretched_key=stretched_identifier,
+            decrypted_report = _decrypt_report(stretched_key=stretched_identifier,
                                                encrypted=_unpepper(self.encrypted))
         except CryptoError:
             pass

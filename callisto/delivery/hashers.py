@@ -11,6 +11,9 @@ from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 
 
+# Portions of the below implementation are copyright the Django Software Foundation and individual contributors, and
+# are under the BSD-3 Clause License:
+# https://github.com/django/django/blob/master/LICENSE
 def get_hashers():
     hashers = []
     for hasher_path in settings.KEY_HASHERS:
@@ -99,9 +102,6 @@ class PBKDF2KeyHasher(PBKDF2PasswordHasher):
         return prefix, force_bytes(stretched_key)
 
 
-# Portions of the below implementation are copyright the Django Software Foundation and individual contributors, and
-# are under the BSD-3 Clause License:
-# https://github.com/django/django-formtools/blob/master/LICENSE
 class Argon2KeyHasher(BasePasswordHasher):
     """
     Key stretching using Argon2i.
