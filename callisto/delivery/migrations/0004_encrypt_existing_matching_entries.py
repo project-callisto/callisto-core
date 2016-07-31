@@ -4,10 +4,11 @@ from __future__ import unicode_literals
 
 import json
 
+from tests.callistocore.models import _encrypt_report, _pepper
+
 from django.db import migrations
 from django.utils.crypto import get_random_string
 
-from callisto.delivery.models import _encrypt_report, _pepper
 from callisto.delivery.report_delivery import MatchReportContent
 
 

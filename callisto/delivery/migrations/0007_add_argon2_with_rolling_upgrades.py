@@ -15,12 +15,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='matchreport',
             name='encode_prefix',
-            field=models.CharField(max_length=500, blank=False),
+            field=models.CharField(max_length=500, blank=True),
         ),
         migrations.AddField(
             model_name='report',
             name='encode_prefix',
-            field=models.CharField(max_length=500, blank=False),
+            field=models.CharField(max_length=500, blank=True),
         ),
         migrations.AlterField(
             model_name='matchreport',

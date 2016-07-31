@@ -7,12 +7,11 @@ from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 
 from callisto.delivery.matching import find_matches
-from callisto.delivery.models import (
-    _decrypt_report, _encrypt_report, _pepper, _unpepper,
-)
 from callisto.delivery.report_delivery import (
     MatchReportContent, PDFMatchReport,
 )
+
+from .models import _decrypt_report, _encrypt_report, _pepper, _unpepper
 
 User = get_user_model()
 

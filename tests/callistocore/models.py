@@ -86,7 +86,11 @@ def _unpepper(peppered_report):
 
 
 class LegacyReportData(object):
-    """The full text of a reported incident."""
+    """The full text of a reported incident.
+
+    Uses the old encryption scheme before support for new hashers & increased iterations, for testing that old records
+    can still be decrypted.
+    """
     encrypted = None
     salt = None
 
@@ -108,6 +112,9 @@ class LegacyReportData(object):
 class LegacyMatchReportData(object):
     """A report that indicates the user wants to submit if a match is found. A single report can have multiple
     MatchReports--one per perpetrator.
+
+    Uses the old encryption scheme before support for new hashers & increased iterations, for testing that old records
+    can still be decrypted.
     """
     encrypted = None
     salt = None

@@ -105,7 +105,7 @@ class Report(models.Model):
 
     # accept blank values for now, as old reports won't have them
     # <algorithm>$<iterations>$<salt>$
-    encode_prefix = models.CharField(blank=False, max_length=500)
+    encode_prefix = models.CharField(blank=True, max_length=500)
 
     submitted_to_school = models.DateTimeField(blank=True, null=True)
     contact_phone = models.CharField(blank=True, null=True, max_length=256)
@@ -248,7 +248,7 @@ class MatchReport(models.Model):
     salt = models.CharField(blank=False, max_length=256)
 
     # <algorithm>$<iterations>$<salt>$
-    encode_prefix = models.CharField(blank=False, max_length=500)
+    encode_prefix = models.CharField(blank=True, max_length=500)
 
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
