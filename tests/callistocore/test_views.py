@@ -488,6 +488,28 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\.pdf\.gpg')
 
+    @patch('callisto.delivery.views.PDFFullReport.send_report_to_school')
+    def test_submit_exception_is_handled(self, mock_send_report_to_school):
+        mock_send_report_to_school.side_effect = Exception('Mock Send Report Exception')
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key})
+        self.assertIn('submit_error', response.context)
+
+    @patch('callisto.delivery.views._send_user_notification')
+    def test_submit_email_confirmation_is_handled(self, mock_send_user_notification):
+        mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "True",
+                                          'key': self.report_key})
+        self.assertIn('email_confirmation_error', response.context)
+
 
 class SubmitMatchIntegrationTest(ExistingRecordTest):
 
@@ -769,6 +791,36 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertIn('test match delivery body', message.body)
         self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\.pdf\.gpg')
 
+    @patch('callisto.delivery.views.MatchReport.encrypt_match_report')
+    def test_match_send_exception_is_handled(self, mock_encrypt_match_report):
+        mock_encrypt_match_report.side_effect = Exception('Mock Submit Match Exception')
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/test_url',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '', })
+        self.assertIn('submit_error', response.context)
+
+    @patch('callisto.delivery.views._send_user_notification')
+    def test_match_email_confirmation_exception_is_handled(self, mock_send_user_notification):
+        mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "True",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/test_url',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '', })
+        self.assertIn('email_confirmation_error', response.context)
+
 
 class WithdrawMatchIntegrationTest(ExistingRecordTest):
 
@@ -863,6 +915,15 @@ class ExportRecordViewTest(ExistingRecordTest):
         response = self.client.get(self.export_url % report.id)
         self.assertEqual(response.status_code, 403)
 
+    @patch('callisto.delivery.views.PDFFullReport.generate_pdf_report')
+    def test_export_exception_is_handled(self, mock_generate_pdf_report):
+        mock_generate_pdf_report.side_effect = Exception('Mock Generate PDF Exception')
+        response = self.client.post(
+            (self.export_url % self.report.id),
+            data={'key': self.report_key},
+        )
+        self.assertIn('generate_pdf_error', response.context)
+
 
 class DeleteRecordTest(ExistingRecordTest):
 
@@ -906,3 +967,12 @@ class DeleteRecordTest(ExistingRecordTest):
         response = self.client.get(self.delete_url % self.report.id)
         self.assertEqual(response.status_code, 200)
         self.assertIn('custom context', get_body(response))
+
+    @patch('callisto.delivery.views.Report.delete')
+    def test_delete_exception_is_handled(self, mock_delete):
+        mock_delete.side_effect = Exception('Mock Delete Report Exception')
+        response = self.client.post(
+            (self.delete_url % self.report.id),
+            data={'key': self.report_key},
+        )
+        self.assertIn('report_deleted_error', response.context)

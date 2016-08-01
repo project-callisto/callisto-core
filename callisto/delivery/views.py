@@ -111,6 +111,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
             except Exception:
                 # report was sent even if confirmation email fails, so don't show an error if so
                 logger.exception("couldn't send confirmation to user on submission")
+                context.update({'form': form, 'email_confirmation_error': True})
 
             context.update({'form': form})
             return render(request, confirmation_template_name, context)
@@ -176,6 +177,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
             except Exception:
                 # matching was entered even if confirmation email fails, so don't show an error if so
                 logger.exception("couldn't send confirmation to user on match submission")
+                context.update({'email_confirmation_error': True})
 
             return render(request, confirmation_template_name, context)
 
@@ -224,6 +226,7 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
             except Exception:
                 logger.exception("could not export report {}".format(report_id))
                 form.add_error(None, "There was an error exporting your report.")
+                context.update({'generate_pdf_error': True})
     else:
         form = SecretKeyForm()
         form.report = report
@@ -250,6 +253,7 @@ def delete_report(request, report_id, form_template_name='delete_report.html',
             except Exception:
                 logger.exception("could not delete report {}".format(report_id))
                 form.add_error(None, "There was an error deleting your report.")
+                context.update({'report_deleted_error': True})
     else:
         form = SecretKeyForm()
         form.report = report
