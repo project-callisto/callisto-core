@@ -2,6 +2,7 @@ import json
 from io import BytesIO
 
 import PyPDF2
+from mock import patch
 from wizard_builder.forms import QuestionPageForm
 from wizard_builder.models import (
     Choice, QuestionPage, RadioButton, SingleLineText,
