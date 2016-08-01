@@ -1,6 +1,6 @@
 [tox]
 envlist =
-    {py27,py32,py33,py34,py35}-django18
+    {py27,py33,py34,py35}-django18,
     {py27,py34,py35}-django19
 
 [testenv]
@@ -11,4 +11,4 @@ commands = coverage run runtests.py
 deps =
     django18: Django>=1.8,<1.9
     django19: Django>=1.9,<1.10
-    -r{toxinidir}/requirements-test.txt
+    -rrequirements-test.txt

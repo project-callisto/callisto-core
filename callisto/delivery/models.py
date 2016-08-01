@@ -1,3 +1,9 @@
+"""Data models describing reports and email notifications
+
+Includes Reports which may or may not have been sent as well as records of when
+reports of isolated or related incidents
+"""
+
 import hashlib
 
 import nacl.secret
@@ -58,7 +64,7 @@ def _decrypt_report(salt, key, encrypted):
 
 
 def _pepper(encrypted_report):
-    """Uses a secret value stored on the server to encrypt an already hashed report, to add protection if the database
+    """Uses a secret value stored on the server to encrypt an already encrypted report, to add protection if the database
     is breached but the server is not. Requires settings.PEPPER to be set to a 32 byte value. In production, this value
     should be set via environment parameter. Uses PyNacl's Salsa20 stream cipher.
 
@@ -99,6 +105,7 @@ class Report(models.Model):
     encrypted = models.BinaryField(blank=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     added = models.DateTimeField(auto_now_add=True)
+    autosaved = models.BooleanField(null=False, default=False)
     last_edited = models.DateTimeField(blank=True, null=True)
     salt = models.CharField(blank=False, max_length=256)
 
@@ -122,18 +129,21 @@ class Report(models.Model):
     class Meta:
         ordering = ('-added',)
 
-    def encrypt_report(self, report_text, key):
+    def encrypt_report(self, report_text, key, edit=False, autosave=False):
         """Encrypts and attaches report text. Generates a random salt and stores it on the Report object.
 
         Args:
           report_text (str): the full text of the report
           key (str): the secret key
+          edit (obj): the object to edit
+          autosave (bool): whether or not this encryption is part of an automatic save
 
         """
         if not self.salt:
             self.salt = get_random_string()
-        else:
+        elif edit:
             self.last_edited = timezone.now()
+        self.autosaved = autosave
         self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
 
     def decrypted_report(self, key):
@@ -156,6 +166,7 @@ class Report(models.Model):
 
     @property
     def get_submitted_report_id(self):
+        """Return the ID of the first time a FullReport was submitted."""
         if self.submitted_to_school:
             sent_report = self.sentfullreport_set.first()
             report_id = sent_report.get_report_id() if sent_report else None
@@ -166,6 +177,7 @@ class Report(models.Model):
 
 @six.python_2_unicode_compatible
 class EmailNotification(models.Model):
+    """Record of Email constructed in and sent via the project"""
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
     body = models.TextField(blank=False)
@@ -174,6 +186,7 @@ class EmailNotification(models.Model):
         return self.name
 
     def render_body(self, context=None):
+        """Format the email as HTML."""
         if context is None:
             context = {}
         current_site = Site.objects.get_current()
@@ -181,6 +194,7 @@ class EmailNotification(models.Model):
         return Template(self.body).render(Context(context))
 
     def render_body_plain(self, context=None):
+        """Format the email as plain text."""
         if context is None:
             context = {}
         html = self.render_body(context)
@@ -191,6 +205,11 @@ class EmailNotification(models.Model):
         return strip_tags(cleaned)
 
     def send(self, to, from_email, context=None):
+        """Send the email as plain text.
+
+        Includes an HTML equivalent version as an attachment.
+        """
+
         if context is None:
             context = {}
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
@@ -246,6 +265,7 @@ class MatchReport(models.Model):
 
 
 class SentReport(PolymorphicModel):
+    """Report of one or more incidents, sent to the monitoring organization"""
     # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14
     sent = models.DateTimeField(auto_now_add=True)
     to_address = models.EmailField(blank=False, null=False, max_length=256)
@@ -255,6 +275,7 @@ class SentReport(PolymorphicModel):
 
 
 class SentFullReport(SentReport):
+    """Report of a single incident since to the monitoring organization"""
     report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.SET_NULL)
 
     def get_report_id(self):
@@ -262,6 +283,7 @@ class SentFullReport(SentReport):
 
 
 class SentMatchReport(SentReport):
+    """Report of multiple incidents, sent to the monitoring organization"""
     reports = models.ManyToManyField(MatchReport)
 
     def get_report_id(self):

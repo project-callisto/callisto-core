@@ -1,5 +1,7 @@
 # callisto-core
 
+[![Join the chat at https://gitter.im/SexualHealthInnovations/callisto-core](https://badges.gitter.im/SexualHealthInnovations/callisto-core.svg)](https://gitter.im/SexualHealthInnovations/callisto-core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/SexualHealthInnovations/callisto-core.svg?branch=master)](https://travis-ci.org/SexualHealthInnovations/callisto-core)
 [![Code Climate](https://codeclimate.com/github/SexualHealthInnovations/callisto-core/badges/gpa.svg)](https://codeclimate.com/github/SexualHealthInnovations/callisto-core)
 [![codecov](https://codecov.io/gh/SexualHealthInnovations/callisto-core/branch/master/graph/badge.svg)](https://codecov.io/gh/SexualHealthInnovations/callisto-core)

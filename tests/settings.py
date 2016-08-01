@@ -3,6 +3,7 @@ import os
 DEBUG = True
 
 USE_TZ = True
+REPORT_TIME_ZONE = 'Europe/Paris'
 
 DATABASES = {
     "default": {
@@ -28,10 +29,9 @@ SITE_ID = 1
 MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
                       'django.contrib.auth.middleware.AuthenticationMiddleware',)
 
-TEMPLATE_DIRS = ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
-
 SCHOOL_REPORT_PREFIX = "000"
 
+# This low number is for testing purposes only, and is insufficient for production by several orders of magnitude
 KEY_ITERATIONS = 100
 
 
@@ -60,3 +60,11 @@ DECRYPT_THROTTLE_RATE = '100/m'
 MATCH_IMMEDIATELY = True
 
 PEPPER = os.urandom(32)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
+    },
+]

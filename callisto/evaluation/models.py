@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class EvalRow(models.Model):
+    """Provides an auditing trail for various records"""
     EDIT = "e"
     CREATE = "c"
     SUBMIT = "s"
@@ -21,8 +22,9 @@ class EvalRow(models.Model):
     MATCH_FOUND = 'mf'
     FIRST = "f"
     WITHDRAW = "w"
+    DELETE = "d"
+    AUTOSAVE = "a"
 
-    # TODO: delete
     ACTIONS = (
         (CREATE, 'Create'),
         (EDIT, 'Edit'),
@@ -31,6 +33,8 @@ class EvalRow(models.Model):
         (MATCH, 'Match'),
         (MATCH_FOUND, 'Match found'),
         (WITHDRAW, 'Withdraw'),
+        (DELETE, 'Delete'),
+        (AUTOSAVE, 'Autosave'),
         (FIRST, 'First'),  # for records that were created before evaluation was implemented--saved on any decryption
     )
 

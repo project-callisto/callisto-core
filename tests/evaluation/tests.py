@@ -2,7 +2,7 @@ import json
 
 import gnupg
 import six
-from mock import call, patch
+from mock import ANY, call, patch
 from wizard_builder.models import (
     Checkbox, Choice, QuestionPage, RadioButton, SingleLineText,
 )
@@ -545,6 +545,11 @@ class EvalActionTest(MatchTest):
     def setUp(self):
         super(EvalActionTest, self).setUp()
 
+        self.page1 = QuestionPage.objects.create()
+        self.page2 = QuestionPage.objects.create()
+        self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
+        self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
+
         self.client.login(username='dummy', password='dummy')
         self.request = HttpRequest()
         self.request.GET = {}
@@ -599,3 +604,35 @@ class EvalActionTest(MatchTest):
         self.assertNotIn('submit_error', response.context)
         mock_anonymise_record.assert_called_with(action=EvalRow.SUBMIT, report=self.report, decrypted_text=None,
                                                  match_identifier=None)
+
+    @patch('callisto.delivery.views.EvalRow.anonymise_record')
+    @patch('callisto.delivery.views.Report.delete')
+    def test_delete_creates_eval_row(self, mock_delete, mock_anonymise_record):
+        response = self.client.post(
+            '/test_reports/delete/%s/' % self.report.id,
+            data={'key': self.key},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        mock_anonymise_record.assert_called_with(action=EvalRow.DELETE, report=self.report, decrypted_text=None,
+                                                 match_identifier=None)
+
+    @patch('callisto.delivery.views.EvalRow.anonymise_record')
+    def test_autosave_creates_eval_row(self, mock_anonymise_record):
+        response = self.client.post(
+            '/test_reports/new/0/',
+            data={'0-key': self.key,
+                  '0-key2': self.key,
+                  'form_wizard-current_step': 0},
+            follow=True
+        )
+        self.client.post(
+            response.redirect_chain[0][0],
+            data={'1-question_%i' % self.question1.pk: 'test answer',
+                  'form_wizard-current_step': 1,
+                  'wizard_goto_step': 2},
+            follow=True)
+        self.client.get("www.google.com")
+        # JSON sorting is making this test flap
+        mock_anonymise_record.assert_called_with(action=EvalRow.AUTOSAVE, report=Report.objects.first(),
+                                                 decrypted_text=ANY, match_identifier=None)

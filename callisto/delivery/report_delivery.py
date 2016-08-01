@@ -19,13 +19,13 @@ from wizard_builder.models import PageBase
 from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
+from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
 from .models import EmailNotification, SentFullReport, SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"
-# TODO: customize https://github.com/SexualHealthInnovations/callisto-core/issues/20
-tzname = 'America/Los_Angeles'
+tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,9 @@ logger = logging.getLogger(__name__)
 class MatchReportContent:
     """ Class to structure contact information collected from match submission form for report """
 
+    # This constructor is called with keyword arguments populated by
+    # encrypted data. Existing arguments should not be removed or renamed,
+    # and new arguments must have default values.
     def __init__(self, identifier, perp_name, email, phone, contact_name=None, voicemail=None, notes=None):
         self.identifier = identifier
         self.perp_name = perp_name
@@ -175,6 +178,9 @@ class PDFReport(object):
             self.pdf_elements.append(element)
 
     def format_answer(self, text, answer_type):
+        """
+        Expects text to be already escaped
+        """
         return ListItem(Paragraph(text, self.answers_style), value=answer_type, leftIndent=60)
 
     def format_answer_list(self, answers, keep_together=True):
@@ -207,7 +213,7 @@ class PDFReport(object):
         question_type = question.get('type')
         if question_type == 'RadioButton' or question_type == 'Checkbox':
             choices = []
-            answer_ids = question.get('answer')
+            answer_ids = conditional_escape(question.get('answer'))
             # RadioButton answers need to be stored as single int to keep edit working
             if answer_ids and question_type == 'RadioButton':
                 answer_ids = [answer_ids]
@@ -218,11 +224,12 @@ class PDFReport(object):
                     answers.append(idx)
             extra = question.get('extra')
             if extra:
-                choices.append("<i>{0}</i>: {1}".format(extra.get('extra_text'), extra.get('answer')))
+                choices.append("<i>{0}</i>: {1}".format(extra.get('extra_text'),
+                                                        conditional_escape(extra.get('answer'))))
             self.add_multiple_choice(question.get('question_text'), choices, answers, last_is_free_text=bool(extra))
         elif question_type == 'SingleLineText' or question_type == 'Date' or question_type == 'MultiLineText':
             self.add_question(question.get('question_text'))
-            answer = question.get('answer').replace('\n', '<br />\n') or '<i>Not answered</i>'
+            answer = conditional_escape(question.get('answer')).replace('\n', '<br />\n') or '<i>Not answered</i>'
             self.add_answer_list([self.format_answer(answer, self.free_text)], keep_together=False)
         elif question_type == 'FormSet':
             forms = question.get('answers')
