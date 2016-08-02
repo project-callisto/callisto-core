@@ -210,7 +210,7 @@ class PDFReport(object):
         self.add_answer_list([build_list_item(i, t) for i, t in enumerate(answers)])
 
     def render_question(self, question):
-        def render_multiple_choice():
+        def _render_multiple_choice():
             choices = []
             answer_ids = conditional_escape(question.get('answer'))
             # RadioButton answers need to be stored as single int to
@@ -229,12 +229,12 @@ class PDFReport(object):
                                              conditional_escape(extra.get('answer'))))
             self.add_multiple_choice(question.get('question_text'), choices, answers, last_is_free_text=bool(extra))
 
-        def render_text():
+        def _render_text():
             self.add_question(question.get('question_text'))
             answer = conditional_escape(question.get('answer')).replace('\n', '<br />\n') or '<i>Not answered</i>'
             self.add_answer_list([self.format_answer(answer, self.free_text)], keep_together=False)
 
-        def render_formset():
+        def _render_formset():
             forms = question.get('answers')
             prompt = question.get('prompt').capitalize()
             if forms:
@@ -248,7 +248,7 @@ class PDFReport(object):
                         self.render_question(q)
                     self.pdf_elements.append(Indenter(left=-12))
 
-        def render_default():
+        def _render_default():
             prompt = question.get('prompt').capitalize()
             self.add_question(prompt)
             self.pdf_elements.append(Indenter(left=12))
@@ -256,14 +256,14 @@ class PDFReport(object):
             self.pdf_elements.append(Indenter(left=-12))
 
         render_functions = {
-            'RadioButton': render_multiple_choice,
-            'Checkbox': render_multiple_choice,
-            'SingleLineText': render_text,
-            'MultiLineText': render_text,
-            'FormSet': render_formset
+            'Checkbox': _render_multiple_choice,
+            'FormSet': _render_formset,
+            'MultiLineText': _render_text,
+            'RadioButton': _render_multiple_choice,
+            'SingleLineText': _render_text,
         }
 
-        render_function = render_functions.get(question.get('type'), render_default)
+        render_function = render_functions.get(question.get('type'), _render_default)
         render_function()
 
     def get_cover_page(self, report_id, recipient, *args, **kwargs):
