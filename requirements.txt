@@ -11,3 +11,4 @@ pytz==2016.6.1
 reportlab==3.3.0
 zxcvbn-py3
 six
+argon2_cffi
