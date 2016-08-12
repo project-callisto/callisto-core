@@ -11,10 +11,13 @@ cache:
 env:
     - TOXENV=django18
     - TOXENV=django19
+    - TOXENV=django110
 matrix:
     exclude:
         - python: "3.3"
           env: TOXENV=django19
+        - python: "3.3"
+          env: TOXENV=django110
 install:
     - pip install tox codecov isort flake8
 before_script:
