@@ -3,7 +3,7 @@
 
 def make_migrations():
     from django.core.management import call_command
-    call_command('makemigrations', 'evaluation')
+    call_command('makemigrations', 'delivery')
 
 
 if __name__ == '__main__':
@@ -25,7 +25,13 @@ if __name__ == '__main__':
             ],
             APP_URL="test",
             COORDINATOR_NAME="Tatiana Nine",
-            CALLISTO_EVAL_PUBLIC_KEY=""
+            CALLISTO_EVAL_PUBLIC_KEY="",
+            KEY_ITERATIONS=100,
+            ORIGINAL_KEY_ITERATIONS=100000,
+            ARGON2_TIME_COST=2,
+            ARGON2_MEM_COST=512,
+            ARGON2_PARALLELISM=2,
+            REPORT_TIME_ZONE='Europe/Paris',
         )
 
         import django

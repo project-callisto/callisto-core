@@ -101,7 +101,7 @@ class Report(models.Model):
     last_edited = models.DateTimeField(blank=True, null=True)
 
     # DEPRECIATED: only kept to decrypt old entries before upgrade
-    salt = models.CharField(blank=False, max_length=256)
+    salt = models.CharField(null=True, max_length=256)
 
     # accept blank values for now, as old reports won't have them
     # <algorithm>$<iterations>$<salt>$
@@ -243,7 +243,7 @@ class MatchReport(models.Model):
     encrypted = models.BinaryField(null=False)
 
     # DEPRECIATED: only kept to decrypt old entries before upgrade
-    salt = models.CharField(blank=False, max_length=256)
+    salt = models.CharField(null=True, max_length=256)
 
     # <algorithm>$<iterations>$<salt>$
     encode_prefix = models.CharField(blank=True, max_length=500)
