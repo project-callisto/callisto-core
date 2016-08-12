@@ -6,8 +6,10 @@ import nacl.utils
 from django.conf import settings
 from django.utils.crypto import get_random_string, pbkdf2
 
+from callisto.delivery.models import _pepper
 
-def _encrypt_report(salt, key, report_text):
+
+def _legacy_encrypt_report(salt, key, report_text):
     """Encrypts a report using the given secret key & salt. The secret key is stretched to 32 bytes using Django's
     PBKDF2+SHA256 implementation. The encryption uses PyNacl & Salsa20 stream cipher.
 
@@ -27,7 +29,7 @@ def _encrypt_report(salt, key, report_text):
     return box.encrypt(message, nonce)
 
 
-def _decrypt_report(salt, key, encrypted):
+def _legacy_decrypt_report(salt, key, encrypted):
     """Decrypts an encrypted report.
 
     Args:
@@ -46,43 +48,6 @@ def _decrypt_report(salt, key, encrypted):
     box = nacl.secret.SecretBox(stretched_key)
     decrypted = box.decrypt(bytes(encrypted))  # need to force to bytes bc BinaryField can return as memoryview
     return decrypted.decode('utf-8')
-
-
-def _pepper(encrypted_report):
-    """Uses a secret value stored on the server to encrypt an already encrypted report, to add protection if the database
-    is breached but the server is not. Requires settings.PEPPER to be set to a 32 byte value. In production, this value
-    should be set via environment parameter. Uses PyNacl's Salsa20 stream cipher.
-
-    Args:
-      encrypted_report (bytes): the encrypted report
-
-    Returns:
-      bytes: a further encrypted report
-
-    """
-    pepper = settings.PEPPER
-    box = nacl.secret.SecretBox(pepper)
-    nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
-    return box.encrypt(encrypted_report, nonce)
-
-
-def _unpepper(peppered_report):
-    """Decrypts a report that has been peppered with the _pepper method. Requires settings.PEPPER to be set to a 32
-    byte value. In production, this value should be set via environment parameter.
-
-    Args:
-      peppered_report(bytes): a report that has been encrypted using a secret key then encrypted using the pepper
-
-    Returns:
-      bytes: the report, still encrypted with the secret key
-
-    Raises:
-      CryptoError: If the pepper fails to decrypt the record.
-    """
-    pepper = settings.PEPPER
-    box = nacl.secret.SecretBox(pepper)
-    decrypted = box.decrypt(bytes(peppered_report))  # need to force to bytes bc BinaryField can return as memoryview
-    return decrypted
 
 
 class LegacyReportData(object):
@@ -106,7 +71,7 @@ class LegacyReportData(object):
         """
         if not self.salt:
             self.salt = get_random_string()
-        self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
+        self.encrypted = _legacy_encrypt_report(salt=self.salt, key=key, report_text=report_text)
 
 
 class LegacyMatchReportData(object):
@@ -128,4 +93,4 @@ class LegacyMatchReportData(object):
 
         """
         self.salt = get_random_string()
-        self.encrypted = _pepper(_encrypt_report(salt=self.salt, key=key, report_text=report_text))
+        self.encrypted = _pepper(_legacy_encrypt_report(salt=self.salt, key=key, report_text=report_text))

@@ -7,11 +7,12 @@ from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 
 from callisto.delivery.matching import find_matches
+from callisto.delivery.models import _pepper, _unpepper
 from callisto.delivery.report_delivery import (
     MatchReportContent, PDFMatchReport,
 )
 
-from .models import _decrypt_report, _encrypt_report, _pepper, _unpepper
+from .models import _legacy_decrypt_report, _legacy_encrypt_report
 
 User = get_user_model()
 
@@ -47,7 +48,7 @@ class MatchReportMigrationTest(MigrationTest):
         match_report = MatchReport.objects.first()
         self.assertEqual(match_report.identifier, None)
         decrypted_report = json.loads(
-            _decrypt_report(match_report.salt, identifier, _unpepper(match_report.encrypted)))
+            _legacy_decrypt_report(match_report.salt, identifier, _unpepper(match_report.encrypted)))
         self.assertEqual(decrypted_report['identifier'], identifier)
         self.assertEqual(decrypted_report['perp_name'], perp_name)
         self.assertEqual(decrypted_report['phone'], phone)
@@ -85,7 +86,7 @@ class MatchReportMigrationTest(MigrationTest):
         report_content = MatchReportContent(identifier='test_identifier', perp_name='Perperick', contact_name='Rita',
                                             email='email1@example.com', phone='555-555-1212')
         salt = get_random_string()
-        encrypted_report = _pepper(_encrypt_report(salt, identifier, json.dumps(report_content.__dict__)))
+        encrypted_report = _pepper(_legacy_encrypt_report(salt, identifier, json.dumps(report_content.__dict__)))
         MatchReport.objects.create(report=report2, identifier=identifier, encrypted=encrypted_report,
                                    salt=salt)
         find_matches([identifier])

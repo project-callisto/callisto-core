@@ -32,8 +32,8 @@ MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
 SCHOOL_REPORT_PREFIX = "000"
 
 KEY_HASHERS = [
-        "callisto.delivery.hashers.Argon2KeyHasher",
-        "callisto.delivery.hashers.PBKDF2KeyHasher"
+    "callisto.delivery.hashers.Argon2KeyHasher",
+    "callisto.delivery.hashers.PBKDF2KeyHasher"
 ]
 
 # This low number is for testing purposes only, and is insufficient for production by several orders of magnitude

@@ -206,4 +206,4 @@ class Argon2KeyHasher(BasePasswordHasher):
         return (
             algorithm, variety, version, time_cost, memory_cost, parallelism,
             salt, data,
-            )
+        )
