@@ -518,8 +518,9 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
                                           'key': self.report_key})
         self.assertIn('submit_error', response.context)
 
+    @patch('callisto.delivery.views.logger')
     @patch('callisto.delivery.views._send_user_notification')
-    def test_submit_email_confirmation_is_handled(self, mock_send_user_notification):
+    def test_submit_email_confirmation_is_handled(self, mock_send_user_notification, mock_logger):
         mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
         response = self.client.post((self.submission_url % self.report.pk),
                                     data={'name': 'test submitter',
@@ -527,7 +528,9 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
                                           'phone_number': '555-555-1212',
                                           'email_confirmation': "True",
                                           'key': self.report_key})
-        self.assertIn('email_confirmation_error', response.context)
+        self.assertTrue(mock_logger.exception.called)
+        mock_logger.exception.assert_called_with("couldn't send confirmation to user on submission")
+        self.assertTemplateNotUsed(response, 'submit_to_school.html')
 
 
 class SubmitMatchIntegrationTest(ExistingRecordTest):
@@ -825,8 +828,9 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-MAX_NUM_FORMS': '', })
         self.assertIn('submit_error', response.context)
 
+    @patch('callisto.delivery.views.logger')
     @patch('callisto.delivery.views._send_user_notification')
-    def test_match_email_confirmation_exception_is_handled(self, mock_send_user_notification):
+    def test_match_email_confirmation_exception_is_handled(self, mock_send_user_notification, mock_logger):
         mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
         response = self.client.post((self.submission_url % self.report.pk),
                                     data={'name': 'test submitter',
@@ -838,7 +842,9 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
                                           'form-MAX_NUM_FORMS': '', })
-        self.assertIn('email_confirmation_error', response.context)
+        self.assertTrue(mock_logger.exception.called)
+        mock_logger.exception.assert_called_with("couldn't send confirmation to user on match submission")
+        self.assertTemplateNotUsed(response, 'submit_to_matching.html')
 
 
 class WithdrawMatchIntegrationTest(ExistingRecordTest):
@@ -941,7 +947,7 @@ class ExportRecordViewTest(ExistingRecordTest):
             (self.export_url % self.report.id),
             data={'key': self.report_key},
         )
-        self.assertIn('generate_pdf_error', response.context)
+        self.assertIn('There was an error exporting your report.', response.context['form'].errors['__all__'])
 
 
 class DeleteRecordTest(ExistingRecordTest):
@@ -994,4 +1000,4 @@ class DeleteRecordTest(ExistingRecordTest):
             (self.delete_url % self.report.id),
             data={'key': self.report_key},
         )
-        self.assertIn('report_deleted_error', response.context)
+        self.assertIn('There was an error deleting your report.', response.context['form'].errors['__all__'])
