@@ -11,3 +11,4 @@ Contributors
 * Anna Lawley / @alawley
 * Sarah Messer / @SMesser
 * amelia sabine / @asabine
+* Michael Whetten / @monster-michael
