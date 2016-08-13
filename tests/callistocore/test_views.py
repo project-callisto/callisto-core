@@ -2,6 +2,7 @@ import json
 from io import BytesIO
 
 import PyPDF2
+from mock import patch
 from wizard_builder.forms import QuestionPageForm
 from wizard_builder.models import (
     Choice, QuestionPage, RadioButton, SingleLineText,
@@ -506,6 +507,31 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\\.pdf\\.gpg')
 
+    @patch('callisto.delivery.views.PDFFullReport.send_report_to_school')
+    def test_submit_exception_is_handled(self, mock_send_report_to_school):
+        mock_send_report_to_school.side_effect = Exception('Mock Send Report Exception')
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key})
+        self.assertIn('submit_error', response.context)
+
+    @patch('callisto.delivery.views.logger')
+    @patch('callisto.delivery.views._send_user_notification')
+    def test_submit_email_confirmation_is_handled(self, mock_send_user_notification, mock_logger):
+        mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "True",
+                                          'key': self.report_key})
+        self.assertTrue(mock_logger.exception.called)
+        mock_logger.exception.assert_called_with("couldn't send confirmation to user on submission")
+        self.assertTemplateNotUsed(response, 'submit_to_school.html')
+
 
 class SubmitMatchIntegrationTest(ExistingRecordTest):
 
@@ -787,6 +813,39 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertIn('test match delivery body', message.body)
         self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\\.pdf\\.gpg')
 
+    @patch('callisto.delivery.views.MatchReport.encrypt_match_report')
+    def test_match_send_exception_is_handled(self, mock_encrypt_match_report):
+        mock_encrypt_match_report.side_effect = Exception('Mock Submit Match Exception')
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/test_url',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '', })
+        self.assertIn('submit_error', response.context)
+
+    @patch('callisto.delivery.views.logger')
+    @patch('callisto.delivery.views._send_user_notification')
+    def test_match_email_confirmation_exception_is_handled(self, mock_send_user_notification, mock_logger):
+        mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "True",
+                                          'key': self.report_key,
+                                          'form-0-perp': 'facebook.com/test_url',
+                                          'form-TOTAL_FORMS': '1',
+                                          'form-INITIAL_FORMS': '1',
+                                          'form-MAX_NUM_FORMS': '', })
+        self.assertTrue(mock_logger.exception.called)
+        mock_logger.exception.assert_called_with("couldn't send confirmation to user on match submission")
+        self.assertTemplateNotUsed(response, 'submit_to_matching.html')
+
 
 class WithdrawMatchIntegrationTest(ExistingRecordTest):
 
@@ -881,6 +940,15 @@ class ExportRecordViewTest(ExistingRecordTest):
         response = self.client.get(self.export_url % report.id)
         self.assertEqual(response.status_code, 403)
 
+    @patch('callisto.delivery.views.PDFFullReport.generate_pdf_report')
+    def test_export_exception_is_handled(self, mock_generate_pdf_report):
+        mock_generate_pdf_report.side_effect = Exception('Mock Generate PDF Exception')
+        response = self.client.post(
+            (self.export_url % self.report.id),
+            data={'key': self.report_key},
+        )
+        self.assertIn('There was an error exporting your report.', response.context['form'].errors['__all__'])
+
 
 class DeleteRecordTest(ExistingRecordTest):
 
@@ -924,3 +992,12 @@ class DeleteRecordTest(ExistingRecordTest):
         response = self.client.get(self.delete_url % self.report.id)
         self.assertEqual(response.status_code, 200)
         self.assertIn('custom context', get_body(response))
+
+    @patch('callisto.delivery.views.Report.delete')
+    def test_delete_exception_is_handled(self, mock_delete):
+        mock_delete.side_effect = Exception('Mock Delete Report Exception')
+        response = self.client.post(
+            (self.delete_url % self.report.id),
+            data={'key': self.report_key},
+        )
+        self.assertIn('There was an error deleting your report.', response.context['form'].errors['__all__'])
