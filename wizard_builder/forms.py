@@ -28,11 +28,7 @@ class QuestionPageForm(BasePageForm):
                     placeholder = choice_with_extra.extra_info_placeholder
                     if placeholder:
                         extra_dict = {}
-                        extra_field = forms.CharField(label=mark_safe("<span class='sr-only'>%s</span>" % placeholder),
-                                                      required=False,
-                                                      widget=forms.TextInput(attrs={'class':
-                                                                                    "form-control extra_text_info",
-                                                                                    'placeholder': placeholder}),)
+                        extra_field = forms.CharField(required=False, max_length=500)
                         id_for_extra_field = '%s_extra-%s' % (question_id, choice_with_extra.pk)
                         self.fields[id_for_extra_field] = extra_field
                         radio_button_name = "%s-%s" % (self.prefix, question_id)
