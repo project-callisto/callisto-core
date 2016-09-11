@@ -21,7 +21,7 @@ class MatchReportMigrationTest(MigrationTest):
 
     app_name = 'delivery'
     before = '0003_allow_deletion_of_identifier'
-    after = '0007_add_argon2_with_rolling_upgrades'
+    after = '0009_report_uuid'
 
     def test_fields_are_encrypted(self):
 
