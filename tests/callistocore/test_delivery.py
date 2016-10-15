@@ -256,7 +256,16 @@ class ReportRenderTest(MatchTest):
         rendered_text = pdf_reader.getPage(1).extractText()
         self.assertIn('A radiobutton question?', rendered_text)
         for i in range(5):
-            self.assertIn('This is radiobutton choice {}'.format(i), rendered_text)
+            if i == 0:
+                # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
+                regex = '7\\s+This is radiobutton choice {}'.format(i)
+            else:
+                # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+                regex = 'n\\s+This is radiobutton choice {}'.format(i)
+            if hasattr(self, 'assertRegex'):  # Python 3.2+
+                self.assertRegex(rendered_text, regex)
+            else:
+                self.assertRegexpMatches(rendered_text, regex)
         self.assertIn('Extra text for choice 0', rendered_text)
         self.assertIn('Extra radiobutton answer text', rendered_text)
 
