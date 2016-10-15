@@ -149,8 +149,11 @@ class ReportRenderTest(MatchTest):
         self.assertNotIn('Formset 1', rendered_text)
         self.assertIn('Formset', rendered_text)
         self.assertIn('Checkbox question?', rendered_text)
-        for i in range(3):
-            self.assertIn('This is checkbox choice {}'.format(i), rendered_text)
+        # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
+        six.assertRegex(self, rendered_text, '7\\s+This is checkbox choice 0')
+        # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+        six.assertRegex(self, rendered_text, 'n\\s+This is checkbox choice 1')
+        six.assertRegex(self, rendered_text, 'n\\s+This is checkbox choice 2')
         self.assertIn('Extra text for choice 0', rendered_text)
         self.assertIn('Extra checkbox answer text', rendered_text)
 
