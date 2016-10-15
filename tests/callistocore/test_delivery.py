@@ -2,6 +2,7 @@ from io import BytesIO
 
 import PyPDF2
 import pytz
+import six
 
 from django.contrib.auth import get_user_model
 from django.core import mail
@@ -58,10 +59,7 @@ class ReportRenderTest(MatchTest):
             else:
                 # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
                 regex = 'n\\s+This is checkbox choice {}'.format(i)
-            if hasattr(self, 'assertRegex'):  # Python 3.2+
-                self.assertRegex(rendered_text, regex)
-            else:  # Python 2.7, Python 3.1
-                self.assertRegexpMatches(rendered_text, regex)
+            six.assertRegex(self, rendered_text, regex)
         self.assertIn('Extra text for choice 0', rendered_text)
         self.assertIn('Extra checkbox answer text', rendered_text)
 
@@ -262,10 +260,7 @@ class ReportRenderTest(MatchTest):
             else:
                 # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
                 regex = 'n\\s+This is radiobutton choice {}'.format(i)
-            if hasattr(self, 'assertRegex'):  # Python 3.2+
-                self.assertRegex(rendered_text, regex)
-            else:
-                self.assertRegexpMatches(rendered_text, regex)
+            six.assertRegex(self, rendered_text, regex)
         self.assertIn('Extra text for choice 0', rendered_text)
         self.assertIn('Extra radiobutton answer text', rendered_text)
 
