@@ -19,6 +19,275 @@ from .test_matching import MatchTest
 User = get_user_model()
 
 
+class ReportRenderTest(MatchTest):
+    def setUp(self):
+        super(ReportRenderTest, self).setUp()
+        self.user = self.user1
+        self.report = Report(owner=self.user)
+        self.report.save()
+
+    def test_checkbox_rendered(self):
+        checkbox_question = '''[
+        {"answer": [0,1,2,3,4],
+        "id": 1,
+        "section": 1,
+        "question_text": "A checkbox question?",
+        "choices": [{"id": 0, "choice_text": "This is checkbox choice 0"},
+        {"id": 1, "choice_text": "This is checkbox choice 1"},
+        {"id": 2, "choice_text": "This is checkbox choice 2"},
+        {"id": 3, "choice_text": "This is checkbox choice 3"},
+        {"id": 4, "choice_text": "This is checkbox choice 4"}],
+        "extra": {
+        "extra_text": "Extra text for choice 0",
+        "answer": "Extra checkbox answer text"
+        },
+        "type": "Checkbox"
+        }
+        ]'''
+        report = PDFFullReport(self.report, checkbox_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('A checkbox question?', rendered_text)
+        for i in range(5):
+            self.assertIn('This is checkbox choice {}'.format(i), rendered_text)
+        self.assertIn('Extra text for choice 0', rendered_text)
+        self.assertIn('Extra checkbox answer text', rendered_text)
+
+    def test_date_rendered(self):
+        date_question = '''[
+        { "answer": "01/01/2016",
+        "id": 1,
+        "section": 1,
+        "question_text": "Date text question?",
+        "type": "Date"
+        }
+        ]'''
+        report = PDFFullReport(self.report, date_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Date text question?', rendered_text)
+        self.assertIn('01/01/2016', rendered_text)
+
+    def test_date_no_answer_rendered(self):
+        date_question = '''[
+        { "answer": "",
+        "id": 1,
+        "section": 1,
+        "question_text": "Date text question?",
+        "type": "Date"
+        }
+        ]'''
+        report = PDFFullReport(self.report, date_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Date text question?', rendered_text)
+        self.assertIn('Not answered', rendered_text)
+
+    def test_empty_formset_rendered(self):
+        formset_question = '''[
+        { "answers": [],
+        "id": 1,
+        "section": 1,
+        "prompt": "Formset",
+        "type": "FormSet"
+        }
+        ]'''
+        report = PDFFullReport(self.report, formset_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+        self.assertNotIn('Formset 1', rendered_text)
+        self.assertIn('Formset', rendered_text)
+        self.assertIn('None added', rendered_text)
+
+    def test_single_formset_rendered(self):
+        formset_question = '''[
+        { "answers": [[
+        { "answer": 0,
+        "id": 1,
+        "section": 1,
+        "question_text": "Checkbox question?",
+        "choices": [{"id": 0, "choice_text": "This is checkbox choice 0"},
+        {"id": 1, "choice_text": "This is checkbox choice 1"},
+        {"id": 2, "choice_text": "This is checkbox choice 2"}
+        ],
+        "extra": {
+        "extra_text": "Extra text for choice 0",
+        "answer": "Extra checkbox answer text"
+        },
+        "type": "Checkbox"
+        }]
+        ],
+        "id": 1,
+        "section": 1,
+        "prompt": "Formset",
+        "type": "FormSet"
+        }
+        ]'''
+        report = PDFFullReport(self.report, formset_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+        self.assertNotIn('Formset 1', rendered_text)
+        self.assertIn('Formset', rendered_text)
+        self.assertIn('Checkbox question?', rendered_text)
+        for i in range(3):
+            self.assertIn('This is checkbox choice {}'.format(i), rendered_text)
+        self.assertIn('Extra text for choice 0', rendered_text)
+        self.assertIn('Extra checkbox answer text', rendered_text)
+
+    def test_multiple_formsets_rendered(self):
+        formset_question = '''[
+        { "answers": [[
+        { "answer": "4/16/2016",
+        "id": 1,
+        "section": 1,
+        "question_text": "Date text question?",
+        "type": "Date"
+        }],
+        [
+        { "answer": "Multiline\\ntext\\nanswer",
+        "id": 1,
+        "section": 1,
+        "question_text": "Multiline text question?",
+        "type": "MultiLineText"
+        }]
+
+        ],
+        "id": 1,
+        "section": 1,
+        "prompt": "Formset",
+        "type": "FormSet"
+        }
+        ]'''
+        report = PDFFullReport(self.report, formset_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+        self.assertIn('Formset 1', rendered_text)
+        self.assertIn('Date text question?', rendered_text)
+        self.assertIn('4/16/2016', rendered_text)
+        self.assertIn('Formset 2', rendered_text)
+        self.assertIn('Multiline text question?', rendered_text)
+        self.assertIn('Multiline\ntext\nanswer', rendered_text)
+
+    def test_multiline_text_rendered(self):
+        multiline_question = '''[
+        { "answer": "Multiline\\ntext\\nanswer",
+        "id": 1,
+        "section": 1,
+        "question_text": "Multiline text question?",
+        "type": "MultiLineText"
+        }
+        ]'''
+        report = PDFFullReport(self.report, multiline_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Multiline text question?', rendered_text)
+        self.assertIn('Multiline\ntext\nanswer', rendered_text)
+
+    def test_multiline_text_no_answer_rendered(self):
+        multiline_question = '''[
+        { "answer": "",
+        "id": 1,
+        "section": 1,
+        "question_text": "Multiline text question?",
+        "type": "MultiLineText"
+        }
+        ]'''
+        report = PDFFullReport(self.report, multiline_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Multiline text question?', rendered_text)
+        self.assertIn('Not answered', rendered_text)
+
+    def test_radiobutton_rendered(self):
+        radio_question = '''[
+        {"answer": 0,
+        "id": 1,
+        "section": 1,
+        "question_text": "A radiobutton question?",
+        "choices": [
+        {"id": 0, "choice_text": "This is radiobutton choice 0"},
+        {"id": 1, "choice_text": "This is radiobutton choice 1"},
+        {"id": 2, "choice_text": "This is radiobutton choice 2"},
+        {"id": 3, "choice_text": "This is radiobutton choice 3"},
+        {"id": 4, "choice_text": "This is radiobutton choice 4"}
+        ],
+        "extra": {
+        "extra_text": "Extra text for choice 0",
+        "answer": "Extra radiobutton answer text"
+        },
+        "type": "RadioButton"
+        }
+        ]'''
+        report = PDFFullReport(self.report, radio_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+
+        rendered_text = pdf_reader.getPage(1).extractText()
+        self.assertIn('A radiobutton question?', rendered_text)
+        for i in range(5):
+            self.assertIn('This is radiobutton choice {}'.format(i), rendered_text)
+        self.assertIn('Extra text for choice 0', rendered_text)
+        self.assertIn('Extra radiobutton answer text', rendered_text)
+
+    def test_singleline_text_rendered(self):
+        singleline_question = '''[
+        { "answer": "Single line text answer",
+        "id": 1,
+        "section": 1,
+        "question_text": "Single line text question?",
+        "type": "SingleLineText"
+        }
+        ]'''
+        report = PDFFullReport(self.report, singleline_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Single line text question?', rendered_text)
+        self.assertIn('Single line text answer', rendered_text)
+
+    def test_singleline_text_no_answer_rendered(self):
+        singleline_question = '''[
+        { "answer": "",
+        "id": 1,
+        "section": 1,
+        "question_text": "Single line text question?",
+        "type": "SingleLineText"
+        }
+        ]'''
+        report = PDFFullReport(self.report, singleline_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Single line text question?', rendered_text)
+        self.assertIn('Not answered', rendered_text)
+
+
 class ReportDeliveryTest(MatchTest):
 
     def setUp(self):
