@@ -4,4 +4,7 @@ wheel==0.29.0
 # Coding style compliance
 autopep8>=1.2.4
 
+# releasing to PyPI
+pypandoc==1.2.0
+
 -r requirements-test.txt

@@ -40,7 +40,13 @@ if sys.argv[-1] == 'tag':
     os.system("git push --tags")
     sys.exit()
 
-readme = open('README.md').read()
+print("Converting README from markdown to restructured text")
+try:
+    import pypandoc
+    readme = pypandoc.convert_file('README.md', 'rst')
+except (IOError, ImportError):
+    print("Please install PyPandoc to allow conversion of the README")
+    readme = open('README.md').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 license = open('LICENSE').read()
 
