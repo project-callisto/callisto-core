@@ -42,16 +42,19 @@ if sys.argv[-1] == 'tag':
 
 readme = open('README.md').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
+license = open('LICENSE').read()
 
 setup(
     name='callisto-core',
     version=__version__,
     description="""Report intake, escrow, matching and secure delivery code for Callisto,
     an online reporting system for sexual assault.""",
+    license=license,
     long_description=readme + '\n\n' + history,
     author='Sexual Health Innovations',
     author_email='tech@sexualhealthinnovations.org',
     url='https://github.com/SexualHealthInnovations/callisto-core',
+    download_url='https://github.com/SexualHealthInnovations/callisto-core/tarball/release-8.15.16-2/',
     packages=[
         'callisto.delivery',
         'callisto.evaluation'],
