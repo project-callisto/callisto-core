@@ -14,7 +14,7 @@ Working on your first open source contribution? We are so excited to have you! Y
 
 ## Coding style
 
-We are adhering to [Django's coding style guide](https://docs.djangoproject.com/en/1.9/internals/contributing/writing-code/coding-style/), including a maximum line length of 119 characters. You'll find relevant configuration in [`setup.cfg`](https://github.com/SexualHealthInnovations/callisto-core/blob/master/setup.cfg).
+We are adhering to [Django's coding style guide](https://docs.djangoproject.com/en/1.10/internals/contributing/writing-code/coding-style/), including a maximum line length of 119 characters. You'll find relevant configuration in [`setup.cfg`](https://github.com/SexualHealthInnovations/callisto-core/blob/master/setup.cfg).
 
 As Django's style guide explains, you can use `isort` to automatically sort imports. Before opening your pull request, sort imports by running `isort -rc .` in the root directory of the project. Travis builds of your PR fail if imports aren't sorted correctly.
 
@@ -41,6 +41,7 @@ deactivate # exit virtualenv
 Django
 - 1.8
 - 1.9
+- 1.10
 
 Python
 - 2.7
