@@ -2,6 +2,7 @@ from io import BytesIO
 
 import PyPDF2
 import pytz
+import six
 
 from django.contrib.auth import get_user_model
 from django.core import mail
@@ -28,7 +29,7 @@ class ReportRenderTest(MatchTest):
 
     def test_checkbox_rendered(self):
         checkbox_question = '''[
-        {"answer": [0,1,2,3,4],
+        {"answer": [0,2,4],
         "id": 1,
         "section": 1,
         "question_text": "A checkbox question?",
@@ -52,7 +53,13 @@ class ReportRenderTest(MatchTest):
 
         self.assertIn('A checkbox question?', rendered_text)
         for i in range(5):
-            self.assertIn('This is checkbox choice {}'.format(i), rendered_text)
+            if i in [0, 2, 4]:
+                # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
+                regex = '7\\s+This is checkbox choice {}'.format(i)
+            else:
+                # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+                regex = 'n\\s+This is checkbox choice {}'.format(i)
+            six.assertRegex(self, rendered_text, regex)
         self.assertIn('Extra text for choice 0', rendered_text)
         self.assertIn('Extra checkbox answer text', rendered_text)
 
@@ -142,8 +149,11 @@ class ReportRenderTest(MatchTest):
         self.assertNotIn('Formset 1', rendered_text)
         self.assertIn('Formset', rendered_text)
         self.assertIn('Checkbox question?', rendered_text)
-        for i in range(3):
-            self.assertIn('This is checkbox choice {}'.format(i), rendered_text)
+        # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
+        six.assertRegex(self, rendered_text, '7\\s+This is checkbox choice 0')
+        # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+        six.assertRegex(self, rendered_text, 'n\\s+This is checkbox choice 1')
+        six.assertRegex(self, rendered_text, 'n\\s+This is checkbox choice 2')
         self.assertIn('Extra text for choice 0', rendered_text)
         self.assertIn('Extra checkbox answer text', rendered_text)
 
@@ -247,7 +257,13 @@ class ReportRenderTest(MatchTest):
         rendered_text = pdf_reader.getPage(1).extractText()
         self.assertIn('A radiobutton question?', rendered_text)
         for i in range(5):
-            self.assertIn('This is radiobutton choice {}'.format(i), rendered_text)
+            if i == 0:
+                # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
+                regex = '7\\s+This is radiobutton choice {}'.format(i)
+            else:
+                # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+                regex = 'n\\s+This is radiobutton choice {}'.format(i)
+            six.assertRegex(self, rendered_text, regex)
         self.assertIn('Extra text for choice 0', rendered_text)
         self.assertIn('Extra radiobutton answer text', rendered_text)
 
