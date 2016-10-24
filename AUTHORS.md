@@ -2,6 +2,7 @@ Contributors
 =============
 
 * Kelsey Gilmore-Innis / @kelseyq
+* Lynn Cyrin / @lynnco
 * Lacey Williams Henschel / @williln
 * Scot Hacker / @shacker
 * David Cook / @divergentdave
