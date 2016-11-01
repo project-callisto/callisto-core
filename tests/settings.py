@@ -25,6 +25,11 @@ SITE_ID = 1
 
 MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',)
 
-TEMPLATE_DIRS = ['%s/test_app/templates' % os.path.abspath(os.path.dirname(__file__))]
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': ['%s/test_app/templates' % os.path.abspath(os.path.dirname(__file__))],
+    },
+]
 
 SECRET_KEY = "not important"
