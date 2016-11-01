@@ -163,7 +163,6 @@ class MultiLineText(FormQuestion):
             ),
         )
 
-
     def serialize_for_report(self, answer="", *args):
         return {'id': self.pk, 'question_text': self.text, 'answer': answer,
                 'type': 'MultiLineText', 'section': self.section}
