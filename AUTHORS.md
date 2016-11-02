@@ -13,3 +13,5 @@ Contributors
 * Sarah Messer / @SMesser
 * amelia sabine / @asabine
 * Michael Whetten / @monster-michael
+* James Santucci / @jisantucci
+* Sunah Suh / @sunahsuh
