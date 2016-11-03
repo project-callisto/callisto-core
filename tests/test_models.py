@@ -98,11 +98,11 @@ class SingleLineTextModelTestCase(ItemTestCase):
     def test_make_field_includes_placeholder(self):
         question = SingleLineText.objects.create(text="This is a question",
                                                  example="You might answer it so").make_field()
-        self.assertIn('You might answer it so', question.widget.attrs['placeholder'])
+        self.assertIn('You might answer it so', question.label)
 
     def test_make_field_works_without_placeholder(self):
         question = SingleLineText.objects.create(text="This is a question without placeholder").make_field()
-        self.assertEqual('', question.widget.attrs['placeholder'])
+        self.assertEqual(None, question.widget.attrs.get('placeholder'))
 
     def test_serializes_correctly(self):
         question = SingleLineText.objects.create(text="This is a question to be answered")

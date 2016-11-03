@@ -97,6 +97,12 @@ class FormQuestion(PolymorphicModel):
     def get_extras(self):
         return None
 
+    def get_label(self):
+        label = self.text
+        if getattr(self, 'example'):
+            label = mark_safe(label + '<br/><br/>' + self.example)
+        return label
+
     class Meta:
         ordering = ['position']
         verbose_name = 'question'
@@ -105,10 +111,15 @@ class FormQuestion(PolymorphicModel):
 class SingleLineText(FormQuestion):
 
     def make_field(self):
-        return forms.CharField(label=self.text,
-                               required=False,
-                               widget=forms.TextInput(attrs={'class': "form-control input-lg",
-                                                             'placeholder': self.example}),)
+        return forms.CharField(
+            label=self.get_label(),
+            required=False,
+            widget=forms.TextInput(
+                attrs={
+                    'class': "form-control input-lg",
+                },
+            ),
+        )
 
     def serialize_for_report(self, answer="", *args):
         return {'id': self.pk, 'question_text': self.text, 'answer': answer,
@@ -122,11 +133,16 @@ class SingleLineTextWithMap(FormQuestion):
         link_to_map = """<a href='{0}' target='_blank' class="map_link">
                           <img alt="Map of campus" src="/static/images/map_icon.png" />
                       </a>""".format(self.map_link)
-        return forms.CharField(label=self.text,
-                               help_text=mark_safe(link_to_map),
-                               required=False,
-                               widget=forms.TextInput(attrs={'class': "form-control input-lg map-field",
-                                                             'placeholder': self.example}),)
+        return forms.CharField(
+            label=self.get_label(),
+            help_text=mark_safe(link_to_map),
+            required=False,
+            widget=forms.TextInput(
+                attrs={
+                    'class': "form-control input-lg map-field",
+                },
+            ),
+        )
 
     def serialize_for_report(self, answer="", *args):
         return {'id': self.pk, 'question_text': self.text, 'answer': answer,
@@ -136,11 +152,16 @@ class SingleLineTextWithMap(FormQuestion):
 class MultiLineText(FormQuestion):
 
     def make_field(self):
-        return forms.CharField(label=self.text,
-                               required=False,
-                               widget=forms.Textarea(attrs={'class': "form-control",
-                                                            'placeholder': self.example,
-                                                            'max_length': 30000}),)
+        return forms.CharField(
+            label=self.get_label(),
+            required=False,
+            widget=forms.Textarea(
+                attrs={
+                    'class': "form-control",
+                    'max_length': 30000,
+                },
+            ),
+        )
 
     def serialize_for_report(self, answer="", *args):
         return {'id': self.pk, 'question_text': self.text, 'answer': answer,
@@ -230,10 +251,15 @@ class Choice(models.Model):
 class Date(FormQuestion):
 
     def make_field(self):
-        return forms.CharField(label=self.text,
-                               required=False,
-                               widget=forms.TextInput(attrs={'class': "form-control input-lg date-field",
-                                                             'placeholder': self.example}),)
+        return forms.CharField(
+            label=self.get_label(),
+            required=False,
+            widget=forms.TextInput(
+                attrs={
+                    'class': "form-control input-lg date-field",
+                },
+            ),
+        )
 
     def serialize_for_report(self, answer, *args):
         return {'id': self.pk, 'question_text': self.text, 'answer': answer,
