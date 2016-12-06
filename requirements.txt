@@ -7,7 +7,7 @@ PyNaCl==1.0.1
 python-gnupg==0.3.9
 
 environ
-pytz==2016.7
+pytz==2016.10
 reportlab==3.3.0
 zxcvbn-py3
 six
