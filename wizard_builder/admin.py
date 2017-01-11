@@ -18,6 +18,7 @@ from .models import (
 class FormQuestionChildAdmin(PolymorphicChildModelAdmin):
     """ Base admin class for all child models """
     base_model = FormQuestion
+    exclude = ['example']
 
 
 class SingleLineTextAdmin(FormQuestionChildAdmin):
@@ -48,7 +49,6 @@ class RadioButtonAdmin(FormQuestionChildAdmin):
     inlines = FormQuestionChildAdmin.inlines + [
         ChoiceInline,
     ]
-    exclude = ['example']
 
 
 class CheckboxAdmin(FormQuestionChildAdmin):
@@ -56,7 +56,6 @@ class CheckboxAdmin(FormQuestionChildAdmin):
     inlines = FormQuestionChildAdmin.inlines + [
         ChoiceInline,
     ]
-    exclude = ['example']
 
 
 class DateAdmin(FormQuestionChildAdmin):
