@@ -98,10 +98,7 @@ class FormQuestion(PolymorphicModel):
         return None
 
     def get_label(self):
-        label = self.text
-        if getattr(self, 'example'):
-            label = mark_safe(label + '<br/><br/>' + self.example)
-        return label
+        return self.text
 
     class Meta:
         ordering = ['position']

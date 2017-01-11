@@ -22,7 +22,7 @@ class QuestionPageForm(BasePageForm):
         for item in self.items:
             question_id = 'question_%s' % item.pk
             self.fields[question_id] = item.make_field()
-            self.fields[question_id].help_text = mark_safe(item.descriptive_text + self.fields[question_id].help_text)
+            self.fields[question_id].help_text = mark_safe(item.example + '<br/><br/>' + item.descriptive_text + self.fields[question_id].help_text)
             if isinstance(item, MultipleChoice):
                 for idx, choice_with_extra in enumerate(item.get_choices()):
                     placeholder = choice_with_extra.extra_info_placeholder
