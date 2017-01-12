@@ -79,7 +79,6 @@ class FormQuestion(PolymorphicModel):
 
     page = models.ForeignKey('QuestionPage', editable=True, default=get_page, blank=True)
     position = models.PositiveSmallIntegerField("position", default=0)
-    example = models.TextField(blank=True) # TODO: remove
     descriptive_text = models.TextField(blank=True)
 
     added = models.DateTimeField(auto_now_add=True)
