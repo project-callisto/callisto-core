@@ -18,7 +18,6 @@ from .models import (
 class FormQuestionChildAdmin(PolymorphicChildModelAdmin):
     """ Base admin class for all child models """
     base_model = FormQuestion
-    exclude = ['example']
 
 
 class SingleLineTextAdmin(FormQuestionChildAdmin):
