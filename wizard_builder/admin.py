@@ -143,6 +143,7 @@ class PageParentAdmin(PolymorphicParentModelAdmin):
         (TextPage, TextPageAdmin)
     )
 
+
 # Only the parent needs to be registered:
 admin.site.register(FormQuestion, FormQuestionParentAdmin)
 admin.site.register(PageBase, PageParentAdmin)
