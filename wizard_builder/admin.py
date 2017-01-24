@@ -48,7 +48,6 @@ class RadioButtonAdmin(FormQuestionChildAdmin):
     inlines = FormQuestionChildAdmin.inlines + [
         ChoiceInline,
     ]
-    exclude = ['example']
 
 
 class CheckboxAdmin(FormQuestionChildAdmin):
@@ -56,7 +55,6 @@ class CheckboxAdmin(FormQuestionChildAdmin):
     inlines = FormQuestionChildAdmin.inlines + [
         ChoiceInline,
     ]
-    exclude = ['example']
 
 
 class DateAdmin(FormQuestionChildAdmin):
@@ -144,6 +142,7 @@ class PageParentAdmin(PolymorphicParentModelAdmin):
         (QuestionPage, QuestionPageAdmin),
         (TextPage, TextPageAdmin)
     )
+
 
 # Only the parent needs to be registered:
 admin.site.register(FormQuestion, FormQuestionParentAdmin)

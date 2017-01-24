@@ -72,10 +72,6 @@ class FormQuestionModelTest(ItemTestCase):
         question = SingleLineText.objects.create(text="This is a question with no page")
         self.assertEqual(question.page.position, 9)
 
-    def test_questions_can_have_example_text(self):
-        SingleLineText.objects.create(text="This is a question", example="You might answer it so")
-        self.assertEqual(SingleLineText.objects.first().example, "You might answer it so")
-
     def test_questions_can_have_descriptive_text(self):
         SingleLineText.objects.create(text="This is a question", descriptive_text="You might answer it so")
         self.assertEqual(SingleLineText.objects.first().descriptive_text, "You might answer it so")
@@ -94,11 +90,6 @@ class SingleLineTextModelTestCase(ItemTestCase):
     def test_make_field_applies_css(self):
         question = SingleLineText.objects.create(text="This is a question with css").make_field()
         self.assertIn('form-control input-lg', question.widget.attrs['class'])
-
-    def test_make_field_includes_placeholder(self):
-        question = SingleLineText.objects.create(text="This is a question",
-                                                 example="You might answer it so").make_field()
-        self.assertIn('You might answer it so', question.label)
 
     def test_make_field_works_without_placeholder(self):
         question = SingleLineText.objects.create(text="This is a question without placeholder").make_field()

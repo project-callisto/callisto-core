@@ -79,7 +79,6 @@ class FormQuestion(PolymorphicModel):
 
     page = models.ForeignKey('QuestionPage', editable=True, default=get_page, blank=True)
     position = models.PositiveSmallIntegerField("position", default=0)
-    example = models.TextField(blank=True)
     descriptive_text = models.TextField(blank=True)
 
     added = models.DateTimeField(auto_now_add=True)
@@ -98,10 +97,7 @@ class FormQuestion(PolymorphicModel):
         return None
 
     def get_label(self):
-        label = self.text
-        if getattr(self, 'example'):
-            label = mark_safe(label + '<br/><br/>' + self.example)
-        return label
+        return mark_safe(self.text)
 
     class Meta:
         ordering = ['position']
