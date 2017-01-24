@@ -271,9 +271,9 @@ class PDFReport(object):
     def send_email_to_coordinator(self, pdf_to_attach, notification_name, report_id):
         notification = EmailNotification.objects.get(name=notification_name)
 
-        to = settings.COORDINATOR_EMAIL
+        to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
 
-        email = EmailMultiAlternatives(notification.subject, notification.render_body_plain(), self.from_email, [to])
+        email = EmailMultiAlternatives(notification.subject, notification.render_body_plain(), self.from_email, to_addresses)
         email.attach_alternative(notification.render_body(), "text/html")
 
         gpg = gnupg.GPG()
