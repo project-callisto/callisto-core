@@ -295,7 +295,7 @@ class SentReport(PolymorphicModel):
     """Report of one or more incidents, sent to the monitoring organization"""
     # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14
     sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.EmailField(blank=False, null=False, max_length=256)
+    to_address = models.CharField(blank=False, null=False, max_length=4096)
 
     def _get_id_for_schools(self, is_match):
         return "{0}-{1}-{2}".format(settings.SCHOOL_REPORT_PREFIX, '%05d' % self.id, 0 if is_match else 1)

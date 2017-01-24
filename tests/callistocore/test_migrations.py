@@ -92,3 +92,28 @@ class MatchReportMigrationTest(MigrationTest):
         find_matches([identifier])
         # have to use ANY because objects in migration tests are faked
         mock_process.assert_called_once_with([ANY, ANY], 'test_identifier', PDFMatchReport)
+
+
+class MultipleRecipientMigrationTest(MigrationTest):
+
+    app_name = 'delivery'
+    before = '0008_make_salt_nullable'
+    after = '0009_to_address_to_textfield'
+
+    def test_recipient_data_is_migrated(self):
+
+        user = User.objects.create_user(username="dummy", password="dummy")
+        Report = self.get_model_before('Report')
+        report = Report(owner_id=user.pk)
+        report.save()
+        SentFullReport = self.get_model_before('SentFullReport')
+        sent_report = SentFullReport.objects.create(report_id=report.pk, to_address="test@example.com")
+        sent_report.save()
+        self.assertEqual(SentFullReport.objects.count(), 1)
+
+        self.run_migration()
+
+        SentFullReport = self.get_model_after('SentFullReport')
+        self.assertEqual(SentFullReport.objects.count(), 1)
+        sent_report = SentFullReport.objects.first()
+        self.assertEqual(sent_report.to_address, 'test@example.com')

@@ -16,7 +16,9 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
-from callisto.delivery.models import EmailNotification, MatchReport, Report
+from callisto.delivery.models import (
+    EmailNotification, MatchReport, Report, SentFullReport,
+)
 from callisto.evaluation.models import EvalRow
 
 from .forms import EncryptedFormWizard
@@ -474,6 +476,24 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertIn('"Reports" <reports', message.from_email)
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
+
+    @override_settings(COORDINATOR_EMAIL='titleix1@example.com,titleix2@example.com')
+    def test_submit_sends_report_to_multiple_coordinators(self):
+        response = self.client.post((self.submission_url % self.report.pk),
+                                    data={'name': 'test submitter',
+                                          'email': 'test@example.com',
+                                          'phone_number': '555-555-1212',
+                                          'email_confirmation': "False",
+                                          'key': self.report_key})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('submit_error', response.context)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(SentFullReport.objects.count(), 1)
+        message1 = mail.outbox[0]
+        self.assertEqual(message1.subject, 'test delivery')
+        self.assertIn('"Reports" <reports', message1.from_email)
+        self.assertEqual(message1.to, ['titleix1@example.com', 'titleix2@example.com'])
+        self.assertRegexpMatches(message1.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
     def test_submit_sends_email_confirmation(self):
         response = self.client.post((self.submission_url % self.report.pk),
