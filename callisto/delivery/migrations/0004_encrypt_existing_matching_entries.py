@@ -14,8 +14,9 @@ from callisto.delivery.report_delivery import MatchReportContent
 
 
 def encrypt_match_report(apps, schema_editor):
+    db_alias = schema_editor.connection.alias
     MatchReport = apps.get_model('delivery', 'MatchReport')
-    for match_report in MatchReport.objects.all():
+    for match_report in MatchReport.objects.using(db_alias).all():
         match_report_content = MatchReportContent(identifier=match_report.identifier,
                                                   perp_name=match_report.name,
                                                   email=match_report.contact_email,
