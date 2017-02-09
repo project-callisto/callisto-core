@@ -8,7 +8,11 @@ REPORT_TIME_ZONE = 'Europe/Paris'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-    }
+    },
+    # used to test multiple database support
+    "alternate": {
+        "ENGINE": "django.db.backends.sqlite3",
+    },
 }
 
 
