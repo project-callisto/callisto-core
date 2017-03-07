@@ -8,7 +8,7 @@ python-gnupg==0.4.0
 
 environ
 pytz==2016.10
-reportlab==3.3.0
+reportlab==3.4.0
 zxcvbn-py3
 six
 argon2_cffi
