@@ -17,8 +17,9 @@ from django.test.utils import override_settings
 
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
 from callisto.delivery.models import (
-    EmailNotification, MatchReport, Report, SentFullReport,
+    MatchReport, Report, SentFullReport,
 )
+from callisto.notification.models import EmailNotification
 from callisto.evaluation.models import EvalRow
 
 from .forms import EncryptedFormWizard

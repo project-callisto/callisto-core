@@ -22,7 +22,9 @@ from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
-from .models import EmailNotification, SentFullReport, SentMatchReport
+from callisto.notification.models import EmailNotification
+
+from .models import SentFullReport, SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"
 tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'

@@ -3,8 +3,9 @@ import logging
 from django.conf import settings
 
 from callisto.evaluation.models import EvalRow
+from callisto.notification.models import EmailNotification
 
-from .models import EmailNotification, MatchReport
+from .models import MatchReport
 from .report_delivery import PDFMatchReport
 
 logger = logging.getLogger(__name__)
