@@ -9,11 +9,12 @@ from django.core import mail
 from django.utils import timezone
 from django.utils.timezone import localtime
 
-from callisto.delivery.models import EmailNotification, Report
+from callisto.delivery.models import Report
 from callisto.delivery.report_delivery import (
     MatchReportContent, PDFFullReport, PDFMatchReport, SentFullReport,
     SentMatchReport,
 )
+from callisto.notification.models import EmailNotification
 
 from .test_matching import MatchTest
 
