@@ -7,13 +7,11 @@ from django.db import migrations
 
 def populate_email_notification_forwards(apps, schema_editor):
     db_alias = schema_editor.connection.alias
-    EmailNotification = apps.get_model('notification', 'EmailNotification')
+    NewEmailNotification = apps.get_model('notification', 'NewEmailNotification')
+    EmailNotification = apps.get_model('delivery', 'EmailNotification')
 
-    EmailNotificationOld = EmailNotification
-    EmailNotificationOld._meta.app_label = 'delivery'
-
-    for email_notification in EmailNotificationOld.objects.using(db_alias).all():
-        create_email_notifcation = EmailNotification.objects.using(db_alias).create(
+    for email_notification in EmailNotification.objects.using(db_alias).all():
+        NewEmailNotification.objects.using(db_alias).create(
             name=email_notification.name,
             subject=email_notification.subject,
             body=email_notification.body,
@@ -21,8 +19,8 @@ def populate_email_notification_forwards(apps, schema_editor):
 
 def populate_email_notification_backwards(apps, schema_editor):
     db_alias = schema_editor.connection.alias
-    EmailNotification = apps.get_model('notification', 'EmailNotification')
-    EmailNotification.objects.using(db_alias).all().delete()
+    NewEmailNotification = apps.get_model('notification', 'NewEmailNotification')
+    NewEmailNotification.objects.using(db_alias).all().delete()
 
 class Migration(migrations.Migration):
 
@@ -33,6 +31,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(
             populate_email_notification_forwards,
-            populate_email_notification_backwards
+            populate_email_notification_backwards,
         ),
     ]

@@ -8,9 +8,11 @@ from django.contrib.sites.models import Site
 from django.template import Context, Template
 from django.core.mail.message import EmailMultiAlternatives
 
+# local
+from callisto.delivery.models import EmailNotification
 
 @six.python_2_unicode_compatible
-class EmailNotification(models.Model):
+class NewEmailNotification(models.Model):
     """Record of Email constructed in and sent via the project"""
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
