@@ -13,6 +13,7 @@ from django.utils.crypto import get_random_string
 
 # local
 from callisto.delivery.hashers import get_hasher, make_key
+from callisto.notification.models import AbstractEmailNotification
 
 
 def _encrypt_report(stretched_key, report_text):
@@ -273,43 +274,6 @@ class SentMatchReport(SentReport):
     def get_report_id(self):
         return self._get_id_for_schools(is_match=True)
 
-@six.python_2_unicode_compatible
-class EmailNotification(models.Model):
-    """Record of Email constructed in and sent via the project"""
-    name = models.CharField(blank=False, max_length=50, primary_key=True)
-    subject = models.CharField(blank=False, max_length=77)
-    body = models.TextField(blank=False)
 
-    def __str__(self):
-        return self.name
-
-    def render_body(self, context=None):
-        """Format the email as HTML."""
-        if context is None:
-            context = {}
-        current_site = Site.objects.get_current()
-        context['domain'] = current_site.domain
-        return Template(self.body).render(Context(context))
-
-    def render_body_plain(self, context=None):
-        """Format the email as plain text."""
-        if context is None:
-            context = {}
-        html = self.render_body(context)
-        cleaned = html.replace('<br />', '\n')
-        cleaned = cleaned.replace('<br/>', '\n')
-        cleaned = cleaned.replace('<p>', '\n')
-        cleaned = cleaned.replace('</p>', '\n')
-        return strip_tags(cleaned)
-
-    def send(self, to, from_email, context=None):
-        """Send the email as plain text.
-
-        Includes an HTML equivalent version as an attachment.
-        """
-
-        if context is None:
-            context = {}
-        email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
-        email.attach_alternative(self.render_body(context), "text/html")
-        email.send()
+class LegacyEmailNotification(AbstractEmailNotification):
+    pass

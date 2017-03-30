@@ -8,11 +8,9 @@ from django.contrib.sites.models import Site
 from django.template import Context, Template
 from django.core.mail.message import EmailMultiAlternatives
 
-# local
-from callisto.delivery.models import EmailNotification
 
 @six.python_2_unicode_compatible
-class NewEmailNotification(models.Model):
+class AbstractEmailNotification(models.Model):
     """Record of Email constructed in and sent via the project"""
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
@@ -51,3 +49,10 @@ class NewEmailNotification(models.Model):
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
+
+    class Meta:
+        abstract = True
+
+
+class EmailNotification(AbstractEmailNotification):
+    pass
