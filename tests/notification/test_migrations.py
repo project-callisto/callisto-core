@@ -4,8 +4,8 @@ from django_migration_testcase import MigrationTest
 
 class EmailNotificationMigrationTest(MigrationTest):
 
-    before = [('delivery', '0009_to_address_to_textfield'), ('notification', '0001_initial')]
-    after = [('delivery', '0009_to_address_to_textfield'), ('notification', '0002_populate_email_notification')]
+    before = [('delivery', '0010_rename_email_notification'), ('notification', 'zero')]
+    after = [('delivery', '0011_email_notification_data_migration'), ('notification', '0001_initial_create_email_notification')]
 
     def test_email_notication_migration(self):
 
@@ -13,22 +13,23 @@ class EmailNotificationMigrationTest(MigrationTest):
         subject = 'migration test'
         body = 'test for email notification migration'
 
-        EmailNotificationOld = self.get_model_before('delivery.EmailNotification')
-        EmailNotificationOld.objects.create(
+        LegacyEmailNotificationBefore = self.get_model_before('delivery.LegacyEmailNotification')
+        LegacyEmailNotificationBefore.objects.create(
             name=name,
             subject=subject,
             body=body,
         )
+        self.assertEqual(LegacyEmailNotificationBefore.objects.count(), 1)
 
-        print('pre run_migration')
         self.run_migration()
-        print('post run_migration')
 
-        EmailNotificationNew = self.get_model_after('notification.NewEmailNotification')
-        email_notifcation_new, created = EmailNotificationNew.objects.get_or_create(
+        LegacyEmailNotificationAfter = self.get_model_after('delivery.LegacyEmailNotification')
+        NewEmailNotification = self.get_model_after('notification.EmailNotification')
+        _, created = NewEmailNotification.objects.get_or_create(
             name=name,
             subject=subject,
             body=body,
         )
 
         self.assertFalse(created)
+        self.assertEqual(NewEmailNotification.objects.count(), 1)

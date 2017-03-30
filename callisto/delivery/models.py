@@ -276,4 +276,6 @@ class SentMatchReport(SentReport):
 
 
 class LegacyEmailNotification(AbstractEmailNotification):
-    pass
+
+    class Meta:
+        managed = False

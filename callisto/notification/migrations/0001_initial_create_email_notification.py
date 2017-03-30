@@ -5,14 +5,14 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
+# source: http://stackoverflow.com/a/26472482/3055558
 class Migration(migrations.Migration):
 
-    initial = True
-
     dependencies = [
+        ('delivery', '0011_email_notification_data_migration')
     ]
 
-    operations = [
+    state_operations = [
         migrations.CreateModel(
             name='EmailNotification',
             fields=[
@@ -23,5 +23,9 @@ class Migration(migrations.Migration):
             options={
                 'abstract': False,
             },
-        ),
+        )
+    ]
+
+    operations = [
+        migrations.SeparateDatabaseAndState(state_operations=state_operations),
     ]
