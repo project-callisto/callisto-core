@@ -25,7 +25,8 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "wizard_builder",
     "callisto.delivery",
-    "callisto.evaluation"
+    "callisto.evaluation",
+    "callisto.notification",
 ]
 
 SITE_ID = 1
