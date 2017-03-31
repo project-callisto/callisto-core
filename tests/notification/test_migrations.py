@@ -4,9 +4,14 @@ from django_migration_testcase import MigrationTest
 
 class EmailNotificationMigrationTest(MigrationTest):
 
-    before = [('delivery', '0009_to_address_to_textfield'), ('notification', 'zero')]
-    after = [('delivery', '0010_email_notification_data_migration'),
-             ('notification', '0001_initial_create_email_notification')]
+    before = [
+        ('delivery', '0009_to_address_to_textfield'),
+        ('notification', 'zero'),
+    ]
+    after = [
+        ('delivery', '0010_email_notification_data_migration'),
+        ('notification', '0001_initial_create_email_notification'),
+    ]
 
     def test_email_notication_migration(self):
 
