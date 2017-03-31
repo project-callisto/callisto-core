@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
-# source: http://stackoverflow.com/a/26472482/3055558
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -16,12 +15,13 @@ class Migration(migrations.Migration):
         migrations.AlterModelTable('LegacyEmailNotification', 'notification_emailnotification')
     ]
 
+    state_operations = [
+        migrations.DeleteModel('LegacyEmailNotification')
+    ]
+
     operations = [
         migrations.SeparateDatabaseAndState(
             database_operations=database_operations,
-        ),
-        migrations.AlterModelOptions(
-            name='legacyemailnotification',
-            options={'managed': False},
+            state_operations=state_operations,
         ),
     ]

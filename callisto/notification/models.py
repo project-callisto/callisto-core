@@ -10,7 +10,7 @@ from django.core.mail.message import EmailMultiAlternatives
 
 
 @six.python_2_unicode_compatible
-class AbstractEmailNotification(models.Model):
+class EmailNotification(models.Model):
     """Record of Email constructed in and sent via the project"""
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
@@ -49,10 +49,3 @@ class AbstractEmailNotification(models.Model):
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
-
-    class Meta:
-        abstract = True
-
-
-class EmailNotification(AbstractEmailNotification):
-    pass

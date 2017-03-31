@@ -13,7 +13,6 @@ from django.utils.crypto import get_random_string
 
 # local
 from callisto.delivery.hashers import get_hasher, make_key
-from callisto.notification.models import AbstractEmailNotification
 
 
 def _encrypt_report(stretched_key, report_text):
@@ -273,9 +272,3 @@ class SentMatchReport(SentReport):
 
     def get_report_id(self):
         return self._get_id_for_schools(is_match=True)
-
-
-class LegacyEmailNotification(AbstractEmailNotification):
-
-    class Meta:
-        managed = False

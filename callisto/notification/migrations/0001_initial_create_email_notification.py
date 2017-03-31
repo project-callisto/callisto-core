@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
-# source: http://stackoverflow.com/a/26472482/3055558
 class Migration(migrations.Migration):
 
     dependencies = [
