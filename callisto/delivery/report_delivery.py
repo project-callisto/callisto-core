@@ -275,7 +275,11 @@ class PDFReport(object):
 
         to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
 
-        email = EmailMultiAlternatives(notification.subject, notification.render_body_plain(), self.from_email, to_addresses)
+        email = EmailMultiAlternatives(
+            notification.subject,
+            notification.render_body_plain(),
+            self.from_email,
+            to_addresses)
         email.attach_alternative(notification.render_body(), "text/html")
 
         gpg = gnupg.GPG()

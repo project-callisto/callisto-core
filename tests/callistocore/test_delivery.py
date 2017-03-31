@@ -22,6 +22,7 @@ User = get_user_model()
 
 
 class ReportRenderTest(MatchTest):
+
     def setUp(self):
         super(ReportRenderTest, self).setUp()
         self.user = self.user1
