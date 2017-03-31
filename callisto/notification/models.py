@@ -1,12 +1,12 @@
 # external
 import six
 
+from django.contrib.sites.models import Site
+from django.core.mail.message import EmailMultiAlternatives
 # django
 from django.db import models
-from django.utils.html import strip_tags
-from django.contrib.sites.models import Site
 from django.template import Context, Template
-from django.core.mail.message import EmailMultiAlternatives
+from django.utils.html import strip_tags
 
 
 @six.python_2_unicode_compatible
