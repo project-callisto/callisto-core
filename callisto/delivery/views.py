@@ -15,6 +15,7 @@ from django.http import (
 from django.shortcuts import render
 from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
+from django.contrib.sites.shortcuts import get_current_site
 
 from callisto.evaluation.models import EvalRow
 from callisto.notification.models import EmailNotification
@@ -68,9 +69,10 @@ def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_re
         return HttpResponseServerError()
 
 
-def _send_user_notification(form, notification_name):
+def _send_user_notification(request, form, notification_name):
     if form.cleaned_data.get('email_confirmation') == "True":
-        notification = EmailNotification.objects.get(name=notification_name)
+        site = get_current_site(request)
+        notification = EmailNotification.objects.on_site(site.id).get(name=notification_name)
         preferred_email = form.cleaned_data.get('email')
         to_email = preferred_email
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
@@ -108,7 +110,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
             EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
 
             try:
-                _send_user_notification(form, 'submit_confirmation')
+                _send_user_notification(request, form, 'submit_confirmation')
             except Exception:
                 # report was sent even if confirmation email fails, so don't show an error if so
                 logger.exception("couldn't send confirmation to user on submission")
@@ -173,7 +175,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
             EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
             try:
-                _send_user_notification(form, 'match_confirmation')
+                _send_user_notification(request, form, 'match_confirmation')
             except Exception:
                 # matching was entered even if confirmation email fails, so don't show an error if so
                 logger.exception("couldn't send confirmation to user on match submission")
