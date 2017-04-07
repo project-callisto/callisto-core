@@ -7,6 +7,8 @@ from django.db import models
 from django.template import Context, Template
 from django.utils.html import strip_tags
 
+from callisto.notification.managers import EmailNotificationQuerySet
+
 
 def get_current_site_wrapper():
     try:
@@ -22,6 +24,7 @@ class EmailNotification(models.Model):
     subject = models.CharField(blank=False, max_length=77)
     body = models.TextField(blank=False)
     sites = models.ManyToManyField(Site, default=get_current_site_wrapper)
+    objects = EmailNotificationQuerySet.as_manager()
 
     def __str__(self):
         return self.name
