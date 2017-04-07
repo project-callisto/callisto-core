@@ -21,6 +21,7 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
+from django.contrib.sites.shortcuts import get_current_site
 
 from callisto.notification.models import EmailNotification
 
@@ -270,8 +271,9 @@ class PDFReport(object):
             canvas.restoreState()
         return func
 
-    def send_email_to_coordinator(self, pdf_to_attach, notification_name, report_id):
-        notification = EmailNotification.objects.get(name=notification_name)
+    def send_email_to_coordinator(self, request, pdf_to_attach, notification_name, report_id):
+        site = get_current_site(request)
+        notification = EmailNotification.objects.on_site(site.id).get(name=notification_name)
 
         to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
 
@@ -305,13 +307,13 @@ class PDFFullReport(PDFReport):
         self.report = report
         self.decrypted_report = decrypted_report
 
-    def send_report_to_school(self):
+    def send_report_to_school(self, request):
         logger.info("sending report to reporting authority")
         report_id = SentFullReport.objects.create(
             report=self.report, to_address=settings.COORDINATOR_EMAIL).get_report_id()
         self.report.submitted_to_school = timezone.now()
         pdf = self.generate_pdf_report(report_id)
-        self.send_email_to_coordinator(pdf, 'report_delivery', report_id)
+        self.send_email_to_coordinator(request, pdf, 'report_delivery', report_id)
         # save report timestamp only if generation & email work
         self.report.save()
 

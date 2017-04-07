@@ -99,7 +99,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                report_class(report=report, decrypted_report=form.decrypted_report).send_report_to_school()
+                report_class(report=report, decrypted_report=form.decrypted_report).send_report_to_school(request)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
