@@ -17,10 +17,11 @@ from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
 
 from callisto.evaluation.models import EvalRow
+from callisto.notification.models import EmailNotification
 
 from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import run_matching
-from .models import EmailNotification, MatchReport, Report
+from .models import MatchReport, Report
 from .report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
 
 User = get_user_model()
