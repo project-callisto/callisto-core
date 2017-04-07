@@ -1,17 +1,18 @@
-# external
 import six
 
 from django.contrib.sites.models import Site
+from django.core.exceptions import ImproperlyConfigured
 from django.core.mail.message import EmailMultiAlternatives
-# django
 from django.db import models
 from django.template import Context, Template
 from django.utils.html import strip_tags
 
 
-
 def get_current_site_wrapper():
-    return str(Site.objects.get_current().id)
+    try:
+        return str(Site.objects.get_current().id)
+    except ImproperlyConfigured:
+        return None
 
 
 @six.python_2_unicode_compatible
