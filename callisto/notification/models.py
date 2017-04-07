@@ -9,12 +9,18 @@ from django.template import Context, Template
 from django.utils.html import strip_tags
 
 
+
+def get_current_site_wrapper():
+    return str(Site.objects.get_current().id)
+
+
 @six.python_2_unicode_compatible
 class EmailNotification(models.Model):
     """Record of Email constructed in and sent via the project"""
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
     body = models.TextField(blank=False)
+    sites = models.ManyToManyField(Site, default=get_current_site_wrapper)
 
     def __str__(self):
         return self.name
