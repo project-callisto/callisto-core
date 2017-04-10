@@ -6,6 +6,7 @@ class EmailNotificationApi(object):
     @classmethod
     def send_match_notification(match_report):
         """Notifies reporting user that a match has been found. Requires an EmailNotification called "match_notification."
+        Runs as a part of the match cli script, so it does not have access to a request context
 
         Args:
           match_report(MatchReport): MatchReport for which a match has been found
