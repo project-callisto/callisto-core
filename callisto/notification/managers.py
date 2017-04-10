@@ -1,5 +1,5 @@
-from django.db.models.query import QuerySet
 from django.contrib.sites.models import Site
+from django.db.models.query import QuerySet
 
 
 class EmailNotificationQuerySet(QuerySet):

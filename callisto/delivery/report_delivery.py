@@ -17,11 +17,11 @@ from reportlab.platypus.doctemplate import Indenter
 from wizard_builder.models import PageBase
 
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
-from django.contrib.sites.shortcuts import get_current_site
 
 from callisto.notification.models import EmailNotification
 

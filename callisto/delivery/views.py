@@ -7,6 +7,7 @@ from wizard_builder.models import PageBase
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import (
     HttpResponse, HttpResponseForbidden, HttpResponseNotFound,
@@ -15,7 +16,6 @@ from django.http import (
 from django.shortcuts import render
 from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
-from django.contrib.sites.shortcuts import get_current_site
 
 from callisto.evaluation.models import EvalRow
 from callisto.notification.models import EmailNotification
