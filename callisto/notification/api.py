@@ -15,4 +15,3 @@ class EmailNotificationApi(object):
         to = match_report.contact_email
         context = {'report': match_report.report}
         notification.send(to=[to], from_email=from_email, context=context)
-
