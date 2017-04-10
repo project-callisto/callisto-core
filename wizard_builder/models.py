@@ -6,6 +6,9 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.safestring import mark_safe
+from django.contrib.sites.models import Site
+
+from .managers import PageBaseQuerySet
 
 
 def get_page_position():
@@ -15,9 +18,14 @@ def get_page_position():
         return 0
 
 
-class PageBase(PolymorphicModel):
-    position = models.PositiveSmallIntegerField("position", default=get_page_position)
+def get_current_site_wrapper():
+    try:
+        return str(Site.objects.get_current().id)
+    except ImproperlyConfigured:
+        return None
 
+
+class PageBase(PolymorphicModel):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -29,8 +37,10 @@ class PageBase(PolymorphicModel):
         (WHO, 'Who'),
     )
 
-    section = models.IntegerField(choices=SECTION_CHOICES,
-                                  default=WHEN)
+    position = models.PositiveSmallIntegerField("position", default=get_page_position)
+    section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
+    site = models.ForeignKey(Site, default=get_current_site_wrapper)
+    objects = PageBaseQuerySet.as_manager()
 
     class Meta:
         ordering = ['position']
