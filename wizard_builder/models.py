@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from .managers import PageBaseQuerySet
+from .managers import PageBaseManager
 
 
 def get_page_position():
@@ -40,7 +40,7 @@ class PageBase(PolymorphicModel):
     position = models.PositiveSmallIntegerField("position", default=get_page_position)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     site = models.ForeignKey(Site, default=get_current_site_wrapper)
-    objects = PageBaseQuerySet.as_manager()
+    objects = PageBaseManager()
 
     class Meta:
         ordering = ['position']
