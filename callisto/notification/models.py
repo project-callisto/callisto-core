@@ -7,6 +7,7 @@ from django.db import models
 from django.template import Context, Template
 from django.utils.html import strip_tags
 
+from callisto.notification.api import EmailNotificationApi
 from callisto.notification.managers import EmailNotificationQuerySet
 
 
@@ -18,7 +19,7 @@ def get_current_site_wrapper():
 
 
 @six.python_2_unicode_compatible
-class EmailNotification(models.Model):
+class EmailNotification(models.Model, EmailNotificationApi):
     """Record of Email constructed in and sent via the project"""
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
