@@ -3,10 +3,10 @@ import copy
 from polymorphic.models import PolymorphicModel
 
 from django import forms
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.safestring import mark_safe
-from django.contrib.sites.models import Site
 
 from .managers import PageBaseQuerySet
 
