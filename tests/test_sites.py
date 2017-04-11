@@ -27,20 +27,6 @@ class SitePageTest(TestCase):
         page = QuestionPage.objects.create()
         self.assertEqual(page.site.domain, 'example.com')
 
-    def test_on_site_increments_for_default_site(self):
-        count_before = QuestionPage.objects.on_site().count()
-        QuestionPage.objects.create()
-        count_after = QuestionPage.objects.on_site().count()
-        self.assertEqual(count_before + 1, count_after)
-
-    def test_on_site_does_not_increment_for_alternate_site(self):
-        count_before = QuestionPage.objects.on_site().count()
-        page = QuestionPage.objects.create()
-        page.site = Site.objects.create()
-        page.save()
-        count_after = QuestionPage.objects.on_site().count()
-        self.assertEqual(count_before, count_after)
-
     def test_question_page_responds_to_site_id_changes(self):
         site_1_pages = 3
         site_2_pages = site_1_pages + 1
