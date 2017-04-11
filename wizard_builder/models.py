@@ -3,27 +3,14 @@ import copy
 from polymorphic.models import PolymorphicModel
 
 from django import forms
+from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.utils import OperationalError
 from django.utils.safestring import mark_safe
 
 from .managers import PageBaseManager
-
-
-def get_page_position():
-    try:
-        return PageBase.objects.latest('position').position + 1
-    except (ObjectDoesNotExist, OperationalError):
-        return 0
-
-
-def get_current_site_wrapper():
-    try:
-        return str(Site.objects.get_current().id)
-    except (ImproperlyConfigured, Site.DoesNotExist):
-        return None
 
 
 class PageBase(PolymorphicModel):
@@ -38,10 +25,24 @@ class PageBase(PolymorphicModel):
         (WHO, 'Who'),
     )
 
-    position = models.PositiveSmallIntegerField("position", default=get_page_position)
+    position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
-    site = models.ForeignKey(Site, default=get_current_site_wrapper)
+    site = models.ForeignKey(Site, null=True)
     objects = PageBaseManager()
+
+    def add_site_from_site_id(self):
+        if getattr(settings, 'SITE_ID'):
+            self.site_id = settings.SITE_ID
+
+    def set_page_position(self):
+        cls = self.__class__
+        if bool(cls.objects.exclude(pk=self.pk)):
+            self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
+
+    def save(self, *args, **kwargs):
+        self.add_site_from_site_id()
+        self.set_page_position()
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['position']

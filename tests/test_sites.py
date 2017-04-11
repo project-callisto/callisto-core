@@ -35,7 +35,8 @@ class SitePageTest(TestCase):
         for i in range(site_1_pages):
             QuestionPage.objects.create()
         for i in range(site_2_pages):
-            QuestionPage.objects.create(site=site_2)
+            with TempSiteID(site_2.id):
+                QuestionPage.objects.create()
 
         self.assertEqual(QuestionPage.objects.on_site().count(), site_1_pages)
         with TempSiteID(site_2.id):

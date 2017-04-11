@@ -34,6 +34,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='pagebase',
             name='site',
-            field=models.ForeignKey(default=wizard_builder.models.get_current_site_wrapper, on_delete=django.db.models.deletion.CASCADE, to='sites.Site'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='sites.Site', null=True),
         ),
     ]
