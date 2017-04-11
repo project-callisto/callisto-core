@@ -58,5 +58,5 @@ class EmailNotification(models.Model):
             self.sites.add(settings.SITE_ID)
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
         self.add_site_from_site_id()
+        super().save(*args, **kwargs)
