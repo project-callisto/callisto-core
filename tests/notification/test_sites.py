@@ -1,7 +1,5 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
-from django.test import override_settings
 
 from callisto.notification.models import EmailNotification
 
@@ -35,7 +33,7 @@ class SitePageTest(TestCase):
             index += 1
         for i in range(site_2_pages):
             notification = EmailNotification.objects.create(name=index)
-            notification.sites.add(site_2) # site_1 is already added
+            notification.sites.add(site_2)  # site_1 is already added
             index += 1
 
         self.assertEqual(EmailNotification.objects.on_site().count(), site_1_pages + site_2_pages)

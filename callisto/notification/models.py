@@ -1,12 +1,11 @@
 import six
 
+from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.exceptions import ImproperlyConfigured
 from django.core.mail.message import EmailMultiAlternatives
 from django.db import models
 from django.template import Context, Template
 from django.utils.html import strip_tags
-from django.conf import settings
 
 from callisto.notification.managers import EmailNotificationQuerySet
 
