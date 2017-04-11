@@ -12,7 +12,7 @@ class SitePageTest(TestCase):
 
     def test_on_site_increments_for_default_site(self):
         count_before = QuestionPage.objects.on_site().count()
-        page = QuestionPage.objects.create()
+        QuestionPage.objects.create()
         count_after = QuestionPage.objects.on_site().count()
         self.assertEqual(count_before + 1, count_after)
 
