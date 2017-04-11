@@ -1,8 +1,8 @@
-from callisto.notification.models import EmailNotification
-
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase
+
+from callisto.notification.models import EmailNotification
 
 
 class TempSiteID():
