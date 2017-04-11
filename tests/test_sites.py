@@ -24,11 +24,11 @@ class TempSiteID():
 
 class SitePageTest(TestCase):
 
-    def test_created_question_page_comes_with_a_site(self):
+    def test_page_has_defaualt_site_attribute(self):
         page = QuestionPage.objects.create()
         self.assertEqual(page.site.domain, 'example.com')
 
-    def test_question_page_responds_to_site_id_changes(self):
+    def test_on_site_respects_SITE_ID_setting(self):
         site_1_pages = 3
         site_2_pages = site_1_pages + 1
         site_2 = Site.objects.create()
