@@ -36,3 +36,12 @@ class SitePageTest(TestCase):
         self.assertEqual(EmailNotification.objects.on_site().count(), site_1_pages)
         with TempSiteID(site_2.id):
             self.assertEqual(EmailNotification.objects.on_site().count(), site_2_pages)
+
+    def test_multiple_added_sites_are_reflected_by_on_site(self):
+        site_2 = Site.objects.create()
+        notification = EmailNotification.objects.create()
+        notification.sites.add(site_2)
+
+        self.assertEqual(EmailNotification.objects.on_site().count(), 1)
+        with TempSiteID(site_2.id):
+            self.assertEqual(EmailNotification.objects.on_site().count(), 1)
