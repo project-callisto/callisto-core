@@ -14,8 +14,7 @@ env:
 matrix:
     exclude:
         - python: "3.3"
-          env:
-            - TOXENV=django110
+          env: TOXENV=django110
 install:
     - pip install tox codecov isort flake8
 before_script:
