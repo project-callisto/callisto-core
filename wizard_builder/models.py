@@ -29,7 +29,7 @@ class PageBase(PolymorphicModel):
     objects = PageBaseManager()
 
     def add_site_from_site_id(self):
-        if getattr(settings, 'SITE_ID'):
+        if getattr(settings, 'SITE_ID') and not self.site_id:
             self.site_id = settings.SITE_ID
 
     def set_page_position(self):

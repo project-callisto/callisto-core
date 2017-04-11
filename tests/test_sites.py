@@ -41,3 +41,13 @@ class SitePageTest(TestCase):
         self.assertEqual(QuestionPage.objects.on_site().count(), site_1_pages)
         with TempSiteID(site_2.id):
             self.assertEqual(QuestionPage.objects.on_site().count(), site_2_pages)
+
+    def test_can_override_default_site_id(self):
+        page = QuestionPage.objects.create()
+        self.assertEqual(page.site.id, settings.SITE_ID)
+        site_2 = Site.objects.create()
+        page.site = site_2
+        page.save()
+        self.assertEqual(page.site_id, site_2.id)
+        self.assertEqual(page.site.id, site_2.id)
+        self.assertNotEqual(settings.SITE_ID, site_2.id)
