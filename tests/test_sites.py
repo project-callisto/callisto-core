@@ -7,4 +7,4 @@ class SitePageTest(TestCase):
 
     def test_basic_created_question_page_comes_with_a_site(self):
         page = QuestionPage.objects.create()
-        self.assertTrue(page.site.domain)
+        self.assertEqual(page.site.domain, 'example.com')
