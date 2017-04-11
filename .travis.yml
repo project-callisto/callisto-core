@@ -4,6 +4,7 @@ python:
     - "3.3"
     - "3.4"
     - "3.5"
+    - "3.6"
 sudo: false
 cache:
     directories:
@@ -11,6 +12,7 @@ cache:
 env:
     - TOXENV=django18
     - TOXENV=django110
+    - TOXENV=django111
 matrix:
     exclude:
         - python: "3.3"
