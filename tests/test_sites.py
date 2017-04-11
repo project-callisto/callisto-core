@@ -1,8 +1,8 @@
 from wizard_builder.models import QuestionPage
 
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from django.conf import settings
 
 
 class TempSiteID():
@@ -10,6 +10,7 @@ class TempSiteID():
         with TempSiteID(1):
             ...
     '''
+
     def __init__(self, site_id):
         self.site_id_temp = site_id
 
