@@ -13,7 +13,7 @@ from callisto.notification.managers import EmailNotificationQuerySet
 def get_current_site_wrapper():
     try:
         return str(Site.objects.get_current().id)
-    except ImproperlyConfigured:
+    except (ImproperlyConfigured, Site.DoesNotExist):
         return None
 
 
