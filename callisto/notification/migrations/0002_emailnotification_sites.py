@@ -10,7 +10,7 @@ import callisto.notification.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sites', '0002_alter_domain_unique'),
+        ('sites', '0001_initial'),
         ('notification', '0001_initial_create_email_notification'),
     ]
 
