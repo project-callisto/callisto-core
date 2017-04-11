@@ -81,13 +81,20 @@ class QuestionPage(PageBase):
 
 class FormQuestion(PolymorphicModel):
     text = models.TextField(blank=False)
-    page = models.ForeignKey('QuestionPage', editable=True, blank=True)
+    page = models.ForeignKey('QuestionPage', editable=True, null=True)
     position = models.PositiveSmallIntegerField("position", default=0)
     descriptive_text = models.TextField(blank=True)
     added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.text + " (" + str(type(self).__name__) + ")"
+
+    @property
+    def section(self):
+        if self.page:
+            return self.page.section
+        else:
+            return None
 
     def clone(self):
         return copy.deepcopy(self)
@@ -98,12 +105,12 @@ class FormQuestion(PolymorphicModel):
     def get_label(self):
         return mark_safe(self.text)
 
-    def set_question_page_and_section(self):
-        self.page = QuestionPage.objects.latest('position')
-        self.section = self.page.section
+    def set_question_page(self):
+        if not self.page:
+            self.page = QuestionPage.objects.latest('position')
 
     def save(self, *args, **kwargs):
-        self.set_question_page_and_section()
+        self.set_question_page()
         super().save(*args, **kwargs)
 
     class Meta:
