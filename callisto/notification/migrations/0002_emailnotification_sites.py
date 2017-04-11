@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='emailnotification',
             name='sites',
-            field=models.ManyToManyField(default=callisto.notification.models.get_current_site_wrapper, to='sites.Site'),
+            field=models.ManyToManyField(to='sites.Site'),
         ),
     ]

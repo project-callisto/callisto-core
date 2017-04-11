@@ -6,15 +6,9 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.db import models
 from django.template import Context, Template
 from django.utils.html import strip_tags
+from django.conf import settings
 
 from callisto.notification.managers import EmailNotificationQuerySet
-
-
-def get_current_site_wrapper():
-    try:
-        return str(Site.objects.get_current().id)
-    except (ImproperlyConfigured, Site.DoesNotExist):
-        return None
 
 
 @six.python_2_unicode_compatible
@@ -23,7 +17,7 @@ class EmailNotification(models.Model):
     name = models.CharField(blank=False, max_length=50, primary_key=True)
     subject = models.CharField(blank=False, max_length=77)
     body = models.TextField(blank=False)
-    sites = models.ManyToManyField(Site, default=get_current_site_wrapper)
+    sites = models.ManyToManyField(Site)
     objects = EmailNotificationQuerySet.as_manager()
 
     def __str__(self):
@@ -59,3 +53,11 @@ class EmailNotification(models.Model):
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
+
+    def add_site_from_site_id(self):
+        if getattr(settings, 'SITE_ID'):
+            self.sites.add(settings.SITE_ID)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.add_site_from_site_id()
