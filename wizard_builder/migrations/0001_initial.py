@@ -185,7 +185,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='formquestion',
             name='page',
-            field=models.ForeignKey(blank=True, default=wizard_builder.models.get_page, on_delete=django.db.models.deletion.CASCADE, to='wizard_builder.QuestionPage'),
+            field=models.ForeignKey(blank=True, on_delete=django.db.models.deletion.CASCADE, to='wizard_builder.QuestionPage'),
         ),
         migrations.AddField(
             model_name='choice',

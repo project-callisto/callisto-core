@@ -79,25 +79,12 @@ class QuestionPage(PageBase):
         ordering = ['position']
 
 
-def get_page():
-    try:
-        return QuestionPage.objects.latest('position').pk
-    except (ObjectDoesNotExist, OperationalError):
-        return None
-
-
 class FormQuestion(PolymorphicModel):
     text = models.TextField(blank=False)
-
-    page = models.ForeignKey('QuestionPage', editable=True, default=get_page, blank=True)
+    page = models.ForeignKey('QuestionPage', editable=True, blank=True)
     position = models.PositiveSmallIntegerField("position", default=0)
     descriptive_text = models.TextField(blank=True)
-
     added = models.DateTimeField(auto_now_add=True)
-
-    def __init__(self, *args, **kwargs):
-        super(FormQuestion, self).__init__(*args, **kwargs)
-        self.section = self.page.section
 
     def __str__(self):
         return self.text + " (" + str(type(self).__name__) + ")"
@@ -110,6 +97,14 @@ class FormQuestion(PolymorphicModel):
 
     def get_label(self):
         return mark_safe(self.text)
+
+    def set_question_page_and_section(self):
+        self.page = QuestionPage.objects.latest('position')
+        self.section = self.page.section
+
+    def save(self, *args, **kwargs):
+        self.set_question_page_and_section()
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['position']
