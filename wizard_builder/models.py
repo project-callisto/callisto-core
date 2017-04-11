@@ -4,8 +4,9 @@ from polymorphic.models import PolymorphicModel
 
 from django import forms
 from django.contrib.sites.models import Site
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import models
+from django.db.utils import OperationalError
 from django.utils.safestring import mark_safe
 
 from .managers import PageBaseManager
@@ -14,14 +15,14 @@ from .managers import PageBaseManager
 def get_page_position():
     try:
         return PageBase.objects.latest('position').position + 1
-    except ObjectDoesNotExist:
+    except (ObjectDoesNotExist, OperationalError):
         return 0
 
 
 def get_current_site_wrapper():
     try:
         return str(Site.objects.get_current().id)
-    except ImproperlyConfigured:
+    except (ImproperlyConfigured, Site.DoesNotExist):
         return None
 
 
@@ -80,7 +81,7 @@ class QuestionPage(PageBase):
 def get_page():
     try:
         return QuestionPage.objects.latest('position').pk
-    except ObjectDoesNotExist:
+    except (ObjectDoesNotExist, OperationalError):
         return None
 
 
