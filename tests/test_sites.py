@@ -1,6 +1,6 @@
-from django.test import TestCase
-
 from wizard_builder.models import QuestionPage
+
+from django.test import TestCase
 
 
 class SitePageTest(TestCase):
