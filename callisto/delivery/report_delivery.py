@@ -270,7 +270,7 @@ class PDFReport(object):
             canvas.restoreState()
         return func
 
-    def send_email_to_coordinator(self, request, pdf_to_attach, notification_name, report_id):
+    def send_email_to_coordinator(self, pdf_to_attach, notification_name, report_id):
         notification = EmailNotification.objects.on_site().get(name=notification_name)
 
         to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
