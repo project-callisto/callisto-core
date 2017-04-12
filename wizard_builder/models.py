@@ -3,21 +3,15 @@ import copy
 from polymorphic.models import PolymorphicModel
 
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
 
-
-def get_page_position():
-    try:
-        return PageBase.objects.latest('position').position + 1
-    except ObjectDoesNotExist:
-        return 0
+from .managers import PageBaseManager
 
 
 class PageBase(PolymorphicModel):
-    position = models.PositiveSmallIntegerField("position", default=get_page_position)
-
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -29,8 +23,33 @@ class PageBase(PolymorphicModel):
         (WHO, 'Who'),
     )
 
-    section = models.IntegerField(choices=SECTION_CHOICES,
-                                  default=WHEN)
+    position = models.PositiveSmallIntegerField("position", default=0)
+    section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
+    site = models.ForeignKey(Site, null=True)
+    objects = PageBaseManager()
+
+    def add_site_from_site_id(self):
+        if getattr(settings, 'SITE_ID') and not self.site_id:
+            self.site_id = settings.SITE_ID
+
+    def set_page_position(self):
+        '''
+            PageBase.position defaults to 0, but we take 0 to mean "not set"
+            so when there are no pages, PageBase.position is set to 1
+
+            otherwise we PageBase.position to the position of the latest
+            object that isn't self, +1
+        '''
+        cls = self.__class__
+        if cls.objects.count() == 0:
+            self.position = 1
+        elif bool(cls.objects.exclude(pk=self.pk)) and not self.position:
+            self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
+
+    def save(self, *args, **kwargs):
+        self.add_site_from_site_id()
+        self.set_page_position()
+        super(PageBase, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ['position']
@@ -67,28 +86,22 @@ class QuestionPage(PageBase):
         ordering = ['position']
 
 
-def get_page():
-    try:
-        return QuestionPage.objects.latest('position').pk
-    except ObjectDoesNotExist:
-        return None
-
-
 class FormQuestion(PolymorphicModel):
     text = models.TextField(blank=False)
-
-    page = models.ForeignKey('QuestionPage', editable=True, default=get_page, blank=True)
+    page = models.ForeignKey('QuestionPage', editable=True, null=True)
     position = models.PositiveSmallIntegerField("position", default=0)
     descriptive_text = models.TextField(blank=True)
-
     added = models.DateTimeField(auto_now_add=True)
-
-    def __init__(self, *args, **kwargs):
-        super(FormQuestion, self).__init__(*args, **kwargs)
-        self.section = self.page.section
 
     def __str__(self):
         return self.text + " (" + str(type(self).__name__) + ")"
+
+    @property
+    def section(self):
+        if self.page:
+            return self.page.section
+        else:
+            return None
 
     def clone(self):
         return copy.deepcopy(self)
@@ -98,6 +111,14 @@ class FormQuestion(PolymorphicModel):
 
     def get_label(self):
         return mark_safe(self.text)
+
+    def set_question_page(self):
+        if not self.page:
+            self.page = QuestionPage.objects.latest('position')
+
+    def save(self, *args, **kwargs):
+        self.set_question_page()
+        super(FormQuestion, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ['position']

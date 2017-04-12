@@ -89,8 +89,8 @@ class WizardIntegratedTest(FormBaseTest):
         self.assertNotIn(TextPageForm, inspect.getmro(wizard.form_list[-1]))
 
     def test_text_pages_are_included(self):
-        TextPage.objects.create(title="this page title", text="some text goes here", position=0)
-        self.page1.position = 1
+        TextPage.objects.create(title="this page title", text="some text goes here", position=1)
+        self.page1.position = 2
         self.page1.save()
         wizard = TestWizard.wizard_factory()()
         page_one_form = wizard.form_list[0]({})
