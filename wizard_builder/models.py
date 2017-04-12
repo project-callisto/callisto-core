@@ -49,7 +49,7 @@ class PageBase(PolymorphicModel):
     def save(self, *args, **kwargs):
         self.add_site_from_site_id()
         self.set_page_position()
-        super().save(*args, **kwargs)
+        super(PageBase, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ['position']
@@ -118,7 +118,7 @@ class FormQuestion(PolymorphicModel):
 
     def save(self, *args, **kwargs):
         self.set_question_page()
-        super().save(*args, **kwargs)
+        super(FormQuestion, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ['position']
