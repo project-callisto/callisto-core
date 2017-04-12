@@ -12,14 +12,16 @@ from django.test import TestCase
 class PageTest(TestCase):
 
     def test_page_can_have_position(self):
+        QuestionPage.objects.create()
         page = QuestionPage.objects.create(position=10)
         self.assertEqual(QuestionPage.objects.get(pk=page.pk).position, 10)
 
     def test_page_position_defaults_to_last(self):
-        for i in range(7):
+        pages = 7
+        for i in range(pages):
             QuestionPage.objects.create()
         last_page = QuestionPage.objects.create()
-        self.assertEqual(last_page.position, 7)
+        self.assertEqual(last_page.position, pages+1)
 
     def test_page_can_have_section(self):
         when_page = QuestionPage.objects.create()
@@ -37,6 +39,13 @@ class PageTest(TestCase):
     def test_page_infobox_can_be_specified(self):
         QuestionPage.objects.create(infobox="More information")
         self.assertEqual(QuestionPage.objects.last().infobox, "More information")
+
+    def test_position_not_overriden_on_save(self):
+        page = QuestionPage.objects.create()
+        starting_position = page.position
+        QuestionPage.objects.create()
+        page.save()
+        self.assertEqual(starting_position, page.position)
 
 
 class ItemTestCase(TestCase):
@@ -63,14 +72,15 @@ class FormQuestionModelTest(ItemTestCase):
 
     def test_questions_have_pages_by_default(self):
         SingleLineText.objects.create(text="This is a question with no page")
-        self.assertEqual(SingleLineText.objects.first().page.position, 0)
+        self.assertEqual(SingleLineText.objects.first().page.position, 1)
 
     def test_questions_get_added_to_end_by_default(self):
         # setup creates one page
-        for i in range(9):
+        pages = 9
+        for i in range(pages):
             QuestionPage.objects.create()
         question = SingleLineText.objects.create(text="This is a question with no page")
-        self.assertEqual(question.page.position, 9)
+        self.assertEqual(question.page.position, pages+1)
 
     def test_questions_can_have_descriptive_text(self):
         SingleLineText.objects.create(text="This is a question", descriptive_text="You might answer it so")

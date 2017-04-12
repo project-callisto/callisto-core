@@ -34,7 +34,9 @@ class PageBase(PolymorphicModel):
 
     def set_page_position(self):
         cls = self.__class__
-        if bool(cls.objects.exclude(pk=self.pk)):
+        if cls.objects.count() == 0:
+            self.position = 1
+        elif bool(cls.objects.exclude(pk=self.pk)) and not self.position:
             self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
 
     def save(self, *args, **kwargs):
