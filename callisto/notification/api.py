@@ -16,7 +16,7 @@ class NotificationApi(object):
           user(User): reporting user
           match_report(MatchReport): MatchReport for which a match has been found
         """
-        notification = cls.Model.objects.on_site().get(name='match_notification')
+        notification = cls.model.objects.on_site().get(name='match_notification')
         from_email = '"Callisto Matching" <notification@{0}>'.format(settings.APP_URL)
         to = match_report.contact_email
         context = {'report': match_report.report}
