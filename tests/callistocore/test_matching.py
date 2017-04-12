@@ -200,7 +200,7 @@ class MatchDiscoveryTest(MatchTest):
         self.assertTrue(match2.report.match_found)
 
 
-@patch('callisto.delivery.matching.send_notification_email')
+@patch('callisto.notification.api.NotificationApi.send_match_notification')
 @patch('callisto.delivery.report_delivery.PDFMatchReport.send_email_to_coordinator')
 class MatchNotificationTest(MatchTest):
 
