@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
             name='PageBase',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('position', models.PositiveSmallIntegerField(default=wizard_builder.models.get_page_position, verbose_name='position')),
+                ('position', models.PositiveSmallIntegerField(default=0, verbose_name='position')),
                 ('section', models.IntegerField(choices=[(1, 'When'), (2, 'Where'), (3, 'What'), (4, 'Who')], default=1)),
             ],
             options={
@@ -185,7 +185,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='formquestion',
             name='page',
-            field=models.ForeignKey(blank=True, default=wizard_builder.models.get_page, on_delete=django.db.models.deletion.CASCADE, to='wizard_builder.QuestionPage'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='wizard_builder.QuestionPage'),
         ),
         migrations.AddField(
             model_name='choice',

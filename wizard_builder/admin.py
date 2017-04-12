@@ -117,7 +117,7 @@ class QuestionPageAdmin(PageChildAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('position', 'section', 'encouragement', 'infobox')
+            'fields': ('position', 'section', 'encouragement', 'infobox', 'site')
         }),
         ('Advanced options', {
             'classes': ('grp-collapse grp-closed',),

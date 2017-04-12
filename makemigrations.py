@@ -2,6 +2,7 @@
 def make_migrations():
     from django.core.management import call_command
     call_command('makemigrations', 'test_app')
+    call_command('makemigrations', 'wizard_builder')
 
 
 if __name__ == '__main__':
@@ -14,6 +15,7 @@ if __name__ == '__main__':
         settings.configure(
             INSTALLED_APPS=[
                 'django.contrib.contenttypes',
+                'django.contrib.sites',
                 'wizard_builder',
                 'tests.test_app'
             ],
