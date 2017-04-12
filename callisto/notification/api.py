@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.mail.message import EmailMultiAlternatives
 
 from callisto.notification.models import EmailNotification
 
