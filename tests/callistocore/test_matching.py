@@ -201,7 +201,7 @@ class MatchDiscoveryTest(MatchTest):
 
 
 @patch('callisto.notification.api.NotificationApi.send_match_notification')
-@patch('callisto.delivery.report_delivery.PDFMatchReport.send_email_to_coordinator')
+@patch('callisto.notification.api.NotificationApi.send_email_to_coordinator')
 class MatchNotificationTest(MatchTest):
 
     def setUp(self):

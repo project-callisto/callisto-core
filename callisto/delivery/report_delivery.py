@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
-from callisto.notification.models import EmailNotification
+from callisto.notification.api import NotificationApi
 
 from .models import SentFullReport, SentMatchReport
 
@@ -83,7 +83,6 @@ class PDFReport(object):
     no_bullet = ' '
 
     report_title = "Report"
-    from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
     report_filename = "report_{0}.pdf.gpg"
 
     def __init__(self):
@@ -270,28 +269,6 @@ class PDFReport(object):
             canvas.restoreState()
         return func
 
-    def send_email_to_coordinator(self, pdf_to_attach, notification_name, report_id):
-        notification = EmailNotification.objects.on_site().get(name=notification_name)
-
-        to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
-
-        email = EmailMultiAlternatives(
-            notification.subject,
-            notification.render_body_plain(),
-            self.from_email,
-            to_addresses)
-        email.attach_alternative(notification.render_body(), "text/html")
-
-        gpg = gnupg.GPG()
-        school_public_key = settings.COORDINATOR_PUBLIC_KEY
-        imported_keys = gpg.import_keys(school_public_key)
-        # TODO: sign encrypted doc https://github.com/SexualHealthInnovations/callisto-core/issues/32
-        attachment = gpg.encrypt(pdf_to_attach, imported_keys.fingerprints[0], armor=True, always_trust=True)
-
-        email.attach(self.report_filename.format(report_id), attachment.data, "application/octet-stream")
-
-        email.send()
-
     @staticmethod
     def get_user_identifier(user):
         return user.email or user.username
@@ -311,7 +288,7 @@ class PDFFullReport(PDFReport):
             report=self.report, to_address=settings.COORDINATOR_EMAIL).get_report_id()
         self.report.submitted_to_school = timezone.now()
         pdf = self.generate_pdf_report(report_id)
-        self.send_email_to_coordinator(pdf, 'report_delivery', report_id)
+        NotificationApi.send_email_to_coordinator(pdf, 'report_delivery', report_id)
         # save report timestamp only if generation & email work
         self.report.save()
 
@@ -495,4 +472,4 @@ class PDFMatchReport(PDFReport):
         sent_report.reports.add(*self.matches)
         sent_report.save()
         pdf = self.generate_match_report(report_id)
-        self.send_email_to_coordinator(pdf, 'match_delivery', report_id)
+        NotificationApi.send_email_to_coordinator(pdf, 'match_delivery', report_id)

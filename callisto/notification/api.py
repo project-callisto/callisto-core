@@ -21,3 +21,26 @@ class NotificationApi(object):
         to = match_report.contact_email
         context = {'report': match_report.report}
         notification.send(to=[to], from_email=from_email, context=context)
+
+    @classmethod
+    def send_email_to_coordinator(cls, pdf_to_attach, notification_name, report_id):
+        notification = EmailNotification.objects.on_site().get(name=notification_name)
+
+        to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
+
+        email = EmailMultiAlternatives(
+            notification.subject,
+            notification.render_body_plain(),
+            cls.from_email,
+            to_addresses)
+        email.attach_alternative(notification.render_body(), "text/html")
+
+        gpg = gnupg.GPG()
+        school_public_key = settings.COORDINATOR_PUBLIC_KEY
+        imported_keys = gpg.import_keys(school_public_key)
+        # TODO: sign encrypted doc https://github.com/SexualHealthInnovations/callisto-core/issues/32
+        attachment = gpg.encrypt(pdf_to_attach, imported_keys.fingerprints[0], armor=True, always_trust=True)
+
+        email.attach(cls.report_filename.format(report_id), attachment.data, "application/octet-stream")
+
+        email.send()
