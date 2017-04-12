@@ -33,6 +33,13 @@ class PageBase(PolymorphicModel):
             self.site_id = settings.SITE_ID
 
     def set_page_position(self):
+        '''
+            PageBase.position defaults to 0, but we take 0 to mean "not set"
+            so when there are no pages, PageBase.position is set to 1
+
+            otherwise we PageBase.position to the position of the latest
+            object that isn't self, +1
+        '''
         cls = self.__class__
         if cls.objects.count() == 0:
             self.position = 1
