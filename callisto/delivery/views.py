@@ -70,7 +70,7 @@ def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_re
 
 def _send_user_notification(form, notification_name):
     if form.cleaned_data.get('email_confirmation') == "True":
-        notification = EmailNotification.objects.get(name=notification_name)
+        notification = EmailNotification.objects.on_site().get(name=notification_name)
         preferred_email = form.cleaned_data.get('email')
         to_email = preferred_email
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)

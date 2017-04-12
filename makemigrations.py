@@ -24,6 +24,7 @@ if __name__ == '__main__':
                 'callisto.evaluation',
                 'callisto.notification',
             ],
+            SITE_ID=1,
             APP_URL="test",
             COORDINATOR_NAME="Tatiana Nine",
             CALLISTO_EVAL_PUBLIC_KEY="",

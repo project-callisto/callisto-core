@@ -271,7 +271,7 @@ class PDFReport(object):
         return func
 
     def send_email_to_coordinator(self, pdf_to_attach, notification_name, report_id):
-        notification = EmailNotification.objects.get(name=notification_name)
+        notification = EmailNotification.objects.on_site().get(name=notification_name)
 
         to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
 
