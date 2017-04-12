@@ -59,4 +59,4 @@ class EmailNotification(models.Model):
 
     def save(self, *args, **kwargs):
         self.add_site_from_site_id()
-        super(self, self.__class__).save(*args, **kwargs)
+        super(EmailNotification, self).save(*args, **kwargs)
