@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 
 from callisto.evaluation.models import EvalRow
-from callisto.notification.models import EmailNotification
+from callisto.notification.api import NotificationApi
 
 from .models import MatchReport
 from .report_delivery import PDFMatchReport
@@ -77,21 +77,7 @@ def process_new_matches(matches, identifier, report_class):
         # only send notification emails to new matches
         if owner not in owners_notified and not match_report.report.match_found \
                 and not match_report.report.submitted_to_school:
-            send_notification_email(owner, match_report)
+            NotificationApi.send_notification_email(owner, match_report)
             owners_notified.append(owner)
     # send report to school
     report_class(matches, identifier).send_matching_report_to_school()
-
-
-def send_notification_email(user, match_report):
-    """Notifies reporting user that a match has been found. Requires an EmailNotification called "match_notification."
-
-    Args:
-      user(User): reporting user
-      match_report(MatchReport): MatchReport for which a match has been found
-    """
-    notification = EmailNotification.objects.get(name='match_notification')
-    from_email = '"Callisto Matching" <notification@{0}>'.format(settings.APP_URL)
-    to = match_report.contact_email
-    context = {'report': match_report.report}
-    notification.send(to=[to], from_email=from_email, context=context)
