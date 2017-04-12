@@ -77,7 +77,7 @@ def process_new_matches(matches, identifier, report_class):
         # only send notification emails to new matches
         if owner not in owners_notified and not match_report.report.match_found \
                 and not match_report.report.submitted_to_school:
-            NotificationApi.send_notification_email(owner, match_report)
+            NotificationApi.send_match_notification(owner, match_report)
             owners_notified.append(owner)
     # send report to school
     report_class(matches, identifier).send_matching_report_to_school()
