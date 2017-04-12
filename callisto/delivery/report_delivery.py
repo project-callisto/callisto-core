@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
-from callisto.notification.models import EmailNotification
+from callisto.notification.api import NotificationApi
 
 from .models import SentFullReport, SentMatchReport
 
