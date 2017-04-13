@@ -1,5 +1,4 @@
 import json
-import unittest
 from io import BytesIO
 
 import PyPDF2
@@ -943,7 +942,6 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertIn("test answer", pdf_reader.getPage(1).extractText())
         self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())
 
-    @unittest.skip('TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150')
     def test_export_pdf_uses_custom_report(self):
         response = self.client.post(
             ("/test_reports/export_custom/%i/" % self.report.id),

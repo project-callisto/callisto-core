@@ -204,6 +204,8 @@ def withdraw_from_matching(request, report_id, template_name, extra_context=None
     return render(request, template_name, context)
 
 
+# TODO: move into callisto.notification
+# TODO (cont): https://github.com/SexualHealthInnovations/callisto-core/issues/150
 @check_owner('export')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def export_as_pdf(request, report_id, force_download=True, filename='report.pdf', pdf_generator=PDFFullReport,

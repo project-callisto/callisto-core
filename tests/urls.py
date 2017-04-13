@@ -6,7 +6,7 @@ from callisto.delivery.views import (
 )
 
 from .callistocore.forms import (
-    CustomMatchNotificationApi, CustomNotificationApi, EncryptedFormWizard,
+    CustomNotificationApi, CustomPDFFullReport, EncryptedFormWizard,
 )
 
 urlpatterns = [
@@ -27,14 +27,14 @@ urlpatterns = [
     url(r'^test_reports/match_custom/(?P<report_id>\d+)/$', submit_to_matching,
         {'form_template_name': 'submit_to_matching_custom.html',
          'confirmation_template_name': 'submit_to_matching_confirmation_custom.html',
-         'notifier': CustomMatchNotificationApi,
+         'notifier': CustomNotificationApi,
          'extra_context': {'test': 'custom context'}}, name="test_match_confirmation"),
     url(r'^test_reports/withdraw_match/(?P<report_id>\d+)/$', withdraw_from_matching,
         {'template_name': 'after_withdraw.html',
          'extra_context': {'test': 'custom context'}}, name="test_withdraw_match"),
     url(r'^test_reports/export/(?P<report_id>\d+)/$', export_as_pdf, name="test_export"),
     url(r'^test_reports/export_custom/(?P<report_id>\d+)/$', export_as_pdf,
-        {'pdf_generator': CustomNotificationApi,
+        {'pdf_generator': CustomPDFFullReport,
          'extra_context': {'test': 'custom context'}}, name="test_export_custom"),
     url(r'^test_reports/delete/(?P<report_id>\d+)/$', delete_report,
         {'extra_context': {'test': 'custom context'}}, name="delete_report")
