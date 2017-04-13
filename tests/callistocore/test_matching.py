@@ -1,4 +1,5 @@
 import json
+import unittest
 
 from mock import call, patch
 
@@ -13,7 +14,7 @@ from callisto.delivery.report_delivery import (
     MatchReportContent, PDFMatchReport,
 )
 
-from .forms import CustomMatchReport
+from .forms import CustomMatchNotificationApi
 
 User = get_user_model()
 
@@ -272,5 +273,5 @@ class MatchingCommandTest(MatchTest):
     def test_command_runs_matches_with_custom_class(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        call_command('find_matches', report_class="tests.callistocore.forms.CustomMatchReport")
-        mock_process.assert_called_once_with([match1, match2], 'dummy', CustomMatchReport)
+        call_command('find_matches', report_class="tests.callistocore.forms.CustomMatchNotificationApi")
+        mock_process.assert_called_once_with([match1, match2], 'dummy', CustomMatchNotificationApi)

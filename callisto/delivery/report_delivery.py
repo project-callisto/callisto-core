@@ -3,7 +3,6 @@ import logging
 from collections import OrderedDict
 from io import BytesIO
 
-import gnupg
 import pytz
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
@@ -23,7 +22,7 @@ from django.utils.timezone import localtime
 
 from callisto.notification.api import NotificationApi
 
-from .models import SentFullReport, SentMatchReport
+from .models import SentMatchReport
 
 date_format = "%m/%d/%Y @%H:%M%p"
 tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
@@ -82,7 +81,6 @@ class PDFReport(object):
     no_bullet = ' '
 
     report_title = "Report"
-    report_filename = "report_{0}.pdf.gpg"
 
     def __init__(self):
         self.styles = self.set_up_styles()
@@ -280,16 +278,6 @@ class PDFFullReport(PDFReport):
         self.user = report.owner
         self.report = report
         self.decrypted_report = decrypted_report
-
-    def send_report_to_school(self):
-        logger.info("sending report to reporting authority")
-        report_id = SentFullReport.objects.create(
-            report=self.report, to_address=settings.COORDINATOR_EMAIL).get_report_id()
-        self.report.submitted_to_school = timezone.now()
-        pdf = self.generate_pdf_report(report_id)
-        NotificationApi.send_email_to_coordinator(pdf, 'report_delivery', report_id)
-        # save report timestamp only if generation & email work
-        self.report.save()
 
     def get_metadata_page(self, recipient):
         MetadataPage = []

@@ -18,11 +18,13 @@ from django.utils.html import conditional_escape
 
 from callisto.evaluation.models import EvalRow
 from callisto.notification.models import EmailNotification
+from callisto.notification.api import NotificationApi
 
 from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import run_matching
 from .models import MatchReport, Report
 from .report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
+from .models import SentFullReport
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -97,7 +99,8 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                report_class(report=report, decrypted_report=form.decrypted_report).send_report_to_school()
+                sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
+                NotificationApi.send_report_to_school(sent_full_report, form.decrypted_report)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
