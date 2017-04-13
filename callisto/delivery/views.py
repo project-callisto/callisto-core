@@ -23,7 +23,7 @@ from callisto.notification.models import EmailNotification
 from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import run_matching
 from .models import MatchReport, Report, SentFullReport
-from .report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
+from .report_delivery import MatchReportContent, PDFFullReport
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ def _send_user_notification(form, notification_name):
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
                      confirmation_template_name="submit_to_school_confirmation.html",
-                     report_class=PDFFullReport, extra_context=None):
+                     notifier=NotificationApi, extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
     context = {'owner': owner, 'report': report}
@@ -127,7 +127,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
                        confirmation_template_name="submit_to_matching_confirmation.html",
-                       report_class=PDFMatchReport, extra_context=None):
+                       notifier=NotificationApi, extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
     context = {'owner': owner, 'report': report}
@@ -165,7 +165,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     match_reports.append(match_report)
                 MatchReport.objects.bulk_create(match_reports)
                 if settings.MATCH_IMMEDIATELY:
-                    run_matching(identifiers=identifiers, report_class=report_class)
+                    run_matching(identifiers=identifiers, notifier=notifier)
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))
                 context.update({'form': form, 'formset': formset, 'submit_error': True})
@@ -206,7 +206,7 @@ def withdraw_from_matching(request, report_id, template_name, extra_context=None
 
 @check_owner('export')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def export_as_pdf(request, report_id, force_download=True, filename='report.pdf', report_class=PDFFullReport,
+def export_as_pdf(request, report_id, force_download=True, filename='report.pdf', pdf_generator=PDFFullReport,
                   template_name='export_report.html', extra_context=None):
     report = Report.objects.get(id=report_id)
     context = {'owner': request.user, 'report': report}
@@ -220,7 +220,7 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
                 response = HttpResponse(content_type='application/pdf')
                 response['Content-Disposition'] = '{}; filename="{}"'\
                     .format('attachment' if force_download else 'inline', filename)
-                pdf = report_class(report=report, decrypted_report=form.decrypted_report)\
+                pdf = pdf_generator(report=report, decrypted_report=form.decrypted_report)\
                     .generate_pdf_report(recipient=None, report_id=None)
                 response.write(pdf)
                 return response

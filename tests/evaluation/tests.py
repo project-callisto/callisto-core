@@ -582,7 +582,7 @@ class EvalActionTest(MatchTest):
 
     @patch('callisto.delivery.matching.EvalRow.anonymise_record')
     @patch('callisto.notification.api.NotificationApi.send_match_notification')
-    @patch('callisto.delivery.matching.PDFMatchReport.send_matching_report_to_school')
+    @patch('callisto.notification.api.NotificationApi.send_matching_report_to_school')
     def test_match_trigger_creates_eval_row(self, mock_send_to_school, mock_notify, mock_anonymise_record):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')

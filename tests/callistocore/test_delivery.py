@@ -4,6 +4,7 @@ import PyPDF2
 import pytz
 import six
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.utils import timezone
@@ -13,6 +14,7 @@ from callisto.delivery.models import Report, SentFullReport, SentMatchReport
 from callisto.delivery.report_delivery import (
     MatchReportContent, PDFFullReport, PDFMatchReport,
 )
+from callisto.notification.api import NotificationApi
 from callisto.notification.models import EmailNotification
 
 from .test_matching import MatchTest
@@ -351,14 +353,13 @@ class ReportDeliveryTest(MatchTest):
 
     def test_submission_to_school(self):
         EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
-        report = PDFFullReport(self.report, self.decrypted_report)
-        report.send_report_to_school()
-        sent_report_id = SentFullReport.objects.latest('id').get_report_id()
+        sent_full_report = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL)
+        NotificationApi.send_report_to_school(sent_full_report, self.decrypted_report)
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test delivery')
         self.assertIn('"Reports" <reports', message.from_email)
-        self.assertEqual(message.attachments[0][0], 'report_%s.pdf.gpg' % sent_report_id)
+        self.assertEqual(message.attachments[0][0], 'report_%s.pdf.gpg' % sent_full_report.get_report_id())
 
     # TODO: test encryption of submitted report email
 
@@ -414,8 +415,7 @@ class ReportDeliveryTest(MatchTest):
         EmailNotification.objects.create(name='match_delivery', subject="test match delivery", body="test match body")
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        report = PDFMatchReport([match1, match2], "dummy")
-        report.send_matching_report_to_school()
+        NotificationApi.send_matching_report_to_school([match1, match2], "dummy")
         sent_report_id = SentMatchReport.objects.latest('id').get_report_id()
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]

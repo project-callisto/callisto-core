@@ -20,10 +20,6 @@ from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
-from callisto.notification.api import NotificationApi
-
-from .models import SentMatchReport
-
 date_format = "%m/%d/%Y @%H:%M%p"
 tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
@@ -450,13 +446,3 @@ class PDFMatchReport(PDFReport):
         result = buffer.getvalue()
         buffer.close()
         return result
-
-    def send_matching_report_to_school(self):
-        """ Encrypts the generated PDF with GPG and attaches it to an email to the reporting authority """
-        logger.info("sending match report to reporting authority")
-        sent_report = SentMatchReport.objects.create(to_address=settings.COORDINATOR_EMAIL)
-        report_id = sent_report.get_report_id()
-        sent_report.reports.add(*self.matches)
-        sent_report.save()
-        pdf = self.generate_match_report(report_id)
-        NotificationApi.send_email_to_coordinator(pdf, 'match_delivery', report_id)
