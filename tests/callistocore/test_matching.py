@@ -1,5 +1,4 @@
 import json
-import unittest
 
 from mock import call, patch
 

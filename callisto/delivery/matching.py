@@ -1,7 +1,5 @@
 import logging
 
-from django.conf import settings
-
 from callisto.evaluation.models import EvalRow
 from callisto.notification.api import NotificationApi
 

@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponse
 
-from callisto.delivery.report_delivery import PDFFullReport, PDFMatchReport
 from callisto.delivery.wizard import EncryptedFormBaseWizard
 from callisto.notification.api import NotificationApi
 
