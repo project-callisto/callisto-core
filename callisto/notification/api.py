@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 
+from callisto.delivery.models import SentMatchReport
 from callisto.notification.models import EmailNotification
 
 logger = logging.getLogger(__name__)
@@ -44,9 +45,23 @@ class NotificationApi(object):
         pdf_report_id = sent_full_report.get_report_id()
         sent_full_report.report.submitted_to_school = timezone.now()
         pdf = PDFFullReport(sent_full_report.report, decrypted_report).generate_pdf_report(pdf_report_id)
-        NotificationApi.send_email_to_coordinator(pdf, 'report_delivery', pdf_report_id)
+        cls.send_email_to_coordinator(pdf, 'report_delivery', pdf_report_id)
         # save report timestamp only if generation & email work
         sent_full_report.report.save()
+
+    @classmethod
+    def send_matching_report_to_school(cls, matches, identifier):
+        """ Encrypts the generated PDF with GPG and attaches it to an email to the reporting authority """
+        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+        from callisto.delivery.report_delivery import PDFMatchReport
+
+        logger.info("sending match report to reporting authority")
+        sent_match_report = SentMatchReport.objects.create(to_address=settings.COORDINATOR_EMAIL)
+        report_id = sent_match_report.get_report_id()
+        sent_match_report.reports.add(*matches)
+        sent_match_report.save()
+        pdf = PDFMatchReport(matches, identifier).generate_match_report(report_id)
+        cls.send_email_to_coordinator(pdf, 'match_delivery', report_id)
 
     @classmethod
     def send_email_to_coordinator(cls, pdf_to_attach, notification_name, report_id):
