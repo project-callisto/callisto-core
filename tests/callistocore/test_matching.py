@@ -12,7 +12,7 @@ from callisto.delivery.models import MatchReport, Report
 from callisto.delivery.report_delivery import MatchReportContent
 from callisto.notification.api import NotificationApi
 
-from .forms import CustomMatchNotificationApi
+from .forms import CustomNotificationApi
 
 User = get_user_model()
 
@@ -271,12 +271,12 @@ class MatchingCommandTest(MatchTest):
     def test_command_runs_matches_with_custom_class(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        call_command('find_matches', notifier="tests.callistocore.forms.CustomMatchNotificationApi")
-        mock_process.assert_called_once_with([match1, match2], 'dummy', CustomMatchNotificationApi)
+        call_command('find_matches', notifier="tests.callistocore.forms.CustomNotificationApi")
+        mock_process.assert_called_once_with([match1, match2], 'dummy', CustomNotificationApi)
 
     @patch('callisto.delivery.matching.process_new_matches')
     def test_command_runs_matches_with_legacy_input(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        call_command('find_matches', report_class="tests.callistocore.forms.CustomMatchNotificationApi")
-        mock_process.assert_called_once_with([match1, match2], 'dummy', CustomMatchNotificationApi)
+        call_command('find_matches', report_class="tests.callistocore.forms.CustomNotificationApi")
+        mock_process.assert_called_once_with([match1, match2], 'dummy', CustomNotificationApi)

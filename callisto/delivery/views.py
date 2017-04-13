@@ -18,7 +18,6 @@ from django.utils.html import conditional_escape
 
 from callisto.evaluation.models import EvalRow
 from callisto.notification.api import NotificationApi
-from callisto.notification.models import EmailNotification
 
 from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import run_matching
@@ -69,15 +68,6 @@ def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_re
         return HttpResponseServerError()
 
 
-def _send_user_notification(form, notification_name):
-    if form.cleaned_data.get('email_confirmation') == "True":
-        notification = EmailNotification.objects.on_site().get(name=notification_name)
-        preferred_email = form.cleaned_data.get('email')
-        to_email = preferred_email
-        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-        notification.send(to=[to_email], from_email=from_email)
-
-
 @check_owner('submit')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
@@ -109,11 +99,12 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
             # record submission in anonymous evaluation data
             EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
 
-            try:
-                _send_user_notification(form, 'submit_confirmation')
-            except Exception:
-                # report was sent even if confirmation email fails, so don't show an error if so
-                logger.exception("couldn't send confirmation to user on submission")
+            if form.cleaned_data.get('email_confirmation') == "True":
+                try:
+                    NotificationApi.send_user_notification(form, 'submit_confirmation')
+                except Exception:
+                    # report was sent even if confirmation email fails, so don't show an error if so
+                    logger.exception("couldn't send confirmation to user on submission")
 
             context.update({'form': form})
             return render(request, confirmation_template_name, context)
@@ -174,11 +165,12 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
             # record matching submission in anonymous evaluation data
             EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
-            try:
-                _send_user_notification(form, 'match_confirmation')
-            except Exception:
-                # matching was entered even if confirmation email fails, so don't show an error if so
-                logger.exception("couldn't send confirmation to user on match submission")
+            if form.cleaned_data.get('email_confirmation') == "True":
+                try:
+                    NotificationApi.send_user_notification(form, 'match_confirmation')
+                except Exception:
+                    # matching was entered even if confirmation email fails, so don't show an error if so
+                    logger.exception("couldn't send confirmation to user on match submission")
 
             return render(request, confirmation_template_name, context)
 

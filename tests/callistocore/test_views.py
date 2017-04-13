@@ -538,7 +538,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertIn('submit_error', response.context)
 
     @patch('callisto.delivery.views.logger')
-    @patch('callisto.delivery.views._send_user_notification')
+    @patch('callisto.notification.api.NotificationApi.send_user_notification')
     def test_submit_email_confirmation_is_handled(self, mock_send_user_notification, mock_logger):
         mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
         response = self.client.post((self.submission_url % self.report.pk),
@@ -848,7 +848,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertIn('submit_error', response.context)
 
     @patch('callisto.delivery.views.logger')
-    @patch('callisto.delivery.views._send_user_notification')
+    @patch('callisto.notification.api.NotificationApi.send_user_notification')
     def test_match_email_confirmation_exception_is_handled(self, mock_send_user_notification, mock_logger):
         mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
         response = self.client.post((self.submission_url % self.report.pk),

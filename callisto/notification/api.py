@@ -85,3 +85,11 @@ class NotificationApi(object):
         email.attach(cls.report_filename.format(report_id), attachment.data, "application/octet-stream")
 
         email.send()
+
+    @classmethod
+    def send_user_notification(cls, form, notification_name):
+        notification = cls.model.objects.on_site().get(name=notification_name)
+        preferred_email = form.cleaned_data.get('email')
+        to_email = preferred_email
+        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
+        notification.send(to=[to_email], from_email=from_email)
