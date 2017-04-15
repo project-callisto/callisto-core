@@ -16,7 +16,7 @@ class DeliveryNotificationApi(object):
             NotificationApi.example_call
 
         use CALLISTO_NOTIFICATION_API to override the class that
-        calls to this NotificationApi map to
+        calls to DeliveryNotificationApi map to
     '''
 
     def __init__(self):
