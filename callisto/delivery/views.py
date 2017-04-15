@@ -16,8 +16,8 @@ from django.shortcuts import render
 from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
 
+from callisto.delivery.api import NotificationApi
 from callisto.evaluation.models import EvalRow
-from callisto.notification.api import NotificationApi
 
 from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import run_matching
@@ -72,7 +72,7 @@ def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_re
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
                      confirmation_template_name="submit_to_school_confirmation.html",
-                     notifier=NotificationApi, extra_context=None):
+                     extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
     context = {'owner': owner, 'report': report}
@@ -89,7 +89,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                 sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
-                notifier.send_report_to_school(sent_full_report, form.decrypted_report)
+                NotificationApi().send_report_to_school(sent_full_report, form.decrypted_report)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
@@ -101,7 +101,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    NotificationApi.send_user_notification(form, 'submit_confirmation')
+                    NotificationApi().send_user_notification(form, 'submit_confirmation')
                 except Exception:
                     # report was sent even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on submission")
@@ -118,7 +118,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
                        confirmation_template_name="submit_to_matching_confirmation.html",
-                       notifier=NotificationApi, extra_context=None):
+                       extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
     context = {'owner': owner, 'report': report}
@@ -156,7 +156,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     match_reports.append(match_report)
                 MatchReport.objects.bulk_create(match_reports)
                 if settings.MATCH_IMMEDIATELY:
-                    run_matching(identifiers=identifiers, notifier=notifier)
+                    run_matching(identifiers=identifiers)
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))
                 context.update({'form': form, 'formset': formset, 'submit_error': True})
@@ -167,7 +167,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    NotificationApi.send_user_notification(form, 'match_confirmation')
+                    NotificationApi().send_user_notification(form, 'match_confirmation')
                 except Exception:
                     # matching was entered even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on match submission")

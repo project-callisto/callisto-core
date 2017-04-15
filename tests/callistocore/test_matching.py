@@ -10,9 +10,6 @@ from django.utils import timezone
 from callisto.delivery.matching import run_matching
 from callisto.delivery.models import MatchReport, Report
 from callisto.delivery.report_delivery import MatchReportContent
-from callisto.notification.api import NotificationApi
-
-from .forms import CustomNotificationApi
 
 User = get_user_model()
 
@@ -60,7 +57,7 @@ class MatchDiscoveryTest(MatchTest):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         run_matching()
-        mock_process.assert_called_once_with([match1, match2], 'dummy', NotificationApi)
+        mock_process.assert_called_once_with([match1, match2], 'dummy')
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         self.assertTrue(match1.report.match_found)
@@ -130,7 +127,7 @@ class MatchDiscoveryTest(MatchTest):
         user4 = User.objects.create_user(username="mmudy", password="dummy")
         match4 = self.create_match(user4, 'dummy1')
         run_matching()
-        mock_process.assert_called_once_with([match2, match3, match4], 'dummy1', NotificationApi)
+        mock_process.assert_called_once_with([match2, match3, match4], 'dummy1')
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         match3.report.refresh_from_db()
@@ -146,7 +143,7 @@ class MatchDiscoveryTest(MatchTest):
         user3 = User.objects.create_user(username="yumdm", password="dummy")
         match3 = self.create_match(user3, 'dummy')
         run_matching()
-        mock_process.assert_called_once_with([match1, match2, match3], 'dummy', NotificationApi)
+        mock_process.assert_called_once_with([match1, match2, match3], 'dummy')
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         match3.report.refresh_from_db()
@@ -163,7 +160,7 @@ class MatchDiscoveryTest(MatchTest):
         user3 = User.objects.create_user(username="yumdm", password="dummy")
         match3 = self.create_match(user3, 'dummy')
         run_matching()
-        mock_process.assert_called_once_with([match1, match2, match3], 'dummy', NotificationApi)
+        mock_process.assert_called_once_with([match1, match2, match3], 'dummy')
 
     def test_double_match(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy1')
@@ -174,8 +171,8 @@ class MatchDiscoveryTest(MatchTest):
         match3 = self.create_match(user3, 'dummy1')
         match4 = self.create_match(user3, 'dummy2')
         run_matching()
-        call1 = call([match1, match3], 'dummy1', NotificationApi)
-        call2 = call([match2, match4], 'dummy2', NotificationApi)
+        call1 = call([match1, match3], 'dummy1')
+        call2 = call([match2, match4], 'dummy2')
         mock_process.assert_has_calls([call1, call2])
 
     def test_error_during_processing_means_match_not_seen(self, mock_process):
@@ -192,7 +189,7 @@ class MatchDiscoveryTest(MatchTest):
         self.assertFalse(match2.report.match_found)
         mock_process.reset_mock()
         run_matching()
-        mock_process.assert_called_once_with([match1, match2], 'dummy', NotificationApi)
+        mock_process.assert_called_once_with([match1, match2], 'dummy')
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         self.assertTrue(match1.report.match_found)
@@ -259,24 +256,8 @@ class MatchNotificationTest(MatchTest):
 class MatchingCommandTest(MatchTest):
 
     @patch('callisto.delivery.matching.process_new_matches')
-    def test_command_runs_matches_with_default(self, mock_process):
+    def test_command_runs_matches(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        args = []
-        opts = {}
-        call_command('find_matches', *args, **opts)
-        mock_process.assert_called_once_with([match1, match2], 'dummy', NotificationApi)
-
-    @patch('callisto.delivery.matching.process_new_matches')
-    def test_command_runs_matches_with_custom_class(self, mock_process):
-        match1 = self.create_match(self.user1, 'dummy')
-        match2 = self.create_match(self.user2, 'dummy')
-        call_command('find_matches', notifier="tests.callistocore.forms.CustomNotificationApi")
-        mock_process.assert_called_once_with([match1, match2], 'dummy', CustomNotificationApi)
-
-    @patch('callisto.delivery.matching.process_new_matches')
-    def test_command_runs_matches_with_legacy_input(self, mock_process):
-        match1 = self.create_match(self.user1, 'dummy')
-        match2 = self.create_match(self.user2, 'dummy')
-        call_command('find_matches', report_class="tests.callistocore.forms.CustomNotificationApi")
-        mock_process.assert_called_once_with([match1, match2], 'dummy', CustomNotificationApi)
+        call_command('find_matches')
+        mock_process.assert_called_once_with([match1, match2], 'dummy')

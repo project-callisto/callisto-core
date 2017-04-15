@@ -510,6 +510,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['test@example.com'])
         self.assertIn('test submit confirmation body', message.body)
 
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.CustomNotificationApi')
     def test_submit_sends_custom_report(self):
         response = self.client.post(('/test_reports/submit_custom/%s/' % self.report.pk),
                                     data={'name': 'test submitter',
@@ -526,7 +527,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\\.pdf\\.gpg')
 
-    @patch('callisto.delivery.views.NotificationApi.send_report_to_school')
+    @patch('callisto.notification.api.NotificationApi.send_report_to_school')
     def test_submit_exception_is_handled(self, mock_send_report_to_school):
         mock_send_report_to_school.side_effect = Exception('Mock Send Report Exception')
         response = self.client.post((self.submission_url % self.report.pk),
@@ -782,6 +783,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertIn('test match delivery body', message.body)
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.CustomNotificationApi')
     def test_match_sends_custom_report(self):
         self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
                          data={'name': 'test submitter 1',

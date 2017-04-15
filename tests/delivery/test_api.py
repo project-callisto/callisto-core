@@ -1,9 +1,10 @@
 from mock import patch
+from tests.callistocore.forms import CustomNotificationApi
 
 from django.test import TestCase, override_settings
 
 from callisto.delivery.api import NotificationApi
-from tests.callistocore.forms import CustomNotificationApi
+
 
 class ApiTest(TestCase):
 
@@ -14,6 +15,8 @@ class ApiTest(TestCase):
 
     @patch('callisto.notification.api.NotificationApi.send_report_to_school')
     def test_default_api_call(self, mock_process):
+        # the NotificationApi that we are calling is in callisto.delivery.api
+        # and the NotificationApi we are patching is in callisto.notification.api
         NotificationApi().send_report_to_school(self.mock_argument_1, self.mock_argument_2)
         mock_process.assert_called_once_with(self.mock_argument_1, self.mock_argument_2)
 
