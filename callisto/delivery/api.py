@@ -2,7 +2,22 @@ from django.conf import settings
 from django.utils.module_loading import import_string
 
 
-class NotificationApi(object):
+class DeliveryNotificationApi(object):
+    '''
+        Used to route calls to from inside of callisto/delivery/* to
+        notification api(s) inside of other apps
+
+        this object is called with
+            from callisto.delivery.api import DeliveryNotificationApi
+            DeliveryNotificationApi().example_call
+
+        which maps to (on default settings)
+            from callisto.notification.api import NotificationApi
+            NotificationApi.example_call
+
+        use CALLISTO_NOTIFICATION_API to override the class that
+        calls to this NotificationApi map to
+    '''
 
     def __init__(self):
         self.set_api_class()

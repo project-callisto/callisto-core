@@ -1,6 +1,6 @@
 import logging
 
-from callisto.delivery.api import NotificationApi
+from callisto.delivery.api import DeliveryNotificationApi
 from callisto.evaluation.models import EvalRow
 
 from .models import MatchReport
@@ -68,7 +68,7 @@ def process_new_matches(matches, identifier):
         # only send notification emails to new matches
         if owner not in owners_notified and not match_report.report.match_found \
                 and not match_report.report.submitted_to_school:
-            NotificationApi().send_match_notification(owner, match_report)
+            DeliveryNotificationApi().send_match_notification(owner, match_report)
             owners_notified.append(owner)
     # send report to school
-    NotificationApi().send_matching_report_to_school(matches, identifier)
+    DeliveryNotificationApi().send_matching_report_to_school(matches, identifier)
