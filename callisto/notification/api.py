@@ -8,6 +8,7 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 
 from callisto.delivery.models import SentMatchReport
+from callisto.delivery.api import AbstractNotification
 from callisto.notification.models import EmailNotification
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
 
 
-class NotificationApi(object):
+class NotificationApi(AbstractNotification):
 
     model = EmailNotification
     report_filename = "report_{0}.pdf.gpg"

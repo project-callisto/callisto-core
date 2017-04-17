@@ -19,3 +19,8 @@ class CustomPDFFullReport(PDFFullReport):
 class CustomNotificationApi(NotificationApi):
     from_email = '"Custom" <custom@{0}>'.format(settings.APP_URL)
     report_filename = "custom_{0}.pdf.gpg"
+
+
+class ExtendedNotificationApi(CustomNotificationApi):
+    def send_report_to_school(arg1, arg2, arg3):
+        pass

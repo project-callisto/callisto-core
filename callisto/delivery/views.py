@@ -16,7 +16,7 @@ from django.shortcuts import render
 from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
 
-from callisto.delivery.api import DeliveryNotificationApi
+from callisto.delivery.api import DeliveryApi
 from callisto.evaluation.models import EvalRow
 
 from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
@@ -89,7 +89,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                 sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
-                DeliveryNotificationApi().send_report_to_school(sent_full_report, form.decrypted_report)
+                DeliveryApi().send_report_to_school(sent_full_report, form.decrypted_report)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
@@ -101,7 +101,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    DeliveryNotificationApi().send_user_notification(form, 'submit_confirmation')
+                    DeliveryApi().send_user_notification(form, 'submit_confirmation')
                 except Exception:
                     # report was sent even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on submission")
@@ -167,7 +167,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    DeliveryNotificationApi().send_user_notification(form, 'match_confirmation')
+                    DeliveryApi().send_user_notification(form, 'match_confirmation')
                 except Exception:
                     # matching was entered even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on match submission")
