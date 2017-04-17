@@ -5,7 +5,7 @@ from callisto.delivery.views import (
     submit_to_matching, submit_to_school, withdraw_from_matching,
 )
 
-from .callistocore.forms import CustomPDFFullReport, EncryptedFormWizard
+from .callistocore.forms import EncryptedFormWizard
 
 urlpatterns = [
     url(r'^test_reports/new/(?P<step>.+)/$', new_record_form_view,
@@ -30,8 +30,7 @@ urlpatterns = [
          'extra_context': {'test': 'custom context'}}, name="test_withdraw_match"),
     url(r'^test_reports/export/(?P<report_id>\d+)/$', export_as_pdf, name="test_export"),
     url(r'^test_reports/export_custom/(?P<report_id>\d+)/$', export_as_pdf,
-        {'pdf_generator': CustomPDFFullReport,
-         'extra_context': {'test': 'custom context'}}, name="test_export_custom"),
+        {'extra_context': {'test': 'custom context'}}, name="test_export_custom"),
     url(r'^test_reports/delete/(?P<report_id>\d+)/$', delete_report,
         {'extra_context': {'test': 'custom context'}}, name="delete_report")
 ]

@@ -17,8 +17,8 @@ class ApiTest(TestCase):
         DeliveryApi().send_report_to_school(self.mock_argument_1, self.mock_argument_2)
         mock_process.assert_called_once_with(self.mock_argument_1, self.mock_argument_2)
 
-    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.ExtendedNotificationApi')
-    @patch('tests.callistocore.forms.ExtendedNotificationApi.send_report_to_school')
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.ExtendedCustomNotificationApi')
+    @patch('tests.callistocore.forms.ExtendedCustomNotificationApi.send_report_to_school')
     def test_overriden_api_call(self, mock_process):
         DeliveryApi().send_report_to_school(self.mock_argument_1, self.mock_argument_2, 'cats')
         mock_process.assert_called_once_with(self.mock_argument_1, self.mock_argument_2, 'cats')

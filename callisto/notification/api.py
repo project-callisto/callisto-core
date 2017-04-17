@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from callisto.delivery.api import AbstractNotification
 from callisto.delivery.models import SentMatchReport
+from callisto.delivery.report_delivery import PDFFullReport, PDFMatchReport
 from callisto.notification.models import EmailNotification
 
 logger = logging.getLogger(__name__)
@@ -22,14 +23,17 @@ class NotificationApi(AbstractNotification):
     report_filename = "report_{0}.pdf.gpg"
     from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
 
+    # TODO: remove
+    @classmethod
+    def get_report_title(cls):
+        return 'Report'
+
     @classmethod
     def send_report_to_school(cls, sent_full_report, decrypted_report):
-        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
-        from callisto.delivery.report_delivery import PDFFullReport
-
         logger.info("sending report to reporting authority")
         pdf_report_id = sent_full_report.get_report_id()
         sent_full_report.report.submitted_to_school = timezone.now()
+        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
         pdf = PDFFullReport(sent_full_report.report, decrypted_report).generate_pdf_report(pdf_report_id)
         cls.send_email_to_coordinator(pdf, 'report_delivery', pdf_report_id)
         # save report timestamp only if generation & email work
@@ -38,14 +42,12 @@ class NotificationApi(AbstractNotification):
     @classmethod
     def send_matching_report_to_school(cls, matches, identifier):
         """ Encrypts the generated PDF with GPG and attaches it to an email to the reporting authority """
-        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
-        from callisto.delivery.report_delivery import PDFMatchReport
-
         logger.info("sending match report to reporting authority")
         sent_match_report = SentMatchReport.objects.create(to_address=settings.COORDINATOR_EMAIL)
         report_id = sent_match_report.get_report_id()
         sent_match_report.reports.add(*matches)
         sent_match_report.save()
+        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
         pdf = PDFMatchReport(matches, identifier).generate_match_report(report_id)
         cls.send_email_to_coordinator(pdf, 'match_delivery', report_id)
 

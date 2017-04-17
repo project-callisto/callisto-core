@@ -198,7 +198,7 @@ def withdraw_from_matching(request, report_id, template_name, extra_context=None
 
 @check_owner('export')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def export_as_pdf(request, report_id, force_download=True, filename='report.pdf', pdf_generator=PDFFullReport,
+def export_as_pdf(request, report_id, force_download=True, filename='report.pdf',
                   template_name='export_report.html', extra_context=None):
     report = Report.objects.get(id=report_id)
     context = {'owner': request.user, 'report': report}
@@ -212,7 +212,7 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
                 response = HttpResponse(content_type='application/pdf')
                 response['Content-Disposition'] = '{}; filename="{}"'\
                     .format('attachment' if force_download else 'inline', filename)
-                pdf = pdf_generator(report=report, decrypted_report=form.decrypted_report)\
+                pdf = PDFFullReport(report=report, decrypted_report=form.decrypted_report)\
                     .generate_pdf_report(recipient=None, report_id=None)
                 response.write(pdf)
                 return response

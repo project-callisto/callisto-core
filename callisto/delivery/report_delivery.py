@@ -20,6 +20,8 @@ from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
+from callisto.delivery.api import DeliveryApi
+
 date_format = "%m/%d/%Y @%H:%M%p"
 tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
@@ -277,7 +279,7 @@ class PDFFullReport(PDFReport):
 
     def get_metadata_page(self, recipient):
         MetadataPage = []
-        MetadataPage.append(Paragraph(self.report_title, self.report_title_style))
+        MetadataPage.append(Paragraph(DeliveryApi().get_report_title(), self.report_title_style))
 
         MetadataPage.append(Paragraph("Overview", self.section_title_style))
 
@@ -385,7 +387,7 @@ class PDFMatchReport(PDFReport):
         self.pdf_elements.extend(self.get_cover_page(report_id=report_id, recipient=settings.COORDINATOR_NAME))
 
         # MATCH REPORTS
-        self.pdf_elements.append(Paragraph(self.report_title, self.report_title_style))
+        self.pdf_elements.append(Paragraph(DeliveryApi().get_report_title(), self.report_title_style))
 
         # perpetrator info
         self.pdf_elements.append(Paragraph("Perpetrator", self.section_title_style))

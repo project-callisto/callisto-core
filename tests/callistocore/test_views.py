@@ -3,6 +3,7 @@ from io import BytesIO
 
 import PyPDF2
 from mock import patch
+from tests.callistocore.forms import CustomNotificationApi
 from wizard_builder.forms import QuestionPageForm
 from wizard_builder.models import (
     Choice, QuestionPage, RadioButton, SingleLineText,
@@ -15,6 +16,7 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from callisto.delivery.api import DeliveryApi
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
 from callisto.delivery.models import MatchReport, Report, SentFullReport
 from callisto.evaluation.models import EvalRow
@@ -58,7 +60,7 @@ class RecordFormBaseTest(TestCase):
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
 
     def _get_wizard_response(self, wizard, form_list, **kwargs):
-        # simulate what wizard does on final form submit
+        # simulate what wizard does on final form 7
         wizard.processed_answers = wizard.process_answers(form_list=form_list, form_dict=dict(enumerate(form_list)))
         return get_body(wizard.done(form_list=form_list, form_dict=dict(enumerate(form_list)), **kwargs))
 
@@ -944,6 +946,7 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertIn("test answer", pdf_reader.getPage(1).extractText())
         self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())
 
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.CustomNotificationApi')
     def test_export_pdf_uses_custom_report(self):
         response = self.client.post(
             ("/test_reports/export_custom/%i/" % self.report.id),
@@ -952,7 +955,8 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         exported_report = BytesIO(response.content)
         pdf_reader = PyPDF2.PdfFileReader(exported_report)
-        self.assertIn("Custom", pdf_reader.getPage(0).extractText())
+        self.assertEqual(DeliveryApi().get_report_title(), CustomNotificationApi().get_report_title())
+        self.assertIn(CustomNotificationApi().get_report_title(), pdf_reader.getPage(0).extractText())
 
     @override_settings(DEBUG=True)
     def test_record_cannot_be_exported_by_non_owning_user(self):
