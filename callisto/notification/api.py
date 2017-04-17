@@ -23,7 +23,8 @@ class NotificationApi(AbstractNotification):
     report_filename = "report_{0}.pdf.gpg"
     from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
 
-    # TODO: remove
+    # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+    # TODO (cont): remove this method, make it a attribute
     @classmethod
     def get_report_title(cls):
         return 'Report'
