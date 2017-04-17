@@ -66,3 +66,7 @@ class AbstractNotification:
     @abstractmethod
     def get_report_title(self):
         pass
+
+    @abstractmethod
+    def get_cover_page(self):
+        pass

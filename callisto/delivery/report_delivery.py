@@ -246,10 +246,6 @@ class PDFReport(object):
                 self.add_question('<i>None added</i>')
                 self.pdf_elements.append(Indenter(left=-12))
 
-    def get_cover_page(self, report_id, recipient, *args, **kwargs):
-        CoverPage = []
-        return CoverPage
-
     def get_header_footer(self, recipient=settings.COORDINATOR_NAME):
         def func(canvas, doc):
             width, height = letter
@@ -336,7 +332,8 @@ class PDFFullReport(PDFReport):
                                 topMargin=72, bottomMargin=72)
 
         # COVER PAGE
-        self.pdf_elements.extend(self.get_cover_page(report_id=report_id, recipient=recipient))
+        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+        self.pdf_elements.extend(DeliveryApi().get_cover_page(self, report_id=report_id, recipient=recipient))
 
         # METADATA PAGE
         self.pdf_elements.extend(self.get_metadata_page(recipient))
@@ -384,7 +381,8 @@ class PDFMatchReport(PDFReport):
                                 rightMargin=72, leftMargin=72,
                                 topMargin=72, bottomMargin=72)
         # COVER PAGE
-        self.pdf_elements.extend(self.get_cover_page(report_id=report_id, recipient=settings.COORDINATOR_NAME))
+        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+        self.pdf_elements.extend(DeliveryApi().get_cover_page(self, report_id=report_id, recipient=settings.COORDINATOR_NAME))
 
         # MATCH REPORTS
         self.pdf_elements.append(Paragraph(DeliveryApi().get_report_title(), self.report_title_style))

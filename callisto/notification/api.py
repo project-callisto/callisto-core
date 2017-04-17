@@ -29,6 +29,10 @@ class NotificationApi(AbstractNotification):
         return 'Report'
 
     @classmethod
+    def get_cover_page(cls, *args, **kwargs):
+        return []
+
+    @classmethod
     def send_report_to_school(cls, sent_full_report, decrypted_report):
         logger.info("sending report to reporting authority")
         pdf_report_id = sent_full_report.get_report_id()
