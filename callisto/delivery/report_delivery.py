@@ -382,7 +382,11 @@ class PDFMatchReport(PDFReport):
                                 topMargin=72, bottomMargin=72)
         # COVER PAGE
         # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
-        self.pdf_elements.extend(DeliveryApi().get_cover_page(self, report_id=report_id, recipient=settings.COORDINATOR_NAME))
+        self.pdf_elements.extend(
+            DeliveryApi().get_cover_page(
+                self,
+                report_id=report_id,
+                recipient=settings.COORDINATOR_NAME))
 
         # MATCH REPORTS
         self.pdf_elements.append(Paragraph(DeliveryApi().get_report_title(), self.report_title_style))
