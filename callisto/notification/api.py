@@ -7,8 +7,8 @@ from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 
-from callisto.delivery.models import SentMatchReport
 from callisto.delivery.api import AbstractNotification
+from callisto.delivery.models import SentMatchReport
 from callisto.notification.models import EmailNotification
 
 logger = logging.getLogger(__name__)

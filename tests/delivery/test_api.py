@@ -1,5 +1,4 @@
 from mock import patch
-from tests.callistocore.forms import CustomNotificationApi
 
 from django.test import TestCase, override_settings
 
