@@ -8,9 +8,7 @@ from django.utils.crypto import get_random_string
 
 from callisto.delivery.matching import find_matches
 from callisto.delivery.models import _pepper, _unpepper
-from callisto.delivery.report_delivery import (
-    MatchReportContent, PDFMatchReport,
-)
+from callisto.delivery.report_delivery import MatchReportContent
 
 from .models import _legacy_decrypt_report, _legacy_encrypt_report
 
@@ -91,7 +89,7 @@ class MatchReportMigrationTest(MigrationTest):
                                    salt=salt)
         find_matches([identifier])
         # have to use ANY because objects in migration tests are faked
-        mock_process.assert_called_once_with([ANY, ANY], 'test_identifier', PDFMatchReport)
+        mock_process.assert_called_once_with([ANY, ANY], 'test_identifier')
 
 
 class MultipleRecipientMigrationTest(MigrationTest):

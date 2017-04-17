@@ -83,3 +83,5 @@ TEMPLATES = [
         'DIRS': ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
     },
 ]
+
+CALLISTO_NOTIFICATION_API = 'callisto.notification.api.NotificationApi'

@@ -16,13 +16,13 @@ from django.shortcuts import render
 from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
 
+from callisto.delivery.api import DeliveryApi
 from callisto.evaluation.models import EvalRow
-from callisto.notification.models import EmailNotification
 
 from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
 from .matching import run_matching
-from .models import MatchReport, Report
-from .report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
+from .models import MatchReport, Report, SentFullReport
+from .report_delivery import MatchReportContent, PDFFullReport
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -68,20 +68,11 @@ def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_re
         return HttpResponseServerError()
 
 
-def _send_user_notification(form, notification_name):
-    if form.cleaned_data.get('email_confirmation') == "True":
-        notification = EmailNotification.objects.on_site().get(name=notification_name)
-        preferred_email = form.cleaned_data.get('email')
-        to_email = preferred_email
-        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-        notification.send(to=[to_email], from_email=from_email)
-
-
 @check_owner('submit')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
                      confirmation_template_name="submit_to_school_confirmation.html",
-                     report_class=PDFFullReport, extra_context=None):
+                     extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
     context = {'owner': owner, 'report': report}
@@ -97,7 +88,8 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                report_class(report=report, decrypted_report=form.decrypted_report).send_report_to_school()
+                sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
+                DeliveryApi().send_report_to_school(sent_full_report, form.decrypted_report)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
@@ -107,11 +99,12 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
             # record submission in anonymous evaluation data
             EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
 
-            try:
-                _send_user_notification(form, 'submit_confirmation')
-            except Exception:
-                # report was sent even if confirmation email fails, so don't show an error if so
-                logger.exception("couldn't send confirmation to user on submission")
+            if form.cleaned_data.get('email_confirmation') == "True":
+                try:
+                    DeliveryApi().send_user_notification(form, 'submit_confirmation')
+                except Exception:
+                    # report was sent even if confirmation email fails, so don't show an error if so
+                    logger.exception("couldn't send confirmation to user on submission")
 
             context.update({'form': form})
             return render(request, confirmation_template_name, context)
@@ -125,7 +118,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
                        confirmation_template_name="submit_to_matching_confirmation.html",
-                       report_class=PDFMatchReport, extra_context=None):
+                       extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
     context = {'owner': owner, 'report': report}
@@ -163,7 +156,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     match_reports.append(match_report)
                 MatchReport.objects.bulk_create(match_reports)
                 if settings.MATCH_IMMEDIATELY:
-                    run_matching(identifiers=identifiers, report_class=report_class)
+                    run_matching(identifiers=identifiers)
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))
                 context.update({'form': form, 'formset': formset, 'submit_error': True})
@@ -172,11 +165,12 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
             # record matching submission in anonymous evaluation data
             EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
-            try:
-                _send_user_notification(form, 'match_confirmation')
-            except Exception:
-                # matching was entered even if confirmation email fails, so don't show an error if so
-                logger.exception("couldn't send confirmation to user on match submission")
+            if form.cleaned_data.get('email_confirmation') == "True":
+                try:
+                    DeliveryApi().send_user_notification(form, 'match_confirmation')
+                except Exception:
+                    # matching was entered even if confirmation email fails, so don't show an error if so
+                    logger.exception("couldn't send confirmation to user on match submission")
 
             return render(request, confirmation_template_name, context)
 
@@ -204,7 +198,7 @@ def withdraw_from_matching(request, report_id, template_name, extra_context=None
 
 @check_owner('export')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def export_as_pdf(request, report_id, force_download=True, filename='report.pdf', report_class=PDFFullReport,
+def export_as_pdf(request, report_id, force_download=True, filename='report.pdf',
                   template_name='export_report.html', extra_context=None):
     report = Report.objects.get(id=report_id)
     context = {'owner': request.user, 'report': report}
@@ -218,7 +212,7 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
                 response = HttpResponse(content_type='application/pdf')
                 response['Content-Disposition'] = '{}; filename="{}"'\
                     .format('attachment' if force_download else 'inline', filename)
-                pdf = report_class(report=report, decrypted_report=form.decrypted_report)\
+                pdf = PDFFullReport(report=report, decrypted_report=form.decrypted_report)\
                     .generate_pdf_report(recipient=None, report_id=None)
                 response.write(pdf)
                 return response
