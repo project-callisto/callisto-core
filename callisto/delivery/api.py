@@ -32,3 +32,18 @@ class DeliveryNotificationApi(object):
             'callisto.notification.api.NotificationApi',
         )
         self.api = import_string(override_class_path)
+
+    def send_report_to_school(self, *args, **kwargs):
+        return self.api.send_report_to_school(*args, **kwargs)
+
+    def send_matching_report_to_school(self, *args, **kwargs):
+        return self.api.send_matching_report_to_school(*args, **kwargs)
+
+    def send_user_notification(self, *args, **kwargs):
+        return self.api.send_user_notification(*args, **kwargs)
+
+    def send_match_notification(self, *args, **kwargs):
+        return self.api.send_match_notification(*args, **kwargs)
+
+    def send_email_to_coordinator(self, *args, **kwargs):
+        return self.api.send_email_to_coordinator(*args, **kwargs)
