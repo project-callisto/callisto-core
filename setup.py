@@ -63,7 +63,9 @@ setup(
     download_url='https://github.com/SexualHealthInnovations/callisto-core/tarball/release-8.15.16-2/',
     packages=[
         'callisto.delivery',
-        'callisto.evaluation'],
+        'callisto.evaluation',
+        'callisto.notification',
+    ],
     include_package_data=True,
     install_requires=[],
     zip_safe=False,
