@@ -134,7 +134,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
         if form.is_valid() and formset.is_valid():
             try:
                 match_reports = []
-                identifiers = []
+                match_tuples = []
                 for perp_form in formset:
                     # enter into matching
                     match_report = MatchReport(report=report)
@@ -153,20 +153,22 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                                                       key=perp_identifier)
 
                     if settings.MATCH_IMMEDIATELY:
-                        identifiers.append(perp_identifier)
+                        match_tuples.append((owner, perp_identifier))
                     else:
                         match_report.identifier = perp_identifier
                     match_reports.append(match_report)
+
+                    # record matching submission in anonymous evaluation data
+                    EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
+
                 MatchReport.objects.bulk_create(match_reports)
                 if settings.MATCH_IMMEDIATELY:
-                    run_matching(identifiers=identifiers)
+                    run_matching(unseen_match_tuples=match_tuples)
+
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))
                 context.update({'form': form, 'formset': formset, 'submit_error': True})
                 return render(request, form_template_name, context)
-
-            # record matching submission in anonymous evaluation data
-            EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:

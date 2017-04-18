@@ -8,32 +8,37 @@ from .models import MatchReport
 logger = logging.getLogger(__name__)
 
 
-def run_matching(identifiers=None):
+def run_matching(unseen_match_tuples=None):
     """Compares existing match records to see if any match the given identifiers. If no identifiers are given, checks
     existing match records against identifiers from records that weren't been marked as "seen" the last time matching
     was run. For each identifier for which a new match is found, a report is sent to the receiving authority and the
     reporting users are notified.
 
     Args:
-      identifiers(list of strings, optional): the new identifiers to check for matches, or None if the value is to be
-        queried from the DB (Default value = None)
+      unseen_match_tuples(list of (User, string), optional): the new identifiers + users to check for matches, or None
+      if the value is to be queried from the DB (Default value = None)
     """
     logger.info("running matching")
-    if identifiers is None:
-        identifiers = [match_report.identifier for match_report in MatchReport.objects.filter(seen=False)]
-    find_matches(identifiers)
+    if unseen_match_tuples is None:
+        unseen_match_tuples = [(match_report.report.owner, match_report.identifier) for match_report in
+                               MatchReport.objects.filter(seen=False)]
+    find_matches(unseen_match_tuples)
 
 
-def find_matches(identifiers):
+def get_all_eligible_match_reports(owner):
+    return MatchReport.objects.all()
+
+
+def find_matches(unseen_match_reports):
     """Finds sets of matching records that haven't been identified yet. For a match to count as new, there must be
     associated Reports from at least 2 different users and at least one MatchReport must be newly created since we last
     checked for matches.
 
     Args:
-      identifiers (list of str): the new identifiers to check for matches
+      unseen_match_reports (list of tuples of (User, string)): the new identifiers & submitters to check for matches
     """
-    for identifier in identifiers:
-        match_list = [potential for potential in MatchReport.objects.all() if potential.get_match(identifier)]
+    for (owner, identifier) in unseen_match_reports:
+        match_list = [potential for potential in get_all_eligible_match_reports(owner) if potential.get_match(identifier)]
         if len(match_list) > 1:
             seen_match_owners = [match.report.owner for match in match_list if match.seen]
             new_match_owners = [match.report.owner for match in match_list if not match.seen]
