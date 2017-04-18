@@ -23,6 +23,12 @@ class NotificationApi(AbstractNotification):
     report_filename = "report_{0}.pdf.gpg"
     from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
 
+    @classmethod
+    def get_user_site(self, user):
+        '''Takes in a user model, and should return a site_id
+        '''
+        return None
+
     # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
     # TODO (cont): remove this method, make it a attribute
     @classmethod
@@ -73,7 +79,8 @@ class NotificationApi(AbstractNotification):
           user(User): reporting user
           match_report(MatchReport): MatchReport for which a match has been found
         """
-        notification = cls.model.objects.on_site().get(name='match_notification')
+        site_id = cls.get_user_site(user)
+        notification = cls.model.objects.on_site(site_id).get(name='match_notification')
         from_email = '"Callisto Matching" <notification@{0}>'.format(settings.APP_URL)
         to = match_report.contact_email
         context = {'report': match_report.report}
