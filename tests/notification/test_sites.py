@@ -1,8 +1,15 @@
-from django.conf import settings
-from django.contrib.sites.models import Site
-from django.test import TestCase
+from mock import patch
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
+from django.test import TestCase, override_settings
+from django.urls import reverse
+
+from callisto.delivery.models import Report
 from callisto.notification.models import EmailNotification
+
+User = get_user_model()
 
 
 class TempSiteID():
@@ -22,7 +29,7 @@ class TempSiteID():
         settings.SITE_ID = self.site_id_stable
 
 
-class SitePageTest(TestCase):
+class SiteIDTest(TestCase):
 
     def test_on_site_respects_SITE_ID_setting(self):
         site_1_pages = 3
@@ -49,3 +56,40 @@ class SitePageTest(TestCase):
         self.assertIn(notification, EmailNotification.objects.on_site())
         with TempSiteID(site_2.id):
             self.assertIn(notification, EmailNotification.objects.on_site())
+
+
+class SiteRequestTest(TestCase):
+
+    def setUp(self):
+        super(SiteRequestTest, self).setUp()
+        User.objects.create_user(username='dummy', password='dummy')
+        self.client.login(username='dummy', password='dummy')
+        user = User.objects.get(username='dummy')
+        self.report = Report(owner=user)
+        self.report_key = 'bananabread! is not my key'
+        self.report.encrypt_report('{}', self.report_key)
+        self.report.save()
+        self.submit_url = reverse('test_submit_report', args=[self.report.pk])
+
+    @override_settings()
+    def test_can_request_pages_without_site_id_set(self):
+        del settings.SITE_ID
+        response = self.client.get(self.submit_url)
+        self.assertNotEqual(response.status_code, 404)
+
+    @override_settings()
+    @patch('callisto.notification.managers.EmailNotificationQuerySet.on_site')
+    def test_site_passed_to_email_notification_manager(self, mock_on_site):
+        site_id = settings.SITE_ID
+        del settings.SITE_ID
+        self.client.post(
+            self.submit_url,
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': 'True',
+                'key': self.report_key,
+            },
+        )
+        mock_on_site.assert_called_with(site_id)
