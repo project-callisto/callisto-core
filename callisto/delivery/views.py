@@ -44,8 +44,8 @@ def check_owner(action_name, report_id_arg='report_id'):
                     logger.warning("illegal {} attempt on record {} by user {}".format(action_name,
                                                                                        id_to_fetch, owner.id))
                     return HttpResponseForbidden() if settings.DEBUG else HttpResponseNotFound()
-            except ObjectDoesNotExist:
-                logger.warn('failed check_owner')
+            except Report.DoesNotExist:
+                logger.info('Get request for nonexistant report Report(id={})'.format(id_to_fetch))
                 return HttpResponseNotFound()
         return _wrapped_view
     return decorator
