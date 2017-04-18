@@ -72,14 +72,18 @@ class SiteRequestTest(TestCase):
         self.submit_url = reverse('test_submit_report', args=[self.report.pk])
 
     @override_settings()
-    def test_can_request_pages_without_site_id_set(self):
+    @patch('django.http.request.HttpRequest.get_host')
+    def test_can_request_pages_without_site_id_set(self, mock_get_host):
+        mock_get_host.return_value = Site.objects.get(id=settings.SITE_ID).domain
         del settings.SITE_ID
         response = self.client.get(self.submit_url)
         self.assertNotEqual(response.status_code, 404)
 
     @override_settings()
+    @patch('django.http.request.HttpRequest.get_host')
     @patch('callisto.notification.managers.EmailNotificationQuerySet.on_site')
-    def test_site_passed_to_email_notification_manager(self, mock_on_site):
+    def test_site_passed_to_email_notification_manager(self, mock_on_site, mock_get_host):
+        mock_get_host.return_value = Site.objects.get(id=settings.SITE_ID).domain
         site_id = settings.SITE_ID
         del settings.SITE_ID
         self.client.post(
