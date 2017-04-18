@@ -26,6 +26,10 @@ class NotificationApi(AbstractNotification):
     @classmethod
     def get_user_site(self, user):
         '''Takes in a user model, and should return a site_id
+
+        example:
+            for an Account model 1 to 1 with User that has a site attribute
+            return user.account.site.id
         '''
         return None
 
