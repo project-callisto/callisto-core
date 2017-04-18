@@ -34,13 +34,13 @@ class NotificationApi(AbstractNotification):
         return []
 
     @classmethod
-    def send_report_to_school(cls, sent_full_report, decrypted_report):
+    def send_report_to_school(cls, sent_full_report, decrypted_report, site_id=None):
         logger.info("sending report to reporting authority")
         pdf_report_id = sent_full_report.get_report_id()
         sent_full_report.report.submitted_to_school = timezone.now()
         # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
         pdf = PDFFullReport(sent_full_report.report, decrypted_report).generate_pdf_report(pdf_report_id)
-        cls.send_email_to_coordinator(pdf, 'report_delivery', pdf_report_id)
+        cls.send_email_to_coordinator(pdf, 'report_delivery', pdf_report_id, site_id)
         # save report timestamp only if generation & email work
         sent_full_report.report.save()
 
@@ -57,8 +57,8 @@ class NotificationApi(AbstractNotification):
         cls.send_email_to_coordinator(pdf, 'match_delivery', report_id)
 
     @classmethod
-    def send_user_notification(cls, form, notification_name):
-        notification = cls.model.objects.on_site().get(name=notification_name)
+    def send_user_notification(cls, form, notification_name, site_id=None):
+        notification = cls.model.objects.on_site(site_id).get(name=notification_name)
         preferred_email = form.cleaned_data.get('email')
         to_email = preferred_email
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
@@ -80,8 +80,8 @@ class NotificationApi(AbstractNotification):
         notification.send(to=[to], from_email=from_email, context=context)
 
     @classmethod
-    def send_email_to_coordinator(cls, pdf_to_attach, notification_name, report_id):
-        notification = cls.model.objects.on_site().get(name=notification_name)
+    def send_email_to_coordinator(cls, pdf_to_attach, notification_name, report_id, site_id=None):
+        notification = cls.model.objects.on_site(site_id).get(name=notification_name)
 
         to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
 

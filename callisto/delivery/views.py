@@ -7,6 +7,7 @@ from wizard_builder.models import PageBase
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import (
     HttpResponse, HttpResponseForbidden, HttpResponseNotFound,
@@ -75,6 +76,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                      extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
+    site_id = get_current_site(request).id
     context = {'owner': owner, 'report': report}
     context.update(extra_context or {})
 
@@ -89,7 +91,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                 sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
-                DeliveryApi().send_report_to_school(sent_full_report, form.decrypted_report)
+                DeliveryApi().send_report_to_school(sent_full_report, form.decrypted_report, site_id)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
@@ -101,7 +103,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    DeliveryApi().send_user_notification(form, 'submit_confirmation')
+                    DeliveryApi().send_user_notification(form, 'submit_confirmation', site_id)
                 except Exception:
                     # report was sent even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on submission")
@@ -121,6 +123,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                        extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
+    site_id = get_current_site(request).id
     context = {'owner': owner, 'report': report}
     context.update(extra_context or {})
 
@@ -167,7 +170,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    DeliveryApi().send_user_notification(form, 'match_confirmation')
+                    DeliveryApi().send_user_notification(form, 'match_confirmation', site_id)
                 except Exception:
                     # matching was entered even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on match submission")
