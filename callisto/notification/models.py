@@ -54,7 +54,7 @@ class EmailNotification(models.Model):
         email.send()
 
     def add_site_from_site_id(self):
-        if getattr(settings, 'SITE_ID'):
+        if getattr(settings, 'SITE_ID', None):
             self.sites.add(settings.SITE_ID)
 
     def save(self, *args, **kwargs):
