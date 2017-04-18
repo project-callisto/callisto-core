@@ -23,6 +23,16 @@ class NotificationApi(AbstractNotification):
     report_filename = "report_{0}.pdf.gpg"
     from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
 
+    @classmethod
+    def get_user_site(self, user):
+        '''Takes in a user model, and should return a site_id
+
+        example:
+            for an Account model 1 to 1 with User that has a site attribute
+            return user.account.site.id
+        '''
+        return None
+
     # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
     # TODO (cont): remove this method, make it a attribute
     @classmethod
@@ -34,13 +44,13 @@ class NotificationApi(AbstractNotification):
         return []
 
     @classmethod
-    def send_report_to_school(cls, sent_full_report, decrypted_report):
+    def send_report_to_school(cls, sent_full_report, decrypted_report, site_id=None):
         logger.info("sending report to reporting authority")
         pdf_report_id = sent_full_report.get_report_id()
         sent_full_report.report.submitted_to_school = timezone.now()
         # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
         pdf = PDFFullReport(sent_full_report.report, decrypted_report).generate_pdf_report(pdf_report_id)
-        cls.send_email_to_coordinator(pdf, 'report_delivery', pdf_report_id)
+        cls.send_email_to_coordinator(pdf, 'report_delivery', pdf_report_id, site_id)
         # save report timestamp only if generation & email work
         sent_full_report.report.save()
 
@@ -57,8 +67,8 @@ class NotificationApi(AbstractNotification):
         cls.send_email_to_coordinator(pdf, 'match_delivery', report_id)
 
     @classmethod
-    def send_user_notification(cls, form, notification_name):
-        notification = cls.model.objects.on_site().get(name=notification_name)
+    def send_user_notification(cls, form, notification_name, site_id=None):
+        notification = cls.model.objects.on_site(site_id).get(name=notification_name)
         preferred_email = form.cleaned_data.get('email')
         to_email = preferred_email
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
@@ -73,15 +83,16 @@ class NotificationApi(AbstractNotification):
           user(User): reporting user
           match_report(MatchReport): MatchReport for which a match has been found
         """
-        notification = cls.model.objects.on_site().get(name='match_notification')
+        site_id = cls.get_user_site(user)
+        notification = cls.model.objects.on_site(site_id).get(name='match_notification')
         from_email = '"Callisto Matching" <notification@{0}>'.format(settings.APP_URL)
         to = match_report.contact_email
         context = {'report': match_report.report}
         notification.send(to=[to], from_email=from_email, context=context)
 
     @classmethod
-    def send_email_to_coordinator(cls, pdf_to_attach, notification_name, report_id):
-        notification = cls.model.objects.on_site().get(name=notification_name)
+    def send_email_to_coordinator(cls, pdf_to_attach, notification_name, report_id, site_id=None):
+        notification = cls.model.objects.on_site(site_id).get(name=notification_name)
 
         to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
 
