@@ -529,9 +529,9 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\\.pdf\\.gpg')
 
-    @patch('callisto.notification.api.NotificationApi.send_report_to_school')
-    def test_submit_exception_is_handled(self, mock_send_report_to_school):
-        mock_send_report_to_school.side_effect = Exception('Mock Send Report Exception')
+    @patch('callisto.notification.api.NotificationApi.send_report_to_authority')
+    def test_submit_exception_is_handled(self, mock_send_report_to_authority):
+        mock_send_report_to_authority.side_effect = Exception('Mock Send Report Exception')
         response = self.client.post((self.submission_url % self.report.pk),
                                     data={'name': 'test submitter',
                                           'email': 'test@example.com',

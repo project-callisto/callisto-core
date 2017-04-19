@@ -91,7 +91,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                 sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
-                DeliveryApi().send_report_to_school(sent_full_report, form.decrypted_report, site_id)
+                DeliveryApi().send_report_to_authority(sent_full_report, form.decrypted_report, site_id)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))

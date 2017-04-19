@@ -24,5 +24,5 @@ class CustomNotificationApi(NotificationApi):
 class ExtendedCustomNotificationApi(CustomNotificationApi):
 
     @classmethod
-    def send_report_to_school(arg1, arg2, arg3):
+    def send_report_to_authority(arg1, arg2, arg3):
         pass

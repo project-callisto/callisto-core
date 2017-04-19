@@ -84,4 +84,4 @@ def process_new_matches(matches, identifier):
             DeliveryApi().send_match_notification(owner, match_report)
             owners_notified.append(owner)
     # send report to school
-    DeliveryApi().send_matching_report_to_school(matches, identifier)
+    DeliveryApi().send_matching_report_to_authority(matches, identifier)

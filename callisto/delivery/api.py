@@ -42,11 +42,11 @@ class AbstractNotification:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def send_report_to_school(self):
+    def send_report_to_authority(self):
         pass
 
     @abstractmethod
-    def send_matching_report_to_school(self):
+    def send_matching_report_to_authority(self):
         pass
 
     @abstractmethod
@@ -58,7 +58,7 @@ class AbstractNotification:
         pass
 
     @abstractmethod
-    def send_email_to_coordinator(self):
+    def send_email_to_authority_intake(self):
         pass
 
     @abstractmethod

@@ -582,7 +582,7 @@ class EvalActionTest(MatchTest):
 
     @patch('callisto.delivery.matching.EvalRow.anonymise_record')
     @patch('callisto.notification.api.NotificationApi.send_match_notification')
-    @patch('callisto.notification.api.NotificationApi.send_matching_report_to_school')
+    @patch('callisto.notification.api.NotificationApi.send_matching_report_to_authority')
     def test_match_trigger_creates_eval_row(self, mock_send_to_school, mock_notify, mock_anonymise_record):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
@@ -592,7 +592,7 @@ class EvalActionTest(MatchTest):
         mock_anonymise_record.assert_has_calls([call1, call2])
 
     @patch('callisto.delivery.views.EvalRow.anonymise_record')
-    @patch('callisto.notification.api.NotificationApi.send_report_to_school')
+    @patch('callisto.notification.api.NotificationApi.send_report_to_authority')
     def test_submit_creates_eval_row(self, mock_send_report, mock_anonymise_record):
         response = self.client.post(('/test_reports/submit/%s/' % self.report.pk),
                                     data={'name': 'test submitter',

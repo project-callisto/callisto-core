@@ -354,7 +354,7 @@ class ReportDeliveryTest(MatchTest):
     def test_submission_to_school(self):
         EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
         sent_full_report = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL)
-        DeliveryApi().send_report_to_school(sent_full_report, self.decrypted_report)
+        DeliveryApi().send_report_to_authority(sent_full_report, self.decrypted_report)
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test delivery')
@@ -415,7 +415,7 @@ class ReportDeliveryTest(MatchTest):
         EmailNotification.objects.create(name='match_delivery', subject="test match delivery", body="test match body")
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        DeliveryApi().send_matching_report_to_school([match1, match2], "dummy")
+        DeliveryApi().send_matching_report_to_authority([match1, match2], "dummy")
         sent_report_id = SentMatchReport.objects.latest('id').get_report_id()
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
