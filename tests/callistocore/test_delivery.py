@@ -351,7 +351,7 @@ class ReportDeliveryTest(MatchTest):
         expected_time = localtime(timezone.now()).strftime(date_format)
         self.assertIn(expected_time, pdfReader.getPage(0).extractText())
 
-    def test_submission_to_school(self):
+    def test_submission_to_reporting_authority(self):
         EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
         sent_full_report = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL)
         DeliveryApi().send_report_to_authority(sent_full_report, self.decrypted_report)
@@ -411,7 +411,7 @@ class ReportDeliveryTest(MatchTest):
             "Notes on preferred contact time of day, gender of admin, etc.:\nPlease only call after 5pm",
             pdf_text)
 
-    def test_matches_to_school(self):
+    def test_matches_to_reporting_authority(self):
         EmailNotification.objects.create(name='match_delivery', subject="test match delivery", body="test match body")
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')

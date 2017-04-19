@@ -204,7 +204,7 @@ class MatchNotificationTest(MatchTest):
         self.user1 = User.objects.create_user(username="dummy", password="dummy")
         self.user2 = User.objects.create_user(username="ymmud", password="dummy")
 
-    def test_both_new_matches_sent_emails(self, mock_send_to_school, mock_send_email):
+    def test_both_new_matches_sent_emails(self, mock_send_to_authority, mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
         report2 = self.create_match(self.user2, 'dummy')
         run_matching()
@@ -212,7 +212,7 @@ class MatchNotificationTest(MatchTest):
         mock_send_email.assert_has_calls(calls)
         self.assertEqual(mock_send_email.call_count, 2)
 
-    def test_multiple_match_sends_emails_to_all(self, mock_send_to_school, mock_send_email):
+    def test_multiple_match_sends_emails_to_all(self, mock_send_to_authority, mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
         report2 = self.create_match(self.user2, 'dummy')
         user3 = User.objects.create_user(username="yumdm", password="dummy")
@@ -222,7 +222,7 @@ class MatchNotificationTest(MatchTest):
         mock_send_email.assert_has_calls(calls)
         self.assertEqual(mock_send_email.call_count, 3)
 
-    def test_only_new_matches_sent_emails(self, mock_send_to_school, mock_send_email):
+    def test_only_new_matches_sent_emails(self, mock_send_to_authority, mock_send_email):
         self.create_match(self.user1, 'dummy')
         self.create_match(self.user2, 'dummy')
         run_matching()
@@ -233,7 +233,7 @@ class MatchNotificationTest(MatchTest):
         run_matching()
         mock_send_email.assert_called_once_with(user3, report3)
 
-    def test_users_are_deduplicated(self, mock_send_to_school, mock_send_email):
+    def test_users_are_deduplicated(self, mock_send_to_authority, mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
         self.create_match(self.user1, 'dummy')
         run_matching()
@@ -244,7 +244,7 @@ class MatchNotificationTest(MatchTest):
         mock_send_email.assert_has_calls(calls)
         self.assertEqual(mock_send_email.call_count, 2)
 
-    def test_doesnt_notify_on_reported_reports(self, mock_send_to_school, mock_send_email):
+    def test_doesnt_notify_on_reported_reports(self, mock_send_to_authority, mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
         report2 = self.create_match(self.user2, 'dummy')
         report2.report.submitted_to_school = timezone.now()
