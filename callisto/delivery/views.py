@@ -133,8 +133,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
         form.report = report
         if form.is_valid() and formset.is_valid():
             try:
-                match_reports = []
-                match_tuples = []
+                matches_for_immediate_processing = []
                 for perp_form in formset:
                     # enter into matching
                     match_report = MatchReport(report=report)
@@ -153,17 +152,20 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                                                       key=perp_identifier)
 
                     if settings.MATCH_IMMEDIATELY:
-                        match_tuples.append((owner, perp_identifier))
-                    else:
+                        # save in DB without identifier
+                        match_report.save()
                         match_report.identifier = perp_identifier
-                    match_reports.append(match_report)
+                        matches_for_immediate_processing.append(match_report)
+                    else:
+                        # temporarily save identifier in DB until matching is run
+                        match_report.identifier = perp_identifier
+                        match_report.save()
 
                     # record matching submission in anonymous evaluation data
                     EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
-                MatchReport.objects.bulk_create(match_reports)
                 if settings.MATCH_IMMEDIATELY:
-                    run_matching(unseen_match_tuples=match_tuples)
+                    run_matching(match_reports_to_check=matches_for_immediate_processing)
 
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))

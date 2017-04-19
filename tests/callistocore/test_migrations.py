@@ -85,9 +85,9 @@ class MatchReportMigrationTest(MigrationTest):
                                             email='email1@example.com', phone='555-555-1212')
         salt = get_random_string()
         encrypted_report = _pepper(_legacy_encrypt_report(salt, identifier, json.dumps(report_content.__dict__)))
-        MatchReport.objects.create(report=report2, identifier=identifier, encrypted=encrypted_report,
+        match_report = MatchReport.objects.create(report=report2, identifier=identifier, encrypted=encrypted_report,
                                    salt=salt)
-        find_matches([(user2, identifier)])
+        find_matches(match_reports_to_check=[match_report])
         # have to use ANY because objects in migration tests are faked
         mock_process.assert_called_once_with([ANY, ANY], 'test_identifier')
 

@@ -8,37 +8,45 @@ from .models import MatchReport
 logger = logging.getLogger(__name__)
 
 
-def run_matching(unseen_match_tuples=None):
+def run_matching(match_reports_to_check=None):
     """Compares existing match records to see if any match the given identifiers. If no identifiers are given, checks
     existing match records against identifiers from records that weren't been marked as "seen" the last time matching
     was run. For each identifier for which a new match is found, a report is sent to the receiving authority and the
     reporting users are notified.
 
     Args:
-      unseen_match_tuples(list of (User, string), optional): the new identifiers + users to check for matches, or None
-      if the value is to be queried from the DB (Default value = None)
+      match_reports_to_check(list of MatchReport, optional): the MatchReports to be checked (must have identifiers)
+      or None if the value is to be queried from the DB (Default value = None)
     """
     logger.info("running matching")
-    if unseen_match_tuples is None:
-        unseen_match_tuples = [(match_report.report.owner, match_report.identifier) for match_report in
-                               MatchReport.objects.filter(seen=False)]
-    find_matches(unseen_match_tuples)
+    if match_reports_to_check is None:
+        match_reports_to_check = MatchReport.objects.filter(seen=False)
+    find_matches(match_reports_to_check)
 
 
-def get_all_eligible_match_reports(owner):
+def get_all_eligible_match_reports(match_report):
+    """Returns all match reports that are eligible to be checked for matches against a given MatchReport. Designed to
+    be overridden for applications that want more granular options for matching (segmented for a given population or
+    severity level of report, for example.)
+
+    Args:
+      match_report (MatchReport): MatchReport to be checked
+    """
     return MatchReport.objects.all()
 
 
-def find_matches(unseen_match_reports):
+def find_matches(match_reports_to_check):
     """Finds sets of matching records that haven't been identified yet. For a match to count as new, there must be
     associated Reports from at least 2 different users and at least one MatchReport must be newly created since we last
     checked for matches.
 
     Args:
-      unseen_match_reports (list of tuples of (User, string)): the new identifiers & submitters to check for matches
+      match_reports_to_check (list of MatchReports): the MatchReports to check for matches
     """
-    for (owner, identifier) in unseen_match_reports:
-        match_list = [potential for potential in get_all_eligible_match_reports(owner) if potential.get_match(identifier)]
+    for match_report in match_reports_to_check:
+        identifier = match_report.identifier
+        match_list = [potential for potential in get_all_eligible_match_reports(match_report)
+                      if potential.get_match(identifier)]
         if len(match_list) > 1:
             seen_match_owners = [match.report.owner for match in match_list if match.seen]
             new_match_owners = [match.report.owner for match in match_list if not match.seen]
@@ -47,9 +55,9 @@ def find_matches(unseen_match_reports):
                 # only send notifications if new matches are submitted by owners we don't know about
                 if not set(new_match_owners).issubset(set(seen_match_owners)):
                     process_new_matches(match_list, identifier)
-                for match_report in match_list:
-                    match_report.report.match_found = True
-                    match_report.report.save()
+                for matched_report in match_list:
+                    matched_report.report.match_found = True
+                    matched_report.report.save()
         for match in match_list:
             match.seen = True
             # delete identifier, which should only be filled for newly added match reports in delayed matching case
