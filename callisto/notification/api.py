@@ -33,7 +33,7 @@ class NotificationApi(AbstractNotification):
         '''
         return None
 
-    # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+    # TODO: create a PDFGenerationApi https://github.com/SexualHealthInnovations/callisto-core/issues/150
     # TODO (cont): remove this method, make it a attribute
     @classmethod
     def get_report_title(cls):
@@ -48,7 +48,7 @@ class NotificationApi(AbstractNotification):
         logger.info("sending report to reporting authority")
         pdf_report_id = sent_full_report.get_report_id()
         sent_full_report.report.submitted_to_school = timezone.now()
-        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+        # TODO: create a PDFGenerationApi https://github.com/SexualHealthInnovations/callisto-core/issues/150
         pdf = PDFFullReport(sent_full_report.report, decrypted_report).generate_pdf_report(pdf_report_id)
         cls.send_email_to_coordinator(pdf, 'report_delivery', pdf_report_id, site_id)
         # save report timestamp only if generation & email work
@@ -62,7 +62,7 @@ class NotificationApi(AbstractNotification):
         report_id = sent_match_report.get_report_id()
         sent_match_report.reports.add(*matches)
         sent_match_report.save()
-        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+        # TODO: create a PDFGenerationApi https://github.com/SexualHealthInnovations/callisto-core/issues/150
         pdf = PDFMatchReport(matches, identifier).generate_match_report(report_id)
         cls.send_email_to_coordinator(pdf, 'match_delivery', report_id)
 
