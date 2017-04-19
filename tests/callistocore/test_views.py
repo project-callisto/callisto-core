@@ -432,12 +432,12 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
     def test_renders_default_template(self):
         response = self.client.get(self.submission_url % self.report.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'submit_to_school.html')
+        self.assertTemplateUsed(response, 'submit_report_to_authority.html')
 
     def test_renders_custom_template(self):
         response = self.client.get('/test_reports/submit_custom/%s/' % self.report.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'submit_to_school_custom.html')
+        self.assertTemplateUsed(response, 'submit_report_to_authority_custom.html')
 
     def test_renders_default_confirmation_template(self):
         response = self.client.post((self.submission_url % self.report.pk),
@@ -448,7 +448,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
                                           'key': self.report_key})
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        self.assertTemplateUsed(response, 'submit_to_school_confirmation.html')
+        self.assertTemplateUsed(response, 'submit_report_to_authority_confirmation.html')
 
     def test_renders_custom_confirmation_template(self):
         response = self.client.post(('/test_reports/submit_custom/%s/' % self.report.pk),
@@ -460,7 +460,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
         self.assertIn('custom context', get_body(response))
-        self.assertTemplateUsed(response, 'submit_to_school_confirmation_custom.html')
+        self.assertTemplateUsed(response, 'submit_report_to_authority_confirmation_custom.html')
 
     def test_submit_sends_report(self):
         response = self.client.post((self.submission_url % self.report.pk),
@@ -552,7 +552,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
                                           'key': self.report_key})
         self.assertTrue(mock_logger.exception.called)
         mock_logger.exception.assert_called_with("couldn't send confirmation to user on submission")
-        self.assertTemplateNotUsed(response, 'submit_to_school.html')
+        self.assertTemplateNotUsed(response, 'submit_report_to_authority.html')
 
 
 class SubmitMatchIntegrationTest(ExistingRecordTest):

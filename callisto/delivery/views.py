@@ -19,7 +19,9 @@ from django.utils.html import conditional_escape
 from callisto.delivery.api import DeliveryApi
 from callisto.evaluation.models import EvalRow
 
-from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
+from .forms import (
+    SecretKeyForm, SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
+)
 from .matching import run_matching
 from .models import MatchReport, Report, SentFullReport
 from .report_delivery import MatchReportContent, PDFFullReport
@@ -71,9 +73,9 @@ def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_re
 
 @check_owner('submit')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
-                     confirmation_template_name="submit_to_school_confirmation.html",
-                     extra_context=None):
+def submit_report_to_authority(request, report_id, form_template_name="submit_report_to_authority.html",
+                               confirmation_template_name="submit_report_to_authority_confirmation.html",
+                               extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
     site_id = get_current_site(request).id
@@ -81,7 +83,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
     context.update(extra_context or {})
 
     if request.method == 'POST':
-        form = SubmitToSchoolForm(owner, report, request.POST)
+        form = SubmitReportToAuthorityForm(owner, report, request.POST)
         form.report = report
         if form.is_valid():
             try:
@@ -111,7 +113,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
             context.update({'form': form})
             return render(request, confirmation_template_name, context)
     else:
-        form = SubmitToSchoolForm(owner, report)
+        form = SubmitReportToAuthorityForm(owner, report)
     context.update({'form': form})
     return render(request, form_template_name, context)
 
@@ -128,7 +130,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
     context.update(extra_context or {})
 
     if request.method == 'POST':
-        form = SubmitToSchoolForm(owner, report, request.POST)
+        form = SubmitReportToAuthorityForm(owner, report, request.POST)
         formset = SubmitToMatchingFormSet(request.POST)
         form.report = report
         if form.is_valid() and formset.is_valid():
@@ -182,7 +184,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
             return render(request, confirmation_template_name, context)
 
     else:
-        form = SubmitToSchoolForm(owner, report)
+        form = SubmitReportToAuthorityForm(owner, report)
         formset = SubmitToMatchingFormSet()
     context.update({'form': form, 'formset': formset})
     return render(request, form_template_name, context)

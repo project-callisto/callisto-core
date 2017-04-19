@@ -104,8 +104,8 @@ class NotificationApi(AbstractNotification):
         email.attach_alternative(notification.render_body(), "text/html")
 
         gpg = gnupg.GPG()
-        school_public_key = settings.COORDINATOR_PUBLIC_KEY
-        imported_keys = gpg.import_keys(school_public_key)
+        authority_public_key = settings.COORDINATOR_PUBLIC_KEY
+        imported_keys = gpg.import_keys(authority_public_key)
         # TODO: sign encrypted doc https://github.com/SexualHealthInnovations/callisto-core/issues/32
         attachment = gpg.encrypt(pdf_to_attach, imported_keys.fingerprints[0], armor=True, always_trust=True)
 

@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from callisto.delivery.views import (
     delete_report, edit_record_form_view, export_as_pdf, new_record_form_view,
-    submit_to_matching, submit_to_school, withdraw_from_matching,
+    submit_report_to_authority, submit_to_matching, withdraw_from_matching,
 )
 
 from .callistocore.forms import EncryptedFormWizard
@@ -15,10 +15,10 @@ urlpatterns = [
         {'wizard': EncryptedFormWizard, 'url_name': 'test_edit_report'}, name='test_edit_report'),
     url(r'^test_reports/edit/(?P<edit_id>\d+)/(?P<step>.+)/$', edit_record_form_view,
         {'wizard': EncryptedFormWizard, 'url_name': 'test_edit_report'}, name='test_edit_report'),
-    url(r'^test_reports/submit/(?P<report_id>\d+)/$', submit_to_school, name="test_submit_report"),
-    url(r'^test_reports/submit_custom/(?P<report_id>\d+)/$', submit_to_school,
-        {'form_template_name': 'submit_to_school_custom.html',
-         'confirmation_template_name': 'submit_to_school_confirmation_custom.html',
+    url(r'^test_reports/submit/(?P<report_id>\d+)/$', submit_report_to_authority, name="test_submit_report"),
+    url(r'^test_reports/submit_custom/(?P<report_id>\d+)/$', submit_report_to_authority,
+        {'form_template_name': 'submit_report_to_authority_custom.html',
+         'confirmation_template_name': 'submit_report_to_authority_confirmation_custom.html',
          'extra_context': {'test': 'custom context'}}, name="test_submit_confirmation"),
     url(r'^test_reports/match/(?P<report_id>\d+)/$', submit_to_matching, name="test_submit_match"),
     url(r'^test_reports/match_custom/(?P<report_id>\d+)/$', submit_to_matching,
