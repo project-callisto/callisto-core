@@ -32,5 +32,9 @@ class ExtendedCustomNotificationApi(CustomNotificationApi):
 class CustomMatchingApi(CallistoMatching):
 
     @classmethod
-    def run_matching(cls, arg1, match_reports_to_check=None):
+    def run_matching(cls, match_reports_to_check=None):
+        super(CustomMatchingApi, cls).run_matching(match_reports_to_check)
+
+    @classmethod
+    def process_new_matches(cls, matches, identifier):
         pass

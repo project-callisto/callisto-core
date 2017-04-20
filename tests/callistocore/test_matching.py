@@ -4,7 +4,7 @@ from mock import call, patch
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from callisto.delivery.matching import MatchingApi
@@ -257,6 +257,14 @@ class MatchingCommandTest(MatchTest):
 
     @patch('callisto.delivery.matching.CallistoMatching.process_new_matches')
     def test_command_runs_matches(self, mock_process):
+        match1 = self.create_match(self.user1, 'dummy')
+        match2 = self.create_match(self.user2, 'dummy')
+        call_command('find_matches')
+        mock_process.assert_called_once_with([match1, match2], 'dummy')
+
+    @override_settings(CALLISTO_MATCHING_API='tests.callistocore.forms.CustomMatchingApi')
+    @patch('tests.callistocore.forms.CustomMatchingApi.process_new_matches')
+    def test_command_runs_matches_with_overridden_api(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         call_command('find_matches')
