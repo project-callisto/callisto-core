@@ -836,6 +836,22 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertIn('test match delivery body', message.body)
         self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\\.pdf\\.gpg')
 
+    @override_settings(CALLISTO_MATCHING_API='tests.callistocore.forms.CustomMatchingApi')
+    @patch('tests.callistocore.forms.CustomMatchingApi.run_matching')
+    def test_match_calls_custom_matching_api(self, mock_process):
+        self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
+                         data={'name': 'test submitter 1',
+                               'email': 'test1@example.com',
+                               'phone_number': '555-555-1212',
+                               'email_confirmation': "False",
+                               'key': self.report_key,
+                               'form-0-perp': 'facebook.com/triggered_match',
+                               'form-TOTAL_FORMS': '1',
+                               'form-INITIAL_FORMS': '1',
+                               'form-MAX_NUM_FORMS': '', })
+        mock_process.assert_called_once()
+
+
     @patch('callisto.delivery.views.MatchReport.encrypt_match_report')
     def test_match_send_exception_is_handled(self, mock_encrypt_match_report):
         mock_encrypt_match_report.side_effect = Exception('Mock Submit Match Exception')
