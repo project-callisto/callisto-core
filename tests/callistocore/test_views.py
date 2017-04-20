@@ -851,7 +851,6 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                'form-MAX_NUM_FORMS': '', })
         mock_process.assert_called_once()
 
-
     @patch('callisto.delivery.views.MatchReport.encrypt_match_report')
     def test_match_send_exception_is_handled(self, mock_encrypt_match_report):
         mock_encrypt_match_report.side_effect = Exception('Mock Submit Match Exception')
