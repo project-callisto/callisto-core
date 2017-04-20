@@ -22,7 +22,7 @@ from callisto.evaluation.models import EvalRow
 from .forms import (
     SecretKeyForm, SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
 )
-from .matching import run_matching
+from .matching import MatchingApi
 from .models import MatchReport, Report, SentFullReport
 from .report_delivery import MatchReportContent, PDFFullReport
 
@@ -167,7 +167,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
                 if settings.MATCH_IMMEDIATELY:
-                    run_matching(match_reports_to_check=matches_for_immediate_processing)
+                    MatchingApi().run_matching(match_reports_to_check=matches_for_immediate_processing)
 
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))

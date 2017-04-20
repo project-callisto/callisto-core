@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
 
-from callisto.delivery.matching import run_matching
+from callisto.delivery.matching import MatchingApi
 from callisto.delivery.models import Report
 from callisto.evaluation.models import EvalRow, EvaluationField
 
@@ -562,9 +562,9 @@ class EvalActionTest(MatchTest):
         self.report.encrypt_report(self.report_text, self.key)
         self.report.save()
 
-    @patch('callisto.delivery.views.run_matching')
+    @patch('callisto.delivery.views.MatchingApi')
     @patch('callisto.delivery.views.EvalRow.anonymise_record')
-    def test_submission_to_matching_creates_eval_row(self, mock_anonymise_record, mock_run_matching):
+    def test_submission_to_matching_creates_eval_row(self, mock_anonymise_record, mock_matching_api):
         response = self.client.post(('/test_reports/match/%s/' % self.report.pk),
                                     data={'name': 'test submitter',
                                           'email': 'test@example.com',
@@ -586,7 +586,7 @@ class EvalActionTest(MatchTest):
     def test_match_trigger_creates_eval_row(self, mock_send_to_authority, mock_notify, mock_anonymise_record):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        run_matching()
+        MatchingApi().run_matching()
         call1 = call(action=EvalRow.MATCH_FOUND, report=match1.report, decrypted_text=None, match_identifier=None)
         call2 = call(action=EvalRow.MATCH_FOUND, report=match2.report, decrypted_text=None, match_identifier=None)
         mock_anonymise_record.assert_has_calls([call1, call2])

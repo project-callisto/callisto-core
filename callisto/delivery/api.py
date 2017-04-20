@@ -16,10 +16,7 @@ class Api(object):
         self.set_api_class(self.api_env_variable, self.default_classpath)
 
     def __getattr__(self, attr):
-        if attr in AbstractNotification.__dict__.keys():
-            return getattr(self.api_implementation, attr)
-        else:
-            raise NotImplementedError('Attribute not implemented on abstract API class')
+        return getattr(self.api_implementation, attr)
 
     def set_api_class(self, api_env_variable, default_classpath):
         override_class_path = getattr(
@@ -48,6 +45,12 @@ class DeliveryApi(Api):
 
     api_env_variable = 'CALLISTO_NOTIFICATION_API'
     default_classpath = 'callisto.delivery.api.AbstractNotification'
+
+    def __getattr__(self, attr):
+        if attr in AbstractNotification.__dict__.keys():
+            return getattr(self.api_implementation, attr)
+        else:
+            raise NotImplementedError('Attribute not implemented on abstract Notification class')
 
 
 class AbstractNotification:

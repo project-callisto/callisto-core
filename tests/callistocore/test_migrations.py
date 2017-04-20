@@ -6,7 +6,7 @@ from mock import ANY, patch
 from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 
-from callisto.delivery.matching import find_matches
+from callisto.delivery.matching import MatchingApi
 from callisto.delivery.models import _pepper, _unpepper
 from callisto.delivery.report_delivery import MatchReportContent
 
@@ -55,7 +55,7 @@ class MatchReportMigrationTest(MigrationTest):
         self.assertEqual(decrypted_report['email'], email)
         self.assertEqual(decrypted_report['notes'], None)
 
-    @patch('callisto.delivery.matching.process_new_matches')
+    @patch('callisto.delivery.matching.CallistoMatching.process_new_matches')
     def test_matches_after_encryption(self, mock_process):
 
         user1 = User.objects.create_user(username="dummy1", password="dummy")
@@ -87,7 +87,7 @@ class MatchReportMigrationTest(MigrationTest):
         encrypted_report = _pepper(_legacy_encrypt_report(salt, identifier, json.dumps(report_content.__dict__)))
         match_report = MatchReport.objects.create(report=report2, identifier=identifier, encrypted=encrypted_report,
                                    salt=salt)
-        find_matches(match_reports_to_check=[match_report])
+        MatchingApi().find_matches(match_reports_to_check=[match_report])
         # have to use ANY because objects in migration tests are faked
         mock_process.assert_called_once_with([ANY, ANY], 'test_identifier')
 
