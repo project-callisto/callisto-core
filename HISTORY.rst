@@ -3,7 +3,7 @@
 History
 -------
 
-0.4.0 (2016-04-24)
+0.4.0 (2017-04-24)
 ++++++++++++++++++
 
 * Introduced MatchingApi to allow customization of matching behavior
