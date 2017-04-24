@@ -13,6 +13,7 @@ from wizard_builder.views import (
     ConfigurableFormWizard, calculate_page_count_map,
 )
 
+from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
@@ -35,6 +36,9 @@ class FormBaseTest(TestCase):
         self.page2 = QuestionPage.objects.create()
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
 
     def _get_wizard_response(self, wizard, form_list, **kwargs):
         # simulate what wizard does on final form submit
@@ -77,13 +81,13 @@ class WizardIntegratedTest(FormBaseTest):
         SingleLineText.objects.create(text="first page question", page=page3)
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
         SingleLineText.objects.create(text="another first page question", page=page3, position=1)
-        wizard = ConfigurableFormWizard.wizard_factory()()
+        wizard = ConfigurableFormWizard.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 3)
 
     def test_question_pages_without_questions_are_filtered_out(self):
         # empty_page
         QuestionPage.objects.create()
-        wizard = TestWizard.wizard_factory()()
+        wizard = TestWizard.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 2)
         self.assertIn(QuestionPageForm, inspect.getmro(wizard.form_list[0]))
         self.assertNotIn(TextPageForm, inspect.getmro(wizard.form_list[-1]))
@@ -92,7 +96,7 @@ class WizardIntegratedTest(FormBaseTest):
         TextPage.objects.create(title="this page title", text="some text goes here", position=1)
         self.page1.position = 2
         self.page1.save()
-        wizard = TestWizard.wizard_factory()()
+        wizard = TestWizard.wizard_factory(site_id=self.site.id)()
         page_one_form = wizard.form_list[0]({})
 
         self.assertEqual(len(wizard.form_list), 3)
