@@ -19,8 +19,10 @@ from django.utils.html import conditional_escape
 from callisto.delivery.api import DeliveryApi
 from callisto.evaluation.models import EvalRow
 
-from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
-from .matching import run_matching
+from .forms import (
+    SecretKeyForm, SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
+)
+from .matching import MatchingApi
 from .models import MatchReport, Report, SentFullReport
 from .report_delivery import MatchReportContent, PDFFullReport
 
@@ -71,9 +73,9 @@ def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_re
 
 @check_owner('submit')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
-                     confirmation_template_name="submit_to_school_confirmation.html",
-                     extra_context=None):
+def submit_report_to_authority(request, report_id, form_template_name="submit_report_to_authority.html",
+                               confirmation_template_name="submit_report_to_authority_confirmation.html",
+                               extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
     site_id = get_current_site(request).id
@@ -81,7 +83,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
     context.update(extra_context or {})
 
     if request.method == 'POST':
-        form = SubmitToSchoolForm(owner, report, request.POST)
+        form = SubmitReportToAuthorityForm(owner, report, request.POST)
         form.report = report
         if form.is_valid():
             try:
@@ -91,7 +93,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                 sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
-                DeliveryApi().send_report_to_school(sent_full_report, form.decrypted_report, site_id)
+                DeliveryApi().send_report_to_authority(sent_full_report, form.decrypted_report, site_id)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
@@ -111,7 +113,7 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
             context.update({'form': form})
             return render(request, confirmation_template_name, context)
     else:
-        form = SubmitToSchoolForm(owner, report)
+        form = SubmitReportToAuthorityForm(owner, report)
     context.update({'form': form})
     return render(request, form_template_name, context)
 
@@ -128,13 +130,12 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
     context.update(extra_context or {})
 
     if request.method == 'POST':
-        form = SubmitToSchoolForm(owner, report, request.POST)
+        form = SubmitReportToAuthorityForm(owner, report, request.POST)
         formset = SubmitToMatchingFormSet(request.POST)
         form.report = report
         if form.is_valid() and formset.is_valid():
             try:
-                match_reports = []
-                identifiers = []
+                matches_for_immediate_processing = []
                 for perp_form in formset:
                     # enter into matching
                     match_report = MatchReport(report=report)
@@ -153,20 +154,25 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                                                       key=perp_identifier)
 
                     if settings.MATCH_IMMEDIATELY:
-                        identifiers.append(perp_identifier)
-                    else:
+                        # save in DB without identifier
+                        match_report.save()
                         match_report.identifier = perp_identifier
-                    match_reports.append(match_report)
-                MatchReport.objects.bulk_create(match_reports)
+                        matches_for_immediate_processing.append(match_report)
+                    else:
+                        # temporarily save identifier in DB until matching is run
+                        match_report.identifier = perp_identifier
+                        match_report.save()
+
+                    # record matching submission in anonymous evaluation data
+                    EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
+
                 if settings.MATCH_IMMEDIATELY:
-                    run_matching(identifiers=identifiers)
+                    MatchingApi().run_matching(match_reports_to_check=matches_for_immediate_processing)
+
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))
                 context.update({'form': form, 'formset': formset, 'submit_error': True})
                 return render(request, form_template_name, context)
-
-            # record matching submission in anonymous evaluation data
-            EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
@@ -178,7 +184,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
             return render(request, confirmation_template_name, context)
 
     else:
-        form = SubmitToSchoolForm(owner, report)
+        form = SubmitReportToAuthorityForm(owner, report)
         formset = SubmitToMatchingFormSet()
     context.update({'form': form, 'formset': formset})
     return render(request, form_template_name, context)

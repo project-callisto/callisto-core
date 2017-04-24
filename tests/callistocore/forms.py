@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import HttpResponse
 
+from callisto.delivery.matching import CallistoMatching
 from callisto.delivery.wizard import EncryptedFormBaseWizard
 from callisto.notification.api import NotificationApi
 
@@ -24,5 +25,16 @@ class CustomNotificationApi(NotificationApi):
 class ExtendedCustomNotificationApi(CustomNotificationApi):
 
     @classmethod
-    def send_report_to_school(arg1, arg2, arg3):
+    def send_report_to_authority(arg1, arg2, arg3):
+        pass
+
+
+class CustomMatchingApi(CallistoMatching):
+
+    @classmethod
+    def run_matching(cls, match_reports_to_check=None):
+        super(CustomMatchingApi, cls).run_matching(match_reports_to_check)
+
+    @classmethod
+    def process_new_matches(cls, matches, identifier):
         pass

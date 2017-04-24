@@ -4,7 +4,30 @@ from django.conf import settings
 from django.utils.module_loading import import_string
 
 
-class DeliveryApi(object):
+class Api(object):
+    '''
+        Used to route calls to from inside of callisto/delivery/* to api(s) inside of other apps
+
+        Extending objects should have 'api_env_variable' and 'default_classpath' members.
+        See DeliveryApi for an example
+    '''
+
+    def __init__(self):
+        self.set_api_class(self.api_env_variable, self.default_classpath)
+
+    def __getattr__(self, attr):
+        return getattr(self.api_implementation, attr)
+
+    def set_api_class(self, api_env_variable, default_classpath):
+        override_class_path = getattr(
+            settings,
+            api_env_variable,
+            default_classpath,
+        )
+        self.api_implementation = import_string(override_class_path)
+
+
+class DeliveryApi(Api):
     '''
         Used to route calls to from inside of callisto/delivery/* to
         notification api(s) inside of other apps
@@ -20,33 +43,25 @@ class DeliveryApi(object):
         DeliveryApi maps to
     '''
 
-    def __init__(self):
-        self.set_api_class()
+    api_env_variable = 'CALLISTO_NOTIFICATION_API'
+    default_classpath = 'callisto.delivery.api.AbstractNotification'
 
     def __getattr__(self, attr):
         if attr in AbstractNotification.__dict__.keys():
-            return getattr(self.notification, attr)
+            return getattr(self.api_implementation, attr)
         else:
-            raise NotImplementedError('Attribute not implemented on abstract notification class')
-
-    def set_api_class(self):
-        override_class_path = getattr(
-            settings,
-            'CALLISTO_NOTIFICATION_API',
-            'callisto.delivery.api.AbstractNotification',
-        )
-        self.notification = import_string(override_class_path)
+            raise NotImplementedError('Attribute not implemented on abstract Notification class')
 
 
 class AbstractNotification:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def send_report_to_school(self):
+    def send_report_to_authority(self):
         pass
 
     @abstractmethod
-    def send_matching_report_to_school(self):
+    def send_matching_report_to_authority(self):
         pass
 
     @abstractmethod
@@ -58,7 +73,7 @@ class AbstractNotification:
         pass
 
     @abstractmethod
-    def send_email_to_coordinator(self):
+    def send_email_to_authority_intake(self):
         pass
 
     @abstractmethod
