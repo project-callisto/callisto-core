@@ -32,13 +32,13 @@ def get_body(response):
 class FormBaseTest(TestCase):
 
     def setUp(self):
-        self.page1 = QuestionPage.objects.create()
-        self.page2 = QuestionPage.objects.create()
-        self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
-        self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
         self.site = Site.objects.get(id=1)
         self.site.domain = 'testserver'
         self.site.save()
+        self.page1 = QuestionPage.objects.create(site_id=self.site.id)
+        self.page2 = QuestionPage.objects.create(site_id=self.site.id)
+        self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
+        self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
 
     def _get_wizard_response(self, wizard, form_list, **kwargs):
         # simulate what wizard does on final form submit
