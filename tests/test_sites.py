@@ -15,7 +15,7 @@ class TempSiteID():
         self.site_id_temp = site_id
 
     def __enter__(self):
-        self.site_id_stable = getattr(settings, 'SITE_ID', 1)
+        self.site_id_stable = getattr(settings, 'SITE_ID', None)
         settings.SITE_ID = self.site_id_temp
 
     def __exit__(self, *args):
@@ -32,24 +32,24 @@ class SiteIDTest(TestCase):
     def test_on_site_respects_SITE_ID_setting(self):
         site_1_pages = 3
         site_2_pages = site_1_pages + 1
+        site_2 = Site.objects.create()
         with TempSiteID(1):
-            site_2 = Site.objects.create()
-        for i in range(site_1_pages):
-            QuestionPage.objects.create()
-        for i in range(site_2_pages):
-            with TempSiteID(site_2.id):
+            for i in range(site_1_pages):
                 QuestionPage.objects.create()
+            for i in range(site_2_pages):
+                with TempSiteID(site_2.id):
+                    QuestionPage.objects.create()
+            self.assertEqual(QuestionPage.objects.on_site().count(), site_1_pages)
 
-        self.assertEqual(QuestionPage.objects.on_site().count(), site_1_pages)
         with TempSiteID(site_2.id):
             self.assertEqual(QuestionPage.objects.on_site().count(), site_2_pages)
 
     def test_can_override_default_site_id(self):
         with TempSiteID(1):
             page = QuestionPage.objects.create()
-        self.assertEqual(page.site.id, settings.SITE_ID)
-        with TempSiteID(1):
-            site_2 = Site.objects.create()
+            self.assertEqual(page.site.id, settings.SITE_ID)
+
+        site_2 = Site.objects.create()
         page.site = site_2
         page.save()
         self.assertEqual(page.site_id, site_2.id)
