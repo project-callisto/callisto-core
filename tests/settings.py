@@ -29,8 +29,6 @@ INSTALLED_APPS = [
     "callisto.notification",
 ]
 
-SITE_ID = 1
-
 MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
                       'django.contrib.auth.middleware.AuthenticationMiddleware',)
 
