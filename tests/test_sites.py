@@ -1,5 +1,4 @@
 from mock import patch
-
 from wizard_builder.models import PageBase, QuestionPage, SingleLineText
 
 from django.conf import settings
@@ -69,11 +68,8 @@ class SiteRequestTest(TestCase):
         self.page = QuestionPage.objects.create(site_id=self.site.id)
         self.question = SingleLineText.objects.create(text="first question", page=self.page)
 
-    def mocked_on_site(self):
-        return PageBase.objects.filter(id=self.page.id)
-
     @patch('wizard_builder.managers.PageBaseManager.on_site')
     def test_site_passed_to_question_page_manager(self, mock_on_site):
-        mock_on_site.return_value = self.mocked_on_site()
+        mock_on_site.return_value = PageBase.objects.filter(id=self.page.id)
         self.client.get('/wizard/new/0/')
         mock_on_site.assert_called_with(self.site.id)
