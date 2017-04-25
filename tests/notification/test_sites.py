@@ -34,24 +34,26 @@ class SiteIDTest(TestCase):
     def test_on_site_respects_SITE_ID_setting(self):
         site_1_pages = 3
         site_2_pages = site_1_pages + 1
-        site_2 = Site.objects.create()
-        index = 0
-        for i in range(site_1_pages):
-            EmailNotification.objects.create(name=index)
-            index += 1
-        for i in range(site_2_pages):
-            notification = EmailNotification.objects.create(name=index)
-            notification.sites.add(site_2)  # site_1 is already added
-            index += 1
+        with TempSiteID(1):
+            site_2 = Site.objects.create()
+            index = 0
+            for i in range(site_1_pages):
+                EmailNotification.objects.create(name=index)
+                index += 1
+            for i in range(site_2_pages):
+                notification = EmailNotification.objects.create(name=index)
+                notification.sites.add(site_2)
+                index += 1
+            self.assertEqual(EmailNotification.objects.on_site().count(), site_1_pages + site_2_pages)
 
-        self.assertEqual(EmailNotification.objects.on_site().count(), site_1_pages + site_2_pages)
         with TempSiteID(site_2.id):
             self.assertEqual(EmailNotification.objects.on_site().count(), site_2_pages)
 
     def test_multiple_added_sites_are_reflected_by_on_site(self):
-        site_2 = Site.objects.create()
-        notification = EmailNotification.objects.create()
-        notification.sites.add(site_2)
+        with TempSiteID(1):
+            site_2 = Site.objects.create()
+            notification = EmailNotification.objects.create()
+            notification.sites.add(site_2)
 
         self.assertIn(notification, EmailNotification.objects.on_site())
         with TempSiteID(site_2.id):
