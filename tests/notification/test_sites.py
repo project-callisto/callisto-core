@@ -22,7 +22,7 @@ class TempSiteID():
         self.site_id_temp = site_id
 
     def __enter__(self):
-        self.site_id_stable = getattr(settings, 'SITE_ID', 1)
+        self.site_id_stable = getattr(settings, 'SITE_ID', None)
         settings.SITE_ID = self.site_id_temp
 
     def __exit__(self, *args):
@@ -54,8 +54,8 @@ class SiteIDTest(TestCase):
             site_2 = Site.objects.create()
             notification = EmailNotification.objects.create()
             notification.sites.add(site_2)
+            self.assertIn(notification, EmailNotification.objects.on_site())
 
-        self.assertIn(notification, EmailNotification.objects.on_site())
         with TempSiteID(site_2.id):
             self.assertIn(notification, EmailNotification.objects.on_site())
 
