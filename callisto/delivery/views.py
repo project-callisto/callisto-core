@@ -80,7 +80,7 @@ def submit_report_to_authority(request, report_id, form_template_name="submit_re
                                extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
-    site_id = get_current_site(request).id
+    site = get_current_site(request)
     context = {'owner': owner, 'report': report}
     context.update(extra_context or {})
 
@@ -95,7 +95,7 @@ def submit_report_to_authority(request, report_id, form_template_name="submit_re
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                 sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
-                DeliveryApi().send_report_to_authority(sent_full_report, form.decrypted_report, site_id)
+                DeliveryApi().send_report_to_authority(sent_full_report, form.decrypted_report, site.id)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))

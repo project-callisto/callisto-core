@@ -6,6 +6,7 @@ import pytz
 from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
+from django.contrib.sites.models import Site
 
 from callisto.delivery.api import AbstractNotification
 from callisto.delivery.models import SentMatchReport
@@ -72,7 +73,8 @@ class NotificationApi(AbstractNotification):
         preferred_email = form.cleaned_data.get('email')
         to_email = preferred_email
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-        notification.send(to=[to_email], from_email=from_email)
+        context = {'domain': site.domain}
+        notification.send(to=[to_email], from_email=from_email, context=context)
 
     @classmethod
     def send_match_notification(cls, user, match_report):
@@ -87,21 +89,23 @@ class NotificationApi(AbstractNotification):
         notification = cls.model.objects.on_site(site_id).get(name='match_notification')
         from_email = '"Callisto Matching" <notification@{0}>'.format(settings.APP_URL)
         to = match_report.contact_email
-        context = {'report': match_report.report}
+        context = {'report': match_report.report, 'domain': site.domain}
         notification.send(to=[to], from_email=from_email, context=context)
 
     @classmethod
     def send_email_to_authority_intake(cls, pdf_to_attach, notification_name, report_id, site_id=None):
+        site = Site.objects.get(id=site_id)
+        context = {'domain': site.domain}
         notification = cls.model.objects.on_site(site_id).get(name=notification_name)
 
         to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
 
         email = EmailMultiAlternatives(
             notification.subject,
-            notification.render_body_plain(),
+            notification.render_body_plain(context),
             cls.from_email,
             to_addresses)
-        email.attach_alternative(notification.render_body(), "text/html")
+        email.attach_alternative(notification.render_body(context), "text/html")
 
         gpg = gnupg.GPG()
         authority_public_key = settings.COORDINATOR_PUBLIC_KEY

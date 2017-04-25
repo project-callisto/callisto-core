@@ -436,9 +436,16 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
 
     def setUp(self):
         super(SubmitReportIntegrationTest, self).setUp()
-        EmailNotification.objects.create(name='submit_confirmation', subject="test submit confirmation",
-                                         body="test submit confirmation body")
-        EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
+        EmailNotification.objects.create(
+            name='submit_confirmation',
+            subject="test submit confirmation",
+            body="test submit confirmation body",
+        ).sites.add(self.site.id)
+        EmailNotification.objects.create(
+            name='report_delivery',
+            subject="test delivery",
+            body="test body",
+        ).sites.add(self.site.id)
 
     def test_renders_default_template(self):
         response = self.client.get(self.submission_url % self.report.pk)
