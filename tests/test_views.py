@@ -13,8 +13,8 @@ from wizard_builder.views import (
     ConfigurableFormWizard, calculate_page_count_map,
 )
 
-from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.http import HttpRequest
 from django.test import TestCase
 
