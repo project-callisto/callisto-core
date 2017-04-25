@@ -22,16 +22,18 @@ class TempSiteID():
         settings.SITE_ID = self.site_id_stable
 
 
-class SitePageTest(TestCase):
+class SiteIDTest(TestCase):
 
     def test_page_has_defaualt_site_attribute(self):
-        page = QuestionPage.objects.create()
+        with TempSiteID(1):
+            page = QuestionPage.objects.create()
         self.assertEqual(page.site.domain, 'example.com')
 
     def test_on_site_respects_SITE_ID_setting(self):
         site_1_pages = 3
         site_2_pages = site_1_pages + 1
-        site_2 = Site.objects.create()
+        with TempSiteID(1):
+            site_2 = Site.objects.create()
         for i in range(site_1_pages):
             QuestionPage.objects.create()
         for i in range(site_2_pages):
@@ -43,9 +45,11 @@ class SitePageTest(TestCase):
             self.assertEqual(QuestionPage.objects.on_site().count(), site_2_pages)
 
     def test_can_override_default_site_id(self):
-        page = QuestionPage.objects.create()
+        with TempSiteID(1):
+            page = QuestionPage.objects.create()
         self.assertEqual(page.site.id, settings.SITE_ID)
-        site_2 = Site.objects.create()
+        with TempSiteID(1):
+            site_2 = Site.objects.create()
         page.site = site_2
         page.save()
         self.assertEqual(page.site_id, site_2.id)
