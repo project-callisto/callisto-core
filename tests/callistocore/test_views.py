@@ -15,6 +15,7 @@ from django.core.management import call_command
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.contrib.sites.models import Site
 
 from callisto.delivery.api import DeliveryApi
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
@@ -35,9 +36,18 @@ def get_body(response):
     return response.content.decode('utf-8')
 
 
-class RecordFormFailureTest(TestCase):
+class SiteAwareTestCase(TestCase):
 
     def setUp(self):
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
+
+
+class RecordFormFailureTest(SiteAwareTestCase):
+
+    def setUp(self):
+        super(RecordFormFailureTest, self).setUp()
         self.user = User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')
 
@@ -51,11 +61,12 @@ class RecordFormFailureTest(TestCase):
         self.assertEqual(response.status_code, 500)
 
 
-class RecordFormBaseTest(TestCase):
+class RecordFormBaseTest(SiteAwareTestCase):
 
     def setUp(self):
-        self.page1 = QuestionPage.objects.create()
-        self.page2 = QuestionPage.objects.create()
+        super(RecordFormBaseTest, self).setUp()
+        self.page1 = QuestionPage.objects.create(site_id=self.site.id)
+        self.page2 = QuestionPage.objects.create(site_id=self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
 
@@ -101,16 +112,16 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         self.assertNotContains(response, 'name="1-question_%i"' % self.question2.pk)
 
     def test_wizard_generates_correct_number_of_pages(self):
-        page3 = QuestionPage.objects.create()
+        page3 = QuestionPage.objects.create(site_id=self.site.id)
         SingleLineText.objects.create(text="first page question", page=page3)
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
         SingleLineText.objects.create(text="another first page question", page=page3, position=1)
-        wizard = EncryptedFormWizard.wizard_factory()()
+        wizard = EncryptedFormWizard.wizard_factory(site_id=self.site.id)()
         # includes key page
         self.assertEqual(len(wizard.form_list), 4)
 
     def test_wizard_appends_key_page(self):
-        wizard = EncryptedFormWizard.wizard_factory()()
+        wizard = EncryptedFormWizard.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 3)
         self.assertEqual(wizard.form_list[0], NewSecretKeyForm)
 
@@ -352,7 +363,7 @@ class EditRecordFormTest(ExistingRecordTest):
     def test_cant_edit_with_bad_key(self):
         self.maxDiff = None
 
-        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=self.report)()
+        wizard = EncryptedFormWizard.wizard_factory(site_id=self.site.id, object_to_edit=self.report)()
 
         KeyForm1 = wizard.form_list[0]
 
@@ -360,7 +371,7 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertFalse(key_form_1.is_valid())
 
     def test_cant_save_edit_with_bad_key(self):
-        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=self.report)()
+        wizard = EncryptedFormWizard.wizard_factory(site_id=self.site.id, object_to_edit=self.report)()
 
         KeyForm1 = wizard.form_list[0]
         PageOneForm = wizard.form_list[1]
