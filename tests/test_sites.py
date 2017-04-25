@@ -1,4 +1,6 @@
-from wizard_builder.models import QuestionPage
+from mock import patch
+
+from wizard_builder.models import PageBase, QuestionPage, SingleLineText
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -55,3 +57,23 @@ class SiteIDTest(TestCase):
         self.assertEqual(page.site_id, site_2.id)
         self.assertEqual(page.site.id, site_2.id)
         self.assertNotEqual(settings.SITE_ID, site_2.id)
+
+
+class SiteRequestTest(TestCase):
+
+    def setUp(self):
+        super(SiteRequestTest, self).setUp()
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
+        self.page = QuestionPage.objects.create(site_id=self.site.id)
+        self.question = SingleLineText.objects.create(text="first question", page=self.page)
+
+    def mocked_on_site(self):
+        return PageBase.objects.filter(id=self.page.id)
+
+    @patch('wizard_builder.managers.PageBaseManager.on_site')
+    def test_site_passed_to_question_page_manager(self, mock_on_site):
+        mock_on_site.return_value = self.mocked_on_site()
+        self.client.get('/wizard/new/0/')
+        mock_on_site.assert_called_with(self.site.id)
