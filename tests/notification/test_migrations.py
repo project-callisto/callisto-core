@@ -2,7 +2,7 @@
 from django_migration_testcase import MigrationTest
 
 
-class EmailNotificationMigrationTest(MigrationTest):
+class EmailNotificationDeliveryMigrationTest(MigrationTest):
 
     before = [
         ('delivery', '0009_to_address_to_textfield'),
@@ -37,4 +37,38 @@ class EmailNotificationMigrationTest(MigrationTest):
         )
 
         self.assertFalse(created)
+        self.assertEqual(NewEmailNotification.objects.count(), 1)
+
+
+class EmailNotificationPKTest(MigrationTest):
+
+    app_name = 'notification'
+    before = '0002_emailnotification_sites'
+    after = '0005_rename_to_emailnotification'
+
+    def test_email_notication_primary_key_creation(self):
+
+        name = 'migration_test'
+        subject = 'migration test'
+        body = 'test for email notification migration'
+
+        LegacyEmailNotification = self.get_model_before('EmailNotification')
+        LegacyEmailNotification.objects.create(
+            name=name,
+            subject=subject,
+            body=body,
+        )
+        self.assertEqual(LegacyEmailNotification.objects.count(), 1)
+
+        self.run_migration()
+
+        NewEmailNotification = self.get_model_after('EmailNotification')
+        email, created = NewEmailNotification.objects.get_or_create(
+            name=name,
+            subject=subject,
+            body=body,
+        )
+
+        self.assertFalse(created)
+        self.assertIsInstance(email.id, int)
         self.assertEqual(NewEmailNotification.objects.count(), 1)

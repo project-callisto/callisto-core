@@ -13,7 +13,7 @@ from callisto.notification.managers import EmailNotificationQuerySet
 @six.python_2_unicode_compatible
 class EmailNotification(models.Model):
     """Record of Email constructed in and sent via the project"""
-    name = models.CharField(blank=False, max_length=50, primary_key=True)
+    name = models.CharField(blank=False, max_length=50)
     subject = models.CharField(blank=False, max_length=77)
     body = models.TextField(blank=False)
     sites = models.ManyToManyField(Site)
