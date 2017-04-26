@@ -107,7 +107,7 @@ def submit_report_to_authority(request, report_id, form_template_name="submit_re
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    DeliveryApi().send_user_notification(form, 'submit_confirmation', site_id)
+                    DeliveryApi().send_user_notification(form, 'submit_confirmation', site.id)
                 except Exception:
                     # report was sent even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on submission")
@@ -127,7 +127,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                        extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
-    site_id = get_current_site(request).id
+    site = get_current_site(request)
     context = {'owner': owner, 'report': report}
     context.update(extra_context or {})
 
@@ -178,7 +178,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    DeliveryApi().send_user_notification(form, 'match_confirmation', site_id)
+                    DeliveryApi().send_user_notification(form, 'match_confirmation', site.id)
                 except Exception:
                     # matching was entered even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on match submission")

@@ -26,11 +26,11 @@ class NotificationApi(AbstractNotification):
 
     @classmethod
     def get_user_site(self, user):
-        '''Takes in a user model, and should return a site_id
+        '''Takes in a user model, and should return a site
 
         example:
             for an Account model 1 to 1 with User that has a site attribute
-            return user.account.site.id
+            return user.account.site
         '''
         return None
 
@@ -58,6 +58,9 @@ class NotificationApi(AbstractNotification):
     @classmethod
     def send_matching_report_to_authority(cls, matches, identifier):
         """ Encrypts the generated PDF with GPG and attaches it to an email to the reporting authority """
+        # assume all matches are on the same site
+        user = matches[0].report.owner
+        site = cls.get_user_site(user)
         logger.info("sending match report to reporting authority")
         sent_match_report = SentMatchReport.objects.create(to_address=settings.COORDINATOR_EMAIL)
         report_id = sent_match_report.get_report_id()
@@ -65,10 +68,11 @@ class NotificationApi(AbstractNotification):
         sent_match_report.save()
         # TODO: create a PDFGenerationApi https://github.com/SexualHealthInnovations/callisto-core/issues/150
         pdf = PDFMatchReport(matches, identifier).generate_match_report(report_id)
-        cls.send_email_to_authority_intake(pdf, 'match_delivery', report_id)
+        cls.send_email_to_authority_intake(pdf, 'match_delivery', report_id, site_id=site.id)
 
     @classmethod
     def send_user_notification(cls, form, notification_name, site_id=None):
+        site = Site.objects.get(id=site_id)
         notification = cls.model.objects.on_site(site_id).get(name=notification_name)
         preferred_email = form.cleaned_data.get('email')
         to_email = preferred_email
@@ -85,8 +89,8 @@ class NotificationApi(AbstractNotification):
           user(User): reporting user
           match_report(MatchReport): MatchReport for which a match has been found
         """
-        site_id = cls.get_user_site(user)
-        notification = cls.model.objects.on_site(site_id).get(name='match_notification')
+        site = cls.get_user_site(user)
+        notification = cls.model.objects.on_site(site.id).get(name='match_notification')
         from_email = '"Callisto Matching" <notification@{0}>'.format(settings.APP_URL)
         to = match_report.contact_email
         context = {'report': match_report.report, 'domain': site.domain}

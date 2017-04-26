@@ -579,12 +579,21 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def setUp(self):
         super(SubmitMatchIntegrationTest, self).setUp()
-        EmailNotification.objects.create(name='match_confirmation', subject="test match confirmation",
-                                         body="test match confirmation body")
-        EmailNotification.objects.create(name='match_notification', subject="test match notification",
-                                         body="test match notification body")
-        EmailNotification.objects.create(name='match_delivery', subject="test match delivery",
-                                         body="test match delivery body")
+        EmailNotification.objects.create(
+            name='match_confirmation',
+            subject="test match confirmation",
+            body="test match confirmation body",
+        ).sites.add(self.site.id)
+        EmailNotification.objects.create(
+            name='match_notification',
+            subject="test match notification",
+            body="test match notification body",
+        ).sites.add(self.site.id)
+        EmailNotification.objects.create(
+            name='match_delivery',
+            subject="test match delivery",
+            body="test match delivery body",
+        ).sites.add(self.site.id)
 
     def test_renders_default_template(self):
         response = self.client.get(self.submission_url % self.report.pk)
@@ -680,6 +689,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertIn('Confirmation" <confirmation@', message.from_email)
         self.assertIn('test match confirmation body', message.body)
 
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_immediately(self):
         self.client.post((self.submission_url % self.report.pk),
                          data={'name': 'test submitter 1',
@@ -741,6 +751,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
     @override_settings(MATCH_IMMEDIATELY=False)
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_delayed(self):
         self.client.post((self.submission_url % self.report.pk),
                          data={'name': 'test submitter 1',
