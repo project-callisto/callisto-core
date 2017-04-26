@@ -3,6 +3,12 @@
 History
 -------
 
+0.4.2 (2017-04-25)
+++++++++++++++++++
+
+* Fixed a bug with saving string SITE_IDs multiple times
+
+
 0.4.1 (2017-04-25)
 ++++++++++++++++++
 
