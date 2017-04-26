@@ -48,6 +48,16 @@ class SiteIDTest(TestCase):
         with TempSiteID(site_2.id):
             self.assertEqual(EmailNotification.objects.on_site().count(), site_2_pages)
 
+    def test_site_not_added_multiple_times_on_save(self):
+        site = Site.objects.create()
+        # site_id will be a string on live, since its an environment variable
+        site_id = str(site.id)
+        with TempSiteID(site_id):
+            email = EmailNotification.objects.create(name='test_name')
+            email.save()
+            email.save()
+        self.assertEqual(email.sites.count(), 1)
+
     def test_multiple_added_sites_are_reflected_by_on_site(self):
         site_2 = Site.objects.create()
         notification = EmailNotification.objects.create()
