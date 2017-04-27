@@ -17,7 +17,8 @@ class SiteAwareNotificationApi(NotificationApi):
 
     @classmethod
     def get_user_site(self, user):
-        return Site.objects.get(domain='testserver')
+        site, _ = Site.objects.get_or_create(domain='testserver')
+        return site
 
 
 class CustomNotificationApi(SiteAwareNotificationApi):

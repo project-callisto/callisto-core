@@ -198,6 +198,8 @@ class MatchDiscoveryTest(MatchTest):
 
 @patch('callisto.notification.api.NotificationApi.send_match_notification')
 @patch('callisto.notification.api.NotificationApi.send_email_to_authority_intake')
+@override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
+@override_settings(CALLISTO_MATCHING_API='callisto.delivery.matching.CallistoMatching')
 class MatchNotificationTest(MatchTest):
 
     def setUp(self):
