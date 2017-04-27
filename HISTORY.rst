@@ -3,6 +3,13 @@
 History
 -------
 
+0.4.3 (2017-04-27)
+++++++++++++++++++
+
+* Added sites EmailNotification admin
+* Added EmailNotification (name + sites) uniqueness validator
+
+
 0.4.2 (2017-04-25)
 ++++++++++++++++++
 
