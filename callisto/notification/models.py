@@ -53,7 +53,9 @@ class EmailNotification(models.Model):
 
     def add_site_from_site_id(self):
         if getattr(settings, 'SITE_ID', None):
-            self.sites.add(settings.SITE_ID)
+            # django does better validation checks for ints
+            site_id = int(settings.SITE_ID)
+            self.sites.add(site_id)
 
     def save(self, *args, **kwargs):
         super(EmailNotification, self).save(*args, **kwargs)
