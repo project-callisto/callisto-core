@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.http import HttpResponse
 from django.contrib.sites.models import Site
+from django.http import HttpResponse
 
 from callisto.delivery.matching import CallistoMatching
 from callisto.delivery.wizard import EncryptedFormBaseWizard

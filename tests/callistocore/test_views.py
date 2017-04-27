@@ -10,12 +10,12 @@ from wizard_builder.models import (
 )
 
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.management import call_command
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.contrib.sites.models import Site
 
 from callisto.delivery.api import DeliveryApi
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
