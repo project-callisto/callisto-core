@@ -28,7 +28,7 @@ class TempSiteID():
     def __exit__(self, *args):
         settings.SITE_ID = self.site_id_stable
 
-
+@override_settings()
 class SiteIDTest(TestCase):
 
     def test_on_site_respects_SITE_ID_setting(self):
