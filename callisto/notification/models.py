@@ -8,6 +8,7 @@ from django.template import Context, Template
 from django.utils.html import strip_tags
 
 from callisto.notification.managers import EmailNotificationQuerySet
+from callisto.notification.validators import validate_email_unique
 
 
 @six.python_2_unicode_compatible
@@ -21,6 +22,10 @@ class EmailNotification(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+        validate_email_unique(self)
 
     @property
     def sitenames(self):
