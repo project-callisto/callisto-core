@@ -25,7 +25,7 @@ class EmailNotification(models.Model):
 
     def clean(self):
         self.save()
-        super().clean()
+        super(EmailNotification, self).clean()
         validate_email_unique(self)
 
     @property
