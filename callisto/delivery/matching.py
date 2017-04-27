@@ -30,10 +30,10 @@ class CallistoMatching(object):
 
     @classmethod
     def run_matching(cls, match_reports_to_check=None):
-        """Compares existing match records to see if any match the given identifiers. If no identifiers are given, checks
-        existing match records against identifiers from records that weren't been marked as "seen" the last time matching
-        was run. For each identifier for which a new match is found, a report is sent to the receiving authority and the
-        reporting users are notified.
+        """Compares existing match records to see if any match the given identifiers. If no identifiers are given,
+        checks existing match records against identifiers from records that weren't been marked as "seen" the last
+        time matching was run. For each identifier for which a new match is found, a report is sent to the receiving
+        authority and the reporting users are notified.
 
         Args:
           match_reports_to_check(list of MatchReport, optional): the MatchReports to be checked (must have identifiers)
@@ -46,9 +46,9 @@ class CallistoMatching(object):
 
     @classmethod
     def get_all_eligible_match_reports(cls, match_report):
-        """Returns all match reports that are eligible to be checked for matches against a given MatchReport. Designed to
-        be overridden for applications that want more granular options for matching (segmented for a given population or
-        severity level of report, for example.)
+        """Returns all match reports that are eligible to be checked for matches against a given MatchReport.
+        Designed to be overridden for applications that want more granular options for matching
+        (segmented for a given population or severity level of report, for example.)
 
         Args:
           match_report (MatchReport): MatchReport to be checked
@@ -58,8 +58,8 @@ class CallistoMatching(object):
     @classmethod
     def find_matches(cls, match_reports_to_check):
         """Finds sets of matching records that haven't been identified yet. For a match to count as new, there must be
-        associated Reports from at least 2 different users and at least one MatchReport must be newly created since we last
-        checked for matches.
+        associated Reports from at least 2 different users and at least one MatchReport must be newly created since
+        we last checked for matches.
 
         Args:
           match_reports_to_check (list of MatchReports): the MatchReports to check for matches
@@ -87,8 +87,8 @@ class CallistoMatching(object):
 
     @classmethod
     def process_new_matches(cls, matches, identifier):
-        """Sends a report to the receiving authority and notifies the reporting users. Each user should only be notified
-        one time when a match is found.
+        """Sends a report to the receiving authority and notifies the reporting users.
+        Each user should only be notified one time when a match is found.
 
         Args:
           matches (list of MatchReports): the MatchReports that correspond to this identifier

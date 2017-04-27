@@ -4,9 +4,9 @@ import gnupg
 import pytz
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
-from django.contrib.sites.models import Site
 
 from callisto.delivery.api import AbstractNotification
 from callisto.delivery.models import SentMatchReport

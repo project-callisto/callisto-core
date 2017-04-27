@@ -55,7 +55,14 @@ def check_owner(action_name, report_id_arg='report_id'):
 def new_record_form_view(request, wizard, step=None, url_name="record_form"):
     site = get_current_site(request)
     if PageBase.objects.on_site(site.id).count() > 0:
-        return wizard.wizard_factory(site_id=site.id).as_view(url_name=url_name)(request, step=step)
+        return wizard.wizard_factory(
+            site_id=site.id,
+        ).as_view(
+            url_name=url_name,
+        )(
+            request,
+            step=step,
+        )
     else:
         logger.error("no pages in record form")
         return HttpResponseServerError()
@@ -67,7 +74,15 @@ def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_re
     site = get_current_site(request)
     report = Report.objects.get(id=edit_id)
     if PageBase.objects.on_site(site.id).count() > 0:
-        return wizard.wizard_factory(site_id=site.id, object_to_edit=report).as_view(url_name=url_name)(request, step=step)
+        return wizard.wizard_factory(
+            site_id=site.id,
+            object_to_edit=report,
+        ).as_view(
+            url_name=url_name,
+        )(
+            request,
+            step=step,
+        )
     else:
         logger.error("no pages in record form")
         return HttpResponseServerError()
