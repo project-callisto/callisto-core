@@ -24,6 +24,7 @@ class EmailNotification(models.Model):
         return self.name
 
     def clean(self):
+        self.save()
         super().clean()
         validate_email_unique(self)
 
