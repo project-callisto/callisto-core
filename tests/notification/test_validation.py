@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.contrib.sites.models import Site
+from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
 from callisto.notification.models import EmailNotification
@@ -10,7 +10,7 @@ class EmailValidationTest(TestCase):
 
     def setUp(self):
         super(EmailValidationTest, self).setUp()
-        for i in range(1,10):
+        for i in range(1, 10):
             site, _ = Site.objects.get_or_create(
                 id=i,
             )
@@ -35,7 +35,7 @@ class EmailValidationTest(TestCase):
     @override_settings()
     def test_cannot_add_site_which_would_create_duplicate(self):
         del settings.SITE_ID
-        for i in range(1,10):
+        for i in range(1, 10):
             email = EmailNotification.objects.create(
                 name='example email',
                 body='example email',
