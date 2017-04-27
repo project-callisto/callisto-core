@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
+from django.contrib.sites.models import Site
 
 from callisto.delivery.matching import MatchingApi
 from callisto.delivery.models import MatchReport, Report
@@ -17,6 +18,7 @@ User = get_user_model()
 class MatchTest(TestCase):
 
     def setUp(self):
+        self.site, _ = Site.objects.get_or_create(domain='testserver')
         self.user1 = User.objects.create_user(username="dummy", password="dummy")
         self.user2 = User.objects.create_user(username="ymmud", password="dummy")
 

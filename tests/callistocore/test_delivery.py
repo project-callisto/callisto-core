@@ -10,7 +10,6 @@ from django.core import mail
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.test import override_settings
-from django.contrib.sites.models import Site
 
 from callisto.delivery.api import DeliveryApi
 from callisto.delivery.models import Report, SentFullReport, SentMatchReport
@@ -355,14 +354,13 @@ class ReportDeliveryTest(MatchTest):
 
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_submission_to_reporting_authority(self):
-        site, _ = Site.objects.get_or_create(domain='testserver')
         EmailNotification.objects.create(
             name='report_delivery',
             subject="test delivery",
             body="test body",
-        ).sites.add(site.id)
+        ).sites.add(self.site.id)
         sent_full_report = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL)
-        DeliveryApi().send_report_to_authority(sent_full_report, self.decrypted_report, site.id)
+        DeliveryApi().send_report_to_authority(sent_full_report, self.decrypted_report, self.site.id)
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test delivery')
@@ -421,12 +419,11 @@ class ReportDeliveryTest(MatchTest):
 
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_matches_to_reporting_authority(self):
-        site, _ = Site.objects.get_or_create(domain='testserver')
         EmailNotification.objects.create(
             name='match_delivery',
             subject="test match delivery",
             body="test match body",
-        ).sites.add(site.id)
+        ).sites.add(self.site.id)
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         DeliveryApi().send_matching_report_to_authority([match1, match2], "dummy")
