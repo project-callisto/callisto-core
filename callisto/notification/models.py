@@ -22,6 +22,10 @@ class EmailNotification(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def sitenames(self):
+        return [site.name for site in self.sites.all()]
+
     def render_body(self, context=None):
         """Format the email as HTML."""
         if context is None:
