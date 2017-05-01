@@ -64,8 +64,7 @@ class EmailNotification(models.Model):
         email.send()
 
     def add_site_from_site_id(self):
-        if not self.sites.count() \
-        and getattr(settings, 'SITE_ID', None):
+        if not self.sites.count() and getattr(settings, 'SITE_ID', None):
             # django does better validation checks for ints
             site_id = int(settings.SITE_ID)
             self.sites.add(site_id)
