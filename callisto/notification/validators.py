@@ -7,5 +7,5 @@ def validate_email_unique(email):
         if EmailNotification.objects.filter(name=email.name, sites__id__in=[site.id]).exclude(id=email.id):
             email.sites.remove(site.id)
             raise ValidationError('''
-                    EmailNotification already existed with (name={} ,site__domain={})
+                    EmailNotification already exists with (name={} ,site__domain={})
                 '''.format(email.name, site.domain))
