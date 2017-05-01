@@ -89,6 +89,29 @@ class EmailValidationTest(TestCase):
             email.full_clean()
         self.assertEqual(EmailNotification.objects.on_site(2).count(), 1)
 
+    @override_settings()
+    def test_all_duplicate_sites_removed(self):
+        del settings.SITE_ID
+        for i in range(1, 10):
+            email = EmailNotification.objects.create(
+                name='example email',
+                body='example email',
+                subject='example email',
+            )
+            email.sites.add(i)
+            email.full_clean()
+        with self.assertRaises(ValidationError):
+            email_with_invalid_sites = EmailNotification.objects.get(
+                name='example email',
+                sites__id__in=[1],
+            )
+            email_with_invalid_sites.sites.add(2)
+            email_with_invalid_sites.sites.add(3)
+            email_with_invalid_sites.full_clean()
+        self.assertEqual(email_with_invalid_sites.sites.count(), 1)
+        self.assertEqual(EmailNotification.objects.on_site(2).count(), 1)
+        self.assertEqual(EmailNotification.objects.on_site(3).count(), 1)
+
 
 class EmailSiteIDValidationTest(EmailValidationTest):
 
