@@ -18,6 +18,26 @@ class EmailValidationTest(TestCase):
             site.save()
 
     @override_settings()
+    def test_validation_error_does_not_delete_email(self):
+        del settings.SITE_ID
+        for i in range(1, 10):
+            email = EmailNotification.objects.create(
+                name='example email',
+                body='example email',
+                subject='example email',
+            )
+            email.sites.add(i)
+            email.full_clean()
+        with self.assertRaises(ValidationError):
+            invalid_email = EmailNotification.objects.get(
+                name='example email',
+                sites__id__in=[1],
+            )
+            invalid_email.sites.add(2)
+            invalid_email.full_clean()
+        self.assertTrue(invalid_email.pk)
+
+    @override_settings()
     def test_duplicate_emails_not_allowed_on_same_site(self):
         del settings.SITE_ID
         site_id = 1
