@@ -10,5 +10,5 @@ def validate_email_unique(email):
             email.sites.remove(site.id)
     if invalid_sites:
         raise ValidationError('''
-                EmailNotification already exists with (name={} ,sites__domain__in=[{}])
+                EmailNotification already exists with (name={}, sites__domain__in=[{}])
             '''.format(email.name, invalid_sites))
