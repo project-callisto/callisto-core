@@ -84,6 +84,20 @@ class EmailValidationTest(TestCase):
             email.full_clean()
         self.assertEqual(EmailNotification.objects.on_site(2).count(), 1)
 
+    def test_validation_error_contains_identifying_information(self):
+        email_name = 'example email'
+        invalid_site = 2
+        with self.assertRaises(ValidationError) as error_context:
+            email = EmailNotification.objects.get(
+                name=email_name,
+                sites__id__in=[1],
+            )
+            email.sites.add(invalid_site)
+            email.full_clean()
+        exception_text = str(error_context.exception)
+        self.assertIn(email_name, exception_text)
+        self.assertIn(str(invalid_site), exception_text)
+
     def test_all_duplicate_sites_removed(self):
         with self.assertRaises(ValidationError):
             email_with_invalid_sites = EmailNotification.objects.get(
