@@ -101,4 +101,5 @@ class SiteRequestTest(TestCase):
                 'key': self.report_key,
             },
         )
+        print(Site.objects.all())
         mock_on_site.assert_called_with(self.site.id)
