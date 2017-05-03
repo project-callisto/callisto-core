@@ -101,5 +101,7 @@ class SiteRequestTest(TestCase):
                 'key': self.report_key,
             },
         )
+        from django.test.client import RequestFactory
+        print(RequestFactory()._base_environ())
         print(Site.objects.all())
         mock_on_site.assert_called_with(self.site.id)
