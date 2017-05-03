@@ -18,7 +18,9 @@ User = get_user_model()
 class MatchTest(TestCase):
 
     def setUp(self):
-        self.site, _ = Site.objects.get_or_create(domain='testserver')
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
         self.user1 = User.objects.create_user(username="dummy", password="dummy")
         self.user2 = User.objects.create_user(username="ymmud", password="dummy")
 

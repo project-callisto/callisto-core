@@ -39,7 +39,9 @@ def get_body(response):
 class SiteAwareTestCase(TestCase):
 
     def setUp(self):
-        self.site, _ = Site.objects.get_or_create(domain='testserver')
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
 
 
 class RecordFormFailureTest(SiteAwareTestCase):
