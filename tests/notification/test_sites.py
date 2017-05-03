@@ -95,7 +95,6 @@ class SiteRequestTest(TestCase):
 
     @patch('callisto.notification.managers.EmailNotificationQuerySet.on_site')
     def test_site_passed_to_email_notification_manager(self, mock_on_site):
-        print('test_site_passed_to_email_notification_manager')
         self.client.post(
             self.submit_url,
             data={
@@ -106,7 +105,4 @@ class SiteRequestTest(TestCase):
                 'key': self.report_key,
             },
         )
-        # from django.test.client import RequestFactory
-        # print(RequestFactory()._base_environ())
-        # print(Site.objects.all())
         mock_on_site.assert_called_with(self.site.id)

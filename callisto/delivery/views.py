@@ -97,15 +97,6 @@ def submit_report_to_authority(request, report_id, form_template_name="submit_re
     owner = request.user
     report = Report.objects.get(id=report_id)
     site = get_current_site(request)
-    print('submit_report_to_authority')
-    print(request.get_host())
-    print(get_current_site(request))
-    print(Site.objects.get_current(request))
-    print(Site.objects._get_site_by_request(request))
-    print(Site.objects.get(domain__iexact=request.get_host()))
-    print(site.id)
-    print(getattr(settings, 'SITE_ID', site.id))
-    print(bool(getattr(settings, 'SITE_ID', '')))
     context = {'owner': owner, 'report': report}
     context.update(extra_context or {})
 
