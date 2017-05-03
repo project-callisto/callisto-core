@@ -76,9 +76,10 @@ class SiteIDTest(TestCase):
 class SiteRequestTest(TestCase):
 
     def setUp(self):
-        print('SiteRequestTest')
         super(SiteRequestTest, self).setUp()
-        self.site, _ = Site.objects.get_or_create(domain='testserver')
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
         User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')
         user = User.objects.get(username='dummy')
