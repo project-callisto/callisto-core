@@ -29,9 +29,9 @@ class TempSiteID():
         settings.SITE_ID = self.site_id_stable
 
 
-@override_settings()
 class SiteIDTest(TestCase):
 
+    @override_settings()
     def test_on_site_respects_SITE_ID_setting(self):
         site_1_pages = 3
         site_2_pages = site_1_pages + 1
@@ -50,6 +50,7 @@ class SiteIDTest(TestCase):
         with TempSiteID(site_2.id):
             self.assertEqual(EmailNotification.objects.on_site().count(), site_2_pages)
 
+    @override_settings()
     def test_site_not_added_multiple_times_on_save(self):
         site = Site.objects.create()
         # site_id will be a string on live, since its an environment variable
@@ -60,6 +61,7 @@ class SiteIDTest(TestCase):
             email.save()
         self.assertEqual(email.sites.count(), 1)
 
+    @override_settings()
     def test_multiple_added_sites_are_reflected_by_on_site(self):
         with TempSiteID(1):
             site_2 = Site.objects.create()
@@ -74,6 +76,7 @@ class SiteIDTest(TestCase):
 class SiteRequestTest(TestCase):
 
     def setUp(self):
+        print('SiteRequestTest')
         super(SiteRequestTest, self).setUp()
         self.site, _ = Site.objects.get_or_create(domain='testserver')
         User.objects.create_user(username='dummy', password='dummy')

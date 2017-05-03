@@ -4,23 +4,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
 from callisto.notification.models import EmailNotification
-
-
-class TempSiteID():
-    '''
-        with TempSiteID(1):
-            ...
-    '''
-
-    def __init__(self, site_id):
-        self.site_id_temp = site_id
-
-    def __enter__(self):
-        self.site_id_stable = getattr(settings, 'SITE_ID', 1)
-        settings.SITE_ID = self.site_id_temp
-
-    def __exit__(self, *args):
-        settings.SITE_ID = self.site_id_stable
+from tests.notification.test_sites import TempSiteID
 
 
 class EmailValidationTest(TestCase):
@@ -114,6 +98,7 @@ class EmailValidationTest(TestCase):
 
 class EmailSiteIDValidationTest(EmailValidationTest):
 
+    @override_settings()
     def test_site_only_added_when_no_default_set(self):
         email = EmailNotification.objects.create(
             name='example email',
