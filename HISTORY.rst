@@ -3,6 +3,12 @@
 History
 -------
 
+0.5.0 (2017-04-27)
+++++++++++++++++++
+
+* Add support for getting the site_id from the request's domain
+
+
 0.4.3 (2017-04-27)
 ++++++++++++++++++
 

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.http import HttpResponse
 
 from callisto.delivery.matching import CallistoMatching
@@ -12,7 +13,17 @@ class EncryptedFormWizard(EncryptedFormBaseWizard):
         return HttpResponse(report.id)
 
 
-class CustomNotificationApi(NotificationApi):
+class SiteAwareNotificationApi(NotificationApi):
+
+    @classmethod
+    def get_user_site(self, user):
+        site = Site.objects.get(id=1)
+        site.domain = 'testserver'
+        site.save()
+        return site
+
+
+class CustomNotificationApi(SiteAwareNotificationApi):
 
     from_email = '"Custom" <custom@{0}>'.format(settings.APP_URL)
     report_filename = "custom_{0}.pdf.gpg"
