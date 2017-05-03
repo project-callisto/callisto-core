@@ -21,8 +21,6 @@ INSTALLED_APPS = [
     "tests.test_app"
 ]
 
-SITE_ID = 1
-
 MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',)
 
 TEMPLATES = [

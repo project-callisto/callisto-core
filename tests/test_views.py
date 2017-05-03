@@ -14,6 +14,7 @@ from wizard_builder.views import (
 )
 
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.http import HttpRequest
 from django.test import TestCase
 
@@ -31,8 +32,11 @@ def get_body(response):
 class FormBaseTest(TestCase):
 
     def setUp(self):
-        self.page1 = QuestionPage.objects.create()
-        self.page2 = QuestionPage.objects.create()
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
+        self.page1 = QuestionPage.objects.create(site_id=self.site.id)
+        self.page2 = QuestionPage.objects.create(site_id=self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
 
@@ -73,26 +77,31 @@ class WizardIntegratedTest(FormBaseTest):
             follow=True)
 
     def test_wizard_generates_correct_number_of_pages(self):
-        page3 = QuestionPage.objects.create()
+        page3 = QuestionPage.objects.create(site_id=self.site.id)
         SingleLineText.objects.create(text="first page question", page=page3)
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
         SingleLineText.objects.create(text="another first page question", page=page3, position=1)
-        wizard = ConfigurableFormWizard.wizard_factory()()
+        wizard = ConfigurableFormWizard.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 3)
 
     def test_question_pages_without_questions_are_filtered_out(self):
         # empty_page
-        QuestionPage.objects.create()
-        wizard = TestWizard.wizard_factory()()
+        QuestionPage.objects.create(site_id=self.site.id)
+        wizard = TestWizard.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 2)
         self.assertIn(QuestionPageForm, inspect.getmro(wizard.form_list[0]))
         self.assertNotIn(TextPageForm, inspect.getmro(wizard.form_list[-1]))
 
     def test_text_pages_are_included(self):
-        TextPage.objects.create(title="this page title", text="some text goes here", position=1)
+        TextPage.objects.create(
+            title="this page title",
+            text="some text goes here",
+            position=1,
+            site_id=self.site.id,
+        )
         self.page1.position = 2
         self.page1.save()
-        wizard = TestWizard.wizard_factory()()
+        wizard = TestWizard.wizard_factory(site_id=self.site.id)()
         page_one_form = wizard.form_list[0]({})
 
         self.assertEqual(len(wizard.form_list), 3)
@@ -304,7 +313,11 @@ class WizardIntegratedTest(FormBaseTest):
         self.assertIn('["%i", "%i"]' % (selected_1, selected_2), output)
 
     def test_pages_with_multiple(self):
-        multiple_page = QuestionPage.objects.create(multiple=True, name_for_multiple="form")
+        multiple_page = QuestionPage.objects.create(
+            multiple=True,
+            name_for_multiple="form",
+            site_id=self.site.id,
+        )
         q1 = SingleLineText.objects.create(text="question 1", page=multiple_page)
         q2 = SingleLineText.objects.create(text="question 2", page=multiple_page)
 
@@ -334,7 +347,7 @@ class WizardIntegratedTest(FormBaseTest):
         self.maxDiff = None
         self.page1.delete()
         self.page2.delete()
-        page3 = QuestionPage.objects.create()
+        page3 = QuestionPage.objects.create(site_id=self.site.id)
         question1 = RadioButton.objects.create(text="this is a radio button question", page=page3)
         for i in range(5):
             choice = Choice.objects.create(text="This is choice %i" % i, question=question1)
@@ -453,15 +466,15 @@ class PageCountTest(FormBaseTest):
         self.assertEqual(calculate_page_count_map(pages)['page_count'], 2)
 
     def test_collapses_conditional_branches(self):
-        page1a = QuestionPage.objects.create()
+        page1a = QuestionPage.objects.create(site_id=self.site.id)
         SingleLineText.objects.create(text="first conditional question", page=page1a)
         Conditional.objects.create(condition_type=Conditional.EXACTLY, page=page1a, question=self.question1,
                                    answer="whatever")
-        page1b = QuestionPage.objects.create()
+        page1b = QuestionPage.objects.create(site_id=self.site.id)
         SingleLineText.objects.create(text="second conditional question", page=page1b)
         Conditional.objects.create(condition_type=Conditional.EXACTLY, page=page1b, question=self.question1,
                                    answer="whatever")
-        page2a = QuestionPage.objects.create()
+        page2a = QuestionPage.objects.create(site_id=self.site.id)
         SingleLineText.objects.create(text="single conditional question", page=page2a)
         Conditional.objects.create(condition_type=Conditional.EXACTLY, page=page2a, question=self.question2,
                                    answer="whatever again")

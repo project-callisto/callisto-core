@@ -208,8 +208,8 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         return raw_idx
 
     @classmethod
-    def wizard_factory(cls, object_to_edit=None, **kwargs):
-        pages = PageBase.objects.all()
+    def wizard_factory(cls, object_to_edit=None, site_id=None, **kwargs):
+        pages = PageBase.objects.on_site(site_id).all()
         form_items_at_initialization = {}
         page_map = []
         formsets = {}
