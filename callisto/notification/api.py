@@ -73,6 +73,9 @@ class NotificationApi(AbstractNotification):
     @classmethod
     def send_user_notification(cls, form, notification_name, site_id=None):
         site = Site.objects.get(id=site_id)
+        print('send_user_notification')
+        print(site_id)
+        print(site)
         notification = cls.model.objects.on_site(site_id).get(name=notification_name)
         preferred_email = form.cleaned_data.get('email')
         to_email = preferred_email
