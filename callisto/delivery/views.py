@@ -7,7 +7,6 @@ from wizard_builder.models import PageBase
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import (
     HttpResponse, HttpResponseForbidden, HttpResponseNotFound,
