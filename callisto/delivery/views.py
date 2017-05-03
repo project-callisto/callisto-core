@@ -7,6 +7,7 @@ from wizard_builder.models import PageBase
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import (
     HttpResponse, HttpResponseForbidden, HttpResponseNotFound,
@@ -15,7 +16,6 @@ from django.http import (
 from django.shortcuts import render
 from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
-from django.contrib.sites.models import Site
 
 from callisto.delivery.api import DeliveryApi
 from callisto.evaluation.models import EvalRow
@@ -103,6 +103,9 @@ def submit_report_to_authority(request, report_id, form_template_name="submit_re
     print(Site.objects.get_current(request))
     print(Site.objects._get_site_by_request(request))
     print(Site.objects.get(domain__iexact=request.get_host()))
+    print(site.id)
+    print(getattr(settings, 'SITE_ID', site.id))
+    print(bool(getattr(settings, 'SITE_ID', '')))
     context = {'owner': owner, 'report': report}
     context.update(extra_context or {})
 
