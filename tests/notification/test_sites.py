@@ -73,8 +73,9 @@ class SiteIDTest(TestCase):
 
 class SiteRequestTest(TestCase):
 
-    def setUp(self):
-        super(SiteRequestTest, self).setUp()
+    @patch('callisto.notification.managers.EmailNotificationQuerySet.on_site')
+    def test_site_passed_to_email_notification_manager(self, mock_on_site):
+        print('test_site_passed_to_email_notification_manager')
         self.site, _ = Site.objects.get_or_create(domain='testserver')
         User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')
@@ -85,13 +86,6 @@ class SiteRequestTest(TestCase):
         self.report.save()
         self.submit_url = reverse('test_submit_report', args=[self.report.pk])
 
-    def test_can_request_pages_without_site_id_set(self):
-        response = self.client.get(self.submit_url)
-        self.assertNotEqual(response.status_code, 404)
-
-    @patch('callisto.notification.managers.EmailNotificationQuerySet.on_site')
-    def test_site_passed_to_email_notification_manager(self, mock_on_site):
-        print('test_site_passed_to_email_notification_manager')
         self.client.post(
             self.submit_url,
             data={
