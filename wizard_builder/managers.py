@@ -14,6 +14,7 @@ class PageBaseQuerySet(InheritanceQuerySet):
 
 
 class PageBaseManager(models.Manager):
+    use_for_related_fields = True
 
     def get_queryset(self):
         base_queryset = PageBaseQuerySet(self.model, using=self._db)
@@ -24,6 +25,7 @@ class PageBaseManager(models.Manager):
 
 
 class FormQuestionManager(InheritanceManager):
+    use_for_related_fields = True
 
     def get_queryset(self):
         base_queryset = super(FormQuestionManager, self).get_queryset()
