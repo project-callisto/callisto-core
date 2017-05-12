@@ -1,7 +1,7 @@
-from model_utils.managers import InheritanceQuerySet, InheritanceManager
+from model_utils.managers import InheritanceManager, InheritanceQuerySet
 
-from django.db import models
 from django.contrib.sites.models import Site
+from django.db import models
 
 
 class PageBaseQuerySet(InheritanceQuerySet):

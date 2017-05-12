@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from .managers import PageBaseManager, FormQuestionManager
+from .managers import FormQuestionManager, PageBaseManager
 
 
 class PageBase(models.Model):
