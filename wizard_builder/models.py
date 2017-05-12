@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from .managers import PageBaseQuerySet
+from .managers import PageBaseQuerySet, FormQuestionQuerySet
 
 
 class PageBase(models.Model):
@@ -24,7 +24,7 @@ class PageBase(models.Model):
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     site = models.ForeignKey(Site, null=True)
-    objects = PageBaseQuerySet().as_manager()
+    objects = PageBaseQuerySet.as_manager()
 
     def add_site_from_site_id(self):
         if getattr(settings, 'SITE_ID', None) and not self.site_id:
@@ -90,6 +90,7 @@ class FormQuestion(models.Model):
     position = models.PositiveSmallIntegerField("position", default=0)
     descriptive_text = models.TextField(blank=True)
     added = models.DateTimeField(auto_now_add=True)
+    objects = FormQuestionQuerySet.as_manager()
 
     def __str__(self):
         return self.text + " (" + str(type(self).__name__) + ")"

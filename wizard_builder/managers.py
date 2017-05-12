@@ -10,3 +10,7 @@ class PageBaseQuerySet(InheritanceQuerySet):
         return self.filter(
             site__id=site_id,
         )
+
+class FormQuestionQuerySet(InheritanceQuerySet):
+
+    pass
