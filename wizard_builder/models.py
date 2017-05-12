@@ -8,7 +8,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from .managers import PageBaseManager
+from .managers import PageBaseQuerySet
 
 
 class PageBase(PolymorphicModel):
@@ -26,7 +26,7 @@ class PageBase(PolymorphicModel):
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     site = models.ForeignKey(Site, null=True)
-    objects = PageBaseManager()
+    objects = PageBaseQuerySet().as_manager()
 
     def add_site_from_site_id(self):
         if getattr(settings, 'SITE_ID', None) and not self.site_id:
