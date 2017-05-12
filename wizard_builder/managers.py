@@ -11,6 +11,7 @@ class PageBaseQuerySet(InheritanceQuerySet):
             site__id=site_id,
         )
 
+
 class FormQuestionQuerySet(InheritanceQuerySet):
 
     pass

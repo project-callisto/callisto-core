@@ -64,6 +64,9 @@ class TextPage(PageBase):
         else:
             return "Page %i (%s)" % (self.position, self.text[:97] + '...')
 
+    class Meta:
+        manager_inheritance_from_future = True
+
 
 class QuestionPage(PageBase):
     encouragement = models.TextField(blank=True)
@@ -82,6 +85,7 @@ class QuestionPage(PageBase):
 
     class Meta:
         ordering = ['position']
+        manager_inheritance_from_future = True
 
 
 class FormQuestion(models.Model):
