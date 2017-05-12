@@ -1,8 +1,5 @@
 # TODO: remove grappelli dependency
 from grappelli.forms import GrappelliSortableHiddenMixin
-from polymorphic.admin import (
-    PolymorphicChildModelAdmin, PolymorphicParentModelAdmin,
-)
 
 from django import forms
 from django.contrib import admin
@@ -15,7 +12,17 @@ from .models import (
 )
 
 
-class FormQuestionChildAdmin(PolymorphicChildModelAdmin):
+# TODO!
+class DowncastedChildModelAdmin(admin.ModelAdmin):
+    pass
+
+
+# TODO!
+class DowncastedParentModelAdmin(admin.ModelAdmin):
+    pass
+
+
+class FormQuestionChildAdmin(DowncastedChildModelAdmin):
     """ Base admin class for all child models """
     base_model = FormQuestion
 
@@ -61,9 +68,8 @@ class DateAdmin(FormQuestionChildAdmin):
     base_model = Date
 
 
-class FormQuestionParentAdmin(PolymorphicParentModelAdmin):
+class FormQuestionParentAdmin(DowncastedParentModelAdmin):
     base_model = FormQuestion
-    polymorphic_list = True
     child_models = (
         (SingleLineText, SingleLineTextAdmin),
         (SingleLineTextWithMap, SingleLineTextWithMapAdmin),
@@ -107,7 +113,7 @@ class QuestionInline(admin.TabularInline):
     extra = 0
 
 
-class PageChildAdmin(PolymorphicChildModelAdmin):
+class PageChildAdmin(DowncastedChildModelAdmin):
     """ Base admin class for all child models """
     base_model = PageBase
 
@@ -134,10 +140,9 @@ class TextPageAdmin(PageChildAdmin):
     base_model = TextPage
 
 
-class PageParentAdmin(PolymorphicParentModelAdmin):
+class PageParentAdmin(DowncastedParentModelAdmin):
     """ Base admin class for all child models """
     base_model = PageBase
-    polymorphic_list = True
     child_models = (
         (QuestionPage, QuestionPageAdmin),
         (TextPage, TextPageAdmin)
