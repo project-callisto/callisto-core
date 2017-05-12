@@ -1,4 +1,4 @@
-django-polymorphic>=0.9.2
+django-model-utils>=3.0
 coverage
 mock>=1.0.1
 flake8>=2.1.0
