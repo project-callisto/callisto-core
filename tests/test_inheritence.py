@@ -15,20 +15,20 @@ class InheritenceTest(TestCase):
 
     def test_page_form_question_set_instance(self):
         page = QuestionPage.objects.create()
-        SingleLineText.objects.create(page=page)
+        SingleLineText.objects.create(page_id=page.id)
         question = PageBase.objects.first().formquestion_set.first()
         self.assertTrue(isinstance(question.page, SingleLineText))
 
     def test_choice_multiple_choice_instance(self):
         page = QuestionPage.objects.create()
-        question = MultipleChoice.objects.create(page=page)
-        Choice.objects.create(question=question)
+        question = MultipleChoice.objects.create(page_id=page.id)
+        Choice.objects.create(question_id=question.id)
         choice = FormQuestion.objects.first()
         self.assertTrue(isinstance(choice.question, MultipleChoice))
 
     def test_choice_multiple_choice_instance(self):
         page = QuestionPage.objects.create()
-        question = MultipleChoice.objects.create(page=page)
+        question = MultipleChoice.objects.create(page_id=page.id)
         Conditional.objects.create(question_id=question.id, page_id=page.id)
         condition = Conditional.objects.first()
         self.assertTrue(isinstance(condition.question, MultipleChoice))
