@@ -17,7 +17,7 @@ class InheritenceTest(TestCase):
         page = QuestionPage.objects.create()
         SingleLineText.objects.create(page_id=page.id)
         question = PageBase.objects.first().formquestion_set.first()
-        self.assertTrue(isinstance(question.page, SingleLineText))
+        self.assertTrue(isinstance(question, SingleLineText))
 
     def test_choice_multiple_choice_instance(self):
         page = QuestionPage.objects.create()
