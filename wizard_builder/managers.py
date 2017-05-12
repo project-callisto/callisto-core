@@ -1,5 +1,6 @@
-from model_utils.managers import InheritanceQuerySet
+from model_utils.managers import InheritanceQuerySet, InheritanceManager
 
+from django.db import models
 from django.contrib.sites.models import Site
 
 
@@ -12,6 +13,18 @@ class PageBaseQuerySet(InheritanceQuerySet):
         )
 
 
-class FormQuestionQuerySet(InheritanceQuerySet):
+class PageBaseManager(models.Manager):
 
-    pass
+    def get_queryset(self):
+        base_queryset = PageBaseQuerySet(self.model, using=self._db)
+        return base_queryset.select_subclasses()
+
+    def on_site(self, site_id=None):
+        return self.get_queryset().on_site(site_id)
+
+
+class FormQuestionManager(InheritanceManager):
+
+    def get_queryset(self):
+        base_queryset = super(FormQuestionManager, self).get_queryset()
+        return base_queryset.select_subclasses()
