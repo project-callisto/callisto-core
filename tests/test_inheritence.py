@@ -1,5 +1,6 @@
 from wizard_builder.models import (
-    QuestionPage, SingleLineText, Choice, MultipleChoice
+    QuestionPage, SingleLineText, Choice, MultipleChoice,
+    Conditional
 )
 from django.test import TestCase
 
@@ -22,3 +23,11 @@ class InheritenceTest(TestCase):
         question = MultipleChoice.objects.create(page=page)
         choice = Choice.objects.create(question=question)
         self.assertTrue(isinstance(choice.question, MultipleChoice))
+
+    def test_choice_multiple_choice_instance(self):
+        page = QuestionPage.objects.create()
+        question = MultipleChoice.objects.create(page=page)
+        Conditional.objects.create(question_id=question.id, page_id=page.id)
+        condition = Conditional.objects.first()
+        self.assertTrue(isinstance(condition.question, MultipleChoice))
+        self.assertTrue(isinstance(condition.page, QuestionPage))
