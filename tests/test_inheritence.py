@@ -1,7 +1,8 @@
 from wizard_builder.models import (
-    QuestionPage, SingleLineText, Choice, MultipleChoice,
-    Conditional, FormQuestion, PageBase
+    Choice, Conditional, FormQuestion, MultipleChoice, PageBase, QuestionPage,
+    SingleLineText,
 )
+
 from django.test import TestCase
 
 
