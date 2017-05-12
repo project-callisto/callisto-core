@@ -1,7 +1,5 @@
 import copy
 
-from polymorphic.models import PolymorphicModel
-
 from django import forms
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -11,7 +9,7 @@ from django.utils.safestring import mark_safe
 from .managers import PageBaseQuerySet
 
 
-class PageBase(PolymorphicModel):
+class PageBase(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -86,7 +84,7 @@ class QuestionPage(PageBase):
         ordering = ['position']
 
 
-class FormQuestion(PolymorphicModel):
+class FormQuestion(models.Model):
     text = models.TextField(blank=False)
     page = models.ForeignKey('QuestionPage', editable=True, null=True)
     position = models.PositiveSmallIntegerField("position", default=0)
