@@ -57,15 +57,13 @@ class PageBase(models.Model):
 class TextPage(PageBase):
     title = models.TextField(blank=True)
     text = models.TextField(blank=False)
+    objects = PageBaseManager()
 
     def __str__(self):
         if len(self.title.strip()) > 0:
             return "Page %i (%s)" % (self.position, self.title)
         else:
             return "Page %i (%s)" % (self.position, self.text[:97] + '...')
-
-    class Meta:
-        manager_inheritance_from_future = True
 
 
 class QuestionPage(PageBase):
@@ -75,6 +73,7 @@ class QuestionPage(PageBase):
     multiple = models.BooleanField(blank=False, default=False,
                                    verbose_name='User can add multiple')
     name_for_multiple = models.TextField(blank=True, verbose_name='name of field for "add another" prompt')
+    objects = PageBaseManager()
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
@@ -85,7 +84,6 @@ class QuestionPage(PageBase):
 
     class Meta:
         ordering = ['position']
-        manager_inheritance_from_future = True
 
 
 class FormQuestion(models.Model):
