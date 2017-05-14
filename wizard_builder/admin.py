@@ -1,6 +1,3 @@
-# TODO: remove grappelli dependency
-from grappelli.forms import GrappelliSortableHiddenMixin
-
 from django import forms
 from django.contrib import admin
 from django.core.urlresolvers import reverse_lazy
@@ -39,7 +36,7 @@ class SingleLineTextWithMapAdmin(FormQuestionChildAdmin):
     base_model = MultiLineText
 
 
-class ChoiceInline(GrappelliSortableHiddenMixin, admin.TabularInline):
+class ChoiceInline(admin.TabularInline):
     fields = ['text', 'position', 'extra_info_placeholder', 'id']
     model = Choice
     sortable_field_name = "position"
@@ -126,7 +123,6 @@ class QuestionPageAdmin(PageChildAdmin):
             'fields': ('position', 'section', 'encouragement', 'infobox', 'site')
         }),
         ('Advanced options', {
-            'classes': ('grp-collapse grp-closed',),
             'fields': (('multiple', 'name_for_multiple'),)
         }),
     )
