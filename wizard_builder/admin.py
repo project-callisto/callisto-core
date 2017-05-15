@@ -153,6 +153,7 @@ class PageBaseAdmin(DowncastedAdmin):
     list_display = DowncastedAdmin.list_display + [
         'site_name',
     ]
+    list_filter = ['site']
 
     def site_name(self, obj):
         return obj.site.name
