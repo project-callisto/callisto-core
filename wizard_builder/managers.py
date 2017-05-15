@@ -23,8 +23,12 @@ class PageBaseManager(InheritanceManager):
         return self.get_queryset().on_site(site_id)
 
 
+class FormQuestionQuerySet(InheritanceQuerySet):
+    pass
+
+
 class FormQuestionManager(InheritanceManager):
 
     def get_queryset(self):
-        base_queryset = super(FormQuestionManager, self).get_queryset()
+        base_queryset = FormQuestionQuerySet(self.model, using=self._db)
         return base_queryset.select_subclasses()

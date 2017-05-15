@@ -188,6 +188,7 @@ class MultiLineText(FormQuestion):
 
 class MultipleChoice(FormQuestion):
     cached_choices = None
+    objects = FormQuestionManager()
 
     def clone(self):
         question_copy = copy.deepcopy(self)
