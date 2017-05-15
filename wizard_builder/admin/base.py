@@ -5,10 +5,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
 
-from .models import (
-    Checkbox, Choice, Conditional, Date, FormQuestion, MultiLineText, PageBase,
-    QuestionPage, RadioButton, SingleLineText, SingleLineTextWithMap, TextPage,
-)
+from ..models import FormQuestion, Choice
 
 
 class DowncastedAdmin(admin.ModelAdmin):
@@ -42,18 +39,6 @@ class DowncastedAdmin(admin.ModelAdmin):
     model_type.short_description = 'Type'
 
 
-class SingleLineTextAdmin(DowncastedAdmin):
-    base_model = SingleLineText
-
-
-class MultiLineTextAdmin(DowncastedAdmin):
-    base_model = MultiLineText
-
-
-class SingleLineTextWithMapAdmin(DowncastedAdmin):
-    base_model = MultiLineText
-
-
 class ChoiceInline(admin.TabularInline):
     fields = ['text', 'position', 'extra_info_placeholder', 'id']
     model = Choice
@@ -63,36 +48,6 @@ class ChoiceInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': forms.TextInput},
     }
-
-
-class RadioButtonAdmin(DowncastedAdmin):
-    base_model = RadioButton
-    inlines = [
-        ChoiceInline,
-    ]
-
-
-class CheckboxAdmin(DowncastedAdmin):
-    base_model = Checkbox
-    inlines = [
-        ChoiceInline,
-    ]
-
-
-class DateAdmin(DowncastedAdmin):
-    base_model = Date
-
-
-class FormQuestionParentAdmin(DowncastedAdmin):
-    base_model = FormQuestion
-    child_models = (
-        (SingleLineText, SingleLineTextAdmin),
-        (SingleLineTextWithMap, SingleLineTextWithMapAdmin),
-        (MultiLineText, MultiLineTextAdmin),
-        (RadioButton, RadioButtonAdmin),
-        (Date, DateAdmin),
-        (Checkbox, CheckboxAdmin)
-    )
 
 
 class QuestionInline(admin.TabularInline):
@@ -127,43 +82,3 @@ class QuestionInline(admin.TabularInline):
 
     extra = 0
 
-
-class QuestionPageAdmin(admin.ModelAdmin):
-    base_model = QuestionPage
-
-    fieldsets = (
-        (None, {
-            'fields': ('position', 'section', 'encouragement', 'infobox', 'site')
-        }),
-        ('Advanced options', {
-            'fields': (('multiple', 'name_for_multiple'),)
-        }),
-    )
-
-    inlines = [
-        QuestionInline,
-    ]
-
-
-class TextPageAdmin(admin.ModelAdmin):
-    pass
-
-
-class PageBaseAdmin(DowncastedAdmin):
-    list_display = DowncastedAdmin.list_display + [
-        'site_name',
-    ]
-    list_filter = ['site']
-
-    def site_name(self, obj):
-        return obj.site.name
-
-
-# Only the parent needs to be registered:
-admin.site.register(FormQuestion, FormQuestionParentAdmin)
-
-admin.site.register(PageBase, PageBaseAdmin)
-admin.site.register(QuestionPage, QuestionPageAdmin)
-admin.site.register(TextPage, TextPageAdmin)
-
-admin.site.register(Conditional)
