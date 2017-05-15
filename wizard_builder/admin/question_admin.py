@@ -3,18 +3,17 @@ from django.contrib import admin
 from .base import ChoiceInline, DowncastedAdmin
 
 
-class FormQuestionParentAdmin(DowncastedAdmin):
-    list_display = DowncastedAdmin.list_display + ['site_name']
-
-    def site_name(self, obj):
-        return obj.page.site.name
+class FormQuestionAdminMixin(object):
+    search_fields = ['text', 'descriptive_text']
+    list_filter = ['page__site']
 
 
-class FormQuestionChildAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'site_name']
+class FormQuestionParentAdmin(FormQuestionAdminMixin, DowncastedAdmin):
+    list_display = ['short_str', 'model_type', 'page']
 
-    def site_name(self, obj):
-        return obj.page.site.name
+
+class FormQuestionChildAdmin(FormQuestionAdminMixin, admin.ModelAdmin):
+    list_display = ['short_str', 'page']
 
 
 class MultipleChoiceParentAdmin(FormQuestionParentAdmin):

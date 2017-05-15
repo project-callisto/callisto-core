@@ -26,6 +26,14 @@ class PageBase(models.Model):
     site = models.ForeignKey(Site, null=True)
     objects = PageBaseManager()
 
+    @property
+    def short_str(self):
+        return "Page {}".format(self.position)
+
+    @property
+    def site_name(self):
+        return self.site.name
+
     def add_site_from_site_id(self):
         if getattr(settings, 'SITE_ID', None) and not self.site_id:
             self.site_id = settings.SITE_ID
@@ -77,10 +85,15 @@ class QuestionPage(PageBase):
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
-        if len(questions) > 0:
-            return "Page %i (%s)" % (self.position, questions[0].text)
+        if len(questions) > 0 and self.site_name:
+            question_str = "(Question 1: {})".format(questions[0].text)
+            site_str = "(Site: {})".format(self.site_name)
+            return "{} {} {}".format(self.short_str, question_str, site_str)
+        elif len(questions) > 0:
+            question_str = "(Question 1: {})".format(questions[0].text)
+            return "{} {}".format(self.short_str, question_str)
         else:
-            return "Page %i" % self.position
+            return "{}".format(self.short_str)
 
     class Meta:
         ordering = ['position']
@@ -95,7 +108,20 @@ class FormQuestion(models.Model):
     objects = FormQuestionManager()
 
     def __str__(self):
-        return self.text + " (" + str(type(self).__name__) + ")"
+        type_str = "(Type: {})".format(str(type(self).__name__))
+        if self.site_name:
+            site_str = "(Site: {})".format(self.site_name)
+            return "{} {} {}".format(self.short_str, type_str, site_str)
+        else:
+            return "{} {}".format(self.short_str, type_str)
+
+    @property
+    def short_str(self):
+        return self.text
+
+    @property
+    def site_name(self):
+        return self.page.site.name
 
     @property
     def section(self):
