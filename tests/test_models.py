@@ -63,7 +63,7 @@ class FormQuestionModelTest(ItemTestCase):
 
     def test_string_representation(self):
         question = SingleLineText.objects.create(text="What's up?")
-        self.assertEqual(str(question), "What's up? (SingleLineText)")
+        self.assertEqual(str(question), "What's up? (Type: SingleLineText)")
 
     def test_questions_can_have_pages(self):
         page = QuestionPage.objects.create()
