@@ -6,7 +6,7 @@ from wizard_builder.models import (
 from django.test import TestCase
 
 
-class InheritenceTest(TestCase):
+class InheritanceTest(TestCase):
 
     def test_question_page_instance(self):
         page = QuestionPage.objects.create()
