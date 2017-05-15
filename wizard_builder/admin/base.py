@@ -5,7 +5,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
 
-from ..models import FormQuestion, Choice
+from ..models import Choice, FormQuestion
 
 
 class DowncastedAdmin(admin.ModelAdmin):
@@ -37,6 +37,16 @@ class DowncastedAdmin(admin.ModelAdmin):
         text = model_name
         return format_html('<a href="{}">{}</a>'.format(url, text))
     model_type.short_description = 'Type'
+
+
+class SiteAwareDowncastedAdmin(DowncastedAdmin):
+    list_display = DowncastedAdmin.list_display + ['site_name']
+    list_filter = ['site']
+
+
+class SiteAwareAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'site_name']
+    list_filter = ['site']
 
 
 class ChoiceInline(admin.TabularInline):
@@ -81,4 +91,3 @@ class QuestionInline(admin.TabularInline):
         return True
 
     extra = 0
-

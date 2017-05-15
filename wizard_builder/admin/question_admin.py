@@ -1,43 +1,23 @@
-from .base import DowncastedAdmin, ChoiceInline
+from .base import ChoiceInline, SiteAwareAdmin, SiteAwareDowncastedAdmin
 
 
-class SingleLineTextAdmin(DowncastedAdmin):
-    base_model = SingleLineText
+class FormQuestionSiteMixin(object):
+
+    def site_name(self, obj):
+        return obj.page.site.name
 
 
-class MultiLineTextAdmin(DowncastedAdmin):
-    base_model = MultiLineText
+class FormQuestionParentAdmin(SiteAwareDowncastedAdmin, FormQuestionSiteMixin):
+    pass
 
 
-class SingleLineTextWithMapAdmin(DowncastedAdmin):
-    base_model = MultiLineText
+class FormQuestionChildAdmin(SiteAwareAdmin, FormQuestionSiteMixin):
+    pass
 
 
-class RadioButtonAdmin(DowncastedAdmin):
-    base_model = RadioButton
-    inlines = [
-        ChoiceInline,
-    ]
+class MultipleChoiceParentAdmin(FormQuestionParentAdmin):
+    inlines = [ChoiceInline]
 
 
-class CheckboxAdmin(DowncastedAdmin):
-    base_model = Checkbox
-    inlines = [
-        ChoiceInline,
-    ]
-
-
-class DateAdmin(DowncastedAdmin):
-    base_model = Date
-
-
-class FormQuestionAdmin(DowncastedAdmin):
-    base_model = FormQuestion
-    child_models = (
-        (SingleLineText, SingleLineTextAdmin),
-        (SingleLineTextWithMap, SingleLineTextWithMapAdmin),
-        (MultiLineText, MultiLineTextAdmin),
-        (RadioButton, RadioButtonAdmin),
-        (Date, DateAdmin),
-        (Checkbox, CheckboxAdmin)
-    )
+class MultipleChoiceChildAdmin(FormQuestionChildAdmin):
+    inlines = [ChoiceInline]

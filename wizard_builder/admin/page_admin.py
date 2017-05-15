@@ -1,18 +1,18 @@
-from .base import QuestionInline, DowncastedAdmin
+from .base import QuestionInline, SiteAwareAdmin, SiteAwareDowncastedAdmin
 
 
-class PageBaseChildAdmin(DowncastedAdmin):
-    list_display = ['__str__', 'site_name']
-    list_filter = ['site']
+class PageBaseSiteMixin(object):
 
     def site_name(self, obj):
         return obj.site.name
 
 
-class PageBaseParentAdmin(PageBaseChildAdmin):
-    list_display = DowncastedAdmin.list_display + [
-        'site_name',
-    ]
+class PageBaseChildAdmin(SiteAwareAdmin, PageBaseSiteMixin):
+    pass
+
+
+class PageBaseAdmin(SiteAwareDowncastedAdmin, PageBaseSiteMixin):
+    pass
 
 
 class QuestionPageAdmin(PageBaseChildAdmin):
@@ -27,11 +27,3 @@ class QuestionPageAdmin(PageBaseChildAdmin):
     inlines = [
         QuestionInline,
     ]
-
-
-class TextPageAdmin(PageBaseChildAdmin):
-    pass
-
-
-class PageBaseAdmin(PageBaseParentAdmin):
-    pass
