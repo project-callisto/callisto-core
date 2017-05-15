@@ -32,7 +32,10 @@ class PageBase(models.Model):
 
     @property
     def site_name(self):
-        return self.site.name
+        if self.site:
+            return self.site.name
+        else:
+            return None
 
     def add_site_from_site_id(self):
         if getattr(settings, 'SITE_ID', None) and not self.site_id:
@@ -121,7 +124,10 @@ class FormQuestion(models.Model):
 
     @property
     def site_name(self):
-        return self.page.site.name
+        if self.page:
+            return self.page.site_name
+        else:
+            return None
 
     @property
     def section(self):
