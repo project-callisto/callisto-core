@@ -2,6 +2,8 @@ from django import forms
 from django.contrib import admin
 from django.core.urlresolvers import reverse_lazy
 from django.db import models
+from django.urls import reverse
+from django.utils.html import format_html
 
 from .models import (
     Checkbox, Choice, Conditional, Date, FormQuestion, MultiLineText, PageBase,
@@ -9,30 +11,46 @@ from .models import (
 )
 
 
-# TODO!
-class DowncastedChildModelAdmin(admin.ModelAdmin):
-    pass
+class DowncastedAdmin(admin.ModelAdmin):
+
+    list_display = ['object_display', 'model_type']
+
+    def get_queryset(self, request):
+        base_queryset = super(DowncastedAdmin, self).get_queryset(request)
+        return base_queryset.select_subclasses()
+
+    def object_display(self, obj):
+        model_name = obj.__class__.__name__
+        reverse_url = 'admin:{}_{}_change'.format(
+            obj._meta.app_label,
+            model_name.lower(),
+        )
+        url = reverse(reverse_url, args=(obj.id,))
+        text = obj.__str__()
+        return format_html('<a href="{}">{}</a>'.format(url, text))
+    object_display.short_description = 'Object'
+
+    def model_type(self, obj):
+        model_name = obj.__class__.__name__
+        reverse_url = 'admin:{}_{}_changelist'.format(
+            obj._meta.app_label,
+            model_name.lower(),
+        )
+        url = reverse(reverse_url)
+        text = model_name
+        return format_html('<a href="{}">{}</a>'.format(url, text))
+    model_type.short_description = 'Type'
 
 
-# TODO!
-class DowncastedParentModelAdmin(admin.ModelAdmin):
-    pass
-
-
-class FormQuestionChildAdmin(DowncastedChildModelAdmin):
-    """ Base admin class for all child models """
-    base_model = FormQuestion
-
-
-class SingleLineTextAdmin(FormQuestionChildAdmin):
+class SingleLineTextAdmin(DowncastedAdmin):
     base_model = SingleLineText
 
 
-class MultiLineTextAdmin(FormQuestionChildAdmin):
+class MultiLineTextAdmin(DowncastedAdmin):
     base_model = MultiLineText
 
 
-class SingleLineTextWithMapAdmin(FormQuestionChildAdmin):
+class SingleLineTextWithMapAdmin(DowncastedAdmin):
     base_model = MultiLineText
 
 
@@ -47,25 +65,25 @@ class ChoiceInline(admin.TabularInline):
     }
 
 
-class RadioButtonAdmin(FormQuestionChildAdmin):
+class RadioButtonAdmin(DowncastedAdmin):
     base_model = RadioButton
-    inlines = FormQuestionChildAdmin.inlines + [
+    inlines = [
         ChoiceInline,
     ]
 
 
-class CheckboxAdmin(FormQuestionChildAdmin):
+class CheckboxAdmin(DowncastedAdmin):
     base_model = Checkbox
-    inlines = FormQuestionChildAdmin.inlines + [
+    inlines = [
         ChoiceInline,
     ]
 
 
-class DateAdmin(FormQuestionChildAdmin):
+class DateAdmin(DowncastedAdmin):
     base_model = Date
 
 
-class FormQuestionParentAdmin(DowncastedParentModelAdmin):
+class FormQuestionParentAdmin(DowncastedAdmin):
     base_model = FormQuestion
     child_models = (
         (SingleLineText, SingleLineTextAdmin),
@@ -110,12 +128,7 @@ class QuestionInline(admin.TabularInline):
     extra = 0
 
 
-class PageChildAdmin(DowncastedChildModelAdmin):
-    """ Base admin class for all child models """
-    base_model = PageBase
-
-
-class QuestionPageAdmin(PageChildAdmin):
+class QuestionPageAdmin(admin.ModelAdmin):
     base_model = QuestionPage
 
     fieldsets = (
@@ -132,20 +145,24 @@ class QuestionPageAdmin(PageChildAdmin):
     ]
 
 
-class TextPageAdmin(PageChildAdmin):
-    base_model = TextPage
+class TextPageAdmin(admin.ModelAdmin):
+    pass
 
 
-class PageParentAdmin(DowncastedParentModelAdmin):
-    """ Base admin class for all child models """
-    base_model = PageBase
-    child_models = (
-        (QuestionPage, QuestionPageAdmin),
-        (TextPage, TextPageAdmin)
-    )
+class PageBaseAdmin(DowncastedAdmin):
+    list_display = DowncastedAdmin.list_display + [
+        'site_name',
+    ]
+
+    def site_name(self, obj):
+        return obj.site.name
 
 
 # Only the parent needs to be registered:
 admin.site.register(FormQuestion, FormQuestionParentAdmin)
-admin.site.register(PageBase, PageParentAdmin)
+
+admin.site.register(PageBase, PageBaseAdmin)
+admin.site.register(QuestionPage, QuestionPageAdmin)
+admin.site.register(TextPage, TextPageAdmin)
+
 admin.site.register(Conditional)
