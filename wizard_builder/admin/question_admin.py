@@ -1,18 +1,20 @@
-from .base import ChoiceInline, SiteAwareAdmin, SiteAwareDowncastedAdmin
+from django.contrib import admin
+
+from .base import ChoiceInline, DowncastedAdmin
 
 
-class FormQuestionSiteMixin(object):
+class FormQuestionParentAdmin(DowncastedAdmin):
+    list_display = DowncastedAdmin.list_display + ['site_name']
 
     def site_name(self, obj):
         return obj.page.site.name
 
 
-class FormQuestionParentAdmin(SiteAwareDowncastedAdmin, FormQuestionSiteMixin):
-    pass
+class FormQuestionChildAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'site_name']
 
-
-class FormQuestionChildAdmin(SiteAwareAdmin, FormQuestionSiteMixin):
-    pass
+    def site_name(self, obj):
+        return obj.page.site.name
 
 
 class MultipleChoiceParentAdmin(FormQuestionParentAdmin):

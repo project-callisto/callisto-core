@@ -39,16 +39,6 @@ class DowncastedAdmin(admin.ModelAdmin):
     model_type.short_description = 'Type'
 
 
-class SiteAwareDowncastedAdmin(DowncastedAdmin):
-    list_display = DowncastedAdmin.list_display + ['site_name']
-    list_filter = ['site']
-
-
-class SiteAwareAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'site_name']
-    list_filter = ['site']
-
-
 class ChoiceInline(admin.TabularInline):
     fields = ['text', 'position', 'extra_info_placeholder', 'id']
     model = Choice
