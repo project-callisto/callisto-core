@@ -18,17 +18,19 @@ SCREEN_DUMP_LOCATION = os.path.join(
 class FunctionalTest(StaticLiveServerTestCase):
 
     @classmethod
-    def setUpClass(cls):
-        super(FunctionalTest, cls).setUpClass()
-        # TODO: an env switch for this
-        # cls.browser = webdriver.Firefox()
-        cls.browser = webdriver.PhantomJS()
-        cls.browser.implicitly_wait(3)
-
-    @classmethod
     def tearDownClass(cls):
-        cls.browser.quit()
+        try:
+            cls.browser.quit()
+        except AttributeError:
+            pass # brower has already been quit!
         super(FunctionalTest, cls).tearDownClass()
+
+    def setUp(self):
+        super(FunctionalTest, self).setUp()
+        # TODO: an env switch for this
+        # self.browser = webdriver.Firefox()
+        self.browser = webdriver.PhantomJS()
+        self.browser.implicitly_wait(3)
 
     def tearDown(self):
         if self._test_has_failed():
@@ -69,6 +71,14 @@ class FunctionalTest(StaticLiveServerTestCase):
             timestamp=timestamp
         )
 
+    def login_admin(self):
+        self.browser.get(self.live_server_url + '/admin/login/')
+        self.browser.find_element_by_id('id_username').clear()
+        self.browser.find_element_by_id('id_username').send_keys('user')
+        self.browser.find_element_by_id('id_password').clear()
+        self.browser.find_element_by_id('id_password').send_keys('pass')
+        self.browser.find_element_by_css_selector('input[type="submit"]').click()
+
 
 @override_settings(DEBUG=True)
 class AdminFunctionalTest(FunctionalTest):
@@ -82,7 +92,7 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
 
     def setUp(self):
-        super(FunctionalTest, self).setUp()
+        super(AdminFunctionalTest, self).setUp()
         Site.objects.update(domain='localhost')
         User.objects.create_superuser('user', '', 'pass')
         self.login_admin()
