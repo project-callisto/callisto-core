@@ -57,7 +57,7 @@ class FunctionalTest(StaticLiveServerTestCase):
                 self.take_screenshot()
                 self.dump_html()
         self.browser.quit()
-        super().tearDown()
+        super(FunctionalTest, self).tearDown()
 
     def _test_has_failed(self):
         try:
