@@ -39,9 +39,9 @@ class SiteIDTest(TestCase):
         site_2 = Site.objects.create()
 
         for i in range(site_1_pages):
-            page = QuestionPage.objects.create(site_id=site_1.id)
+            QuestionPage.objects.create(site_id=site_1.id)
         for i in range(site_2_pages):
-            page = QuestionPage.objects.create(site_id=site_2.id)
+            QuestionPage.objects.create(site_id=site_2.id)
 
         with TempSiteID(site_1.id):
             self.assertEqual(QuestionPage.objects.on_site().count(), site_1_pages)
@@ -51,7 +51,6 @@ class SiteIDTest(TestCase):
     @override_settings()
     def test_can_override_site_id_when_setting_is_set(self):
         with TempSiteID(1):
-            site_1 = Site.objects.get(id=settings.SITE_ID)
             site_2 = Site.objects.create()
             page = QuestionPage.objects.create(site_id=site_2.id)
             self.assertNotEqual(settings.SITE_ID, site_2.id)

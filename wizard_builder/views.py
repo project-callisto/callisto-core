@@ -133,16 +133,14 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             if isinstance(form, QuestionPageForm):
                 try:
                     clean_data = form.cleaned_data
-                except:
-                    # process unbound form with initial data
+                except BaseException:                    # process unbound form with initial data
                     initial_data = self.get_form_initial(str(idx))
                     clean_data = dict([(field, initial_data.get(field, '')) for field in form.fields.keys()])
                 process_form(clean_data, answered_questions)
             elif isinstance(form, BaseFormSet):
                 try:
                     clean_data = form.cleaned_data
-                except:
-                    # process unbound formset with initial data
+                except BaseException:                    # process unbound formset with initial data
                     clean_data = self.get_form_initial(str(idx))
                 formset_answers = []
                 for entry in clean_data:

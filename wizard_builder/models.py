@@ -3,7 +3,6 @@ import copy
 from polymorphic.models import PolymorphicModel
 
 from django import forms
-from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
