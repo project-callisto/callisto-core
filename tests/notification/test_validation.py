@@ -36,6 +36,11 @@ class EmailValidationTest(TestCase):
             email.sites.add(i)
             email.full_clean()
 
+    def test_email_invalid_when_no_site_added(self):
+        with self.assertRaises(ValidationError):
+            invalid_email = EmailNotification.objects.create(name='has no site!!!')
+            invalid_email.full_clean()
+
     def test_validation_error_does_not_delete_email(self):
         with self.assertRaises(ValidationError):
             invalid_email = EmailNotification.objects.get(
