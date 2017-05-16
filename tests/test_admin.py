@@ -150,13 +150,15 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_link_text(QuestionPage.__name__).click()
         self.assertIn(QuestionPage.__name__.lower(), self.browser.page_source.lower())
 
-    @skip('TODO')
     def test_question_page_question_inline_present(self):
-        pass
+        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
+        self.browser.find_element_by_link_text('Add '+QuestionPage._meta.verbose_name).click()
+        self.assertIn(FormQuestion._meta.verbose_name_plural.capitalize(), self.browser.page_source)
 
-    @skip('TODO')
     def test_question_page_local_fields_present(self):
-        pass
+        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
+        self.browser.find_element_by_link_text('Add '+QuestionPage._meta.verbose_name).click()
+        self.assertIn('id_infobox', self.browser.page_source)
 
     def test_can_add_question_page(self):
         QuestionPage.objects.create(position=1337)
