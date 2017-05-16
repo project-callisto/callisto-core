@@ -1,12 +1,9 @@
 from selenium import webdriver
 
-from django.test import override_settings
 from django.contrib.auth import get_user_model
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.contrib.sites.models import Site
-
-from wizard_builder.models import PageBase
-
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.test import override_settings
 
 User = get_user_model()
 

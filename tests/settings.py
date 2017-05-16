@@ -1,5 +1,3 @@
-import os
-
 DEBUG = True
 
 USE_TZ = True
