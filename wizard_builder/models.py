@@ -28,10 +28,6 @@ class PageBase(PolymorphicModel):
     site = models.ForeignKey(Site, null=True)
     objects = PageBaseManager()
 
-    def add_site_from_site_id(self):
-        if getattr(settings, 'SITE_ID', None) and not self.site_id:
-            self.site_id = settings.SITE_ID
-
     def set_page_position(self):
         '''
             PageBase.position defaults to 0, but we take 0 to mean "not set"
@@ -47,7 +43,6 @@ class PageBase(PolymorphicModel):
             self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
 
     def save(self, *args, **kwargs):
-        self.add_site_from_site_id()
         self.set_page_position()
         super(PageBase, self).save(*args, **kwargs)
 
