@@ -1,5 +1,10 @@
 import os
+from distutils.util import strtobool
 from datetime import datetime
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 from selenium import webdriver
 
@@ -85,7 +90,9 @@ class AdminFunctionalTest(FunctionalTest):
 
     def setUp(self):
         super(AdminFunctionalTest, self).setUp()
-        Site.objects.update(domain='localhost')
+        port = urlparse(self.live_server_url).port
+        Site.objects.create(domain='localhost')
+        Site.objects.create(domain='localhost:{}'.format(port))
         User.objects.create_superuser('user', '', 'pass')
         self.login_admin()
         self.browser.get(self.live_server_url + '/admin/')
