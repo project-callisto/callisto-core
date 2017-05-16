@@ -129,11 +129,7 @@ class AdminFunctionalTest(FunctionalTest):
             Conditional,
         ]
         for Model in wizard_builder_models:
-            try:
-                self.assertIn(Model._meta.verbose_name.lower(), self.browser.page_source.lower())
-            except AssertionError:
-                print('Current args: Model={}'.format(Model))
-                raise
+            self.assertIn(Model._meta.verbose_name.lower(), self.browser.page_source.lower())
 
     def test_pagebase_models_downcast(self):
         QuestionPage.objects.create()
