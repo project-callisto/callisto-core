@@ -41,6 +41,8 @@ class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self):
         super(FunctionalTest, self).setUp()
         if strtobool(os.environ.get('WEBDRIVER_FIREFOX', 'False').lower()):
+            # swap on with:
+            #   export WEBDRIVER_FIREFOX='True'
             self.browser = webdriver.Firefox()
         else:
             self.browser = webdriver.PhantomJS()
