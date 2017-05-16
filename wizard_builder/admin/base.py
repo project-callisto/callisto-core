@@ -16,7 +16,6 @@ class DowncastedAdmin(admin.ModelAdmin):
         return base_queryset.select_subclasses()
 
     def object_display(self, obj):
-        # TODO: change to verbose name instead
         model_name = obj.__class__.__name__
         reverse_url = 'admin:{}_{}_change'.format(
             obj._meta.app_label,
@@ -34,7 +33,7 @@ class DowncastedAdmin(admin.ModelAdmin):
             model_name.lower(),
         )
         url = reverse(reverse_url)
-        text = model_name
+        text = obj.__class__._meta.verbose_name.capitalize()
         return format_html('<a href="{}">{}</a>'.format(url, text))
     model_type.short_description = 'Type'
 
