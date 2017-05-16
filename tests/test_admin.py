@@ -149,18 +149,18 @@ class AdminFunctionalTest(FunctionalTest):
 
     def test_question_page_question_inline_present(self):
         self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
-        self.browser.find_element_by_link_text('Add ' + QuestionPage._meta.verbose_name).click()
+        self.browser.find_element_by_css_selector('.addlink').click()
         self.assertIn(FormQuestion._meta.verbose_name_plural.capitalize(), self.browser.page_source)
 
     def test_question_page_local_fields_present(self):
         self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
-        self.browser.find_element_by_link_text('Add ' + QuestionPage._meta.verbose_name).click()
+        self.browser.find_element_by_css_selector('.addlink').click()
         self.assertIn('id_infobox', self.browser.page_source)
 
     def test_can_add_question_page(self):
         self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
         self.assertNotIn('1337', self.browser.page_source)
-        self.browser.find_element_by_link_text('Add ' + QuestionPage._meta.verbose_name).click()
+        self.browser.find_element_by_css_selector('.addlink').click()
         self.browser.find_element_by_css_selector('#id_position').send_keys('1337')
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
         self.assertIn('1337', self.browser.page_source)
@@ -169,7 +169,7 @@ class AdminFunctionalTest(FunctionalTest):
         QuestionPage.objects.create()
         self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
         self.assertNotIn('1337', self.browser.page_source)
-        self.browser.find_element_by_link_text('Add ' + QuestionPage._meta.verbose_name).click()
+        self.browser.find_element_by_css_selector('.addlink').click()
         self.browser.find_element_by_css_selector('#id_position').send_keys('1337')
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
         self.assertIn('1337', self.browser.page_source)
@@ -208,14 +208,14 @@ class AdminFunctionalTest(FunctionalTest):
 
     def test_radio_button_choices_present(self):
         self.browser.find_element_by_link_text(RadioButton._meta.verbose_name.capitalize() + 's').click()
-        self.browser.find_element_by_link_text('Add ' + RadioButton._meta.verbose_name).click()
+        self.browser.find_element_by_css_selector('.addlink').click()
         self.assertIn(Choice._meta.verbose_name_plural.capitalize(), self.browser.page_source)
 
     def test_can_add_radio_button(self):
         QuestionPage.objects.create()
         self.browser.find_element_by_link_text(RadioButton._meta.verbose_name.capitalize() + 's').click()
         self.assertNotIn('unique_cattens', self.browser.page_source)
-        self.browser.find_element_by_link_text('Add ' + RadioButton._meta.verbose_name).click()
+        self.browser.find_element_by_css_selector('.addlink').click()
         self.browser.find_element_by_css_selector('#id_text').send_keys('unique_cattens')
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
         self.assertIn('unique_cattens', self.browser.page_source)
@@ -225,7 +225,7 @@ class AdminFunctionalTest(FunctionalTest):
         RadioButton.objects.create()
         self.browser.find_element_by_link_text(RadioButton._meta.verbose_name.capitalize() + 's').click()
         self.assertNotIn('unique_cattens', self.browser.page_source)
-        self.browser.find_element_by_link_text('Add ' + RadioButton._meta.verbose_name).click()
+        self.browser.find_element_by_css_selector('.addlink').click()
         self.browser.find_element_by_css_selector('#id_text').send_keys('unique_cattens')
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
         self.assertIn('unique_cattens', self.browser.page_source)
