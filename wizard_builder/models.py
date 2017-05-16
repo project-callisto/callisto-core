@@ -1,7 +1,6 @@
 import copy
 
 from django import forms
-from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -37,10 +36,6 @@ class PageBase(models.Model):
         else:
             return None
 
-    def add_site_from_site_id(self):
-        if getattr(settings, 'SITE_ID', None) and not self.site_id:
-            self.site_id = settings.SITE_ID
-
     def set_page_position(self):
         '''
             PageBase.position defaults to 0, but we take 0 to mean "not set"
@@ -56,7 +51,6 @@ class PageBase(models.Model):
             self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
 
     def save(self, *args, **kwargs):
-        self.add_site_from_site_id()
         self.set_page_position()
         super(PageBase, self).save(*args, **kwargs)
 
