@@ -60,13 +60,3 @@ class EmailNotification(models.Model):
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
-
-    def add_site_from_site_id(self):
-        if not self.sites.count() and getattr(settings, 'SITE_ID', None):
-            # django does better validation checks for ints
-            site_id = int(settings.SITE_ID)
-            self.sites.add(site_id)
-
-    def save(self, *args, **kwargs):
-        super(EmailNotification, self).save(*args, **kwargs)
-        self.add_site_from_site_id()
