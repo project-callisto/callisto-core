@@ -1,23 +1,24 @@
 import os
-from distutils.util import strtobool
 from datetime import datetime
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
+from distutils.util import strtobool
 
 from selenium import webdriver
+from wizard_builder.models import (
+    Checkbox, Choice, Conditional, Date, FormQuestion, MultiLineText,
+    MultipleChoice, PageBase, QuestionPage, RadioButton, SingleLineText,
+    SingleLineTextWithMap, TextPage,
+)
 
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
-from wizard_builder.models import (
-    PageBase, QuestionPage, TextPage, FormQuestion, SingleLineText,
-    SingleLineTextWithMap, MultiLineText, MultipleChoice, Checkbox,
-    RadioButton, Choice, Date, Conditional
-)
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
+
 
 User = get_user_model()
 
@@ -105,44 +106,71 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.get(self.live_server_url + '/admin/')
 
     def test_can_load_admin_with_wizard_builder_on_it(self):
-        self.assertTrue('Django administration' in self.browser.page_source)
-        self.assertTrue('Wizard Builder' in self.browser.page_source)
+        self.assertIn('Django administration', self.browser.page_source)
+        self.assertIn('Wizard Builder', self.browser.page_source)
 
     def test_can_see_all_models(self):
-        pass
+        wizard_builder_models = [
+            PageBase,
+            QuestionPage,
+            TextPage,
+            FormQuestion,
+            SingleLineText,
+            SingleLineTextWithMap,
+            MultiLineText,
+            MultipleChoice,
+            Checkbox,
+            RadioButton,
+            Choice,
+            Date,
+            Conditional,
+        ]
+        for Model in wizard_builder_models:
+            try:
+                self.assertIn(Model._meta.verbose_name.lower(), self.browser.page_source.lower())
+            except AssertionError:
+                print('Current args: Model={}, Model._meta.verbose_name={}'.format(
+                    Model,
+                    Model._meta.verbose_name.lower(),
+                ))
+                raise
 
     def test_pagebase_models_downcast(self):
-        pass
+        QuestionPage.objects.create()
+        TextPage.objects.create()
+        self.browser.find_element_by_link_text(PageBase._meta.verbose_name + 's').click()
+        self.assertIn(QuestionPage.__name__.lower(), self.browser.page_source.lower())
+        self.assertIn(TextPage.__name__.lower(), self.browser.page_source.lower())
 
-    def test_can_access_question_page_through_page_base(self):
-        pass
+    # def test_can_access_question_page_through_page_base(self):
+    #     pass
 
-    def test_question_page_question_inline_present(self):
-        pass
+    # def test_question_page_question_inline_present(self):
+    #     pass
 
-    def test_question_page_local_fields_present(self):
-        pass
+    # def test_question_page_local_fields_present(self):
+    #     pass
 
-    def test_can_add_question_page(self):
-        pass
+    # def test_can_add_question_page(self):
+    #     pass
 
-    def test_can_edit_question_page(self):
-        pass
+    # def test_can_edit_question_page(self):
+    #     pass
 
-    def test_form_question_models_downcast(self):
-        pass
+    # def test_form_question_models_downcast(self):
+    #     pass
 
-    def test_multiple_choice_models_downcast(self):
-        pass
+    # def test_multiple_choice_models_downcast(self):
+    #     pass
 
-    def test_can_access_radio_button_from_form_question(self):
-        pass
+    # def test_can_access_radio_button_from_form_question(self):
+    #     pass
 
-    def test_radio_button_choices_present(self):
-        pass
+    # def test_radio_button_choices_present(self):
+    #     pass
 
-    def test_can_add_radio_button(self):
-        pass
+    # def test_can_add_radio_button(self):
+    #     pass
 
-    def test_can_edit_radio_button(self):
-        pass
+    # def test_can_edit_radio_button(self):
+    #     pass
