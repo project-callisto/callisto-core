@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 from distutils.util import strtobool
-from unittest import skip
 
 from selenium import webdriver
 from wizard_builder.models import (
