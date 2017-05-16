@@ -59,7 +59,7 @@ class SiteIDTest(TestCase):
             self.assertEqual(EmailNotification.objects.on_site().count(), site_2_pages)
 
     @override_settings()
-    def test_site_overriden_on_save(self):
+    def test_site_not_overriden_on_save(self):
         site = Site.objects.create()
         # site_id will be a string on live, since its an environment variable
         site_id = str(site.id)
