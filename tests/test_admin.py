@@ -20,6 +20,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         # cls.browser = webdriver.Firefox()
         cls.browser = webdriver.PhantomJS()
         cls.browser.implicitly_wait(3)
+        # not in setUpTestData because they need to happen before login
         Site.objects.update(domain='localhost')
         User.objects.create_superuser('user', '', 'pass')
         cls.login_admin()
@@ -37,6 +38,10 @@ class FunctionalTest(StaticLiveServerTestCase):
         cls.browser.find_element_by_id('id_password').clear()
         cls.browser.find_element_by_id('id_password').send_keys('pass')
         cls.browser.find_element_by_css_selector('input[type="submit"]').click()
+
+    @classmethod
+    def setUpTestData(cls):
+        pass
 
     def setUp(self):
         super(FunctionalTest, self).setUp()
@@ -61,6 +66,12 @@ class FunctionalTest(StaticLiveServerTestCase):
     def test_question_page_local_fields_present(self):
         pass
 
+    def test_can_add_question_page(self):
+        pass
+
+    def test_can_edit_question_page(self):
+        pass
+
     def test_form_question_models_downcast(self):
         pass
 
@@ -71,4 +82,10 @@ class FunctionalTest(StaticLiveServerTestCase):
         pass
 
     def test_radio_button_choices_present(self):
+        pass
+
+    def test_can_add_radio_button(self):
+        pass
+
+    def test_can_edit_radio_button(self):
         pass
