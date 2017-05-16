@@ -139,11 +139,15 @@ class AdminFunctionalTest(FunctionalTest):
         QuestionPage.objects.create()
         TextPage.objects.create()
         self.browser.find_element_by_link_text(PageBase._meta.verbose_name + 's').click()
+        self.assertIn(PageBase.__name__.lower(), self.browser.page_source.lower())
         self.assertIn(QuestionPage.__name__.lower(), self.browser.page_source.lower())
         self.assertIn(TextPage.__name__.lower(), self.browser.page_source.lower())
 
-    # def test_can_access_question_page_through_page_base(self):
-    #     pass
+    def test_can_access_question_page_through_page_base(self):
+        QuestionPage.objects.create()
+        self.browser.find_element_by_link_text(PageBase._meta.verbose_name + 's').click()
+        self.browser.find_element_by_link_text(QuestionPage.__name__).click()
+        self.assertIn(QuestionPage.__name__.lower(), self.browser.page_source.lower())
 
     # def test_question_page_question_inline_present(self):
     #     pass
