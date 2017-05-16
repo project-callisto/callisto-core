@@ -22,7 +22,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         try:
             cls.browser.quit()
         except AttributeError:
-            pass # brower has already been quit!
+            pass  # brower has already been quit!
         super(FunctionalTest, cls).tearDownClass()
 
     def setUp(self):
@@ -70,14 +70,6 @@ class FunctionalTest(StaticLiveServerTestCase):
             windowid=self._windowid,
             timestamp=timestamp
         )
-
-    def login_admin(self):
-        self.browser.get(self.live_server_url + '/admin/login/')
-        self.browser.find_element_by_id('id_username').clear()
-        self.browser.find_element_by_id('id_username').send_keys('user')
-        self.browser.find_element_by_id('id_password').clear()
-        self.browser.find_element_by_id('id_password').send_keys('pass')
-        self.browser.find_element_by_css_selector('input[type="submit"]').click()
 
 
 @override_settings(DEBUG=True)
