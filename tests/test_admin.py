@@ -60,9 +60,12 @@ class FunctionalTest(StaticLiveServerTestCase):
         super().tearDown()
 
     def _test_has_failed(self):
-        for method, error in self._outcome.errors:
-            if error:
-                return True
+        try:
+            for method, error in self._outcome.errors:
+                if error:
+                    return True
+        except AttributeError:
+            pass  # not all python versions has access to self._outcome
         return False
 
     def take_screenshot(self):
