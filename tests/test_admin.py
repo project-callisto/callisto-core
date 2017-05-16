@@ -1,4 +1,5 @@
 import os
+from unittest import skip
 from datetime import datetime
 from distutils.util import strtobool
 
@@ -149,32 +150,47 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_link_text(QuestionPage.__name__).click()
         self.assertIn(QuestionPage.__name__.lower(), self.browser.page_source.lower())
 
-    # def test_question_page_question_inline_present(self):
-    #     pass
+    @skip('TODO')
+    def test_question_page_question_inline_present(self):
+        pass
 
-    # def test_question_page_local_fields_present(self):
-    #     pass
+    @skip('TODO')
+    def test_question_page_local_fields_present(self):
+        pass
 
-    # def test_can_add_question_page(self):
-    #     pass
+    def test_can_add_question_page(self):
+        QuestionPage.objects.create(position=1337)
+        self.assertNotIn('1337', self.browser.page_source)
+        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
+        self.browser.find_element_by_link_text('Add '+QuestionPage._meta.verbose_name).click()
+        self.browser.find_element_by_css_selector('#id_position').send_keys('1337')
+        self.browser.find_element_by_css_selector('input[type="submit"]').click()
+        self.assertIn('1337', self.browser.page_source)
 
-    # def test_can_edit_question_page(self):
-    #     pass
+    @skip('TODO')
+    def test_can_edit_question_page(self):
+        pass
 
-    # def test_form_question_models_downcast(self):
-    #     pass
+    @skip('TODO')
+    def test_form_question_models_downcast(self):
+        pass
 
-    # def test_multiple_choice_models_downcast(self):
-    #     pass
+    @skip('TODO')
+    def test_multiple_choice_models_downcast(self):
+        pass
 
-    # def test_can_access_radio_button_from_form_question(self):
-    #     pass
+    @skip('TODO')
+    def test_can_access_radio_button_from_form_question(self):
+        pass
 
-    # def test_radio_button_choices_present(self):
-    #     pass
+    @skip('TODO')
+    def test_radio_button_choices_present(self):
+        pass
 
-    # def test_can_add_radio_button(self):
-    #     pass
+    @skip('TODO')
+    def test_can_add_radio_button(self):
+        pass
 
-    # def test_can_edit_radio_button(self):
-    #     pass
+    @skip('TODO')
+    def test_can_edit_radio_button(self):
+        pass
