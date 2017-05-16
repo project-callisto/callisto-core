@@ -83,7 +83,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         timestamp = datetime.now().isoformat().replace(':', '.')[:19]
         return '{folder}/{classname}.{method}-window{windowid}-{timestamp}'.format(
             folder=SCREEN_DUMP_LOCATION,
-            classname=self.__class__._meta.verbose_name.capitalize(),
+            classname=self.__class__.__name__,
             method=self._testMethodName,
             windowid=self._windowid,
             timestamp=timestamp
