@@ -202,6 +202,12 @@ class ExtractAnswersTest(TestCase):
             "unanswered": []
         }
 
+    def test_extract_choices(self):
+        self.maxDiff = None
+        self.set_up_simple_report_scenario()
+        anonymised = EvalRow()._extract_answers(json.loads(self.json_report))
+        self.assertIn('radio_choices', anonymised)
+
     def test_extract_answers(self):
         self.maxDiff = None
         self.set_up_simple_report_scenario()
