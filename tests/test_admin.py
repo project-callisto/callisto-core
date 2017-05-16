@@ -130,10 +130,7 @@ class AdminFunctionalTest(FunctionalTest):
             try:
                 self.assertIn(Model._meta.verbose_name.lower(), self.browser.page_source.lower())
             except AssertionError:
-                print('Current args: Model={}, Model._meta.verbose_name={}'.format(
-                    Model,
-                    Model._meta.verbose_name.lower(),
-                ))
+                print('Current args: Model={}'.format(Model))
                 raise
 
     def test_pagebase_models_downcast(self):
