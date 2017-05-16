@@ -161,17 +161,21 @@ class AdminFunctionalTest(FunctionalTest):
         self.assertIn('id_infobox', self.browser.page_source)
 
     def test_can_add_question_page(self):
-        QuestionPage.objects.create(position=1337)
-        self.assertNotIn('1337', self.browser.page_source)
         self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
+        self.assertNotIn('1337', self.browser.page_source)
         self.browser.find_element_by_link_text('Add '+QuestionPage._meta.verbose_name).click()
         self.browser.find_element_by_css_selector('#id_position').send_keys('1337')
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
         self.assertIn('1337', self.browser.page_source)
 
-    @skip('TODO')
     def test_can_edit_question_page(self):
-        pass
+        QuestionPage.objects.create()
+        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
+        self.assertNotIn('1337', self.browser.page_source)
+        self.browser.find_element_by_link_text('Add '+QuestionPage._meta.verbose_name).click()
+        self.browser.find_element_by_css_selector('#id_position').send_keys('1337')
+        self.browser.find_element_by_css_selector('input[type="submit"]').click()
+        self.assertIn('1337', self.browser.page_source)
 
     @skip('TODO')
     def test_form_question_models_downcast(self):
