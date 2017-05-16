@@ -14,34 +14,29 @@ class FunctionalTest(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super(FunctionalTest, cls).setUpClass()
+        # TODO: an env switch for this
         # cls.browser = webdriver.Firefox()
         cls.browser = webdriver.PhantomJS()
         cls.browser.implicitly_wait(3)
-        # not in setUpTestData because they need to happen before login
-        Site.objects.update(domain='localhost')
-        User.objects.create_superuser('user', '', 'pass')
-        cls.login_admin()
 
     @classmethod
     def tearDownClass(cls):
         cls.browser.quit()
         super(FunctionalTest, cls).tearDownClass()
 
-    @classmethod
-    def login_admin(cls):
-        cls.browser.get(cls.live_server_url + '/admin/login/')
-        cls.browser.find_element_by_id('id_username').clear()
-        cls.browser.find_element_by_id('id_username').send_keys('user')
-        cls.browser.find_element_by_id('id_password').clear()
-        cls.browser.find_element_by_id('id_password').send_keys('pass')
-        cls.browser.find_element_by_css_selector('input[type="submit"]').click()
-
-    @classmethod
-    def setUpTestData(cls):
-        pass
+    def login_admin(self):
+        self.browser.get(self.live_server_url + '/admin/login/')
+        self.browser.find_element_by_id('id_username').clear()
+        self.browser.find_element_by_id('id_username').send_keys('user')
+        self.browser.find_element_by_id('id_password').clear()
+        self.browser.find_element_by_id('id_password').send_keys('pass')
+        self.browser.find_element_by_css_selector('input[type="submit"]').click()
 
     def setUp(self):
         super(FunctionalTest, self).setUp()
+        Site.objects.update(domain='localhost')
+        User.objects.create_superuser('user', '', 'pass')
+        self.login_admin()
         self.browser.get(self.live_server_url + '/admin/')
 
     def test_can_load_admin_with_wizard_builder_on_it(self):
