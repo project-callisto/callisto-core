@@ -45,3 +45,30 @@ class FunctionalTest(StaticLiveServerTestCase):
     def test_can_load_admin_with_wizard_builder_on_it(self):
         self.assertTrue('Django administration' in self.browser.page_source)
         self.assertTrue('Wizard Builder' in self.browser.page_source)
+
+    def test_can_see_all_models(self):
+        pass
+
+    def test_pagebase_models_downcast(self):
+        pass
+
+    def test_can_access_question_page_through_page_base(self):
+        pass
+
+    def test_question_page_question_inline_present(self):
+        pass
+
+    def test_question_page_local_fields_present(self):
+        pass
+
+    def test_form_question_models_downcast(self):
+        pass
+
+    def test_multiple_choice_models_downcast(self):
+        pass
+
+    def test_can_access_radio_button_from_form_question(self):
+        pass
+
+    def test_radio_button_choices_present(self):
+        pass
