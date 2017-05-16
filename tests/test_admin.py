@@ -174,9 +174,24 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
         self.assertIn('1337', self.browser.page_source)
 
-    @skip('TODO')
     def test_form_question_models_downcast(self):
-        pass
+        form_question_models = [
+            SingleLineText,
+            SingleLineTextWithMap,
+            MultiLineText,
+            MultipleChoice,
+            Checkbox,
+            RadioButton,
+        ]
+        for Model in form_question_models:
+            Model.objects.create()
+        self.browser.find_element_by_link_text(FormQuestion._meta.verbose_name + 's').click()
+        for Model in form_question_models:
+            try:
+                self.assertIn(Model.__name__, self.browser.page_source.lower())
+            except AssertionError:
+                print('Current args: Model={}'.format(Model))
+                raise
 
     @skip('TODO')
     def test_multiple_choice_models_downcast(self):
