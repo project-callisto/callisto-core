@@ -13,6 +13,12 @@ from django.contrib.sites.models import Site
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
+from wizard_builder.models import (
+    PageBase, QuestionPage, TextPage, FormQuestion, SingleLineText,
+    SingleLineTextWithMap, MultiLineText, MultipleChoice, Checkbox,
+    RadioButton, Choice, Date, Conditional
+)
+
 User = get_user_model()
 
 SCREEN_DUMP_LOCATION = os.path.join(
