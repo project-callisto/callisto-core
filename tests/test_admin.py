@@ -32,9 +32,10 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def setUp(self):
         super(FunctionalTest, self).setUp()
-        # TODO: an env switch for this
-        # self.browser = webdriver.Firefox()
-        self.browser = webdriver.PhantomJS()
+        if strtobool(os.environ.get('WEBDRIVER_FIREFOX', 'False').lower()):
+            self.browser = webdriver.Firefox()
+        else:
+            self.browser = webdriver.PhantomJS()
         self.browser.implicitly_wait(3)
 
     def tearDown(self):
