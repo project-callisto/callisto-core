@@ -5,7 +5,7 @@ USE_TZ = True
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "tests/test_app/default.sqlite3",
+        "NAME": "default_test.sqlite3",
     }
 }
 

@@ -1,8 +1,8 @@
 # ignore webdriver screendumps
 screendumps/
 
-# ignore test app db
-tests/test_app/default.sqlite3
+# ignore test app db data
+tests/test_app/dump.sql
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
