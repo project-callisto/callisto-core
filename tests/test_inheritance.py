@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from wizard_builder.models import (
@@ -41,8 +42,18 @@ class InheritanceTest(TestCase):
 
 class DumpdataHackTest(TestCase):
 
+    def remove_db(self):
+        try:
+            os.remove('tests/test_app/default.sqlite3')
+        except FileNotFoundError:
+            pass
+
+    def setUp(self):
+        self.remove_db()
+
+    def tearDown(self):
+        self.remove_db()
+
     def test_dumpdata_hack(self):
-        subprocess.check_call('''
-            python tests/test_app/manage.py migrate
-            python tests/test_app/manage.py dumpdata
-        ''', shell=True)
+        subprocess.check_call(['python', 'tests/test_app/manage.py', 'migrate'])
+        subprocess.check_call(['python', 'tests/test_app/manage.py', 'dumpdata'])
