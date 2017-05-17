@@ -43,6 +43,6 @@ class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
         subprocess.check_call('''
-            cd tests/ &&
-            python test_app/manage.py dumpdata
+            python tests/test_app/manage.py migrate
+            python tests/test_app/manage.py dumpdata
         ''', shell=True)
