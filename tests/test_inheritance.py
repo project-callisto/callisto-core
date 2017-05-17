@@ -42,6 +42,10 @@ class InheritanceTest(TestCase):
 
 class DumpdataHackTest(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        QuestionPage.objects.create()
+
     def test_dumpdata_hack(self):
         subprocess.check_call('python tests/test_app/manage.py dumpdata -o tests/test_app/dump.json', shell=True)
         subprocess.check_call('python tests/test_app/manage.py loaddata tests/test_app/dump.json', shell=True)
