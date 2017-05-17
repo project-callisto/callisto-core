@@ -1,3 +1,5 @@
+import subprocess
+
 from wizard_builder.models import (
     Choice, Conditional, FormQuestion, MultipleChoice, PageBase, QuestionPage,
     SingleLineText,
@@ -35,3 +37,12 @@ class InheritanceTest(TestCase):
         self.assertTrue(QuestionPage.objects.first().conditional)
         self.assertIsInstance(condition.question, MultipleChoice)
         self.assertIsInstance(condition.page, QuestionPage)
+
+
+class DumpdataHackTest(TestCase):
+
+    def test_dumpdata_hack(self):
+        subprocess.check_call('''
+            cd tests/ &&
+            python test_app/manage.py dumpdata
+        ''', shell=True)
