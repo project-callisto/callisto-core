@@ -4,6 +4,9 @@ USE_TZ = True
 
 DATABASES = {
     "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+    },
+    "testing": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "wizard_builder_default",
         'TEST': {
