@@ -15,19 +15,14 @@ matrix:
     exclude:
         - python: "2.7"
           env: TOXENV=djangodev
-    exclude:
         - python: "3.3"
           env: TOXENV=django110
-    exclude:
         - python: "3.3"
           env: TOXENV=django111
-    exclude:
         - python: "3.3"
           env: TOXENV=djangodev
-    exclude:
         - python: "3.4"
           env: TOXENV=djangodev
-    exclude:
         - python: "3.5"
           env: TOXENV=djangodev
     allow_failures:
