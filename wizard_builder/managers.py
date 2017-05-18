@@ -3,23 +3,19 @@ import sys
 from model_utils.managers import InheritanceManager, InheritanceQuerySet
 
 from django.contrib.sites.models import Site
+from django.conf import settings
 
 
-class DumpdataHackMixin(object):
+class DowncastingManagerMixin(object):
 
-    def running_dumpdata_command(self):
-        import inspect
-        from pprint import pprint
-        pprint(inspect.stack())
-        if len(sys.argv) > 1 and sys.argv[1] == 'dumpdata':
-            return True
+    def get_queryset(self):
+        base_queryset = self._queryset(self.model, using=self._db)
+        if getattr(settings, 'WIZARD_BUILDER_DISABLE_DOWNCASTING', False):
+            return None
+        elif len(sys.argv) > 1 and sys.argv[1] == 'dumpdata':
+            return base_queryset
         else:
-            print('!!!!!!!')
-            print('!!!!!!!')
-            print('!!!!!!!')
-            print('!!!!!!!')
-            print('!!!!!!!')
-            return False
+            return base_queryset.select_subclasses()
 
 
 class PageBaseQuerySet(InheritanceQuerySet):
@@ -31,14 +27,8 @@ class PageBaseQuerySet(InheritanceQuerySet):
         )
 
 
-class PageBaseManager(DumpdataHackMixin, InheritanceManager):
-
-    def get_queryset(self):
-        base_queryset = PageBaseQuerySet(self.model, using=self._db)
-        if self.running_dumpdata_command():
-            return base_queryset
-        else:
-            return base_queryset.select_subclasses()
+class PageBaseManager(DowncastingManagerMixin, InheritanceManager):
+    _queryset = PageBaseQuerySet
 
     def on_site(self, site_id=None):
         return self.get_queryset().on_site(site_id)
@@ -48,11 +38,5 @@ class FormQuestionQuerySet(InheritanceQuerySet):
     pass
 
 
-class FormQuestionManager(DumpdataHackMixin, InheritanceManager):
-
-    def get_queryset(self):
-        base_queryset = FormQuestionQuerySet(self.model, using=self._db)
-        if self.running_dumpdata_command():
-            return base_queryset
-        else:
-            return base_queryset.select_subclasses()
+class FormQuestionManager(DowncastingManagerMixin, InheritanceManager):
+    _queryset = FormQuestionQuerySet
