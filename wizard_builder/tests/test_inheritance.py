@@ -58,13 +58,13 @@ class DumpdataHackTest(TestCase):
         subprocess.check_call('''
             python wizard_builder/tests/test_app/manage.py dumpdata \
                 wizard_builder \
-                -o tests/test_app/test-dump.json \
+                -o wizard_builder/tests/test_app/test-dump.json \
                 --natural-foreign \
                 --indent 2
         ''', shell=True)
         subprocess.check_call('''
             python wizard_builder/tests/test_app/manage.py loaddata \
-                tests/test_app/test-dump.json
+                wizard_builder/tests/test_app/test-dump.json
         ''', shell=True)
         with open('wizard_builder/tests/test_app/test-dump.json', 'r') as dump_file:
             dump_file_contents = dump_file.read()
