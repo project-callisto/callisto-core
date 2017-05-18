@@ -8,9 +8,17 @@ from django.contrib.sites.models import Site
 class DumpdataHackMixin(object):
 
     def running_dumpdata_command(self):
+        import inspect
+        from pprint import pprint
+        pprint(inspect.stack())
         if len(sys.argv) > 1 and sys.argv[1] == 'dumpdata':
             return True
         else:
+            print('!!!!!!!')
+            print('!!!!!!!')
+            print('!!!!!!!')
+            print('!!!!!!!')
+            print('!!!!!!!')
             return False
 
 

@@ -58,15 +58,15 @@ class DumpdataHackTest(TestCase):
         subprocess.check_call('''
             python tests/test_app/manage.py dumpdata \
                 wizard_builder \
-                -o tests/test_app/dump.json \
+                -o tests/test_app/dump.yaml \
                 --natural-foreign \
                 --indent 2
         ''', shell=True)
         subprocess.check_call('''
             python tests/test_app/manage.py loaddata \
-                tests/test_app/dump.json
+                tests/test_app/dump.yaml
         ''', shell=True)
-        with open('tests/test_app/dump.json', 'r') as dump_file:
+        with open('tests/test_app/dump.yaml', 'r') as dump_file:
             dump_file_contents = dump_file.read()
         self.assertIn('wizard_builder.questionpage', dump_file_contents)
         self.assertIn('wizard_builder.pagebase', dump_file_contents)
