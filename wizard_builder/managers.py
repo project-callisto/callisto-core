@@ -12,6 +12,7 @@ class DowncastingManagerMixin(object):
         base_queryset = self._queryset(self.model, using=self._db)
         if getattr(settings, 'WIZARD_BUILDER_DISABLE_DOWNCASTING', False):
             return base_queryset
+        # sourced from similar code in django-polymorphic
         elif len(sys.argv) > 1 and sys.argv[1] == 'dumpdata':
             return base_queryset
         else:
