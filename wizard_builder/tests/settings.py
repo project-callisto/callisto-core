@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "wizard_builder",
-    "tests.test_app"
+    "wizard_builder.tests.test_app"
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -57,6 +57,6 @@ TEMPLATES = [
 
 SECRET_KEY = "not important"
 
-ROOT_URLCONF = "tests.urls"
+ROOT_URLCONF = "wizard_builder.tests.urls"
 
 STATIC_URL = '/static/'

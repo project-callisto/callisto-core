@@ -1,3 +1,10 @@
+import os
+import sys
+
+# add wizard_builder folder to path
+base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../')
+sys.path.append(base_dir)
+
 DEBUG = True
 
 USE_TZ = True
