@@ -3,6 +3,14 @@
 History
 -------
 
+0.1.1 (2017-05-16)
+++++++++++++++++++
+
+* add dumpdata downcasting disable hack
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/44
+
+
 0.1.0 (2017-05-16)
 ++++++++++++++++++
 
