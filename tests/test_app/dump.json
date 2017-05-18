@@ -1,0 +1,22 @@
+[
+{
+  "fields": {
+    "multiple": false,
+    "encouragement": "",
+    "name_for_multiple": "",
+    "infobox": ""
+  },
+  "pk": 1,
+  "model": "wizard_builder.questionpage"
+},
+{
+  "fields": {
+    "multiple": false,
+    "encouragement": "",
+    "name_for_multiple": "",
+    "infobox": ""
+  },
+  "pk": 1,
+  "model": "wizard_builder.questionpage"
+}
+]

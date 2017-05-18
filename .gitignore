@@ -1,9 +1,6 @@
 # ignore webdriver screendumps
 screendumps/
 
-# ignore test app db data
-tests/test_app/dump.json
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
