@@ -1,29 +1,22 @@
 import os
 import sys
+from django.conf import settings
+from django.test.utils import get_runner
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'wizard_builder.tests.settings'
 
 try:
-    from django.conf import settings
-    from django.test.utils import get_runner
-
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
-
-    try:
-        import django
-        setup = django.setup
-    except AttributeError:
-        pass
-    else:
-        setup()
-
-except ImportError:
-    import traceback
-    traceback.print_exc()
-    raise ImportError("To fix this error, run: pip install -r requirements-test.txt")
+    import django
+    setup = django.setup
+except AttributeError:
+    pass
+else:
+    setup()
 
 
 def run_tests(*test_args):
     if not test_args:
-        test_args = ['tests']
+        test_args = ['wizard_builder.tests']
 
     # Run tests
     TestRunner = get_runner(settings)

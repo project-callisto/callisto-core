@@ -1,12 +1,12 @@
 import json
 
-from wizard_builder.models import (
+from django import forms
+from django.test import TestCase
+
+from ..models import (
     Checkbox, Choice, Date, MultiLineText, PageBase, QuestionPage, RadioButton,
     SingleLineText, TextPage,
 )
-
-from django import forms
-from django.test import TestCase
 
 
 class PageTest(TestCase):

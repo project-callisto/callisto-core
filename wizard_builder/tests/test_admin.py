@@ -3,16 +3,17 @@ from datetime import datetime
 from distutils.util import strtobool
 
 from selenium import webdriver
-from wizard_builder.models import (
-    Checkbox, Choice, Conditional, Date, FormQuestion, MultiLineText,
-    MultipleChoice, PageBase, QuestionPage, RadioButton, SingleLineText,
-    SingleLineTextWithMap, TextPage,
-)
 
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
+
+from ..models import (
+    Checkbox, Choice, Conditional, Date, FormQuestion, MultiLineText,
+    MultipleChoice, PageBase, QuestionPage, RadioButton, SingleLineText,
+    SingleLineTextWithMap, TextPage,
+)
 
 try:
     from urlparse import urlparse

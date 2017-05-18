@@ -5,6 +5,13 @@ USE_TZ = True
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
+    },
+    "test_app": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": 'wizard_builder.test_app.NOT_USED',
+        'TEST': {
+            'NAME': 'wizard_builder.test_app',
+        },
     }
 }
 
@@ -17,7 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "wizard_builder",
-    "tests.test_app"
+    "wizard_builder.tests.test_app",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -50,6 +57,6 @@ TEMPLATES = [
 
 SECRET_KEY = "not important"
 
-ROOT_URLCONF = "tests.urls"
+ROOT_URLCONF = "wizard_builder.tests.urls"
 
 STATIC_URL = '/static/'
