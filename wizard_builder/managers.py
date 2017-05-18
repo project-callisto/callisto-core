@@ -6,6 +6,15 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 
 
+# in addition to explicitly depending on django-model-utils,
+# this code borrows in large part from django-polymorphic
+
+# Portions of the below implementation are copyright django-polymorphic [Authors] contributors,
+# and are under the BSD-3 Clause [License]
+# Authors: https://github.com/django-polymorphic/django-polymorphic/blob/master/AUTHORS.rst
+# License: https://github.com/django-polymorphic/django-polymorphic/blob/master/LICENSE
+
+
 class PageBaseQuerySet(InheritanceQuerySet):
 
     def on_site(self, site_id=None):
