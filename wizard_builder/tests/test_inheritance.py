@@ -1,6 +1,6 @@
 import subprocess
 
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
 from ..models import (
     Choice, Conditional, FormQuestion, MultipleChoice, PageBase, QuestionPage,
@@ -39,35 +39,32 @@ class InheritanceTest(TestCase):
         self.assertIsInstance(condition.page, QuestionPage)
 
 
-class DumpdataHackTest(TestCase):
-
-    ECHO_QUESTION_PAGE = 'echo "from wizard_builder.models import QuestionPage;'
-    ECHO_CREATE_QUESTION_PAGE = '{} QuestionPage.objects.create()"'.format(ECHO_QUESTION_PAGE)
-    ECHO_DELETE_QUESTION_PAGE = '{} QuestionPage.objects.all().delete()"'.format(ECHO_QUESTION_PAGE)
-    PIPE_TO_SHELL = '| python wizard_builder/tests/test_app/manage.py shell'
-    PIPE_CREATE_QUESTION_PAGE = '{} {}'.format(ECHO_CREATE_QUESTION_PAGE, PIPE_TO_SHELL)
-    PIPE_DELETE_QUESTION_PAGE = '{} {}'.format(ECHO_CREATE_QUESTION_PAGE, PIPE_TO_SHELL)
-
-    def setUp(self):
-        subprocess.run(self.PIPE_CREATE_QUESTION_PAGE, shell=True)
-
-    def tearDown(self):
-        subprocess.run(self.PIPE_DELETE_QUESTION_PAGE, shell=True)
+class DumpdataHackTest(SimpleTestCase):
+    # SimpleTestCase is required because otherwise django will
+    # wrap the database calls in a transaction and the subprocess won't
+    # have access to them
 
     def test_dumpdata_hack(self):
+        QuestionPage.objects.using('test_app').create()
+        # mock calling python manage.py dumpdata in a production app
         subprocess.check_call('''
-            python wizard_builder/tests/test_app/manage.py dumpdata \
-                wizard_builder \
-                -o wizard_builder/tests/test_app/test-dump.json \
-                --natural-foreign \
-                --indent 2
+            python wizard_builder/tests/test_app/manage.py \
+                dumpdata \
+                    wizard_builder \
+                    -o wizard_builder/tests/test_app/test-dump.json \
+                    --natural-foreign \
+                    --indent 2
         ''', shell=True)
-        subprocess.run(self.PIPE_DELETE_QUESTION_PAGE, shell=True)
         subprocess.check_call('''
-            python wizard_builder/tests/test_app/manage.py loaddata \
-                wizard_builder/tests/test_app/test-dump.json
+            python wizard_builder/tests/test_app/manage.py \
+                loaddata \
+                    wizard_builder/tests/test_app/test-dump.json
         ''', shell=True)
         with open('wizard_builder/tests/test_app/test-dump.json', 'r') as dump_file:
             dump_file_contents = dump_file.read()
         self.assertIn('wizard_builder.questionpage', dump_file_contents)
+        # this is the most important assertion, it asserts that the pagebase
+        # object isn't autodowncast to questionpage in the fixture
         self.assertIn('wizard_builder.pagebase', dump_file_contents)
+        self.assertEqual(PageBase.objects.using('test_app').count(), 1)
+        self.assertEqual(QuestionPage.objects.using('test_app').count(), 1)

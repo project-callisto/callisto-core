@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "wizard_builder",
-    "wizard_builder.tests.test_app"
+    "wizard_builder.tests.test_app",
 ]
 
 MIDDLEWARE_CLASSES = (
