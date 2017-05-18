@@ -6,11 +6,11 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
     },
-    "testing": {
+    "test_app": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "wizard_builder_default",
+        "NAME": 'wizard_builder.test_app.NOT_USED',
         'TEST': {
-            'NAME': 'wizard_builder_default_test',
+            'NAME': 'wizard_builder.test_app',
         },
     }
 }

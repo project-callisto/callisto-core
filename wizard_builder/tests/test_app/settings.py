@@ -12,7 +12,7 @@ USE_TZ = True
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "wizard_builder_default_test",
+        "NAME": "wizard_builder.test_app",
     }
 }
 
