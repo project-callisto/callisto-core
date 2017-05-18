@@ -1,5 +1,3 @@
-import os
-
 DEBUG = True
 
 USE_TZ = True
@@ -10,26 +8,48 @@ DATABASES = {
     }
 }
 
-ROOT_URLCONF = "tests.urls"
-
 INSTALLED_APPS = [
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.sites",
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.sites',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
     "wizard_builder",
     "tests.test_app"
 ]
 
-SITE_ID = 1
-
-MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',)
+MIDDLEWARE_CLASSES = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+)
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['%s/test_app/templates' % os.path.abspath(os.path.dirname(__file__))],
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'debug': DEBUG,
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
     },
 ]
 
 SECRET_KEY = "not important"
+
+ROOT_URLCONF = "tests.urls"
+
+STATIC_URL = '/static/'

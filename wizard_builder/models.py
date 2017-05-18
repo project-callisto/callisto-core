@@ -1,17 +1,14 @@
 import copy
 
-from polymorphic.models import PolymorphicModel
-
 from django import forms
-from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from .managers import PageBaseManager
+from .managers import FormQuestionManager, PageBaseManager
 
 
-class PageBase(PolymorphicModel):
+class PageBase(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -28,9 +25,16 @@ class PageBase(PolymorphicModel):
     site = models.ForeignKey(Site, null=True)
     objects = PageBaseManager()
 
-    def add_site_from_site_id(self):
-        if getattr(settings, 'SITE_ID') and not self.site_id:
-            self.site_id = settings.SITE_ID
+    @property
+    def short_str(self):
+        return "Page {}".format(self.position)
+
+    @property
+    def site_name(self):
+        if self.site:
+            return self.site.name
+        else:
+            return None
 
     def set_page_position(self):
         '''
@@ -47,7 +51,6 @@ class PageBase(PolymorphicModel):
             self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
 
     def save(self, *args, **kwargs):
-        self.add_site_from_site_id()
         self.set_page_position()
         super(PageBase, self).save(*args, **kwargs)
 
@@ -59,6 +62,7 @@ class PageBase(PolymorphicModel):
 class TextPage(PageBase):
     title = models.TextField(blank=True)
     text = models.TextField(blank=False)
+    objects = PageBaseManager()
 
     def __str__(self):
         if len(self.title.strip()) > 0:
@@ -74,27 +78,50 @@ class QuestionPage(PageBase):
     multiple = models.BooleanField(blank=False, default=False,
                                    verbose_name='User can add multiple')
     name_for_multiple = models.TextField(blank=True, verbose_name='name of field for "add another" prompt')
+    objects = PageBaseManager()
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
-        if len(questions) > 0:
-            return "Page %i (%s)" % (self.position, questions[0].text)
+        if len(questions) > 0 and self.site_name:
+            question_str = "(Question 1: {})".format(questions[0].text)
+            site_str = "(Site: {})".format(self.site_name)
+            return "{} {} {}".format(self.short_str, question_str, site_str)
+        elif len(questions) > 0:
+            question_str = "(Question 1: {})".format(questions[0].text)
+            return "{} {}".format(self.short_str, question_str)
         else:
-            return "Page %i" % self.position
+            return "{}".format(self.short_str)
 
     class Meta:
         ordering = ['position']
 
 
-class FormQuestion(PolymorphicModel):
+class FormQuestion(models.Model):
     text = models.TextField(blank=False)
     page = models.ForeignKey('QuestionPage', editable=True, null=True)
     position = models.PositiveSmallIntegerField("position", default=0)
     descriptive_text = models.TextField(blank=True)
     added = models.DateTimeField(auto_now_add=True)
+    objects = FormQuestionManager()
 
     def __str__(self):
-        return self.text + " (" + str(type(self).__name__) + ")"
+        type_str = "(Type: {})".format(str(type(self).__name__))
+        if self.site_name:
+            site_str = "(Site: {})".format(self.site_name)
+            return "{} {} {}".format(self.short_str, type_str, site_str)
+        else:
+            return "{} {}".format(self.short_str, type_str)
+
+    @property
+    def short_str(self):
+        return self.text
+
+    @property
+    def site_name(self):
+        if self.page:
+            return self.page.site_name
+        else:
+            return None
 
     @property
     def section(self):
@@ -187,6 +214,7 @@ class MultiLineText(FormQuestion):
 
 class MultipleChoice(FormQuestion):
     cached_choices = None
+    objects = FormQuestionManager()
 
     def clone(self):
         question_copy = copy.deepcopy(self)

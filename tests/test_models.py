@@ -21,7 +21,7 @@ class PageTest(TestCase):
         for i in range(pages):
             QuestionPage.objects.create()
         last_page = QuestionPage.objects.create()
-        self.assertEqual(last_page.position, pages+1)
+        self.assertEqual(last_page.position, pages + 1)
 
     def test_page_can_have_section(self):
         when_page = QuestionPage.objects.create()
@@ -63,7 +63,7 @@ class FormQuestionModelTest(ItemTestCase):
 
     def test_string_representation(self):
         question = SingleLineText.objects.create(text="What's up?")
-        self.assertEqual(str(question), "What's up? (SingleLineText)")
+        self.assertEqual(str(question), "What's up? (Type: SingleLineText)")
 
     def test_questions_can_have_pages(self):
         page = QuestionPage.objects.create()
@@ -80,7 +80,7 @@ class FormQuestionModelTest(ItemTestCase):
         for i in range(pages):
             QuestionPage.objects.create()
         question = SingleLineText.objects.create(text="This is a question with no page")
-        self.assertEqual(question.page.position, pages+1)
+        self.assertEqual(question.page.position, pages + 1)
 
     def test_questions_can_have_descriptive_text(self):
         SingleLineText.objects.create(text="This is a question", descriptive_text="You might answer it so")

@@ -1,8 +1,9 @@
-django-polymorphic>=0.9.2
 coverage
 mock>=1.0.1
 flake8>=2.1.0
 tox>=1.7.0
 isort==4.2.5
+selenium==2.53.6    # rq.filter: <3.0
+codecov
 
 -r requirements.txt
