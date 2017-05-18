@@ -1,4 +1,3 @@
-import os
 import subprocess
 
 from wizard_builder.models import (
@@ -44,12 +43,20 @@ class DumpdataHackTest(TestCase):
 
     def setUp(self):
         subprocess.run('''
-            echo "from wizard_builder.models import QuestionPage; QuestionPage.objects.create()" | python tests/test_app/manage.py shell
+            echo "\
+                from wizard_builder.models import QuestionPage; \
+                QuestionPage.objects.create() \
+            " \
+            | python tests/test_app/manage.py shell
         ''', shell=True)
 
     def tearDown(self):
         subprocess.run('''
-            echo "from wizard_builder.models import QuestionPage; QuestionPage.objects.all().delete()" | python tests/test_app/manage.py shell
+            echo "\
+                from wizard_builder.models import QuestionPage; \
+                QuestionPage.objects.all().delete() \
+            " \
+            | python tests/test_app/manage.py shell
         ''', shell=True)
 
     def test_dumpdata_hack(self):
