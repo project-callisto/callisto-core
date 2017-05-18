@@ -14,6 +14,9 @@ matrix:
     exclude:
         - python: "3.3"
           env: TOXENV=django110
+    exclude:
+        - python: "3.3"
+          env: TOXENV=django111
 install:
     - pip install -r requirements-test.txt
 before_script:
