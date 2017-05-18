@@ -55,17 +55,14 @@ class DumpdataHackTest(TestCase):
         subprocess.run(self.PIPE_DELETE_QUESTION_PAGE, shell=True)
 
     def test_dumpdata_hack(self):
-        subprocess.check_call('''
+        subprocess.Popen('''
             python tests/test_app/manage.py dumpdata \
                 wizard_builder \
                 -o tests/test_app/dump.json \
                 --natural-foreign \
                 --indent 2
         ''', shell=True)
-        subprocess.check_call('''
-            python tests/test_app/manage.py loaddata \
-                tests/test_app/dump.json
-        ''', shell=True)
+        subprocess.check_call('python tests/test_app/manage.py loaddata tests/test_app/dump.json', shell=True)
         with open('tests/test_app/dump.json', 'r') as dump_file:
             dump_file_contents = dump_file.read()
         self.assertIn('wizard_builder.questionpage', dump_file_contents)
