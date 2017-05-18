@@ -7,7 +7,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
     },
     "test_app": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "ENGINE": "django.db.backends.sqlite3",
         "NAME": 'wizard_builder.test_app.NOT_USED',
         'TEST': {
             'NAME': 'wizard_builder.test_app',
