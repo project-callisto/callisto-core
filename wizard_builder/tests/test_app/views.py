@@ -1,10 +1,9 @@
 import json
 
-from ...views import ConfigurableFormWizard
-
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
 
+from ...views import ConfigurableFormWizard
 from .models import Report
 
 
