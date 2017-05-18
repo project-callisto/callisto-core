@@ -16,6 +16,7 @@ try:
         setup()
 
 except ImportError:
+    # TODO: remove, this error message is no longer accurate for most cases
     import traceback
     traceback.print_exc()
     raise ImportError("To fix this error, run: pip install -r requirements-test.txt")
