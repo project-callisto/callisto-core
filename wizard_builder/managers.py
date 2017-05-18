@@ -2,8 +2,8 @@ import sys
 
 from model_utils.managers import InheritanceManager, InheritanceQuerySet
 
-from django.contrib.sites.models import Site
 from django.conf import settings
+from django.contrib.sites.models import Site
 
 
 class DowncastingManagerMixin(object):
