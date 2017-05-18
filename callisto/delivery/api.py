@@ -80,6 +80,10 @@ class AbstractNotification:
     def get_user_site(self):
         pass
 
+    @abstractmethod
+    def get_email_connection(self):
+        pass
+
     # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
     # TODO (cont): create AbstractPDFGenerator class
     @abstractmethod

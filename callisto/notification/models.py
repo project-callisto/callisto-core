@@ -49,7 +49,7 @@ class EmailNotification(models.Model):
         cleaned = cleaned.replace('</p>', '\n')
         return strip_tags(cleaned)
 
-    def send(self, to, from_email, context=None):
+    def send(self, to, from_email, context=None, connection=None):
         """Send the email as plain text.
 
         Includes an HTML equivalent version as an attachment.
@@ -57,6 +57,7 @@ class EmailNotification(models.Model):
 
         if context is None:
             context = {'domain': Site.objects.get_current()}
-        email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
+        email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to,
+                                       connection=connection)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()

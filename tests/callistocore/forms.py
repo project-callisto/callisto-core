@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.mail.backends.dummy import EmailBackend
 from django.http import HttpResponse
 
 from callisto.delivery.matching import CallistoMatching
@@ -16,7 +17,7 @@ class EncryptedFormWizard(EncryptedFormBaseWizard):
 class SiteAwareNotificationApi(NotificationApi):
 
     @classmethod
-    def get_user_site(self, user):
+    def get_user_site(cls, user):
         site = Site.objects.get(id=1)
         site.domain = 'testserver'
         site.save()
@@ -29,14 +30,14 @@ class CustomNotificationApi(SiteAwareNotificationApi):
     report_filename = "custom_{0}.pdf.gpg"
 
     @classmethod
-    def get_report_title(self):
+    def get_report_title(cls):
         return 'Custom'
 
 
 class ExtendedCustomNotificationApi(CustomNotificationApi):
 
     @classmethod
-    def send_report_to_authority(arg1, arg2, arg3):
+    def send_report_to_authority(cls, arg2, arg3):
         pass
 
 
@@ -49,3 +50,10 @@ class CustomMatchingApi(CallistoMatching):
     @classmethod
     def process_new_matches(cls, matches, identifier):
         pass
+
+
+class CustomBackendNotificationApi(CustomNotificationApi):
+
+    @classmethod
+    def get_email_connection(cls, site_id):
+        return EmailBackend()
