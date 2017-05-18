@@ -2,14 +2,14 @@ import inspect
 import json
 from unittest import skip
 
-from tests.test_app.models import Report
-from tests.test_app.views import TestWizard
-from wizard_builder.forms import QuestionPageForm, TextPageForm
-from wizard_builder.models import (
+from .test_app.models import Report
+from .test_app.views import TestWizard
+from ..forms import QuestionPageForm, TextPageForm
+from ..models import (
     Checkbox, Choice, Conditional, Date, QuestionPage, RadioButton,
     SingleLineText, TextPage,
 )
-from wizard_builder.views import (
+from ..views import (
     ConfigurableFormWizard, calculate_page_count_map,
 )
 

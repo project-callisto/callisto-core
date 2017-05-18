@@ -1,5 +1,5 @@
 from mock import patch
-from wizard_builder.models import PageBase, QuestionPage, SingleLineText
+from ..models import PageBase, QuestionPage, SingleLineText
 
 from django.conf import settings
 from django.contrib.sites.models import Site

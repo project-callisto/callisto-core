@@ -1,6 +1,6 @@
 import json
 
-from wizard_builder.models import (
+from ..models import (
     Checkbox, Choice, Date, MultiLineText, PageBase, QuestionPage, RadioButton,
     SingleLineText, TextPage,
 )

@@ -3,7 +3,7 @@ from datetime import datetime
 from distutils.util import strtobool
 
 from selenium import webdriver
-from wizard_builder.models import (
+from ..models import (
     Checkbox, Choice, Conditional, Date, FormQuestion, MultiLineText,
     MultipleChoice, PageBase, QuestionPage, RadioButton, SingleLineText,
     SingleLineTextWithMap, TextPage,

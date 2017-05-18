@@ -5,7 +5,7 @@ try:
     from django.conf import settings
     from django.test.utils import get_runner
 
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'wizard_builder.tests.settings'
 
     try:
         import django

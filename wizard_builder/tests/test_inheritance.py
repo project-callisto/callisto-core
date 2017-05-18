@@ -1,6 +1,6 @@
 import subprocess
 
-from wizard_builder.models import (
+from ..models import (
     Choice, Conditional, FormQuestion, MultipleChoice, PageBase, QuestionPage,
     SingleLineText,
 )
@@ -44,7 +44,7 @@ class DumpdataHackTest(TestCase):
     ECHO_QUESTION_PAGE = 'echo "from wizard_builder.models import QuestionPage;'
     ECHO_CREATE_QUESTION_PAGE = '{} QuestionPage.objects.create()"'.format(ECHO_QUESTION_PAGE)
     ECHO_DELETE_QUESTION_PAGE = '{} QuestionPage.objects.all().delete()"'.format(ECHO_QUESTION_PAGE)
-    PIPE_TO_SHELL = '| python tests/test_app/manage.py shell'
+    PIPE_TO_SHELL = '| python wizard_builder/tests/test_app/manage.py shell'
     PIPE_CREATE_QUESTION_PAGE = '{} {}'.format(ECHO_CREATE_QUESTION_PAGE, PIPE_TO_SHELL)
     PIPE_DELETE_QUESTION_PAGE = '{} {}'.format(ECHO_CREATE_QUESTION_PAGE, PIPE_TO_SHELL)
 
@@ -56,14 +56,17 @@ class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
         subprocess.check_call('''
-            python tests/test_app/manage.py dumpdata \
+            python wizard_builder/tests/test_app/manage.py dumpdata \
                 wizard_builder \
-                -o tests/test_app/dump.json \
+                -o tests/test_app/test-dump.json \
                 --natural-foreign \
                 --indent 2
         ''', shell=True)
-        subprocess.check_call('python tests/test_app/manage.py loaddata tests/test_app/dump.json', shell=True)
-        with open('tests/test_app/dump.json', 'r') as dump_file:
+        subprocess.check_call('''
+            python wizard_builder/tests/test_app/manage.py loaddata \
+                tests/test_app/test-dump.json
+        ''', shell=True)
+        with open('wizard_builder/tests/test_app/test-dump.json', 'r') as dump_file:
             dump_file_contents = dump_file.read()
         self.assertIn('wizard_builder.questionpage', dump_file_contents)
         self.assertIn('wizard_builder.pagebase', dump_file_contents)

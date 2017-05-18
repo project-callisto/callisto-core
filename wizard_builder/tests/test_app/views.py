@@ -1,6 +1,6 @@
 import json
 
-from wizard_builder.views import ConfigurableFormWizard
+from ...views import ConfigurableFormWizard
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
