@@ -62,6 +62,7 @@ class DumpdataHackTest(TestCase):
                 --natural-foreign \
                 --indent 2
         ''', shell=True)
+        subprocess.run(self.PIPE_DELETE_QUESTION_PAGE, shell=True)
         subprocess.check_call('''
             python wizard_builder/tests/test_app/manage.py loaddata \
                 wizard_builder/tests/test_app/test-dump.json
