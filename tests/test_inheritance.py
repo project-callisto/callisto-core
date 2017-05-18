@@ -41,23 +41,18 @@ class InheritanceTest(TestCase):
 
 class DumpdataHackTest(TestCase):
 
+    ECHO_QUESTION_PAGE = 'echo "from wizard_builder.models import QuestionPage;'
+    ECHO_CREATE_QUESTION_PAGE = '{} QuestionPage.objects.create()"'.format(ECHO_QUESTION_PAGE)
+    ECHO_DELETE_QUESTION_PAGE = '{} QuestionPage.objects.all().delete()"'.format(ECHO_QUESTION_PAGE)
+    PIPE_TO_SHELL = '| python tests/test_app/manage.py shell'
+    PIPE_CREATE_QUESTION_PAGE = '{} {}'.format(ECHO_CREATE_QUESTION_PAGE, PIPE_TO_SHELL)
+    PIPE_DELETE_QUESTION_PAGE = '{} {}'.format(ECHO_CREATE_QUESTION_PAGE, PIPE_TO_SHELL)
+
     def setUp(self):
-        subprocess.run('''
-            echo "\
-                from wizard_builder.models import QuestionPage; \
-                QuestionPage.objects.create() \
-            " \
-            | python tests/test_app/manage.py shell
-        ''', shell=True)
+        subprocess.run(self.PIPE_CREATE_QUESTION_PAGE, shell=True)
 
     def tearDown(self):
-        subprocess.run('''
-            echo "\
-                from wizard_builder.models import QuestionPage; \
-                QuestionPage.objects.all().delete() \
-            " \
-            | python tests/test_app/manage.py shell
-        ''', shell=True)
+        subprocess.run(self.PIPE_DELETE_QUESTION_PAGE, shell=True)
 
     def test_dumpdata_hack(self):
         subprocess.check_call('''
