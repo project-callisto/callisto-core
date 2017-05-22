@@ -323,7 +323,7 @@ class Conditional(models.Model):
                                       choices=OPTIONS,
                                       default=EXACTLY)
 
-    page = models.OneToOneField(PageBase)
+    page = models.OneToOneField(PageBase, on_delete=models.PROTECT)
     question = models.ForeignKey(FormQuestion, on_delete=models.PROTECT)
     answer = models.CharField(max_length=150)
 
