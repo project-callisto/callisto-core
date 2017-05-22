@@ -324,7 +324,7 @@ class Conditional(models.Model):
                                       default=EXACTLY)
 
     page = models.OneToOneField(PageBase)
-    question = models.ForeignKey(FormQuestion)
+    question = models.ForeignKey(FormQuestion, on_delete=models.PROTECT)
     answer = models.CharField(max_length=150)
 
     def __str__(self):
