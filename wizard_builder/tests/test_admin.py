@@ -3,6 +3,7 @@ from datetime import datetime
 from distutils.util import strtobool
 
 from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
 
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
@@ -60,6 +61,11 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.quit()
         super(FunctionalTest, self).tearDown()
 
+    def wait_for_until_body_loaded(self):
+        WebDriverWait(self.browser, 3).until(
+            lambda driver: driver.find_element_by_tag_name('body'),
+        )
+
     def _test_has_failed(self):
         try:
             for method, error in self._outcome.errors:
@@ -110,6 +116,7 @@ class AdminFunctionalTest(FunctionalTest):
         User.objects.create_superuser('user', '', 'pass')
         self.login_admin()
         self.browser.get(self.live_server_url + '/admin/')
+        self.wait_for_until_body_loaded()
 
     def test_can_load_admin_with_wizard_builder_on_it(self):
         self.assertIn('Django administration', self.browser.page_source)
