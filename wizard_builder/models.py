@@ -279,7 +279,7 @@ class RadioButton(MultipleChoice):
 
 
 class Choice(models.Model):
-    question = models.ForeignKey('MultipleChoice')
+    question = models.ForeignKey('MultipleChoice', on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
     extra_info_placeholder = models.CharField(blank=True, max_length=500,
