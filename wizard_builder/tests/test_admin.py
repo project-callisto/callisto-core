@@ -34,7 +34,7 @@ class FunctionalTest(StaticLiveServerTestCase):
     @classmethod
     def tearDownClass(cls):
         try:
-            cls.browser.quit()
+            self.quit()
         except AttributeError:
             pass  # brower has already been quit!
         super(FunctionalTest, cls).tearDownClass()
@@ -58,8 +58,14 @@ class FunctionalTest(StaticLiveServerTestCase):
                 self.browser.switch_to.window(handle)
                 self.take_screenshot()
                 self.dump_html()
-        self.browser.quit()
+        self.quit()
         super(FunctionalTest, self).tearDown()
+
+    def quit(self):
+        try:
+            self.browser.quit()
+        except OSError:
+            pass  # ignore python 3.3 quit error
 
     def wait_for_until_body_loaded(self):
         WebDriverWait(self.browser, 3).until(
