@@ -18,5 +18,5 @@ ratings:
   - "**.py"
   - "**.rb"
 exclude_paths:
-- tests/
+- wizard_builder/tests/
 - wizard_builder/migrations/
