@@ -34,20 +34,20 @@ class FunctionalTest(StaticLiveServerTestCase):
     @classmethod
     def tearDownClass(cls):
         try:
-            self.browser.quit()
-        except AttributeError, OSError:
+            cls.browser.quit()
+        except (AttributeError, OSError):
             pass  # brower has already been quit!
         super(FunctionalTest, cls).tearDownClass()
 
-    def setUp(self):
-        super(FunctionalTest, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        super(FunctionalTest, cls).setUpClass()
         if strtobool(os.environ.get('WEBDRIVER_FIREFOX', 'False').lower()):
             # swap on with:
             #   export WEBDRIVER_FIREFOX='True'
-            self.browser = webdriver.Firefox()
+            cls.browser = webdriver.Firefox()
         else:
-            self.browser = webdriver.PhantomJS()
-        self.browser.implicitly_wait(3)
+            cls.browser = webdriver.PhantomJS()
 
     def tearDown(self):
         if self._test_has_failed():
