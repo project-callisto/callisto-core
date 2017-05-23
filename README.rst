@@ -37,16 +37,25 @@ Then use it in a project::
 
     import wizard_builder
 
-Running Tests
---------------
+Developement
+-------------
 
-Does the code actually work?
+setup
 
 ::
 
     source <YOURVIRTUALENV>/bin/activate
-    (myenv) $ pip install -r requirements/test.txt
-    (myenv) $ python runtests.py
+    (myenv) $ pip install -r requirements/dev.txt
+
+
+cleanup / linting / tests
+
+::
+
+    (myenv) $ make lint
+    (myenv) $ make test
+    (myenv) $ make test-all
+
 
 Credits
 ---------
