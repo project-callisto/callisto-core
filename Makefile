@@ -28,7 +28,7 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*~' -exec rm -f {} +
 
 lint: ## check style with flake8
-	flake8 wizard_builder tests
+	bash bin/cleanup.sh
 
 test: ## run tests quickly with the default Python
 	flake8 .
