@@ -37,11 +37,6 @@ Then use it in a project::
 
     import wizard_builder
 
-Features
---------
-
-* TODO
-
 Running Tests
 --------------
 
@@ -50,7 +45,7 @@ Does the code actually work?
 ::
 
     source <YOURVIRTUALENV>/bin/activate
-    (myenv) $ pip install -r requirements-test.txt
+    (myenv) $ pip install -r requirements/test.txt
     (myenv) $ python runtests.py
 
 Credits
