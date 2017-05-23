@@ -189,7 +189,7 @@ class MatchReport(models.Model):
     """A report that indicates the user wants to submit if a match is found. A single report can have multiple
     MatchReports--one per perpetrator.
     """
-    report = models.ForeignKey('Report')
+    report = models.ForeignKey('Report', on_delete=models.CASCADE)
     contact_email = models.EmailField(blank=False, max_length=256)
 
     identifier = models.CharField(blank=False, null=True, max_length=500)
