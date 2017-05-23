@@ -137,5 +137,5 @@ class EvalRow(models.Model):
 class EvaluationField(models.Model):
     # If an associated EvaluationField exists for a record form item, we record the contents
     # If not, we just save whether the question was answered or not
-    question = models.OneToOneField(FormQuestion)
+    question = models.OneToOneField(FormQuestion, on_delete=models.CASCADE)
     label = models.CharField(blank=False, null=False, max_length=500)
