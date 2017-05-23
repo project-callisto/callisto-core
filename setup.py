@@ -43,7 +43,8 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-
+        'django-formtools>=2.0',
+        'django-model-utils>=3.0',
     ],
     license="BSD",
     zip_safe=False,

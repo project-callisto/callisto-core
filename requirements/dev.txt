@@ -4,4 +4,4 @@ wheel==0.29.0
 # Coding style compliance
 autopep8>=1.2.4
 
--r requirements-test.txt
+-r test.txt
