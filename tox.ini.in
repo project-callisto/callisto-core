@@ -15,4 +15,4 @@ deps =
     django110: Django>=1.10,<1.11
     django111: Django>=1.11,<2.0
     djangodev: https://github.com/django/django/tarball/master
-    -rrequirements-test.txt
+    -rrequirements/test.txt

@@ -6,4 +6,4 @@ PyPDF2==1.26.0
 isort==4.2.5
 django-migration-testcase==0.0.11
 
--r requirements.txt
+-r base.txt

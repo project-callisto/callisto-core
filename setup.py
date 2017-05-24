@@ -67,7 +67,21 @@ setup(
         'callisto.notification',
     ],
     include_package_data=True,
-    install_requires=[],
+    install_requires=[
+        'django-polymorphic==1.1',
+        'django-ratelimit==1.0.1',
+        'django-wizard-builder==0.1.0',
+        'django-formtools',  # TODO: remove
+        'django-model-utils==3.0',  # TODO: remove
+        'PyNaCl==1.1.2',
+        'python-gnupg==0.4.0',
+        'environ',
+        'pytz==2017.2',
+        'reportlab==3.4.0',
+        'zxcvbn-py3',
+        'six',
+        'argon2_cffi',
+    ],
     zip_safe=False,
     keywords='callisto-core',
     classifiers=[

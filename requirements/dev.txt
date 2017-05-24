@@ -7,4 +7,4 @@ autopep8>=1.2.4
 # releasing to PyPI
 pypandoc==1.4
 
--r requirements-test.txt
+-r test.txt

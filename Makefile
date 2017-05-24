@@ -12,7 +12,7 @@ endef
 export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
-TOX_REQUIREMENTS := requirements-test.txt requirements.txt
+TOX_REQUIREMENTS := requirements/test.txt requirements.txt
 
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
@@ -43,7 +43,7 @@ test: ## run tests quickly with the default Python
 	python runtests.py tests
 
 tox.ini: tox.ini.in $(TOX_REQUIREMENTS)
-	{ cat $< | grep -v '^    -rrequirements-test\.txt$$' ; cat $(TOX_REQUIREMENTS) | grep -v '^-r requirements\.txt' | sed -e 's/^/    /' ; } > $@
+	{ cat $< | grep -v '^    -rrequirements/test\.txt$$' ; cat $(TOX_REQUIREMENTS) | grep -v '^-r requirements\.txt' | sed -e 's/^/    /' ; } > $@
 
 test-all: tox.ini ## run tests on every Python version with tox
 	tox
