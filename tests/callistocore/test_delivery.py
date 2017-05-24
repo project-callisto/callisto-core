@@ -7,6 +7,7 @@ import six
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.test import override_settings
 from django.utils import timezone
 from django.utils.timezone import localtime
 
@@ -351,10 +352,15 @@ class ReportDeliveryTest(MatchTest):
         expected_time = localtime(timezone.now()).strftime(date_format)
         self.assertIn(expected_time, pdfReader.getPage(0).extractText())
 
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_submission_to_reporting_authority(self):
-        EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
+        EmailNotification.objects.create(
+            name='report_delivery',
+            subject="test delivery",
+            body="test body",
+        ).sites.add(self.site.id)
         sent_full_report = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL)
-        DeliveryApi().send_report_to_authority(sent_full_report, self.decrypted_report)
+        DeliveryApi().send_report_to_authority(sent_full_report, self.decrypted_report, self.site.id)
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test delivery')
@@ -411,8 +417,13 @@ class ReportDeliveryTest(MatchTest):
             "Notes on preferred contact time of day, gender of admin, etc.:\nPlease only call after 5pm",
             pdf_text)
 
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_matches_to_reporting_authority(self):
-        EmailNotification.objects.create(name='match_delivery', subject="test match delivery", body="test match body")
+        EmailNotification.objects.create(
+            name='match_delivery',
+            subject="test match delivery",
+            body="test match body",
+        ).sites.add(self.site.id)
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         DeliveryApi().send_matching_report_to_authority([match1, match2], "dummy")

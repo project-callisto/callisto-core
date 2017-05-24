@@ -202,6 +202,12 @@ class ExtractAnswersTest(TestCase):
             "unanswered": []
         }
 
+    def test_extract_choices(self):
+        self.maxDiff = None
+        self.set_up_simple_report_scenario()
+        anonymised = EvalRow()._extract_answers(json.loads(self.json_report))
+        self.assertIn('radio_choices', anonymised)
+
     def test_extract_answers(self):
         self.maxDiff = None
         self.set_up_simple_report_scenario()
@@ -545,8 +551,8 @@ class EvalActionTest(MatchTest):
     def setUp(self):
         super(EvalActionTest, self).setUp()
 
-        self.page1 = QuestionPage.objects.create()
-        self.page2 = QuestionPage.objects.create()
+        self.page1 = QuestionPage.objects.create(site_id=self.site.id)
+        self.page2 = QuestionPage.objects.create(site_id=self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
 

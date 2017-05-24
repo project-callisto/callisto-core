@@ -94,7 +94,7 @@ def _unpepper(peppered_report):
 class Report(models.Model):
     """The full text of a reported incident."""
     encrypted = models.BinaryField(blank=False)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     added = models.DateTimeField(auto_now_add=True)
     autosaved = models.BooleanField(null=False, default=False)
     last_edited = models.DateTimeField(blank=True, null=True)
@@ -189,7 +189,7 @@ class MatchReport(models.Model):
     """A report that indicates the user wants to submit if a match is found. A single report can have multiple
     MatchReports--one per perpetrator.
     """
-    report = models.ForeignKey('Report')
+    report = models.ForeignKey('Report', on_delete=models.CASCADE)
     contact_email = models.EmailField(blank=False, max_length=256)
 
     identifier = models.CharField(blank=False, null=True, max_length=500)

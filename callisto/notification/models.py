@@ -35,15 +35,13 @@ class EmailNotification(models.Model):
     def render_body(self, context=None):
         """Format the email as HTML."""
         if context is None:
-            context = {}
-        current_site = Site.objects.get_current()
-        context['domain'] = current_site.domain
+            context = {'domain': Site.objects.get_current()}
         return Template(self.body).render(Context(context))
 
     def render_body_plain(self, context=None):
         """Format the email as plain text."""
         if context is None:
-            context = {}
+            context = {'domain': Site.objects.get_current()}
         html = self.render_body(context)
         cleaned = html.replace('<br />', '\n')
         cleaned = cleaned.replace('<br/>', '\n')
@@ -58,17 +56,7 @@ class EmailNotification(models.Model):
         """
 
         if context is None:
-            context = {}
+            context = {'domain': Site.objects.get_current()}
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
-
-    def add_site_from_site_id(self):
-        if getattr(settings, 'SITE_ID', None):
-            # django does better validation checks for ints
-            site_id = int(settings.SITE_ID)
-            self.sites.add(site_id)
-
-    def save(self, *args, **kwargs):
-        super(EmailNotification, self).save(*args, **kwargs)
-        self.add_site_from_site_id()

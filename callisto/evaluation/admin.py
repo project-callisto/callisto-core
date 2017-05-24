@@ -1,10 +1,10 @@
 from wizard_builder.admin import (
-    CheckboxAdmin, DateAdmin, FormQuestionParentAdmin, MultiLineTextAdmin,
-    RadioButtonAdmin, SingleLineTextAdmin, SingleLineTextWithMapAdmin,
+    FormQuestionChildAdmin, FormQuestionParentAdmin, MultipleChoiceChildAdmin,
+    MultipleChoiceParentAdmin,
 )
 from wizard_builder.models import (
-    Checkbox, Date, FormQuestion, MultiLineText, RadioButton, SingleLineText,
-    SingleLineTextWithMap,
+    Checkbox, Date, FormQuestion, MultiLineText, MultipleChoice, RadioButton,
+    SingleLineText, SingleLineTextWithMap,
 )
 
 from django.contrib import admin
@@ -23,39 +23,38 @@ class WithEval(object):
         self.inlines = (self.inlines or []) + [EvalFieldInline, ]
 
 
-class SingleLineTextWithEvalAdmin(WithEval, SingleLineTextAdmin):
+class FormQuestionParentWithEvalAdmin(WithEval, FormQuestionParentAdmin):
     pass
 
 
-class MultiLineTextWithEvalAdmin(WithEval, MultiLineTextAdmin):
+class FormQuestionChildWithEvalAdmin(WithEval, FormQuestionChildAdmin):
     pass
 
 
-class SingleLineTextWithMapWithEvalAdmin(WithEval, SingleLineTextWithMapAdmin):
+class MultipleChoiceParentWithEvalAdmin(WithEval, MultipleChoiceParentAdmin):
     pass
 
 
-class RadioButtonWithEvalAdmin(WithEval, RadioButtonAdmin):
+class MultipleChoiceChildWithEvalAdmin(WithEval, MultipleChoiceChildAdmin):
     pass
 
-
-class CheckboxWithEvalAdmin(WithEval, CheckboxAdmin):
-    pass
-
-
-class DateWithEvalAdmin(WithEval, DateAdmin):
-    pass
-
-
-class FormQuestionsWithEvalParentAdmin(FormQuestionParentAdmin):
-    child_models = (
-        (SingleLineText, SingleLineTextWithEvalAdmin),
-        (MultiLineText, MultiLineTextWithEvalAdmin),
-        (SingleLineTextWithMap, SingleLineTextWithMapWithEvalAdmin),
-        (RadioButton, RadioButtonWithEvalAdmin),
-        (Checkbox, CheckboxWithEvalAdmin),
-        (Date, DateWithEvalAdmin),
-    )
 
 admin.site.unregister(FormQuestion)
-admin.site.register(FormQuestion, FormQuestionsWithEvalParentAdmin)
+admin.site.unregister(SingleLineText)
+admin.site.unregister(SingleLineTextWithMap)
+admin.site.unregister(MultiLineText)
+admin.site.unregister(Date)
+
+admin.site.register(FormQuestion, FormQuestionParentWithEvalAdmin)
+admin.site.register(SingleLineText, FormQuestionChildWithEvalAdmin)
+admin.site.register(SingleLineTextWithMap, FormQuestionChildWithEvalAdmin)
+admin.site.register(MultiLineText, FormQuestionChildWithEvalAdmin)
+admin.site.register(Date, FormQuestionChildWithEvalAdmin)
+
+admin.site.unregister(MultipleChoice)
+admin.site.unregister(Checkbox)
+admin.site.unregister(RadioButton)
+
+admin.site.register(MultipleChoice, MultipleChoiceParentWithEvalAdmin)
+admin.site.register(Checkbox, MultipleChoiceChildWithEvalAdmin)
+admin.site.register(RadioButton, MultipleChoiceChildWithEvalAdmin)

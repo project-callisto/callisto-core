@@ -3,6 +3,25 @@
 History
 -------
 
+0.5.2 (2017-04-27)
+++++++++++++++++++
+
+* Update django wizard builder version
+
+
+0.5.1 (2017-04-27)
+++++++++++++++++++
+
+* Don't auto-add settings.SITE_ID to newly created emails
+    https://github.com/SexualHealthInnovations/callisto-core/pull/172
+
+
+0.5.0 (2017-04-27)
+++++++++++++++++++
+
+* Add support for getting the site_id from the request's domain
+
+
 0.4.3 (2017-04-27)
 ++++++++++++++++++
 

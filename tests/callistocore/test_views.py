@@ -10,6 +10,7 @@ from wizard_builder.models import (
 )
 
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.management import call_command
 from django.http import HttpRequest
@@ -35,9 +36,18 @@ def get_body(response):
     return response.content.decode('utf-8')
 
 
-class RecordFormFailureTest(TestCase):
+class SiteAwareTestCase(TestCase):
 
     def setUp(self):
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
+
+
+class RecordFormFailureTest(SiteAwareTestCase):
+
+    def setUp(self):
+        super(RecordFormFailureTest, self).setUp()
         self.user = User.objects.create_user(username='dummy', password='dummy')
         self.client.login(username='dummy', password='dummy')
 
@@ -51,11 +61,12 @@ class RecordFormFailureTest(TestCase):
         self.assertEqual(response.status_code, 500)
 
 
-class RecordFormBaseTest(TestCase):
+class RecordFormBaseTest(SiteAwareTestCase):
 
     def setUp(self):
-        self.page1 = QuestionPage.objects.create()
-        self.page2 = QuestionPage.objects.create()
+        super(RecordFormBaseTest, self).setUp()
+        self.page1 = QuestionPage.objects.create(site_id=self.site.id)
+        self.page2 = QuestionPage.objects.create(site_id=self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
 
@@ -101,16 +112,16 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         self.assertNotContains(response, 'name="1-question_%i"' % self.question2.pk)
 
     def test_wizard_generates_correct_number_of_pages(self):
-        page3 = QuestionPage.objects.create()
+        page3 = QuestionPage.objects.create(site_id=self.site.id)
         SingleLineText.objects.create(text="first page question", page=page3)
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
         SingleLineText.objects.create(text="another first page question", page=page3, position=1)
-        wizard = EncryptedFormWizard.wizard_factory()()
+        wizard = EncryptedFormWizard.wizard_factory(site_id=self.site.id)()
         # includes key page
         self.assertEqual(len(wizard.form_list), 4)
 
     def test_wizard_appends_key_page(self):
-        wizard = EncryptedFormWizard.wizard_factory()()
+        wizard = EncryptedFormWizard.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 3)
         self.assertEqual(wizard.form_list[0], NewSecretKeyForm)
 
@@ -352,7 +363,7 @@ class EditRecordFormTest(ExistingRecordTest):
     def test_cant_edit_with_bad_key(self):
         self.maxDiff = None
 
-        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=self.report)()
+        wizard = EncryptedFormWizard.wizard_factory(site_id=self.site.id, object_to_edit=self.report)()
 
         KeyForm1 = wizard.form_list[0]
 
@@ -360,7 +371,7 @@ class EditRecordFormTest(ExistingRecordTest):
         self.assertFalse(key_form_1.is_valid())
 
     def test_cant_save_edit_with_bad_key(self):
-        wizard = EncryptedFormWizard.wizard_factory(object_to_edit=self.report)()
+        wizard = EncryptedFormWizard.wizard_factory(site_id=self.site.id, object_to_edit=self.report)()
 
         KeyForm1 = wizard.form_list[0]
         PageOneForm = wizard.form_list[1]
@@ -425,9 +436,16 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
 
     def setUp(self):
         super(SubmitReportIntegrationTest, self).setUp()
-        EmailNotification.objects.create(name='submit_confirmation', subject="test submit confirmation",
-                                         body="test submit confirmation body")
-        EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
+        EmailNotification.objects.create(
+            name='submit_confirmation',
+            subject="test submit confirmation",
+            body="test submit confirmation body",
+        ).sites.add(self.site.id)
+        EmailNotification.objects.create(
+            name='report_delivery',
+            subject="test delivery",
+            body="test body",
+        ).sites.add(self.site.id)
 
     def test_renders_default_template(self):
         response = self.client.get(self.submission_url % self.report.pk)
@@ -561,12 +579,21 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
 
     def setUp(self):
         super(SubmitMatchIntegrationTest, self).setUp()
-        EmailNotification.objects.create(name='match_confirmation', subject="test match confirmation",
-                                         body="test match confirmation body")
-        EmailNotification.objects.create(name='match_notification', subject="test match notification",
-                                         body="test match notification body")
-        EmailNotification.objects.create(name='match_delivery', subject="test match delivery",
-                                         body="test match delivery body")
+        EmailNotification.objects.create(
+            name='match_confirmation',
+            subject="test match confirmation",
+            body="test match confirmation body",
+        ).sites.add(self.site.id)
+        EmailNotification.objects.create(
+            name='match_notification',
+            subject="test match notification",
+            body="test match notification body",
+        ).sites.add(self.site.id)
+        EmailNotification.objects.create(
+            name='match_delivery',
+            subject="test match delivery",
+            body="test match delivery body",
+        ).sites.add(self.site.id)
 
     def test_renders_default_template(self):
         response = self.client.get(self.submission_url % self.report.pk)
@@ -662,6 +689,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertIn('Confirmation" <confirmation@', message.from_email)
         self.assertIn('test match confirmation body', message.body)
 
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_immediately(self):
         self.client.post((self.submission_url % self.report.pk),
                          data={'name': 'test submitter 1',
@@ -723,6 +751,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
     @override_settings(MATCH_IMMEDIATELY=False)
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_delayed(self):
         self.client.post((self.submission_url % self.report.pk),
                          data={'name': 'test submitter 1',

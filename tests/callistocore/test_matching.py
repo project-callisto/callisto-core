@@ -3,6 +3,7 @@ import json
 from mock import call, patch
 
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -17,6 +18,9 @@ User = get_user_model()
 class MatchTest(TestCase):
 
     def setUp(self):
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
         self.user1 = User.objects.create_user(username="dummy", password="dummy")
         self.user2 = User.objects.create_user(username="ymmud", password="dummy")
 
@@ -198,6 +202,8 @@ class MatchDiscoveryTest(MatchTest):
 
 @patch('callisto.notification.api.NotificationApi.send_match_notification')
 @patch('callisto.notification.api.NotificationApi.send_email_to_authority_intake')
+@override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
+@override_settings(CALLISTO_MATCHING_API='callisto.delivery.matching.CallistoMatching')
 class MatchNotificationTest(MatchTest):
 
     def setUp(self):
