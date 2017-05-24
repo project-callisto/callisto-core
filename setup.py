@@ -4,24 +4,12 @@ import os
 import re
 import sys
 
-from callisto.delivery import __version__
+from callisto.delivery import __version__ as version
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-
-
-def get_version(*file_paths):
-    filename = os.path.join(os.path.dirname(__file__), *file_paths)
-    version_file = open(filename).read()
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError('Unable to find version string.')
-
-version = get_version('callisto', 'delivery', '__init__.py')
 
 if sys.argv[-1] == 'publish':
     try:
@@ -52,7 +40,7 @@ license = open('LICENSE').read()
 
 setup(
     name='callisto-core',
-    version=__version__,
+    version=version,
     description="""Report intake, escrow, matching and secure delivery code for Callisto,
     an online reporting system for sexual assault.""",
     license=license,
