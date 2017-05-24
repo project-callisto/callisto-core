@@ -27,13 +27,15 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-lint: ## check style with flake8
-	flake8 wizard_builder tests
+lint:
+	isort -rc wizard_builder/
+	autopep8 --in-place --recursive --aggressive --aggressive wizard_builder/ --max-line-length 119 --exclude="*/migrations/*"
+	flake8 wizard_builder/
 
-test: ## run tests quickly with the default Python
-	flake8 .
-	isort -c
-	python runtests.py tests
+test:
+	isort -rc wizard_builder/
+	flake8 wizard_builder/
+	python runtests.py
 
 test-all: ## run tests on every Python version with tox
 	tox
@@ -44,17 +46,10 @@ coverage: ## check code coverage quickly with the default Python
 	coverage html
 	open htmlcov/index.html
 
-docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/wizard_builder.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ wizard_builder
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	$(BROWSER) docs/_build/html/index.html
-
 release: clean ## package and upload a release
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
+	python setup.py tag
 
 sdist: clean ## package
 	python setup.py sdist

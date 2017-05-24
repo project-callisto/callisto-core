@@ -29,7 +29,7 @@ matrix:
         - python: "3.6"
           env: TOXENV=djangodev
 install:
-    - pip install -r requirements-test.txt
+    - pip install -r requirements/test.txt
 before_script:
     - isort --check-only --diff --quiet
 script:
