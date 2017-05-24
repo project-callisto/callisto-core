@@ -33,11 +33,13 @@ clean-tox:
 	rm -f tox.ini
 
 lint: ## check style with flake8
-	flake8 callisto tests
+	isort -rc callisto/
+	autopep8 --in-place --recursive --aggressive --aggressive callisto/ --max-line-length 119 --exclude="*/migrations/*"
+	flake8 callisto/
 
 test: ## run tests quickly with the default Python
-	flake8 .
-	isort -c
+	flake8 callisto/
+	isort -rc callisto/
 	python runtests.py tests
 
 tox.ini: tox.ini.in $(TOX_REQUIREMENTS)
