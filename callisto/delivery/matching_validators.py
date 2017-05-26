@@ -1,8 +1,36 @@
 import logging
+from collections import OrderedDict
 
 from six.moves.urllib.parse import parse_qs, urlsplit
 
 logger = logging.getLogger(__name__)
+
+
+def twitter_validation_function(url):
+        url_parts = urlsplit(url)
+        # check if acceptable domain
+        domain = url_parts[1]
+        if not (domain == 'twitter.com' or domain == 'www.twitter.com' or domain == 'mobile.twitter.com'):
+            return None
+        path = url_parts[2].strip('/').split('/')[0]
+        generic_twitter_urls = [
+            'i',
+            'following',
+            'followers',
+            'who_to_follow',
+            'settings',
+            'search',
+            'tos',
+            'privacy',
+            'about',
+        ]
+        if not path or path == "" or path in generic_twitter_urls:
+            return None
+        else:
+            return path
+
+twitter_validation_info = {'validation': twitter_validation_function,
+                           'example': 'https://twitter.com/twitter_handle'}
 
 
 def facebook_validation_function(url):
@@ -36,6 +64,10 @@ def facebook_validation_function(url):
         else:
             return path
 
-facebook_only = {'Facebook profile URL': {'domains': ['facebook.com'],
-                                  'validation': facebook_validation_function,
-                                   'example': 'http://www.facebook.com/johnsmithfakename'}}
+facebook_validation_info = {'validation': facebook_validation_function,
+                            'example': 'http://www.facebook.com/johnsmithfakename'}
+
+facebook_only = OrderedDict([('Facebook profile URL', facebook_validation_info)])
+twitter_only = OrderedDict([('Twitter profile URL', twitter_validation_info)])
+facebook_or_twitter = OrderedDict([('Facebook profile URL', facebook_validation_info),
+                                   ('Twitter profile URL', twitter_validation_info)])

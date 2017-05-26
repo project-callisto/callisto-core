@@ -178,42 +178,43 @@ def join_list_with_or(lst):
 class SubmitToMatchingForm(forms.Form):
 
     '''
-        dictionary of matching identifiers,
+        sets identifier_domain_info to ordered dictionary of matching identifiers
             key:
                 the type of identifier requested
                     example: 'Facebook profile URL' for Facebook
             value:
                 a dictionary with
-                    a list of domains
                     a validation function
-                        should return None for invalid entries & return a minimal unique path for valid
+                        should return None for invalid entries & return a minimal globally unique path for valid
                     an example input
 
         will return on first valid option tried
         see MatchingValidation.facebook_only (default)
     '''
-    identifier_domain_info = getattr(settings, 'IDENTIFIER_DOMAINS', matching_validators.facebook_only)
+    def __init__(self, *args, **kwargs):
+        super(SubmitToMatchingForm, self).__init__(*args, **kwargs)
+        self.identifier_domain_info = getattr(settings, 'IDENTIFIER_DOMAINS', matching_validators.facebook_only)
 
-    formatted_identifier_descriptions = join_list_with_or(list(identifier_domain_info))
-    formatted_identifier_descriptions_title_case = join_list_with_or([identifier.title()
-                                                                      for identifier in list(identifier_domain_info)])
+        self.formatted_identifier_descriptions = join_list_with_or(list(self.identifier_domain_info))
+        self.formatted_identifier_descriptions_title_case = join_list_with_or([identifier.title()
+                                                                          for identifier in list(self.identifier_domain_info)])
 
-    formatted_example_identifiers = join_list_with_or([identifier_info['example'] for _, identifier_info in
-                                                       identifier_domain_info.items()])
+        self.formatted_example_identifiers = join_list_with_or([identifier_info['example'] for _, identifier_info in
+                                                           self.identifier_domain_info.items()])
 
-    perp_name = forms.CharField(label="Perpetrator's Name",
-                                required=False,
+        self.fields['perp_name'] = forms.CharField(label="Perpetrator's Name",
+                                    required=False,
+                                    max_length=500,
+                                    widget=forms.TextInput(
+                                        attrs={
+                                            'placeholder': 'ex. John Jacob Jingleheimer Schmidt'}))
+
+        self.fields['perp'] = StrippedURLField(label="Perpetrator's {}".format(self.formatted_identifier_descriptions_title_case),
+                                required=True,
                                 max_length=500,
                                 widget=forms.TextInput(
                                     attrs={
-                                        'placeholder': 'ex. John Jacob Jingleheimer Schmidt'}))
-
-    perp = StrippedURLField(label="Perpetrator's {}".format(formatted_identifier_descriptions_title_case),
-                            required=True,
-                            max_length=500,
-                            widget=forms.TextInput(
-                                attrs={
-                                    'placeholder': 'ex. {}'.format(formatted_example_identifiers)}))
+                                        'placeholder': 'ex. {}'.format(self.formatted_example_identifiers)}))
 
     def clean_perp(self):
         raw_url = self.cleaned_data.get('perp').strip()

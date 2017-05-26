@@ -1,8 +1,9 @@
 from mock import patch
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
+from callisto.delivery import matching_validators
 from callisto.delivery.forms import (
     NewSecretKeyForm, SecretKeyForm, SubmitToMatchingForm,
 )
@@ -28,26 +29,29 @@ class SubmitToMatchingFormTest(TestCase):
             [expected_error]
         )
 
+
+class SubmitToMatchingFormFacebookTest(SubmitToMatchingFormTest):
+
     def test_accept_facebook_url(self):
-        self.verify_url_works('https://www.facebook.com/kelsey.gilmore.innis', 'kelsey.gilmore.innis')
+        self.verify_url_works('https://www.facebook.com/callistoorg', 'callistoorg')
 
     def test_accept_partial_url(self):
-        self.verify_url_works('facebook.com/kelsey.gilmore.innis', 'kelsey.gilmore.innis')
-        self.verify_url_works('www.facebook.com/kelsey.gilmore.innis', 'kelsey.gilmore.innis')
-        self.verify_url_works('https://m.facebook.com/kelsey.gilmore.innis', 'kelsey.gilmore.innis')
+        self.verify_url_works('facebook.com/callistoorg', 'callistoorg')
+        self.verify_url_works('www.facebook.com/callistoorg', 'callistoorg')
+        self.verify_url_works('https://m.facebook.com/callistoorg', 'callistoorg')
 
     def test_accept_with_querystring(self):
-        self.verify_url_works('https://www.facebook.com/kate.kirschner1?fref=nf', 'kate.kirschner1')
+        self.verify_url_works('https://www.facebook.com/callistoorg?fref=nf', 'callistoorg')
         self.verify_url_works(
-            'https://www.facebook.com/kate.kirschner1/posts/2854650216685?pnref=story',
-            'kate.kirschner1')
+            'https://www.facebook.com/callistoorg/posts/2854650216685?pnref=story',
+            'callistoorg')
 
     def test_accept_posts_and_others(self):
         self.verify_url_works('https://www.facebook.com/trendinginchina/videos/600128603423960/', 'trendinginchina')
         self.verify_url_works(
-            'https://www.facebook.com/kelsey.gilmore.innis/posts/10106474072154380',
-            'kelsey.gilmore.innis')
-        self.verify_url_works('https://www.facebook.com/jessica.h.ladd/music?pnref=lhc', 'jessica.h.ladd')
+            'https://www.facebook.com/callistoorg/posts/10106474072154380',
+            'callistoorg')
+        self.verify_url_works('https://www.facebook.com/callistoorg/music?pnref=lhc', 'callistoorg')
 
     def test_accepts_old_profile_link(self):
         self.verify_url_works('https://www.facebook.com/profile.php?id=100010279981469', '100010279981469')
@@ -68,10 +72,58 @@ class SubmitToMatchingFormTest(TestCase):
         self.verify_url_fails('https://www.facebook.com/')
 
     def test_trims_url(self):
-        self.verify_url_works('https://www.facebook.com/kelsey.gilmore.innis ', 'kelsey.gilmore.innis')
-        self.verify_url_works('  https://www.facebook.com/kelsey.gilmore.innis ', 'kelsey.gilmore.innis')
-        self.verify_url_works('https://www.facebook.com/kelsey.gilmore.innis    ', 'kelsey.gilmore.innis')
+        self.verify_url_works('https://www.facebook.com/callistoorg ', 'callistoorg')
+        self.verify_url_works('  https://www.facebook.com/callistoorg/ ', 'callistoorg')
+        self.verify_url_works('https://www.facebook.com/callistoorg    ', 'callistoorg')
 
+
+@override_settings(IDENTIFIER_DOMAINS=matching_validators.facebook_or_twitter)
+class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
+    expected_error = "Please enter a valid Facebook profile URL or Twitter profile URL."
+
+    def test_accept_twitter_url(self):
+        self.verify_url_works('https://www.twitter.com/callisto_org', 'callisto_org')
+
+    def test_accept_partial_url(self):
+        self.verify_url_works('twitter.com/callisto_org', 'callisto_org')
+        self.verify_url_works('www.twitter.com/callisto_org', 'callisto_org')
+        self.verify_url_works('https://mobile.twitter.com/callisto_org', 'callisto_org')
+
+    def test_accept_with_querystring(self):
+        self.verify_url_works('https://twitter.com/callisto_org?some=query', 'callisto_org')
+
+    def test_accept_tweets_and_others(self):
+        self.verify_url_works('https://twitter.com/callisto_org/status/857806846668701696', 'callisto_org')
+        self.verify_url_works('https://twitter.com/callisto_org/following', 'callisto_org')
+        self.verify_url_works('https://twitter.com/callisto_org/media', 'callisto_org')
+
+    def test_non_twitter_url_fails(self):
+        self.verify_url_fails('https://plus.google.com/101940257310211951398/posts',
+                              expected_error=self.expected_error)
+        self.verify_url_fails('google.com', expected_error=self.expected_error)
+        self.verify_url_fails('https://www.twittr.com/callisto_org', expected_error=self.expected_error)
+
+    def test_non_url_fails(self):
+        self.verify_url_fails('notaurl', 'Enter a valid URL.')
+        self.verify_url_fails('', 'This field is required.')
+
+    def test_generic_url_fails(self):
+        self.verify_url_fails('https://twitter.com/i/moments', expected_error=self.expected_error)
+        self.verify_url_fails('https://support.twitter.com/', expected_error=self.expected_error)
+        self.verify_url_fails('https://www.twitter.com/', expected_error=self.expected_error)
+
+    def test_trims_url(self):
+        self.verify_url_works('https://www.twitter.com/callisto_org ', 'callisto_org')
+        self.verify_url_works('  https://www.twitter.com/callisto_org ', 'callisto_org')
+        self.verify_url_works('https://www.twitter.com/callisto_org    ', 'callisto_org')
+
+    def test_still_accepts_facebook(self):
+        self.verify_url_works('https://www.facebook.com/callistoorg', 'callistoorg')
+
+    @override_settings(IDENTIFIER_DOMAINS=matching_validators.twitter_only)
+    def test_can_exclude_facebook(self):
+        self.verify_url_fails('https://www.facebook.com/callistoorg',
+                              expected_error="Please enter a valid Twitter profile URL.")
 
 class CreateKeyFormTest(TestCase):
 
