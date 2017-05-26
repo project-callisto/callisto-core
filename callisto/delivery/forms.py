@@ -1,7 +1,6 @@
 import logging
 
 from nacl.exceptions import CryptoError
-from six.moves.urllib.parse import parse_qs, urlsplit
 from zxcvbn import password_strength
 
 from django import forms
@@ -9,6 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
 
+from callisto.delivery import matching_validators
 from callisto.evaluation.models import EvalRow
 
 REQUIRED_ERROR = "The {0} field is required."
@@ -167,7 +167,40 @@ class StrippedURLField(forms.URLField):
         return super(StrippedURLField, self).to_python(value and value.strip())
 
 
+def join_list_with_or(lst):
+        if len(lst) < 2:
+            return lst[0]
+        all_but_last = ', '.join(lst[:-1])
+        last = lst[-1]
+        return ' or '.join([all_but_last, last])
+
+
 class SubmitToMatchingForm(forms.Form):
+
+    '''
+        dictionary of matching identifiers,
+            key:
+                the type of identifier requested
+                    example: 'Facebook profile URL' for Facebook
+            value:
+                a dictionary with
+                    a list of domains
+                    a validation function
+                        should return None for invalid entries & return a minimal unique path for valid
+                    an example input
+
+        will return on first valid option tried
+        see MatchingValidation.facebook_only (default)
+    '''
+    identifier_domain_info = getattr(settings, 'IDENTIFIER_DOMAINS', matching_validators.facebook_only)
+
+    formatted_identifier_descriptions = join_list_with_or(list(identifier_domain_info))
+    formatted_identifier_descriptions_title_case = join_list_with_or([identifier.title()
+                                                                      for identifier in list(identifier_domain_info)])
+
+    formatted_example_identifiers = join_list_with_or([identifier_info['example'] for _, identifier_info in
+                                                       identifier_domain_info.items()])
+
     perp_name = forms.CharField(label="Perpetrator's Name",
                                 required=False,
                                 max_length=500,
@@ -175,44 +208,26 @@ class SubmitToMatchingForm(forms.Form):
                                     attrs={
                                         'placeholder': 'ex. John Jacob Jingleheimer Schmidt'}))
 
-    perp = StrippedURLField(label="Perpetrator's Facebook URL",
+    perp = StrippedURLField(label="Perpetrator's {}".format(formatted_identifier_descriptions_title_case),
                             required=True,
                             max_length=500,
                             widget=forms.TextInput(
                                 attrs={
-                                    'placeholder': 'ex. http://www.facebook.com/johnsmithfakename'}))
+                                    'placeholder': 'ex. {}'.format(formatted_example_identifiers)}))
 
     def clean_perp(self):
         raw_url = self.cleaned_data.get('perp').strip()
-        url_parts = urlsplit(raw_url)
-        # check if Facebook
-        domain = url_parts[1]
-        if not (domain == 'facebook.com' or domain.endswith('.facebook.com')):
-            logger.info("invalid facebook url entered with domain {}".format(domain))
-            raise ValidationError('Please enter a valid Facebook profile URL.', code='notfacebook')
-        path = url_parts[2].strip('/').split('/')[0]
-        generic_fb_urls = [
-            'messages',
-            'hashtag',
-            'events',
-            'pages',
-            'groups',
-            'bookmarks',
-            'lists',
-            'developers',
-            'topic',
-            'help',
-            'privacy',
-            'campaign',
-            'policies',
-            'support',
-            'settings',
-            'games']
-        if path == "profile.php":
-            path = parse_qs(url_parts[3]).get('id')[0]
-        if not path or path == "" or path.endswith('.php') or path in generic_fb_urls:
-            raise ValidationError('Please enter a valid Facebook profile URL.', code='notfacebook')
-        else:
-            return path
+        for _, identifier_info in self.identifier_domain_info.items():
+            try:
+                matching_identifier = identifier_info['validation'](raw_url)
+                if matching_identifier:
+                    return matching_identifier
+            except Exception as e:
+                logger.exception(e)
+                pass
+        # no valid identifier found
+        raise ValidationError('Please enter a valid {}.'.format(self.formatted_identifier_descriptions),
+                               code='invalidmatchidentifier')
+
 
 SubmitToMatchingFormSet = formset_factory(SubmitToMatchingForm, extra=0, min_num=1)
