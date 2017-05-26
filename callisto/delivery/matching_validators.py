@@ -12,7 +12,7 @@ def twitter_validation_function(url):
         domain = url_parts[1]
         if not (domain == 'twitter.com' or domain == 'www.twitter.com' or domain == 'mobile.twitter.com'):
             return None
-        path = url_parts[2].strip('/').split('/')[0]
+        path = url_parts[2].strip('/').split('/')[0].lower()
         generic_twitter_urls = [
             'i',
             'following',
@@ -45,7 +45,7 @@ def facebook_validation_function(url):
         domain = url_parts[1]
         if not (domain == 'facebook.com' or domain.endswith('.facebook.com')):
             return None
-        path = url_parts[2].strip('/').split('/')[0]
+        path = url_parts[2].strip('/').split('/')[0].lower()
         generic_fb_urls = [
             'messages',
             'hashtag',

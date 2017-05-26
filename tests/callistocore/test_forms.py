@@ -14,11 +14,14 @@ User = get_user_model()
 
 class SubmitToMatchingFormTest(TestCase):
 
-    def verify_url_works(self, url, expected_result):
+    def get_cleaned_identifier(self, url):
         request = {'perp': url}
         form = SubmitToMatchingForm(request)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['perp'], expected_result)
+        return form.cleaned_data['perp']
+
+    def verify_url_works(self, url, expected_result):
+        self.assertEqual(self.get_cleaned_identifier(url), expected_result)
 
     def verify_url_fails(self, url, expected_error='Please enter a valid Facebook profile URL.'):
         request = {'perp': url}
@@ -76,6 +79,10 @@ class SubmitToMatchingFormFacebookTest(SubmitToMatchingFormTest):
         self.verify_url_works('  https://www.facebook.com/callistoorg/ ', 'callistoorg')
         self.verify_url_works('https://www.facebook.com/callistoorg    ', 'callistoorg')
 
+    def test_case_insensitive(self):
+        self.assertEqual(self.get_cleaned_identifier('facebook.com/Callisto_Org'),
+                            self.get_cleaned_identifier('https://www.facebook.com/callisto_org'))
+
 
 @override_settings(IDENTIFIER_DOMAINS=matching_validators.facebook_or_twitter)
 class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
@@ -121,16 +128,17 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
         self.verify_url_works('https://www.facebook.com/callistoorg', 'callistoorg')
 
     def test_facebook_and_twitter_dont_match_each_other(self):
-        twitter_form = SubmitToMatchingForm({'perp': 'twitter.com/callisto_org'})
-        facebook_form = SubmitToMatchingForm({'perp': 'facebook.com/callisto_org'})
-        self.assertTrue(twitter_form.is_valid())
-        self.assertTrue(facebook_form.is_valid())
-        self.assertNotEqual(twitter_form.cleaned_data['perp'], facebook_form.cleaned_data['perp'])
+        self.assertNotEqual(self.get_cleaned_identifier('twitter.com/callisto_org'),
+                            self.get_cleaned_identifier('facebook.com/callisto_org'))
 
     @override_settings(IDENTIFIER_DOMAINS=matching_validators.twitter_only)
     def test_can_exclude_facebook(self):
         self.verify_url_fails('https://www.facebook.com/callistoorg',
                               expected_error="Please enter a valid Twitter profile URL.")
+
+    def test_case_insensitive(self):
+        self.assertEqual(self.get_cleaned_identifier('twitter.com/cAlLiStOoRg'),
+                            self.get_cleaned_identifier('https://www.twitter.com/CallistoOrg'))
 
 class CreateKeyFormTest(TestCase):
 
