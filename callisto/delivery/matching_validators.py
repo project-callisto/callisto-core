@@ -27,10 +27,11 @@ def twitter_validation_function(url):
         if not path or path == "" or path in generic_twitter_urls:
             return None
         else:
-            return "twitter.com/" + path
+            return path
 
 twitter_validation_info = {'validation': twitter_validation_function,
-                           'example': 'https://twitter.com/twitter_handle'}
+                           'example': 'https://twitter.com/twitter_handle',
+                           'unique_prefix': 'twitter'}
 
 '''
  NOTE: because identifiers are irreversibly encrypted and Facebook was the original matching identifier, Facebook
@@ -70,7 +71,25 @@ def facebook_validation_function(url):
             return path
 
 facebook_validation_info = {'validation': facebook_validation_function,
-                            'example': 'http://www.facebook.com/johnsmithfakename'}
+                            'example': 'http://www.facebook.com/johnsmithfakename',
+                            'unique_prefix': ''}
+
+'''
+    potential options for identifier_domain_info, used in SubmitToMatchingForm
+    identifier_domain_info is an ordered dictionary of matching identifiers
+        key:
+            the type of identifier requested
+                example: 'Facebook profile URL' for Facebook
+        value:
+            a dictionary with
+                a globally unique prefix (see note about Facebook's) to avoid cross-domain matches
+                a validation function
+                    should return None for invalid entries & return a minimal unique (within domain) path for valid
+                an example input
+
+    will return on first valid option tried
+    see MatchingValidation.facebook_only (default)
+'''
 
 facebook_only = OrderedDict([('Facebook profile URL', facebook_validation_info)])
 twitter_only = OrderedDict([('Twitter profile URL', twitter_validation_info)])

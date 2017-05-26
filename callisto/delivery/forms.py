@@ -177,20 +177,6 @@ def join_list_with_or(lst):
 
 class SubmitToMatchingForm(forms.Form):
 
-    '''
-        sets identifier_domain_info to ordered dictionary of matching identifiers
-            key:
-                the type of identifier requested
-                    example: 'Facebook profile URL' for Facebook
-            value:
-                a dictionary with
-                    a validation function
-                        should return None for invalid entries & return a minimal globally unique path for valid
-                    an example input
-
-        will return on first valid option tried
-        see MatchingValidation.facebook_only (default)
-    '''
     def __init__(self, *args, **kwargs):
         super(SubmitToMatchingForm, self).__init__(*args, **kwargs)
         self.identifier_domain_info = getattr(settings, 'IDENTIFIER_DOMAINS', matching_validators.facebook_only)
@@ -222,6 +208,9 @@ class SubmitToMatchingForm(forms.Form):
             try:
                 matching_identifier = identifier_info['validation'](raw_url)
                 if matching_identifier:
+                    prefix = identifier_info['unique_prefix']
+                    if len(prefix) > 0:  # Facebook has an empty unique identifier for backwards compatibility
+                        matching_identifier = prefix + ":" + matching_identifier  # FB URLs can't contain colons
                     return matching_identifier
             except Exception as e:
                 logger.exception(e)
