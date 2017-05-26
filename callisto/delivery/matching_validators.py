@@ -27,11 +27,16 @@ def twitter_validation_function(url):
         if not path or path == "" or path in generic_twitter_urls:
             return None
         else:
-            return path
+            return "twitter.com/" + path
 
 twitter_validation_info = {'validation': twitter_validation_function,
                            'example': 'https://twitter.com/twitter_handle'}
 
+'''
+ NOTE: because identifiers are irreversibly encrypted and Facebook was the original matching identifier, Facebook
+ identifiers are stored plain, with the prefix "www.facebook.com/" stripped. All other identifiers should be prefixed
+ to allow for global uniqueness from Facebook profile identifiers.
+'''
 
 def facebook_validation_function(url):
         url_parts = urlsplit(url)

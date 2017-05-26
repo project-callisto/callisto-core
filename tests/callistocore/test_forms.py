@@ -82,20 +82,20 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
     expected_error = "Please enter a valid Facebook profile URL or Twitter profile URL."
 
     def test_accept_twitter_url(self):
-        self.verify_url_works('https://www.twitter.com/callisto_org', 'callisto_org')
+        self.verify_url_works('https://www.twitter.com/callisto_org', 'twitter.com/callisto_org')
 
     def test_accept_partial_url(self):
-        self.verify_url_works('twitter.com/callisto_org', 'callisto_org')
-        self.verify_url_works('www.twitter.com/callisto_org', 'callisto_org')
-        self.verify_url_works('https://mobile.twitter.com/callisto_org', 'callisto_org')
+        self.verify_url_works('twitter.com/callisto_org', 'twitter.com/callisto_org')
+        self.verify_url_works('www.twitter.com/callisto_org', 'twitter.com/callisto_org')
+        self.verify_url_works('https://mobile.twitter.com/callisto_org', 'twitter.com/callisto_org')
 
     def test_accept_with_querystring(self):
-        self.verify_url_works('https://twitter.com/callisto_org?some=query', 'callisto_org')
+        self.verify_url_works('https://twitter.com/callisto_org?some=query', 'twitter.com/callisto_org')
 
     def test_accept_tweets_and_others(self):
-        self.verify_url_works('https://twitter.com/callisto_org/status/857806846668701696', 'callisto_org')
-        self.verify_url_works('https://twitter.com/callisto_org/following', 'callisto_org')
-        self.verify_url_works('https://twitter.com/callisto_org/media', 'callisto_org')
+        self.verify_url_works('https://twitter.com/callisto_org/status/857806846668701696', 'twitter.com/callisto_org')
+        self.verify_url_works('https://twitter.com/callisto_org/following', 'twitter.com/callisto_org')
+        self.verify_url_works('https://twitter.com/callisto_org/media', 'twitter.com/callisto_org')
 
     def test_non_twitter_url_fails(self):
         self.verify_url_fails('https://plus.google.com/101940257310211951398/posts',
@@ -113,12 +113,19 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
         self.verify_url_fails('https://www.twitter.com/', expected_error=self.expected_error)
 
     def test_trims_url(self):
-        self.verify_url_works('https://www.twitter.com/callisto_org ', 'callisto_org')
-        self.verify_url_works('  https://www.twitter.com/callisto_org ', 'callisto_org')
-        self.verify_url_works('https://www.twitter.com/callisto_org    ', 'callisto_org')
+        self.verify_url_works('https://www.twitter.com/callisto_org ', 'twitter.com/callisto_org')
+        self.verify_url_works('  https://www.twitter.com/callisto_org ', 'twitter.com/callisto_org')
+        self.verify_url_works('https://www.twitter.com/callisto_org    ', 'twitter.com/callisto_org')
 
     def test_still_accepts_facebook(self):
         self.verify_url_works('https://www.facebook.com/callistoorg', 'callistoorg')
+
+    def test_facebook_and_twitter_dont_match_each_other(self):
+        twitter_form = SubmitToMatchingForm({'perp': 'twitter.com/callisto_org'})
+        facebook_form = SubmitToMatchingForm({'perp': 'facebook.com/callisto_org'})
+        self.assertTrue(twitter_form.is_valid())
+        self.assertTrue(facebook_form.is_valid())
+        self.assertNotEqual(twitter_form.cleaned_data['perp'], facebook_form.cleaned_data['perp'])
 
     @override_settings(IDENTIFIER_DOMAINS=matching_validators.twitter_only)
     def test_can_exclude_facebook(self):
