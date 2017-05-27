@@ -790,7 +790,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'phone_number': '555-555-1213',
                                           'email_confirmation': "False",
                                           'key': report2_key,
-                                          'form-0-perp': 'twitter.com/trigger_a_match',
+                                          'form-0-perp': 'twitter.com/Trigger_A_Match',
                                           'form-TOTAL_FORMS': '1',
                                           'form-INITIAL_FORMS': '1',
                                           'form-MAX_NUM_FORMS': '', })
