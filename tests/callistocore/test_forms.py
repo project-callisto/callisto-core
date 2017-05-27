@@ -59,6 +59,7 @@ class SubmitToMatchingFormFacebookTest(SubmitToMatchingFormTest):
     def test_accepts_old_profile_link(self):
         self.verify_url_works('https://www.facebook.com/profile.php?id=100010279981469', '100010279981469')
         self.verify_url_works('www.facebook.com/profile.php?id=100010279981469&fref=nf&pnref=story', '100010279981469')
+        self.verify_url_works('https://www.facebook.com/people/John-Doe-Jr/100013326345115', '100013326345115')
 
     def test_non_fb_url_fails(self):
         self.verify_url_fails('https://plus.google.com/101940257310211951398/posts')

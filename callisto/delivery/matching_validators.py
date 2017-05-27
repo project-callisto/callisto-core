@@ -66,6 +66,13 @@ def facebook_validation_function(url):
         if not (domain == 'facebook.com' or domain.endswith('.facebook.com')):
             return None
         path = url_parts[2].strip('/').split('/')[0].lower()
+
+        # old style numeric profiles
+        if path == "profile.php":  # ex. https://www.facebook.com/profile.php?id=100010279981469
+            path = parse_qs(url_parts[3]).get('id')[0]
+        if path == 'people': # ex. https://www.facebook.com/people/John-Doe/100013326345115
+            path = url_parts[2].strip('/').split('/')[2].lower()
+
         generic_fb_urls = [
             'messages',
             'hashtag',
@@ -82,9 +89,8 @@ def facebook_validation_function(url):
             'policies',
             'support',
             'settings',
-            'games']
-        if path == "profile.php":
-            path = parse_qs(url_parts[3]).get('id')[0]
+            'games',
+            'people']
         # TODO: validate against allowed username characteristics
         # https://github.com/SexualHealthInnovations/callisto-core/issues/181
         if not path or path == "" or path.endswith('.php') or path in generic_fb_urls:
