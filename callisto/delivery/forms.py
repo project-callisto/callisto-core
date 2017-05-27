@@ -205,10 +205,9 @@ class SubmitToMatchingForm(forms.Form):
                     if len(prefix) > 0:  # Facebook has an empty unique identifier for backwards compatibility
                         matching_identifier = prefix + ":" + matching_identifier  # FB URLs can't contain colons
                     return matching_identifier
-            except ValidationError:
-                raise
             except Exception as e:
-                logger.exception(e)
+                if e.__class__ is not ValidationError:
+                    logger.exception(e)
                 pass
         # no valid identifier found
         raise ValidationError('Please enter a valid {}.'.format(self.formatted_identifier_descriptions),

@@ -2,6 +2,7 @@ import logging
 from collections import OrderedDict
 
 from six.moves.urllib.parse import parse_qs, urlsplit
+from django.core.exceptions import ValidationError
 from django.forms import URLField
 
 logger = logging.getLogger(__name__)
@@ -12,32 +13,40 @@ def clean_url(url):
     return url_field.clean(url.strip())
 
 
-def twitter_validation_function(url):
-        url = clean_url(url)
-        url_parts = urlsplit(url)
-        # check if acceptable domain
-        domain = url_parts[1]
-        if not (domain == 'twitter.com' or domain == 'www.twitter.com' or domain == 'mobile.twitter.com'):
-            return None
-        path = url_parts[2].strip('/').split('/')[0].lower()
+def twitter_validation_function(value):
         generic_twitter_urls = [
-            'i',
-            'following',
-            'followers',
-            'who_to_follow',
-            'settings',
-            'search',
-            'tos',
-            'privacy',
-            'about',
-        ]
-        if not path or path == "" or path in generic_twitter_urls:
+                'i',
+                'following',
+                'followers',
+                'who_to_follow',
+                'settings',
+                'search',
+                'tos',
+                'privacy',
+                'about',
+            ]
+        path = None
+        try:
+            url = clean_url(value)
+            url_parts = urlsplit(url)
+            # check if acceptable domain
+            domain = url_parts[1]
+            if not (domain == 'twitter.com' or domain == 'www.twitter.com' or domain == 'mobile.twitter.com'):
+                return None
+            path = url_parts[2].strip('/').split('/')[0].lower()
+        except ValidationError:
+            if value.startswith('@'):
+                path = value[1:]
+        # TODO: validate against allowed username characters
+        # https://github.com/SexualHealthInnovations/callisto-core/issues/181
+        if not path or path == "" or len(path) > 15 or path in generic_twitter_urls:
             return None
         else:
             return path
 
+
 twitter_validation_info = {'validation': twitter_validation_function,
-                           'example': 'https://twitter.com/twitter_handle',
+                           'example': 'https://twitter.com/twitter_handle or @twitter_handle',
                            'unique_prefix': 'twitter'}
 
 '''
@@ -47,7 +56,10 @@ twitter_validation_info = {'validation': twitter_validation_function,
 '''
 
 def facebook_validation_function(url):
-        url = clean_url(url)
+        try:
+            url = clean_url(url)
+        except ValidationError:
+            return None
         url_parts = urlsplit(url)
         # check if acceptable domain
         domain = url_parts[1]
@@ -73,6 +85,8 @@ def facebook_validation_function(url):
             'games']
         if path == "profile.php":
             path = parse_qs(url_parts[3]).get('id')[0]
+        # TODO: validate against allowed username characteristics
+        # https://github.com/SexualHealthInnovations/callisto-core/issues/181
         if not path or path == "" or path.endswith('.php') or path in generic_fb_urls:
             return None
         else:
@@ -100,6 +114,6 @@ facebook_validation_info = {'validation': facebook_validation_function,
 '''
 
 facebook_only = OrderedDict([('Facebook profile URL', facebook_validation_info)])
-twitter_only = OrderedDict([('Twitter profile URL', twitter_validation_info)])
+twitter_only = OrderedDict([('Twitter username/profile URL', twitter_validation_info)])
 facebook_or_twitter = OrderedDict([('Facebook profile URL', facebook_validation_info),
-                                   ('Twitter profile URL', twitter_validation_info)])
+                                   ('Twitter username/profile URL', twitter_validation_info)])

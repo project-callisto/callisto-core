@@ -66,7 +66,7 @@ class SubmitToMatchingFormFacebookTest(SubmitToMatchingFormTest):
         self.verify_url_fails('https://www.facedbook.com/trendinginchina/videos/600128603423960/')
 
     def test_non_url_fails(self):
-        self.verify_url_fails('notaurl', 'Enter a valid URL.')
+        self.verify_url_fails('notaurl', 'Please enter a valid Facebook profile URL.')
         self.verify_url_fails('', 'This field is required.')
 
     def test_generic_url_fails(self):
@@ -86,7 +86,7 @@ class SubmitToMatchingFormFacebookTest(SubmitToMatchingFormTest):
 
 @override_settings(IDENTIFIER_DOMAINS=matching_validators.facebook_or_twitter)
 class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
-    expected_error = "Please enter a valid Facebook profile URL or Twitter profile URL."
+    expected_error = "Please enter a valid Facebook profile URL or Twitter username/profile URL."
 
     def test_accept_twitter_url(self):
         self.verify_url_works('https://www.twitter.com/callisto_org', 'twitter:callisto_org')
@@ -111,7 +111,7 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
         self.verify_url_fails('https://www.twittr.com/callisto_org', expected_error=self.expected_error)
 
     def test_non_url_fails(self):
-        self.verify_url_fails('notaurl', 'Enter a valid URL.')
+        self.verify_url_fails('notaurl', expected_error=self.expected_error)
         self.verify_url_fails('', 'This field is required.')
 
     def test_generic_url_fails(self):
@@ -134,11 +134,16 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
     @override_settings(IDENTIFIER_DOMAINS=matching_validators.twitter_only)
     def test_can_exclude_facebook(self):
         self.verify_url_fails('https://www.facebook.com/callistoorg',
-                              expected_error="Please enter a valid Twitter profile URL.")
+                              expected_error="Please enter a valid Twitter username/profile URL.")
 
     def test_case_insensitive(self):
         self.assertEqual(self.get_cleaned_identifier('twitter.com/cAlLiStOoRg'),
                             self.get_cleaned_identifier('https://www.twitter.com/CallistoOrg'))
+
+    def test_can_use_at_name(self):
+        self.verify_url_works('@callistoorg', 'twitter:callistoorg')
+        self.verify_url_fails('@callistoorgtoolong', expected_error=self.expected_error)
+
 
 class CreateKeyFormTest(TestCase):
 
