@@ -160,13 +160,6 @@ class SubmitReportToAuthorityForm(SecretKeyForm):
         self.fields['contact_notes'].initial = report.contact_notes
 
 
-# workaround for Django wontfix https://code.djangoproject.com/ticket/6717
-class StrippedURLField(forms.URLField):
-
-    def to_python(self, value):
-        return super(StrippedURLField, self).to_python(value and value.strip())
-
-
 def join_list_with_or(lst):
         if len(lst) < 2:
             return lst[0]
@@ -195,7 +188,7 @@ class SubmitToMatchingForm(forms.Form):
                                         attrs={
                                             'placeholder': 'ex. John Jacob Jingleheimer Schmidt'}))
 
-        self.fields['perp'] = StrippedURLField(label="Perpetrator's {}".format(self.formatted_identifier_descriptions_title_case),
+        self.fields['perp'] = forms.CharField(label="Perpetrator's {}".format(self.formatted_identifier_descriptions_title_case),
                                 required=True,
                                 max_length=500,
                                 widget=forms.TextInput(
@@ -212,6 +205,8 @@ class SubmitToMatchingForm(forms.Form):
                     if len(prefix) > 0:  # Facebook has an empty unique identifier for backwards compatibility
                         matching_identifier = prefix + ":" + matching_identifier  # FB URLs can't contain colons
                     return matching_identifier
+            except ValidationError:
+                raise
             except Exception as e:
                 logger.exception(e)
                 pass

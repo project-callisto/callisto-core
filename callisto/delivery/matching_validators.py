@@ -2,11 +2,18 @@ import logging
 from collections import OrderedDict
 
 from six.moves.urllib.parse import parse_qs, urlsplit
+from django.forms import URLField
 
 logger = logging.getLogger(__name__)
 
 
+def clean_url(url):
+    url_field = URLField()
+    return url_field.clean(url.strip())
+
+
 def twitter_validation_function(url):
+        url = clean_url(url)
         url_parts = urlsplit(url)
         # check if acceptable domain
         domain = url_parts[1]
@@ -40,6 +47,7 @@ twitter_validation_info = {'validation': twitter_validation_function,
 '''
 
 def facebook_validation_function(url):
+        url = clean_url(url)
         url_parts = urlsplit(url)
         # check if acceptable domain
         domain = url_parts[1]
