@@ -752,7 +752,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
-    @override_settings(IDENTIFIER_DOMAINS=matching_validators.facebook_or_twitter)
+    @override_settings(CALLISTO_IDENTIFIER_DOMAINS=matching_validators.facebook_or_twitter)
     def test_non_fb_match(self):
         self.client.post((self.submission_url % self.report.pk),
                          data={'name': 'test submitter 1',

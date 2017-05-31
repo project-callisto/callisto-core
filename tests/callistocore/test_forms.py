@@ -85,7 +85,7 @@ class SubmitToMatchingFormFacebookTest(SubmitToMatchingFormTest):
                             self.get_cleaned_identifier('https://www.facebook.com/callisto_org'))
 
 
-@override_settings(IDENTIFIER_DOMAINS=matching_validators.facebook_or_twitter)
+@override_settings(CALLISTO_IDENTIFIER_DOMAINS=matching_validators.facebook_or_twitter)
 class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
     expected_error = "Please enter a valid Facebook profile URL or Twitter username/profile URL."
 
@@ -132,7 +132,7 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
         self.assertNotEqual(self.get_cleaned_identifier('twitter.com/callisto_org'),
                             self.get_cleaned_identifier('facebook.com/callisto_org'))
 
-    @override_settings(IDENTIFIER_DOMAINS=matching_validators.twitter_only)
+    @override_settings(CALLISTO_IDENTIFIER_DOMAINS=matching_validators.twitter_only)
     def test_can_exclude_facebook(self):
         self.verify_url_fails('https://www.facebook.com/callistoorg',
                               expected_error="Please enter a valid Twitter username/profile URL.")

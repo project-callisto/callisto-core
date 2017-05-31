@@ -172,7 +172,7 @@ class SubmitToMatchingForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(SubmitToMatchingForm, self).__init__(*args, **kwargs)
-        self.identifier_domain_info = getattr(settings, 'IDENTIFIER_DOMAINS', matching_validators.facebook_only)
+        self.identifier_domain_info = getattr(settings, 'CALLISTO_IDENTIFIER_DOMAINS', matching_validators.facebook_only)
 
         self.formatted_identifier_descriptions = join_list_with_or(list(self.identifier_domain_info))
         self.formatted_identifier_descriptions_title_case = join_list_with_or([identifier.title()
