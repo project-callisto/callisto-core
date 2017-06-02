@@ -145,6 +145,20 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
         self.verify_url_works('@callistoorg', 'twitter:callistoorg')
         self.verify_url_fails('@callistoorgtoolong', expected_error=self.expected_error)
 
+    def test_can_override_get_validators(self):
+        class CustomSubmitToMatchingForm(SubmitToMatchingForm):
+            def get_matching_validators(self):
+                return matching_validators.facebook_only
+        form = CustomSubmitToMatchingForm({'perp': 'facebook.com/callisto_org'})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['perp'], 'callisto_org')
+        form = CustomSubmitToMatchingForm({'perp': 'twitter.com/callisto_org'})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['perp'],
+            ['Please enter a valid Facebook profile URL.']
+        )
+
 
 class CreateKeyFormTest(TestCase):
 
