@@ -3,6 +3,12 @@
 History
 -------
 
+0.6.0 (2017-06-01)
+++++++++++++++++++
+
+* Allow for custom matching identifiers
+* Add a Twitter matching identifier validation
+
 0.5.2 (2017-04-27)
 ++++++++++++++++++
 
