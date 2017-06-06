@@ -15,7 +15,7 @@ BROWSER := python -c "$$BROWSER_PYSCRIPT"
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
-clean:
+clean: ## clean the repo in preparation for release
 	make clean-build
 	make clean-pyc
 
@@ -33,22 +33,19 @@ clean-lint: ## run the cleanup functions for the linters
 	isort -rc wizard_builder/
 	autopep8 --in-place --recursive --aggressive --aggressive wizard_builder/ --max-line-length 119 --exclude="*/migrations/*"
 
-lint:
+lint: ## lint with isort and flake8
 	isort --check-only --diff --quiet -rc wizard_builder/
 	flake8 wizard_builder/
 
-test:
-	make lint
+test-suite: ## run the tests unit and functional tests
 	python runtests.py
+
+test: ## run both the test suite and the linters
+	make lint
+	make test-suite
 
 test-all: ## run tests on every Python version with tox
 	tox
-
-coverage: ## check code coverage quickly with the default Python
-	coverage run --source wizard_builder runtests.py tests
-	coverage report -m
-	coverage html
-	open htmlcov/index.html
 
 release: clean ## package and upload a release
 	python setup.py sdist upload
