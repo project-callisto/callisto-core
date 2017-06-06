@@ -32,11 +32,9 @@ matrix:
         - python: "3.6"
           env: TOXENV=djangodev
 install:
-    - pip install tox codecov isort flake8
-before_script:
-    - isort --check-only --diff --quiet
+    - pip install -r requirements/test.txt
 script:
-    - flake8 .
+    - make test-lint
     - make test-all
 after_success:
     - codecov -e TOXENV

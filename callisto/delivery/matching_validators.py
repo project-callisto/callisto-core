@@ -24,36 +24,36 @@ def _get_initial_path(url_parts):
 
 
 generic_twitter_urls = [
-        'i',
-        'following',
-        'followers',
-        'who_to_follow',
-        'settings',
-        'search',
-        'tos',
-        'privacy',
-        'about',
-    ]
+    'i',
+    'following',
+    'followers',
+    'who_to_follow',
+    'settings',
+    'search',
+    'tos',
+    'privacy',
+    'about',
+]
 
 
 def twitter_validation_function(value):
-        path = None
-        try:
-            url_parts = _get_url_parts(value)
-            # check if acceptable domain
-            domain = url_parts[1]
-            if not (domain == 'twitter.com' or domain == 'www.twitter.com' or domain == 'mobile.twitter.com'):
-                return None
-            path = _get_initial_path(url_parts)
-        except ValidationError:
-            if value.startswith('@'):
-                path = value[1:]
-        # TODO: validate against allowed username characters
-        # https://github.com/SexualHealthInnovations/callisto-core/issues/181
-        if not path or path == "" or len(path) > 15 or path in generic_twitter_urls:
+    path = None
+    try:
+        url_parts = _get_url_parts(value)
+        # check if acceptable domain
+        domain = url_parts[1]
+        if not (domain == 'twitter.com' or domain == 'www.twitter.com' or domain == 'mobile.twitter.com'):
             return None
-        else:
-            return path
+        path = _get_initial_path(url_parts)
+    except ValidationError:
+        if value.startswith('@'):
+            path = value[1:]
+    # TODO: validate against allowed username characters
+    # https://github.com/SexualHealthInnovations/callisto-core/issues/181
+    if not path or path == "" or len(path) > 15 or path in generic_twitter_urls:
+        return None
+    else:
+        return path
 
 
 twitter_validation_info = {'validation': twitter_validation_function,
@@ -78,32 +78,32 @@ generic_fb_urls = [
     'support',
     'settings',
     'games',
-    'people',]
+    'people', ]
 
 
 def facebook_validation_function(url):
-        try:
-            url_parts = _get_url_parts(url)
-            # check if acceptable domain
-            domain = url_parts[1]
-            if not (domain == 'facebook.com' or domain.endswith('.facebook.com')):
-                return None
-            path = _get_initial_path(url_parts)
-
-            # old style numeric profiles
-            if path == "profile.php":  # ex. https://www.facebook.com/profile.php?id=100010279981469
-                path = parse_qs(url_parts[3]).get('id')[0]
-            if path == 'people':  # ex. https://www.facebook.com/people/John-Doe/100013326345115
-                path = url_parts[2].strip('/').split('/')[2].lower()
-
-            # TODO: validate against allowed username characteristics
-            # https://github.com/SexualHealthInnovations/callisto-core/issues/181
-            if not path or path == "" or path.endswith('.php') or path in generic_fb_urls:
-                return None
-            else:
-                return path
-        except ValidationError:
+    try:
+        url_parts = _get_url_parts(url)
+        # check if acceptable domain
+        domain = url_parts[1]
+        if not (domain == 'facebook.com' or domain.endswith('.facebook.com')):
             return None
+        path = _get_initial_path(url_parts)
+
+        # old style numeric profiles
+        if path == "profile.php":  # ex. https://www.facebook.com/profile.php?id=100010279981469
+            path = parse_qs(url_parts[3]).get('id')[0]
+        if path == 'people':  # ex. https://www.facebook.com/people/John-Doe/100013326345115
+            path = url_parts[2].strip('/').split('/')[2].lower()
+
+        # TODO: validate against allowed username characteristics
+        # https://github.com/SexualHealthInnovations/callisto-core/issues/181
+        if not path or path == "" or path.endswith('.php') or path in generic_fb_urls:
+            return None
+        else:
+            return path
+    except ValidationError:
+        return None
 
 
 '''
