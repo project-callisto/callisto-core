@@ -64,6 +64,9 @@ class EvalRow(models.Model):
     def _create_eval_row_text(self, decrypted_text, match_identifier=None):
         row = self._extract_answers(json.loads(decrypted_text))
         if match_identifier:
+            # Facebook entries are stored without a unique prefix for backwards compatibility
+            identifier_type = match_identifier.split(':')[0] if ':' in match_identifier else 'facebook'
+            row['match_identifier_type'] = identifier_type
             row['match_identifier'] = hashlib.sha256(str(match_identifier).encode()).hexdigest()
         return row
 
@@ -137,5 +140,5 @@ class EvalRow(models.Model):
 class EvaluationField(models.Model):
     # If an associated EvaluationField exists for a record form item, we record the contents
     # If not, we just save whether the question was answered or not
-    question = models.OneToOneField(FormQuestion)
+    question = models.OneToOneField(FormQuestion, on_delete=models.CASCADE)
     label = models.CharField(blank=False, null=False, max_length=500)

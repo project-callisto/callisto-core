@@ -223,6 +223,15 @@ class ExtractAnswersTest(TestCase):
         self.assertEqual(anonymised1['match_identifier'], anonymised2['match_identifier'])
         self.assertNotEqual(anonymised1['match_identifier'], anonymised3['match_identifier'])
 
+    def test_match_id_type_gets_appended(self):
+        self.set_up_simple_report_scenario()
+        anonymised1 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy1')
+        anonymised2 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='twitter:dummy1')
+        anonymised3 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='email:this:is:not:possible')
+        self.assertEqual(anonymised1['match_identifier_type'], 'facebook')
+        self.assertEqual(anonymised2['match_identifier_type'], 'twitter')
+        self.assertEqual(anonymised3['match_identifier_type'], 'email')
+
     def test_extract_answers_with_extra(self):
         self.maxDiff = None
         page1 = QuestionPage.objects.create()
