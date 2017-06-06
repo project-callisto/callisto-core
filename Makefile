@@ -34,7 +34,7 @@ clean-tox:
 
 lint: ## check style with flake8 and isort
 	flake8 callisto/
-    isort --check-only --diff --quiet -rc callisto/
+	isort --check-only --diff --quiet -rc callisto/
 
 test: ## run tests quickly with the default Python
 	python runtests.py tests
