@@ -33,7 +33,7 @@ clean-lint: ## run the cleanup functions for the linters
 	isort -rc wizard_builder/
 	autopep8 --in-place --recursive --aggressive --aggressive wizard_builder/ --max-line-length 119 --exclude="*/migrations/*"
 
-lint: ## lint with isort and flake8
+test-lint: ## lint with isort and flake8
 	isort --check-only --diff --quiet -rc wizard_builder/
 	flake8 wizard_builder/
 
@@ -41,7 +41,7 @@ test-suite: ## run the tests unit and functional tests
 	python runtests.py
 
 test: ## run both the test suite and the linters
-	make lint
+	make test-lint
 	make test-suite
 
 test-all: ## run tests on every Python version with tox
