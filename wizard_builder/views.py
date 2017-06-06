@@ -11,13 +11,14 @@ from django.forms.formsets import BaseFormSet
 from .forms import QuestionPageForm, get_form_pages
 from .models import Conditional, PageBase, QuestionPage, TextPage
 
-
 # rearranged from django-formtools to allow binding forms before skipping steps & submission
 # adds hook before done is called to process answers
 
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
 # are under the BSD-3 Clause License:
 # https://github.com/django/django-formtools/blob/master/LICENSE
+
+
 class ModifiedSessionWizardView(NamedUrlSessionWizardView):
 
     def __init__(self, **kwargs):
