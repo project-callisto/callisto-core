@@ -3,7 +3,7 @@ mock>=1.0.1
 flake8>=2.1.0
 tox>=1.7.0
 isort==4.2.13
-selenium==3.4.2
+selenium==3.4.3
 codecov
 psycopg2==2.7.1
 
