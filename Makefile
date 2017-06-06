@@ -32,14 +32,11 @@ clean-pyc: ## remove Python file artifacts
 clean-tox:
 	rm -f tox.ini
 
-lint: ## check style with flake8
-	isort -rc callisto/
-	autopep8 --in-place --recursive --aggressive --aggressive callisto/ --max-line-length 119 --exclude="*/migrations/*"
+lint: ## check style with flake8 and isort
 	flake8 callisto/
+    isort --check-only --diff --quiet -rc callisto/
 
 test: ## run tests quickly with the default Python
-	flake8 callisto/
-	isort -rc callisto/
 	python runtests.py tests
 
 tox.ini: tox.ini.in $(TOX_REQUIREMENTS)
@@ -47,12 +44,6 @@ tox.ini: tox.ini.in $(TOX_REQUIREMENTS)
 
 test-all: tox.ini ## run tests on every Python version with tox
 	tox
-
-coverage: ## check code coverage quickly with the default Python
-	coverage run --source callisto runtests.py tests
-	coverage report -m
-	coverage html
-	open htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/callisto-core.rst
