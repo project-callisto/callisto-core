@@ -3,6 +3,7 @@ from datetime import datetime
 from distutils.util import strtobool
 
 from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
 
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
@@ -34,19 +35,19 @@ class FunctionalTest(StaticLiveServerTestCase):
     def tearDownClass(cls):
         try:
             cls.browser.quit()
-        except AttributeError:
+        except (AttributeError, OSError):
             pass  # brower has already been quit!
         super(FunctionalTest, cls).tearDownClass()
 
-    def setUp(self):
-        super(FunctionalTest, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        super(FunctionalTest, cls).setUpClass()
         if strtobool(os.environ.get('WEBDRIVER_FIREFOX', 'False').lower()):
             # swap on with:
             #   export WEBDRIVER_FIREFOX='True'
-            self.browser = webdriver.Firefox()
+            cls.browser = webdriver.Firefox()
         else:
-            self.browser = webdriver.PhantomJS()
-        self.browser.implicitly_wait(3)
+            cls.browser = webdriver.PhantomJS()
 
     def tearDown(self):
         if self._test_has_failed():
@@ -57,8 +58,12 @@ class FunctionalTest(StaticLiveServerTestCase):
                 self.browser.switch_to.window(handle)
                 self.take_screenshot()
                 self.dump_html()
-        self.browser.quit()
         super(FunctionalTest, self).tearDown()
+
+    def wait_for_until_body_loaded(self):
+        WebDriverWait(self.browser, 3).until(
+            lambda driver: driver.find_element_by_tag_name('body'),
+        )
 
     def _test_has_failed(self):
         try:
@@ -110,6 +115,7 @@ class AdminFunctionalTest(FunctionalTest):
         User.objects.create_superuser('user', '', 'pass')
         self.login_admin()
         self.browser.get(self.live_server_url + '/admin/')
+        self.wait_for_until_body_loaded()
 
     def test_can_load_admin_with_wizard_builder_on_it(self):
         self.assertIn('Django administration', self.browser.page_source)
