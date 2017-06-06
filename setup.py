@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+from wizard_builder import __version__ as version
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-
-version = '0.1.1'
 
 if sys.argv[-1] == 'publish':
     try:
@@ -43,7 +42,8 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-
+        'django-formtools>=2.0',
+        'django-model-utils>=3.0',
     ],
     license="BSD",
     zip_safe=False,
