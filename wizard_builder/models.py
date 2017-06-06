@@ -22,7 +22,7 @@ class PageBase(models.Model):
 
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
-    site = models.ForeignKey(Site, null=True)
+    site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
     objects = PageBaseManager()
 
     @property
@@ -98,7 +98,7 @@ class QuestionPage(PageBase):
 
 class FormQuestion(models.Model):
     text = models.TextField(blank=False)
-    page = models.ForeignKey('QuestionPage', editable=True, null=True)
+    page = models.ForeignKey('QuestionPage', editable=True, null=True, on_delete=models.SET_NULL)
     position = models.PositiveSmallIntegerField("position", default=0)
     descriptive_text = models.TextField(blank=True)
     added = models.DateTimeField(auto_now_add=True)
@@ -279,7 +279,7 @@ class RadioButton(MultipleChoice):
 
 
 class Choice(models.Model):
-    question = models.ForeignKey('MultipleChoice')
+    question = models.ForeignKey('MultipleChoice', on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
     extra_info_placeholder = models.CharField(blank=True, max_length=500,
@@ -323,8 +323,8 @@ class Conditional(models.Model):
                                       choices=OPTIONS,
                                       default=EXACTLY)
 
-    page = models.OneToOneField(PageBase)
-    question = models.ForeignKey(FormQuestion)
+    page = models.OneToOneField(PageBase, on_delete=models.PROTECT)
+    question = models.ForeignKey(FormQuestion, on_delete=models.PROTECT)
     answer = models.CharField(max_length=150)
 
     def __str__(self):
