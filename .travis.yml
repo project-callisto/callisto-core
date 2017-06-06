@@ -30,10 +30,8 @@ matrix:
           env: TOXENV=djangodev
 install:
     - pip install -r requirements/test.txt
-before_script:
-    - isort --check-only --diff --quiet
 script:
-    - flake8 .
+    - make lint
     - tox
 after_success:
     - codecov -e TOXENV
