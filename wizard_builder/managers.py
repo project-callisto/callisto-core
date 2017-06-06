@@ -5,7 +5,6 @@ from model_utils.managers import InheritanceManager, InheritanceQuerySet
 from django.conf import settings
 from django.contrib.sites.models import Site
 
-
 # in addition to explicitly depending on django-model-utils,
 # this code borrows in large part from django-polymorphic
 
