@@ -3,6 +3,15 @@
 History
 -------
 
+
+0.1.2 (2017-05-16)
+++++++++++++++++++
+
+* pypi cleanup
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/49
+
+
 0.1.1 (2017-05-16)
 ++++++++++++++++++
 
