@@ -12,12 +12,12 @@ endef
 export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
-TOX_REQUIREMENTS := requirements/test.txt requirements.txt
-
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
-clean: clean-build clean-pyc clean-tox
+clean: ## clean the local files for a release
+	make clean-build
+	make clean-pyc
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -29,21 +29,22 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-clean-tox:
-	rm -f tox.ini
-
-lint: ## check style with flake8 and isort
-	flake8 callisto/
-	isort --check-only --diff --quiet -rc callisto/
-
-clean-lint:
+clean-lint: ## cleanup / display issues with isort and pep8
 	isort -rc callisto/
 	autopep8 --in-place --recursive --aggressive --aggressive callisto/ --max-line-length 119 --exclude="*/migrations/*"
 
-test: ## run tests quickly with the default Python
+test-lint: ## check style with pep8 and isort
+	flake8 callisto/
+	isort --check-only --diff --quiet -rc callisto/
+
+test-suite: ## run the unit and integration tests
 	python runtests.py tests
 
-test-all: ## run tests on every Python version with tox
+test: ## run the linters and the test suite
+	make test-lint
+	make test-suite
+
+test-all: ## run suite on every supported python version
 	tox
 
 docs: ## generate Sphinx HTML documentation, including API docs
@@ -54,10 +55,12 @@ docs: ## generate Sphinx HTML documentation, including API docs
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
 
-release: clean ## package and upload a release
+release: ## package and upload a release
+	make clean
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 
-sdist: clean ## package
+sdist: ## package
+	make clean
 	python setup.py sdist
 	ls -l dist
