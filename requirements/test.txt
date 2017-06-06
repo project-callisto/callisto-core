@@ -3,6 +3,6 @@ psycopg2==2.7.1
 mock==2.0.0
 flake8==3.3.0
 tox==2.7.0
-isort==4.2.13
+isort==4.2.14
 
 -r base.txt
