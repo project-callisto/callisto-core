@@ -34,7 +34,7 @@ clean-lint: ## run the cleanup functions for the linters
 	autopep8 --in-place --recursive --aggressive --aggressive wizard_builder/ --max-line-length 119 --exclude="*/migrations/*"
 
 lint:
-	isort --check-only --diff --quiet wizard_builder/
+	isort --check-only --diff --quiet -rc wizard_builder/
 	flake8 wizard_builder/
 
 test:
