@@ -34,7 +34,7 @@ matrix:
 install:
     - pip install -r requirements/test.txt
 script:
-    - make lint
+    - make test-lint
     - make test-all
 after_success:
     - codecov -e TOXENV
