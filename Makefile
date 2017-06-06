@@ -43,10 +43,7 @@ clean-lint:
 test: ## run tests quickly with the default Python
 	python runtests.py tests
 
-tox.ini: tox.ini.in $(TOX_REQUIREMENTS)
-	{ cat $< | grep -v '^    -rrequirements/test\.txt$$' ; cat $(TOX_REQUIREMENTS) | grep -v '^-r requirements\.txt' | sed -e 's/^/    /' ; } > $@
-
-test-all: tox.ini ## run tests on every Python version with tox
+test-all: ## run tests on every Python version with tox
 	tox
 
 docs: ## generate Sphinx HTML documentation, including API docs
