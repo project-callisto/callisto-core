@@ -15,7 +15,9 @@ BROWSER := python -c "$$BROWSER_PYSCRIPT"
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
-clean: clean-build clean-pyc
+clean:
+	make clean-build
+	make clean-pyc
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -27,13 +29,12 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-lint:
+clean-lint:
 	isort -rc wizard_builder/
 	autopep8 --in-place --recursive --aggressive --aggressive wizard_builder/ --max-line-length 119 --exclude="*/migrations/*"
-	flake8 wizard_builder/
 
 test:
-	isort -rc wizard_builder/
+	isort --check-only --diff --quiet wizard_builder/
 	flake8 wizard_builder/
 	python runtests.py
 
