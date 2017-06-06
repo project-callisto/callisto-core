@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from distutils.util import strtobool
+from unittest import skip
 
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
@@ -164,6 +165,7 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_css_selector('.addlink').click()
         self.assertIn('id_infobox', self.browser.page_source)
 
+    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
     def test_can_add_question_page(self):
         self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
         self.assertNotIn('1337', self.browser.page_source)
@@ -172,6 +174,7 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
         self.assertIn('1337', self.browser.page_source)
 
+    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
     def test_can_edit_question_page(self):
         QuestionPage.objects.create()
         self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
@@ -218,6 +221,7 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_css_selector('.addlink').click()
         self.assertIn(Choice._meta.verbose_name_plural.capitalize(), self.browser.page_source)
 
+    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
     def test_can_add_radio_button(self):
         QuestionPage.objects.create()
         self.browser.find_element_by_link_text(RadioButton._meta.verbose_name.capitalize() + 's').click()
@@ -227,6 +231,7 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
         self.assertIn('unique_cattens', self.browser.page_source)
 
+    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
     def test_can_edit_radio_button(self):
         QuestionPage.objects.create()
         RadioButton.objects.create()
