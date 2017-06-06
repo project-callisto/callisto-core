@@ -14,11 +14,6 @@ django-wizard-builder
    :target: https://codeclimate.com/github/SexualHealthInnovations/django-wizard-builder
    :alt: Code Climate
 
-.. image:: https://codecov.io/gh/SexualHealthInnovations/django-wizard-builder/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/SexualHealthInnovations/django-wizard-builder
-   :alt: Code coverage
-
-
 Create multi-page forms with branching logic from the Django admin, no code required.
 
 Documentation
