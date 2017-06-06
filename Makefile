@@ -36,6 +36,10 @@ lint: ## check style with flake8 and isort
 	flake8 callisto/
 	isort --check-only --diff --quiet -rc callisto/
 
+clean-lint:
+	isort -rc callisto/
+	autopep8 --in-place --recursive --aggressive --aggressive callisto/ --max-line-length 119 --exclude="*/migrations/*"
+
 test: ## run tests quickly with the default Python
 	python runtests.py tests
 
