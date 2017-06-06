@@ -52,7 +52,7 @@ cleanup / linting / tests
 
 ::
 
-    (myenv) $ make lint
+    (myenv) $ make clean-lint
     (myenv) $ make test
     (myenv) $ make test-all
 
