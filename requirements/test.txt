@@ -2,7 +2,7 @@ mock>=1.0.1
 flake8>=2.1.0
 tox>=1.7.0
 PyPDF2==1.26.0
-isort==4.2.13
+isort==4.2.14
 django-migration-testcase==0.0.12
 
 -r base.txt
