@@ -4,24 +4,12 @@ import os
 import re
 import sys
 
-from callisto.delivery import __version__
+from callisto.delivery import __version__ as version
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-
-
-def get_version(*file_paths):
-    filename = os.path.join(os.path.dirname(__file__), *file_paths)
-    version_file = open(filename).read()
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError('Unable to find version string.')
-
-version = get_version('callisto', 'delivery', '__init__.py')
 
 if sys.argv[-1] == 'publish':
     try:
@@ -40,10 +28,10 @@ if sys.argv[-1] == 'tag':
     os.system("git push --tags")
     sys.exit()
 
-print("Converting README from markdown to restructured text")
 try:
     import pypandoc
     readme = pypandoc.convert_file('README.md', 'rst')
+    print("Converting README from markdown to restructured text")
 except (IOError, ImportError):
     print("Please install PyPandoc to allow conversion of the README")
     readme = open('README.md').read()
@@ -52,7 +40,7 @@ license = open('LICENSE').read()
 
 setup(
     name='callisto-core',
-    version=__version__,
+    version=version,
     description="""Report intake, escrow, matching and secure delivery code for Callisto,
     an online reporting system for sexual assault.""",
     license=license,
@@ -67,7 +55,19 @@ setup(
         'callisto.notification',
     ],
     include_package_data=True,
-    install_requires=[],
+    install_requires=[
+        'django-polymorphic==1.1',
+        'django-ratelimit==1.0.1',
+        'django-wizard-builder==0.1.2',
+        'PyNaCl==1.1.2',
+        'python-gnupg==0.4.0',
+        'environ',
+        'pytz==2017.2',
+        'reportlab==3.4.0',
+        'zxcvbn-py3',
+        'six',
+        'argon2_cffi',
+    ],
     zip_safe=False,
     keywords='callisto-core',
     classifiers=[

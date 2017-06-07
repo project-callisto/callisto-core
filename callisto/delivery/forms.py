@@ -161,11 +161,11 @@ class SubmitReportToAuthorityForm(SecretKeyForm):
 
 
 def join_list_with_or(lst):
-        if len(lst) < 2:
-            return lst[0]
-        all_but_last = ', '.join(lst[:-1])
-        last = lst[-1]
-        return ' or '.join([all_but_last, last])
+    if len(lst) < 2:
+        return lst[0]
+    all_but_last = ', '.join(lst[:-1])
+    last = lst[-1]
+    return ' or '.join([all_but_last, last])
 
 
 class SubmitToMatchingForm(forms.Form):
@@ -173,6 +173,7 @@ class SubmitToMatchingForm(forms.Form):
     '''
         designed to be overridden if more complicated assignment of matching validators is needed
     '''
+
     def get_matching_validators(self):
         return getattr(settings, 'CALLISTO_IDENTIFIER_DOMAINS', matching_validators.facebook_only)
 
@@ -182,25 +183,28 @@ class SubmitToMatchingForm(forms.Form):
         self.identifier_domain_info = self.get_matching_validators()
 
         self.formatted_identifier_descriptions = join_list_with_or(list(self.identifier_domain_info))
-        self.formatted_identifier_descriptions_title_case = join_list_with_or([identifier.title()
-                                                                          for identifier in list(self.identifier_domain_info)])
+        self.formatted_identifier_descriptions_title_case = join_list_with_or(
+            [identifier.title() for identifier in list(self.identifier_domain_info)])
 
         self.formatted_example_identifiers = join_list_with_or([identifier_info['example'] for _, identifier_info in
-                                                           self.identifier_domain_info.items()])
+                                                                self.identifier_domain_info.items()])
 
         self.fields['perp_name'] = forms.CharField(label="Perpetrator's Name",
-                                    required=False,
-                                    max_length=500,
-                                    widget=forms.TextInput(
-                                        attrs={
-                                            'placeholder': 'ex. John Jacob Jingleheimer Schmidt'}))
+                                                   required=False,
+                                                   max_length=500,
+                                                   widget=forms.TextInput(
+                                                       attrs={
+                                                           'placeholder': 'ex. John Jacob Jingleheimer Schmidt'}))
 
-        self.fields['perp'] = forms.CharField(label="Perpetrator's {}".format(self.formatted_identifier_descriptions_title_case),
-                                required=True,
-                                max_length=500,
-                                widget=forms.TextInput(
-                                    attrs={
-                                        'placeholder': 'ex. {}'.format(self.formatted_example_identifiers)}))
+        self.fields['perp'] = forms.CharField(
+            label="Perpetrator's {}".format(
+                self.formatted_identifier_descriptions_title_case),
+            required=True,
+            max_length=500,
+            widget=forms.TextInput(
+                attrs={
+                    'placeholder': 'ex. {}'.format(
+                        self.formatted_example_identifiers)}))
 
     def clean_perp(self):
         raw_url = self.cleaned_data.get('perp').strip()
@@ -218,7 +222,7 @@ class SubmitToMatchingForm(forms.Form):
                 pass
         # no valid identifier found
         raise ValidationError('Please enter a valid {}.'.format(self.formatted_identifier_descriptions),
-                               code='invalidmatchidentifier')
+                              code='invalidmatchidentifier')
 
 
 SubmitToMatchingFormSet = formset_factory(SubmitToMatchingForm, extra=0, min_num=1)
