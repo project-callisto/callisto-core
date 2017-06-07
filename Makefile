@@ -38,7 +38,7 @@ test-lint: ## lint with isort and flake8
 	flake8 wizard_builder/
 
 test-suite: ## run the unit and intregration tests
-	pytest
+	pytest -v
 
 test: ## run both the test suite and the linters
 	make test-lint
