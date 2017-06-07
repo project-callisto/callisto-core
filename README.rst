@@ -6,9 +6,9 @@ django-wizard-builder
     :target: https://travis-ci.org/SexualHealthInnovations/django-wizard-builder
     :alt: Build status
 
-.. image:: https://landscape.io/github/SexualHealthInnovations/django-wizard-builder/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/SexualHealthInnovations/django-wizard-builder/master
-   :alt: Code health
+.. image:: https://img.shields.io/pypi/v/django-wizard-builder.svg
+   :target: https://pypi.python.org/pypi/django-wizard-builder
+   :alt: PyPI Version
 
 .. image:: https://codeclimate.com/github/SexualHealthInnovations/django-wizard-builder/badges/gpa.svg
    :target: https://codeclimate.com/github/SexualHealthInnovations/django-wizard-builder
