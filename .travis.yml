@@ -6,12 +6,14 @@ python:
     - "3.5"
     - "3.6"
 sudo: false
+cache: pip
 env:
     - TOXENV=django18
     - TOXENV=django110
     - TOXENV=django111
     - TOXENV=djangodev
 matrix:
+    fast_finish: true
     exclude:
         - python: "2.7"
           env: TOXENV=djangodev
