@@ -4,6 +4,7 @@
 def make_migrations():
     from django.core.management import call_command
     call_command('makemigrations', 'delivery')
+    call_command('makemigrations', 'notification')
 
 
 if __name__ == '__main__':
@@ -20,9 +21,10 @@ if __name__ == '__main__':
                 'django.contrib.sites',
                 'wizard_builder',
                 'callisto.delivery',
-                'callisto.evaluation'
-
+                'callisto.evaluation',
+                'callisto.notification',
             ],
+            SITE_ID=1,
             APP_URL="test",
             COORDINATOR_NAME="Tatiana Nine",
             CALLISTO_EVAL_PUBLIC_KEY="",

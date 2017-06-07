@@ -2,6 +2,7 @@ Contributors
 =============
 
 * Kelsey Gilmore-Innis / @kelseyq
+* Lynn Cyrin / @lynnco
 * Lacey Williams Henschel / @williln
 * Scot Hacker / @shacker
 * David Cook / @divergentdave
@@ -12,3 +13,5 @@ Contributors
 * Sarah Messer / @SMesser
 * amelia sabine / @asabine
 * Michael Whetten / @monster-michael
+* James Santucci / @jisantucci
+* Sunah Suh / @sunahsuh

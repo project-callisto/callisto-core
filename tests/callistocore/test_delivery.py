@@ -2,21 +2,310 @@ from io import BytesIO
 
 import PyPDF2
 import pytz
+import six
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.test import override_settings
 from django.utils import timezone
 from django.utils.timezone import localtime
 
-from callisto.delivery.models import EmailNotification, Report
+from callisto.delivery.api import DeliveryApi
+from callisto.delivery.models import Report, SentFullReport, SentMatchReport
 from callisto.delivery.report_delivery import (
-    MatchReportContent, PDFFullReport, PDFMatchReport, SentFullReport,
-    SentMatchReport,
+    MatchReportContent, PDFFullReport, PDFMatchReport,
 )
+from callisto.notification.models import EmailNotification
 
 from .test_matching import MatchTest
 
 User = get_user_model()
+
+
+class ReportRenderTest(MatchTest):
+
+    def setUp(self):
+        super(ReportRenderTest, self).setUp()
+        self.user = self.user1
+        self.report = Report(owner=self.user)
+        self.report.save()
+
+    def test_checkbox_rendered(self):
+        checkbox_question = '''[
+        {"answer": [0,2,4],
+        "id": 1,
+        "section": 1,
+        "question_text": "A checkbox question?",
+        "choices": [{"id": 0, "choice_text": "This is checkbox choice 0"},
+        {"id": 1, "choice_text": "This is checkbox choice 1"},
+        {"id": 2, "choice_text": "This is checkbox choice 2"},
+        {"id": 3, "choice_text": "This is checkbox choice 3"},
+        {"id": 4, "choice_text": "This is checkbox choice 4"}],
+        "extra": {
+        "extra_text": "Extra text for choice 0",
+        "answer": "Extra checkbox answer text"
+        },
+        "type": "Checkbox"
+        }
+        ]'''
+        report = PDFFullReport(self.report, checkbox_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('A checkbox question?', rendered_text)
+        for i in range(5):
+            if i in [0, 2, 4]:
+                # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
+                regex = '7\\s+This is checkbox choice {}'.format(i)
+            else:
+                # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+                regex = 'n\\s+This is checkbox choice {}'.format(i)
+            six.assertRegex(self, rendered_text, regex)
+        self.assertIn('Extra text for choice 0', rendered_text)
+        self.assertIn('Extra checkbox answer text', rendered_text)
+
+    def test_date_rendered(self):
+        date_question = '''[
+        { "answer": "01/01/2016",
+        "id": 1,
+        "section": 1,
+        "question_text": "Date text question?",
+        "type": "Date"
+        }
+        ]'''
+        report = PDFFullReport(self.report, date_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Date text question?', rendered_text)
+        self.assertIn('01/01/2016', rendered_text)
+
+    def test_date_no_answer_rendered(self):
+        date_question = '''[
+        { "answer": "",
+        "id": 1,
+        "section": 1,
+        "question_text": "Date text question?",
+        "type": "Date"
+        }
+        ]'''
+        report = PDFFullReport(self.report, date_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Date text question?', rendered_text)
+        self.assertIn('Not answered', rendered_text)
+
+    def test_empty_formset_rendered(self):
+        formset_question = '''[
+        { "answers": [],
+        "id": 1,
+        "section": 1,
+        "prompt": "Formset",
+        "type": "FormSet"
+        }
+        ]'''
+        report = PDFFullReport(self.report, formset_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+        self.assertNotIn('Formset 1', rendered_text)
+        self.assertIn('Formset', rendered_text)
+        self.assertIn('None added', rendered_text)
+
+    def test_single_formset_rendered(self):
+        formset_question = '''[
+        { "answers": [[
+        { "answer": 0,
+        "id": 1,
+        "section": 1,
+        "question_text": "Checkbox question?",
+        "choices": [{"id": 0, "choice_text": "This is checkbox choice 0"},
+        {"id": 1, "choice_text": "This is checkbox choice 1"},
+        {"id": 2, "choice_text": "This is checkbox choice 2"}
+        ],
+        "extra": {
+        "extra_text": "Extra text for choice 0",
+        "answer": "Extra checkbox answer text"
+        },
+        "type": "Checkbox"
+        }]
+        ],
+        "id": 1,
+        "section": 1,
+        "prompt": "Formset",
+        "type": "FormSet"
+        }
+        ]'''
+        report = PDFFullReport(self.report, formset_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+        self.assertNotIn('Formset 1', rendered_text)
+        self.assertIn('Formset', rendered_text)
+        self.assertIn('Checkbox question?', rendered_text)
+        # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
+        six.assertRegex(self, rendered_text, '7\\s+This is checkbox choice 0')
+        # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+        six.assertRegex(self, rendered_text, 'n\\s+This is checkbox choice 1')
+        six.assertRegex(self, rendered_text, 'n\\s+This is checkbox choice 2')
+        self.assertIn('Extra text for choice 0', rendered_text)
+        self.assertIn('Extra checkbox answer text', rendered_text)
+
+    def test_multiple_formsets_rendered(self):
+        formset_question = '''[
+        { "answers": [[
+        { "answer": "4/16/2016",
+        "id": 1,
+        "section": 1,
+        "question_text": "Date text question?",
+        "type": "Date"
+        }],
+        [
+        { "answer": "Multiline\\ntext\\nanswer",
+        "id": 1,
+        "section": 1,
+        "question_text": "Multiline text question?",
+        "type": "MultiLineText"
+        }]
+
+        ],
+        "id": 1,
+        "section": 1,
+        "prompt": "Formset",
+        "type": "FormSet"
+        }
+        ]'''
+        report = PDFFullReport(self.report, formset_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+        self.assertIn('Formset 1', rendered_text)
+        self.assertIn('Date text question?', rendered_text)
+        self.assertIn('4/16/2016', rendered_text)
+        self.assertIn('Formset 2', rendered_text)
+        self.assertIn('Multiline text question?', rendered_text)
+        self.assertIn('Multiline\ntext\nanswer', rendered_text)
+
+    def test_multiline_text_rendered(self):
+        multiline_question = '''[
+        { "answer": "Multiline\\ntext\\nanswer",
+        "id": 1,
+        "section": 1,
+        "question_text": "Multiline text question?",
+        "type": "MultiLineText"
+        }
+        ]'''
+        report = PDFFullReport(self.report, multiline_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Multiline text question?', rendered_text)
+        self.assertIn('Multiline\ntext\nanswer', rendered_text)
+
+    def test_multiline_text_no_answer_rendered(self):
+        multiline_question = '''[
+        { "answer": "",
+        "id": 1,
+        "section": 1,
+        "question_text": "Multiline text question?",
+        "type": "MultiLineText"
+        }
+        ]'''
+        report = PDFFullReport(self.report, multiline_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Multiline text question?', rendered_text)
+        self.assertIn('Not answered', rendered_text)
+
+    def test_radiobutton_rendered(self):
+        radio_question = '''[
+        {"answer": 0,
+        "id": 1,
+        "section": 1,
+        "question_text": "A radiobutton question?",
+        "choices": [
+        {"id": 0, "choice_text": "This is radiobutton choice 0"},
+        {"id": 1, "choice_text": "This is radiobutton choice 1"},
+        {"id": 2, "choice_text": "This is radiobutton choice 2"},
+        {"id": 3, "choice_text": "This is radiobutton choice 3"},
+        {"id": 4, "choice_text": "This is radiobutton choice 4"}
+        ],
+        "extra": {
+        "extra_text": "Extra text for choice 0",
+        "answer": "Extra radiobutton answer text"
+        },
+        "type": "RadioButton"
+        }
+        ]'''
+        report = PDFFullReport(self.report, radio_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+
+        rendered_text = pdf_reader.getPage(1).extractText()
+        self.assertIn('A radiobutton question?', rendered_text)
+        for i in range(5):
+            if i == 0:
+                # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
+                regex = '7\\s+This is radiobutton choice {}'.format(i)
+            else:
+                # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+                regex = 'n\\s+This is radiobutton choice {}'.format(i)
+            six.assertRegex(self, rendered_text, regex)
+        self.assertIn('Extra text for choice 0', rendered_text)
+        self.assertIn('Extra radiobutton answer text', rendered_text)
+
+    def test_singleline_text_rendered(self):
+        singleline_question = '''[
+        { "answer": "Single line text answer",
+        "id": 1,
+        "section": 1,
+        "question_text": "Single line text question?",
+        "type": "SingleLineText"
+        }
+        ]'''
+        report = PDFFullReport(self.report, singleline_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Single line text question?', rendered_text)
+        self.assertIn('Single line text answer', rendered_text)
+
+    def test_singleline_text_no_answer_rendered(self):
+        singleline_question = '''[
+        { "answer": "",
+        "id": 1,
+        "section": 1,
+        "question_text": "Single line text question?",
+        "type": "SingleLineText"
+        }
+        ]'''
+        report = PDFFullReport(self.report, singleline_question)
+        output = report.generate_pdf_report(recipient=None, report_id=None)
+        rendered_report = BytesIO(output)
+        pdf_reader = PyPDF2.PdfFileReader(rendered_report)
+        rendered_text = pdf_reader.getPage(1).extractText()
+
+        self.assertIn('Single line text question?', rendered_text)
+        self.assertIn('Not answered', rendered_text)
 
 
 class ReportDeliveryTest(MatchTest):
@@ -63,16 +352,20 @@ class ReportDeliveryTest(MatchTest):
         expected_time = localtime(timezone.now()).strftime(date_format)
         self.assertIn(expected_time, pdfReader.getPage(0).extractText())
 
-    def test_submission_to_school(self):
-        EmailNotification.objects.create(name='report_delivery', subject="test delivery", body="test body")
-        report = PDFFullReport(self.report, self.decrypted_report)
-        report.send_report_to_school()
-        sent_report_id = SentFullReport.objects.latest('id').get_report_id()
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
+    def test_submission_to_reporting_authority(self):
+        EmailNotification.objects.create(
+            name='report_delivery',
+            subject="test delivery",
+            body="test body",
+        ).sites.add(self.site.id)
+        sent_full_report = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL)
+        DeliveryApi().send_report_to_authority(sent_full_report, self.decrypted_report, self.site.id)
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test delivery')
         self.assertIn('"Reports" <reports', message.from_email)
-        self.assertEqual(message.attachments[0][0], 'report_%s.pdf.gpg' % sent_report_id)
+        self.assertEqual(message.attachments[0][0], 'report_%s.pdf.gpg' % sent_full_report.get_report_id())
 
     # TODO: test encryption of submitted report email
 
@@ -124,12 +417,16 @@ class ReportDeliveryTest(MatchTest):
             "Notes on preferred contact time of day, gender of admin, etc.:\nPlease only call after 5pm",
             pdf_text)
 
-    def test_matches_to_school(self):
-        EmailNotification.objects.create(name='match_delivery', subject="test match delivery", body="test match body")
+    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
+    def test_matches_to_reporting_authority(self):
+        EmailNotification.objects.create(
+            name='match_delivery',
+            subject="test match delivery",
+            body="test match body",
+        ).sites.add(self.site.id)
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        report = PDFMatchReport([match1, match2], "dummy")
-        report.send_matching_report_to_school()
+        DeliveryApi().send_matching_report_to_authority([match1, match2], "dummy")
         sent_report_id = SentMatchReport.objects.latest('id').get_report_id()
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]

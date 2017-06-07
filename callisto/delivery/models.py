@@ -1,5 +1,4 @@
 import uuid
-
 import nacl.secret
 import nacl.utils
 import six
@@ -7,15 +6,13 @@ import six
 from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
 
+# django
 from django.conf import settings
-from django.contrib.sites.models import Site
-from django.core.mail.message import EmailMultiAlternatives
 from django.db import models
-from django.template import Context, Template
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from django.utils.html import strip_tags
 
+# local
 from callisto.delivery.hashers import get_hasher, make_key
 
 
@@ -99,7 +96,7 @@ class Report(models.Model):
     """The full text of a reported incident."""
     uuid = models.UUIDField(default=uuid.uuid4)
     encrypted = models.BinaryField(blank=False)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     added = models.DateTimeField(auto_now_add=True)
     autosaved = models.BooleanField(null=False, default=False)
     last_edited = models.DateTimeField(blank=True, null=True)
@@ -190,53 +187,11 @@ class Report(models.Model):
 
 
 @six.python_2_unicode_compatible
-class EmailNotification(models.Model):
-    """Record of Email constructed in and sent via the project"""
-    name = models.CharField(blank=False, max_length=50, primary_key=True)
-    subject = models.CharField(blank=False, max_length=77)
-    body = models.TextField(blank=False)
-
-    def __str__(self):
-        return self.name
-
-    def render_body(self, context=None):
-        """Format the email as HTML."""
-        if context is None:
-            context = {}
-        current_site = Site.objects.get_current()
-        context['domain'] = current_site.domain
-        return Template(self.body).render(Context(context))
-
-    def render_body_plain(self, context=None):
-        """Format the email as plain text."""
-        if context is None:
-            context = {}
-        html = self.render_body(context)
-        cleaned = html.replace('<br />', '\n')
-        cleaned = cleaned.replace('<br/>', '\n')
-        cleaned = cleaned.replace('<p>', '\n')
-        cleaned = cleaned.replace('</p>', '\n')
-        return strip_tags(cleaned)
-
-    def send(self, to, from_email, context=None):
-        """Send the email as plain text.
-
-        Includes an HTML equivalent version as an attachment.
-        """
-
-        if context is None:
-            context = {}
-        email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
-        email.attach_alternative(self.render_body(context), "text/html")
-        email.send()
-
-
-@six.python_2_unicode_compatible
 class MatchReport(models.Model):
     """A report that indicates the user wants to submit if a match is found. A single report can have multiple
     MatchReports--one per perpetrator.
     """
-    report = models.ForeignKey('Report')
+    report = models.ForeignKey('Report', on_delete=models.CASCADE)
     contact_email = models.EmailField(blank=False, max_length=256)
 
     identifier = models.CharField(blank=False, null=True, max_length=500)
@@ -299,9 +254,9 @@ class SentReport(PolymorphicModel):
     """Report of one or more incidents, sent to the monitoring organization"""
     # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14
     sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.EmailField(blank=False, null=False, max_length=256)
+    to_address = models.CharField(blank=False, null=False, max_length=4096)
 
-    def _get_id_for_schools(self, is_match):
+    def _get_id_for_authority(self, is_match):
         return "{0}-{1}-{2}".format(settings.SCHOOL_REPORT_PREFIX, '%05d' % self.id, 0 if is_match else 1)
 
 
@@ -310,7 +265,7 @@ class SentFullReport(SentReport):
     report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.SET_NULL)
 
     def get_report_id(self):
-        return self._get_id_for_schools(is_match=False)
+        return self._get_id_for_authority(is_match=False)
 
 
 class SentMatchReport(SentReport):
@@ -318,4 +273,4 @@ class SentMatchReport(SentReport):
     reports = models.ManyToManyField(MatchReport)
 
     def get_report_id(self):
-        return self._get_id_for_schools(is_match=True)
+        return self._get_id_for_authority(is_match=True)

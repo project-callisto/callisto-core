@@ -8,7 +8,11 @@ REPORT_TIME_ZONE = 'Europe/Paris'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-    }
+    },
+    # used to test multiple database support
+    "alternate": {
+        "ENGINE": "django.db.backends.sqlite3",
+    },
 }
 
 
@@ -21,10 +25,9 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "wizard_builder",
     "callisto.delivery",
-    "callisto.evaluation"
+    "callisto.evaluation",
+    "callisto.notification",
 ]
-
-SITE_ID = 1
 
 MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
                       'django.contrib.auth.middleware.AuthenticationMiddleware',)
@@ -78,3 +81,5 @@ TEMPLATES = [
         'DIRS': ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
     },
 ]
+
+CALLISTO_NOTIFICATION_API = 'callisto.notification.api.NotificationApi'
