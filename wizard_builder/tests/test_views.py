@@ -14,7 +14,7 @@ from ..models import (
 )
 from ..views import ConfigurableFormWizard, calculate_page_count_map
 from .test_app.models import Report
-from .test_app.views import TestWizard
+from .test_app.views import WizardTestApp
 
 User = get_user_model()
 
@@ -85,7 +85,7 @@ class WizardIntegratedTest(FormBaseTest):
     def test_question_pages_without_questions_are_filtered_out(self):
         # empty_page
         QuestionPage.objects.create(site_id=self.site.id)
-        wizard = TestWizard.wizard_factory(site_id=self.site.id)()
+        wizard = WizardTestApp.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 2)
         self.assertIn(QuestionPageForm, inspect.getmro(wizard.form_list[0]))
         self.assertNotIn(TextPageForm, inspect.getmro(wizard.form_list[-1]))
@@ -99,7 +99,7 @@ class WizardIntegratedTest(FormBaseTest):
         )
         self.page1.position = 2
         self.page1.save()
-        wizard = TestWizard.wizard_factory(site_id=self.site.id)()
+        wizard = WizardTestApp.wizard_factory(site_id=self.site.id)()
         page_one_form = wizard.form_list[0]({})
 
         self.assertEqual(len(wizard.form_list), 3)
