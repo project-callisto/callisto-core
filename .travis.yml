@@ -36,8 +36,6 @@ install:
 script:
     - make test-lint
     - make test-all
-after_success:
-    - codecov -e TOXENV
 before_cache:
     - rm -r $TRAVIS_BUILD_DIR/.tox/log $TRAVIS_BUILD_DIR/.tox/dist $TRAVIS_BUILD_DIR/.tox/*/log $TRAVIS_BUILD_DIR/.tox/*/lib/python*/site-packages/callisto*
 notifications:
