@@ -56,7 +56,7 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-        'django-polymorphic==1.1',
+        'django-polymorphic==1.2',
         'django-ratelimit==1.0.1',
         'django-wizard-builder==0.1.2',
         'PyNaCl==1.1.2',
