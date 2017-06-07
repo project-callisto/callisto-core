@@ -37,8 +37,8 @@ test-lint: ## lint with isort and flake8
 	isort --check-only --diff --quiet -rc wizard_builder/
 	flake8 wizard_builder/
 
-test-suite: ## run the tests unit and functional tests
-	python runtests.py
+test-suite: ## run the unit and intregration tests
+	pytest
 
 test: ## run both the test suite and the linters
 	make test-lint

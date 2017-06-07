@@ -7,13 +7,13 @@ from ...views import ConfigurableFormWizard
 from .models import Report
 
 
-class TestWizard(ConfigurableFormWizard):
+class WizardTestApp(ConfigurableFormWizard):
 
     def get_form_to_edit(self, object_to_edit):
         if object_to_edit:
             return json.loads(object_to_edit.text)
         else:
-            return super(TestWizard, self).get_form_to_edit(object_to_edit)
+            return super(WizardTestApp, self).get_form_to_edit(object_to_edit)
 
     def done(self, form_list, **kwargs):
         report = Report()
@@ -26,7 +26,7 @@ class TestWizard(ConfigurableFormWizard):
 
 def new_test_wizard_view(request, step=None):
     site = get_current_site(request)
-    return TestWizard.wizard_factory(
+    return WizardTestApp.wizard_factory(
         site_id=site.id,
     ).as_view(
         url_name="test_wizard",
@@ -40,7 +40,7 @@ def new_test_wizard_view(request, step=None):
 def edit_test_wizard_view(request, edit_id, step=None):
     report = Report.objects.get(id=edit_id)
     site = get_current_site(request)
-    return TestWizard.wizard_factory(
+    return WizardTestApp.wizard_factory(
         site_id=site.id,
         object_to_edit=report,
     ).as_view(
