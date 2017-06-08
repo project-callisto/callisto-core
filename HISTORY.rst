@@ -3,6 +3,13 @@
 History
 -------
 
+0.6.1 (2017-06-08)
+++++++++++++++++++
+
+* install dependencies on pypi
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/184
+
 0.6.0 (2017-06-01)
 ++++++++++++++++++
 
@@ -14,19 +21,17 @@ History
 
 * Update django wizard builder version
 
-
 0.5.1 (2017-04-27)
 ++++++++++++++++++
 
 * Don't auto-add settings.SITE_ID to newly created emails
-    https://github.com/SexualHealthInnovations/callisto-core/pull/172
 
+    https://github.com/SexualHealthInnovations/callisto-core/pull/172
 
 0.5.0 (2017-04-27)
 ++++++++++++++++++
 
 * Add support for getting the site_id from the request's domain
-
 
 0.4.3 (2017-04-27)
 ++++++++++++++++++
@@ -34,25 +39,21 @@ History
 * Added sites EmailNotification admin
 * Added EmailNotification (name + sites) uniqueness validator
 
-
 0.4.2 (2017-04-25)
 ++++++++++++++++++
 
 * Fixed a bug with saving string SITE_IDs multiple times
-
 
 0.4.1 (2017-04-25)
 ++++++++++++++++++
 
 * Gave EmailNotification an id primary key
 
-
 0.4.0 (2017-04-24)
 ++++++++++++++++++
 
 * Introduced MatchingApi to allow customization of matching behavior
 * Renamed many instances of "school" to "authority"
-
 
 0.1.1 (2016-10-24)
 ++++++++++++++++++
