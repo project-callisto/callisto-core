@@ -3,7 +3,6 @@ import logging
 from collections import OrderedDict
 from io import BytesIO
 
-import gnupg
 import pytz
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
@@ -17,12 +16,11 @@ from reportlab.platypus.doctemplate import Indenter
 from wizard_builder.models import PageBase
 
 from django.conf import settings
-from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
-from .models import EmailNotification, SentFullReport, SentMatchReport
+from callisto.delivery.api import DeliveryApi
 
 date_format = "%m/%d/%Y @%H:%M%p"
 tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
@@ -81,8 +79,6 @@ class PDFReport(object):
     no_bullet = ' '
 
     report_title = "Report"
-    from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
-    report_filename = "report_{0}.pdf.gpg"
 
     def __init__(self):
         self.styles = self.set_up_styles()
@@ -266,10 +262,6 @@ class PDFReport(object):
         render_function = render_functions.get(question.get('type'), _render_default)
         render_function()
 
-    def get_cover_page(self, report_id, recipient, *args, **kwargs):
-        CoverPage = []
-        return CoverPage
-
     def get_header_footer(self, recipient=settings.COORDINATOR_NAME):
         def func(canvas, doc):
             width, height = letter
@@ -284,24 +276,6 @@ class PDFReport(object):
             canvas.restoreState()
         return func
 
-    def send_email_to_coordinator(self, pdf_to_attach, notification_name, report_id):
-        notification = EmailNotification.objects.get(name=notification_name)
-
-        to = settings.COORDINATOR_EMAIL
-
-        email = EmailMultiAlternatives(notification.subject, notification.render_body_plain(), self.from_email, [to])
-        email.attach_alternative(notification.render_body(), "text/html")
-
-        gpg = gnupg.GPG()
-        school_public_key = settings.COORDINATOR_PUBLIC_KEY
-        imported_keys = gpg.import_keys(school_public_key)
-        # TODO: sign encrypted doc https://github.com/SexualHealthInnovations/callisto-core/issues/32
-        attachment = gpg.encrypt(pdf_to_attach, imported_keys.fingerprints[0], armor=True, always_trust=True)
-
-        email.attach(self.report_filename.format(report_id), attachment.data, "application/octet-stream")
-
-        email.send()
-
     @staticmethod
     def get_user_identifier(user):
         return user.email or user.username
@@ -315,19 +289,9 @@ class PDFFullReport(PDFReport):
         self.report = report
         self.decrypted_report = decrypted_report
 
-    def send_report_to_school(self):
-        logger.info("sending report to reporting authority")
-        report_id = SentFullReport.objects.create(
-            report=self.report, to_address=settings.COORDINATOR_EMAIL).get_report_id()
-        self.report.submitted_to_school = timezone.now()
-        pdf = self.generate_pdf_report(report_id)
-        self.send_email_to_coordinator(pdf, 'report_delivery', report_id)
-        # save report timestamp only if generation & email work
-        self.report.save()
-
     def get_metadata_page(self, recipient):
         MetadataPage = []
-        MetadataPage.append(Paragraph(self.report_title, self.report_title_style))
+        MetadataPage.append(Paragraph(DeliveryApi().get_report_title(), self.report_title_style))
 
         MetadataPage.append(Paragraph("Overview", self.section_title_style))
 
@@ -384,7 +348,8 @@ class PDFFullReport(PDFReport):
                                 topMargin=72, bottomMargin=72)
 
         # COVER PAGE
-        self.pdf_elements.extend(self.get_cover_page(report_id=report_id, recipient=recipient))
+        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+        self.pdf_elements.extend(DeliveryApi().get_cover_page(self, report_id=report_id, recipient=recipient))
 
         # METADATA PAGE
         self.pdf_elements.extend(self.get_metadata_page(recipient))
@@ -432,10 +397,15 @@ class PDFMatchReport(PDFReport):
                                 rightMargin=72, leftMargin=72,
                                 topMargin=72, bottomMargin=72)
         # COVER PAGE
-        self.pdf_elements.extend(self.get_cover_page(report_id=report_id, recipient=settings.COORDINATOR_NAME))
+        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+        self.pdf_elements.extend(
+            DeliveryApi().get_cover_page(
+                self,
+                report_id=report_id,
+                recipient=settings.COORDINATOR_NAME))
 
         # MATCH REPORTS
-        self.pdf_elements.append(Paragraph(self.report_title, self.report_title_style))
+        self.pdf_elements.append(Paragraph(DeliveryApi().get_report_title(), self.report_title_style))
 
         # perpetrator info
         self.pdf_elements.append(Paragraph("Perpetrator", self.section_title_style))
@@ -496,13 +466,3 @@ class PDFMatchReport(PDFReport):
         result = buffer.getvalue()
         buffer.close()
         return result
-
-    def send_matching_report_to_school(self):
-        """ Encrypts the generated PDF with GPG and attaches it to an email to the reporting authority """
-        logger.info("sending match report to reporting authority")
-        sent_report = SentMatchReport.objects.create(to_address=settings.COORDINATOR_EMAIL)
-        report_id = sent_report.get_report_id()
-        sent_report.reports.add(*self.matches)
-        sent_report.save()
-        pdf = self.generate_match_report(report_id)
-        self.send_email_to_coordinator(pdf, 'match_delivery', report_id)

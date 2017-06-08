@@ -8,7 +8,11 @@ REPORT_TIME_ZONE = 'Europe/Paris'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-    }
+    },
+    # used to test multiple database support
+    "alternate": {
+        "ENGINE": "django.db.backends.sqlite3",
+    },
 }
 
 
@@ -21,18 +25,27 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "wizard_builder",
     "callisto.delivery",
-    "callisto.evaluation"
+    "callisto.evaluation",
+    "callisto.notification",
 ]
-
-SITE_ID = 1
 
 MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
                       'django.contrib.auth.middleware.AuthenticationMiddleware',)
 
 SCHOOL_REPORT_PREFIX = "000"
 
+KEY_HASHERS = [
+    "callisto.delivery.hashers.Argon2KeyHasher",
+    "callisto.delivery.hashers.PBKDF2KeyHasher"
+]
+
 # This low number is for testing purposes only, and is insufficient for production by several orders of magnitude
 KEY_ITERATIONS = 100
+ORIGINAL_KEY_ITERATIONS = 100000
+
+ARGON2_TIME_COST = 2
+ARGON2_MEM_COST = 512
+ARGON2_PARALLELISM = 2
 
 
 def get_test_key():
@@ -68,3 +81,5 @@ TEMPLATES = [
         'DIRS': ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
     },
 ]
+
+CALLISTO_NOTIFICATION_API = 'callisto.notification.api.NotificationApi'

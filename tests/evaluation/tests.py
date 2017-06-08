@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
 
-from callisto.delivery.matching import run_matching
+from callisto.delivery.matching import MatchingApi
 from callisto.delivery.models import Report
 from callisto.evaluation.models import EvalRow, EvaluationField
 
@@ -202,6 +202,12 @@ class ExtractAnswersTest(TestCase):
             "unanswered": []
         }
 
+    def test_extract_choices(self):
+        self.maxDiff = None
+        self.set_up_simple_report_scenario()
+        anonymised = EvalRow()._extract_answers(json.loads(self.json_report))
+        self.assertIn('radio_choices', anonymised)
+
     def test_extract_answers(self):
         self.maxDiff = None
         self.set_up_simple_report_scenario()
@@ -216,6 +222,15 @@ class ExtractAnswersTest(TestCase):
         self.assertNotEqual(anonymised1['match_identifier'], 'dummy1')
         self.assertEqual(anonymised1['match_identifier'], anonymised2['match_identifier'])
         self.assertNotEqual(anonymised1['match_identifier'], anonymised3['match_identifier'])
+
+    def test_match_id_type_gets_appended(self):
+        self.set_up_simple_report_scenario()
+        anonymised1 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy1')
+        anonymised2 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='twitter:dummy1')
+        anonymised3 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='email:this:is:not:possible')
+        self.assertEqual(anonymised1['match_identifier_type'], 'facebook')
+        self.assertEqual(anonymised2['match_identifier_type'], 'twitter')
+        self.assertEqual(anonymised3['match_identifier_type'], 'email')
 
     def test_extract_answers_with_extra(self):
         self.maxDiff = None
@@ -545,8 +560,8 @@ class EvalActionTest(MatchTest):
     def setUp(self):
         super(EvalActionTest, self).setUp()
 
-        self.page1 = QuestionPage.objects.create()
-        self.page2 = QuestionPage.objects.create()
+        self.page1 = QuestionPage.objects.create(site_id=self.site.id)
+        self.page2 = QuestionPage.objects.create(site_id=self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
 
@@ -562,9 +577,9 @@ class EvalActionTest(MatchTest):
         self.report.encrypt_report(self.report_text, self.key)
         self.report.save()
 
-    @patch('callisto.delivery.views.run_matching')
+    @patch('callisto.delivery.views.MatchingApi')
     @patch('callisto.delivery.views.EvalRow.anonymise_record')
-    def test_submission_to_matching_creates_eval_row(self, mock_anonymise_record, mock_run_matching):
+    def test_submission_to_matching_creates_eval_row(self, mock_anonymise_record, mock_matching_api):
         response = self.client.post(('/test_reports/match/%s/' % self.report.pk),
                                     data={'name': 'test submitter',
                                           'email': 'test@example.com',
@@ -581,18 +596,18 @@ class EvalActionTest(MatchTest):
                                                  decrypted_text=None)
 
     @patch('callisto.delivery.matching.EvalRow.anonymise_record')
-    @patch('callisto.delivery.matching.send_notification_email')
-    @patch('callisto.delivery.matching.PDFMatchReport.send_matching_report_to_school')
-    def test_match_trigger_creates_eval_row(self, mock_send_to_school, mock_notify, mock_anonymise_record):
+    @patch('callisto.notification.api.NotificationApi.send_match_notification')
+    @patch('callisto.notification.api.NotificationApi.send_matching_report_to_authority')
+    def test_match_trigger_creates_eval_row(self, mock_send_to_authority, mock_notify, mock_anonymise_record):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        run_matching()
+        MatchingApi().run_matching()
         call1 = call(action=EvalRow.MATCH_FOUND, report=match1.report, decrypted_text=None, match_identifier=None)
         call2 = call(action=EvalRow.MATCH_FOUND, report=match2.report, decrypted_text=None, match_identifier=None)
         mock_anonymise_record.assert_has_calls([call1, call2])
 
     @patch('callisto.delivery.views.EvalRow.anonymise_record')
-    @patch('callisto.delivery.report_delivery.PDFFullReport.send_report_to_school')
+    @patch('callisto.notification.api.NotificationApi.send_report_to_authority')
     def test_submit_creates_eval_row(self, mock_send_report, mock_anonymise_record):
         response = self.client.post(('/test_reports/submit/%s/' % self.report.pk),
                                     data={'name': 'test submitter',

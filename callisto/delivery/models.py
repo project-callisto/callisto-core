@@ -1,53 +1,45 @@
-"""Data models describing reports and email notifications
-
-Includes Reports which may or may not have been sent as well as records of when
-reports of isolated or related incidents
-"""
-
-import hashlib
-
+# external
 import nacl.secret
 import nacl.utils
 import six
 from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
 
+# django
 from django.conf import settings
-from django.contrib.sites.models import Site
-from django.core.mail.message import EmailMultiAlternatives
 from django.db import models
-from django.template import Context, Template
 from django.utils import timezone
-from django.utils.crypto import get_random_string, pbkdf2
-from django.utils.html import strip_tags
+from django.utils.crypto import get_random_string
+
+# local
+from callisto.delivery.hashers import get_hasher, make_key
 
 
-def _encrypt_report(salt, key, report_text):
-    """Encrypts a report using the given secret key & salt. The secret key is stretched to 32 bytes using Django's
-    PBKDF2+SHA256 implementation. The encryption uses PyNacl & Salsa20 stream cipher.
+def _encrypt_report(stretched_key, report_text):
+    """Encrypts a report using the given secret key & salt. Requires a stretched key with a length of 32 bytes.
+    The encryption uses PyNacl & Salsa20 stream cipher.
 
     Args:
       salt (str): cryptographic salt
-      key (str): secret key
+      stretched_key (str): secret key after being stretched
       report_text (str): full report as a string
 
     Returns:
       bytes: the encrypted bytes of the report
 
     """
-    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
     box = nacl.secret.SecretBox(stretched_key)
     message = report_text.encode('utf-8')
     nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
     return box.encrypt(message, nonce)
 
 
-def _decrypt_report(salt, key, encrypted):
+def _decrypt_report(stretched_key, encrypted):
     """Decrypts an encrypted report.
 
     Args:
       salt (str): cryptographic salt
-      key (str): secret key
+      stretched_key (str): secret key after being stretched
       encrypted (bytes): full report encrypted
 
     Returns:
@@ -57,7 +49,6 @@ def _decrypt_report(salt, key, encrypted):
       CryptoError: If the key and salt fail to decrypt the record.
 
     """
-    stretched_key = pbkdf2(key, salt, settings.KEY_ITERATIONS, digest=hashlib.sha256)
     box = nacl.secret.SecretBox(stretched_key)
     decrypted = box.decrypt(bytes(encrypted))  # need to force to bytes bc BinaryField can return as memoryview
     return decrypted.decode('utf-8')
@@ -103,11 +94,17 @@ def _unpepper(peppered_report):
 class Report(models.Model):
     """The full text of a reported incident."""
     encrypted = models.BinaryField(blank=False)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     added = models.DateTimeField(auto_now_add=True)
     autosaved = models.BooleanField(null=False, default=False)
     last_edited = models.DateTimeField(blank=True, null=True)
-    salt = models.CharField(blank=False, max_length=256)
+
+    # DEPRECIATED: only kept to decrypt old entries before upgrade
+    salt = models.CharField(null=True, max_length=256)
+
+    # accept blank values for now, as old reports won't have them
+    # <algorithm>$<iterations>$<salt>$
+    encode_prefix = models.CharField(blank=True, max_length=500)
 
     submitted_to_school = models.DateTimeField(blank=True, null=True)
     contact_phone = models.CharField(blank=True, null=True, max_length=256)
@@ -130,7 +127,8 @@ class Report(models.Model):
         ordering = ('-added',)
 
     def encrypt_report(self, report_text, key, edit=False, autosave=False):
-        """Encrypts and attaches report text. Generates a random salt and stores it on the Report object.
+        """Encrypts and attaches report text. Generates a random salt and stores it in the Report object's encode
+        prefix.
 
         Args:
           report_text (str): the full text of the report
@@ -139,15 +137,24 @@ class Report(models.Model):
           autosave (bool): whether or not this encryption is part of an automatic save
 
         """
-        if not self.salt:
-            self.salt = get_random_string()
-        elif edit:
+        # start removing salt fields when updating old entries
+        if self.salt:
+            self.salt = None
+
+        hasher = get_hasher()
+        salt = get_random_string()
+
+        if edit:
             self.last_edited = timezone.now()
         self.autosaved = autosave
-        self.encrypted = _encrypt_report(salt=self.salt, key=key, report_text=report_text)
+
+        encoded = hasher.encode(key, salt)
+        self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
+
+        self.encrypted = _encrypt_report(stretched_key=stretched_key, report_text=report_text)
 
     def decrypted_report(self, key):
-        """Decrypts the report text. Uses the salt stored on the Report object.
+        """Decrypts the report text. Uses the salt from the encode prefix stored on the Report object.
         Args:
           key (str): the secret key
 
@@ -157,7 +164,9 @@ class Report(models.Model):
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
-        return _decrypt_report(salt=self.salt, key=key, encrypted=self.encrypted)
+        prefix, stretched_key = make_key(self.encode_prefix, key, self.salt)
+
+        return _decrypt_report(stretched_key=stretched_key, encrypted=self.encrypted)
 
     def withdraw_from_matching(self):
         """ Deletes all associated MatchReports """
@@ -176,53 +185,11 @@ class Report(models.Model):
 
 
 @six.python_2_unicode_compatible
-class EmailNotification(models.Model):
-    """Record of Email constructed in and sent via the project"""
-    name = models.CharField(blank=False, max_length=50, primary_key=True)
-    subject = models.CharField(blank=False, max_length=77)
-    body = models.TextField(blank=False)
-
-    def __str__(self):
-        return self.name
-
-    def render_body(self, context=None):
-        """Format the email as HTML."""
-        if context is None:
-            context = {}
-        current_site = Site.objects.get_current()
-        context['domain'] = current_site.domain
-        return Template(self.body).render(Context(context))
-
-    def render_body_plain(self, context=None):
-        """Format the email as plain text."""
-        if context is None:
-            context = {}
-        html = self.render_body(context)
-        cleaned = html.replace('<br />', '\n')
-        cleaned = cleaned.replace('<br/>', '\n')
-        cleaned = cleaned.replace('<p>', '\n')
-        cleaned = cleaned.replace('</p>', '\n')
-        return strip_tags(cleaned)
-
-    def send(self, to, from_email, context=None):
-        """Send the email as plain text.
-
-        Includes an HTML equivalent version as an attachment.
-        """
-
-        if context is None:
-            context = {}
-        email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
-        email.attach_alternative(self.render_body(context), "text/html")
-        email.send()
-
-
-@six.python_2_unicode_compatible
 class MatchReport(models.Model):
     """A report that indicates the user wants to submit if a match is found. A single report can have multiple
     MatchReports--one per perpetrator.
     """
-    report = models.ForeignKey('Report')
+    report = models.ForeignKey('Report', on_delete=models.CASCADE)
     contact_email = models.EmailField(blank=False, max_length=256)
 
     identifier = models.CharField(blank=False, null=True, max_length=500)
@@ -231,21 +198,34 @@ class MatchReport(models.Model):
     seen = models.BooleanField(blank=False, default=False)
 
     encrypted = models.BinaryField(null=False)
-    salt = models.CharField(null=False, max_length=256)
+
+    # DEPRECIATED: only kept to decrypt old entries before upgrade
+    salt = models.CharField(null=True, max_length=256)
+
+    # <algorithm>$<iterations>$<salt>$
+    encode_prefix = models.CharField(blank=True, max_length=500)
 
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
 
     def encrypt_match_report(self, report_text, key):
-        """Encrypts and attaches report text. Generates a random salt and stores it on the MatchReport object.
+        """Encrypts and attaches report text. Generates a random salt and stores it in an encode prefix on the
+        MatchReport object.
 
         Args:
           report_text (str): the full text of the report
           key (str): the secret key
 
         """
-        self.salt = get_random_string()
-        self.encrypted = _pepper(_encrypt_report(salt=self.salt, key=key, report_text=report_text))
+        if self.salt:
+            self.salt = None
+        hasher = get_hasher()
+        salt = get_random_string()
+
+        encoded = hasher.encode(key, salt)
+        self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
+
+        self.encrypted = _pepper(_encrypt_report(stretched_key=stretched_key, report_text=report_text))
 
     def get_match(self, identifier):
         """Checks if the given identifier triggers a match on this report. Returns report text if so.
@@ -257,8 +237,12 @@ class MatchReport(models.Model):
             str or None: returns the decrypted report as a string if the identifier matches, or None otherwise.
         """
         decrypted_report = None
+
+        prefix, stretched_identifier = make_key(self.encode_prefix, identifier, self.salt)
+
         try:
-            decrypted_report = _decrypt_report(salt=self.salt, key=identifier, encrypted=_unpepper(self.encrypted))
+            decrypted_report = _decrypt_report(stretched_key=stretched_identifier,
+                                               encrypted=_unpepper(self.encrypted))
         except CryptoError:
             pass
         return decrypted_report
@@ -268,9 +252,9 @@ class SentReport(PolymorphicModel):
     """Report of one or more incidents, sent to the monitoring organization"""
     # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14
     sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.EmailField(blank=False, null=False, max_length=256)
+    to_address = models.CharField(blank=False, null=False, max_length=4096)
 
-    def _get_id_for_schools(self, is_match):
+    def _get_id_for_authority(self, is_match):
         return "{0}-{1}-{2}".format(settings.SCHOOL_REPORT_PREFIX, '%05d' % self.id, 0 if is_match else 1)
 
 
@@ -279,7 +263,7 @@ class SentFullReport(SentReport):
     report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.SET_NULL)
 
     def get_report_id(self):
-        return self._get_id_for_schools(is_match=False)
+        return self._get_id_for_authority(is_match=False)
 
 
 class SentMatchReport(SentReport):
@@ -287,4 +271,4 @@ class SentMatchReport(SentReport):
     reports = models.ManyToManyField(MatchReport)
 
     def get_report_id(self):
-        return self._get_id_for_schools(is_match=True)
+        return self._get_id_for_authority(is_match=True)

@@ -1,8 +1,10 @@
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.http import HttpResponse
 
-from callisto.delivery.report_delivery import PDFFullReport, PDFMatchReport
+from callisto.delivery.matching import CallistoMatching
 from callisto.delivery.wizard import EncryptedFormBaseWizard
+from callisto.notification.api import NotificationApi
 
 
 class EncryptedFormWizard(EncryptedFormBaseWizard):
@@ -11,13 +13,39 @@ class EncryptedFormWizard(EncryptedFormBaseWizard):
         return HttpResponse(report.id)
 
 
-class CustomReport(PDFFullReport):
-    report_title = "Custom"
+class SiteAwareNotificationApi(NotificationApi):
+
+    @classmethod
+    def get_user_site(self, user):
+        site = Site.objects.get(id=1)
+        site.domain = 'testserver'
+        site.save()
+        return site
+
+
+class CustomNotificationApi(SiteAwareNotificationApi):
+
     from_email = '"Custom" <custom@{0}>'.format(settings.APP_URL)
     report_filename = "custom_{0}.pdf.gpg"
 
+    @classmethod
+    def get_report_title(self):
+        return 'Custom'
 
-class CustomMatchReport(PDFMatchReport):
-    report_title = "Custom"
-    from_email = '"Custom" <custom@{0}>'.format(settings.APP_URL)
-    report_filename = "custom_match_{0}.pdf.gpg"
+
+class ExtendedCustomNotificationApi(CustomNotificationApi):
+
+    @classmethod
+    def send_report_to_authority(arg1, arg2, arg3):
+        pass
+
+
+class CustomMatchingApi(CallistoMatching):
+
+    @classmethod
+    def run_matching(cls, match_reports_to_check=None):
+        super(CustomMatchingApi, cls).run_matching(match_reports_to_check)
+
+    @classmethod
+    def process_new_matches(cls, matches, identifier):
+        pass

@@ -7,7 +7,7 @@ from wizard_builder.models import PageBase
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.sites.shortcuts import get_current_site
 from django.http import (
     HttpResponse, HttpResponseForbidden, HttpResponseNotFound,
     HttpResponseServerError,
@@ -16,12 +16,15 @@ from django.shortcuts import render
 from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
 
+from callisto.delivery.api import DeliveryApi
 from callisto.evaluation.models import EvalRow
 
-from .forms import SecretKeyForm, SubmitToMatchingFormSet, SubmitToSchoolForm
-from .matching import run_matching
-from .models import EmailNotification, MatchReport, Report
-from .report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
+from .forms import (
+    SecretKeyForm, SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
+)
+from .matching import MatchingApi
+from .models import MatchReport, Report, SentFullReport
+from .report_delivery import MatchReportContent, PDFFullReport
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -42,15 +45,24 @@ def check_owner(action_name, report_id_arg='report_id'):
                     logger.warning("illegal {} attempt on record {} by user {}".format(action_name,
                                                                                        id_to_fetch, owner.id))
                     return HttpResponseForbidden() if settings.DEBUG else HttpResponseNotFound()
-            except ObjectDoesNotExist:
+            except Report.DoesNotExist:
+                logger.info('Got request for nonexistant report Report(id={})'.format(id_to_fetch))
                 return HttpResponseNotFound()
         return _wrapped_view
     return decorator
 
 
 def new_record_form_view(request, wizard, step=None, url_name="record_form"):
-    if PageBase.objects.count() > 0:
-        return wizard.wizard_factory().as_view(url_name=url_name)(request, step=step)
+    site = get_current_site(request)
+    if PageBase.objects.on_site(site.id).count() > 0:
+        return wizard.wizard_factory(
+            site_id=site.id,
+        ).as_view(
+            url_name=url_name,
+        )(
+            request,
+            step=step,
+        )
     else:
         logger.error("no pages in record form")
         return HttpResponseServerError()
@@ -59,35 +71,36 @@ def new_record_form_view(request, wizard, step=None, url_name="record_form"):
 @check_owner('edit', 'edit_id')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_report"):
+    site = get_current_site(request)
     report = Report.objects.get(id=edit_id)
-    if PageBase.objects.count() > 0:
-        return wizard.wizard_factory(object_to_edit=report).as_view(url_name=url_name)(request, step=step)
+    if PageBase.objects.on_site(site.id).count() > 0:
+        return wizard.wizard_factory(
+            site_id=site.id,
+            object_to_edit=report,
+        ).as_view(
+            url_name=url_name,
+        )(
+            request,
+            step=step,
+        )
     else:
         logger.error("no pages in record form")
         return HttpResponseServerError()
 
 
-def _send_user_notification(form, notification_name):
-    if form.cleaned_data.get('email_confirmation') == "True":
-        notification = EmailNotification.objects.get(name=notification_name)
-        preferred_email = form.cleaned_data.get('email')
-        to_email = preferred_email
-        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-        notification.send(to=[to_email], from_email=from_email)
-
-
 @check_owner('submit')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_to_school(request, report_id, form_template_name="submit_to_school.html",
-                     confirmation_template_name="submit_to_school_confirmation.html",
-                     report_class=PDFFullReport, extra_context=None):
+def submit_report_to_authority(request, report_id, form_template_name="submit_report_to_authority.html",
+                               confirmation_template_name="submit_report_to_authority_confirmation.html",
+                               extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
+    site = get_current_site(request)
     context = {'owner': owner, 'report': report}
     context.update(extra_context or {})
 
     if request.method == 'POST':
-        form = SubmitToSchoolForm(owner, report, request.POST)
+        form = SubmitReportToAuthorityForm(owner, report, request.POST)
         form.report = report
         if form.is_valid():
             try:
@@ -96,7 +109,8 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
                 report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                report_class(report=report, decrypted_report=form.decrypted_report).send_report_to_school()
+                sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
+                DeliveryApi().send_report_to_authority(sent_full_report, form.decrypted_report, site.id)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
@@ -106,16 +120,17 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
             # record submission in anonymous evaluation data
             EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
 
-            try:
-                _send_user_notification(form, 'submit_confirmation')
-            except Exception:
-                # report was sent even if confirmation email fails, so don't show an error if so
-                logger.exception("couldn't send confirmation to user on submission")
+            if form.cleaned_data.get('email_confirmation') == "True":
+                try:
+                    DeliveryApi().send_user_notification(form, 'submit_confirmation', site.id)
+                except Exception:
+                    # report was sent even if confirmation email fails, so don't show an error if so
+                    logger.exception("couldn't send confirmation to user on submission")
 
             context.update({'form': form})
             return render(request, confirmation_template_name, context)
     else:
-        form = SubmitToSchoolForm(owner, report)
+        form = SubmitReportToAuthorityForm(owner, report)
     context.update({'form': form})
     return render(request, form_template_name, context)
 
@@ -124,20 +139,20 @@ def submit_to_school(request, report_id, form_template_name="submit_to_school.ht
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
                        confirmation_template_name="submit_to_matching_confirmation.html",
-                       report_class=PDFMatchReport, extra_context=None):
+                       extra_context=None):
     owner = request.user
     report = Report.objects.get(id=report_id)
+    site = get_current_site(request)
     context = {'owner': owner, 'report': report}
     context.update(extra_context or {})
 
     if request.method == 'POST':
-        form = SubmitToSchoolForm(owner, report, request.POST)
+        form = SubmitReportToAuthorityForm(owner, report, request.POST)
         formset = SubmitToMatchingFormSet(request.POST)
         form.report = report
         if form.is_valid() and formset.is_valid():
             try:
-                match_reports = []
-                identifiers = []
+                matches_for_immediate_processing = []
                 for perp_form in formset:
                     # enter into matching
                     match_report = MatchReport(report=report)
@@ -156,31 +171,37 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                                                       key=perp_identifier)
 
                     if settings.MATCH_IMMEDIATELY:
-                        identifiers.append(perp_identifier)
-                    else:
+                        # save in DB without identifier
+                        match_report.save()
                         match_report.identifier = perp_identifier
-                    match_reports.append(match_report)
-                MatchReport.objects.bulk_create(match_reports)
+                        matches_for_immediate_processing.append(match_report)
+                    else:
+                        # temporarily save identifier in DB until matching is run
+                        match_report.identifier = perp_identifier
+                        match_report.save()
+
+                    # record matching submission in anonymous evaluation data
+                    EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
+
                 if settings.MATCH_IMMEDIATELY:
-                    run_matching(identifiers=identifiers, report_class=report_class)
+                    MatchingApi().run_matching(match_reports_to_check=matches_for_immediate_processing)
+
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))
                 context.update({'form': form, 'formset': formset, 'submit_error': True})
                 return render(request, form_template_name, context)
 
-            # record matching submission in anonymous evaluation data
-            EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
-
-            try:
-                _send_user_notification(form, 'match_confirmation')
-            except Exception:
-                # matching was entered even if confirmation email fails, so don't show an error if so
-                logger.exception("couldn't send confirmation to user on match submission")
+            if form.cleaned_data.get('email_confirmation') == "True":
+                try:
+                    DeliveryApi().send_user_notification(form, 'match_confirmation', site.id)
+                except Exception:
+                    # matching was entered even if confirmation email fails, so don't show an error if so
+                    logger.exception("couldn't send confirmation to user on match submission")
 
             return render(request, confirmation_template_name, context)
 
     else:
-        form = SubmitToSchoolForm(owner, report)
+        form = SubmitReportToAuthorityForm(owner, report)
         formset = SubmitToMatchingFormSet()
     context.update({'form': form, 'formset': formset})
     return render(request, form_template_name, context)
@@ -203,7 +224,7 @@ def withdraw_from_matching(request, report_id, template_name, extra_context=None
 
 @check_owner('export')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def export_as_pdf(request, report_id, force_download=True, filename='report.pdf', report_class=PDFFullReport,
+def export_as_pdf(request, report_id, force_download=True, filename='report.pdf',
                   template_name='export_report.html', extra_context=None):
     report = Report.objects.get(id=report_id)
     context = {'owner': request.user, 'report': report}
@@ -217,7 +238,7 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
                 response = HttpResponse(content_type='application/pdf')
                 response['Content-Disposition'] = '{}; filename="{}"'\
                     .format('attachment' if force_download else 'inline', filename)
-                pdf = report_class(report=report, decrypted_report=form.decrypted_report)\
+                pdf = PDFFullReport(report=report, decrypted_report=form.decrypted_report)\
                     .generate_pdf_report(recipient=None, report_id=None)
                 response.write(pdf)
                 return response
