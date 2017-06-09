@@ -4,7 +4,7 @@ import os
 import re
 import sys
 
-from callisto.delivery import __version__ as version
+from callisto import __version__ as version
 
 try:
     from setuptools import setup

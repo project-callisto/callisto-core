@@ -3,6 +3,13 @@
 History
 -------
 
+0.6.2 (2017-06-08)
+++++++++++++++++++
+
+* removed 'environ' dependency
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/191
+
 0.6.1 (2017-06-08)
 ++++++++++++++++++
 
