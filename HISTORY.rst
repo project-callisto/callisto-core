@@ -63,6 +63,16 @@ History
 * Introduced MatchingApi to allow customization of matching behavior
 * Renamed many instances of "school" to "authority"
 
+0.3.0 (2017-04-24)
+++++++++++++++++++
+
+* Moved EmailNotification from delivery to notification (may cause subtle bugs with migrations)
+
+0.2.0 (2017-04-24)
+++++++++++++++++++
+
+* Added multi-tenant support (via django's sites framework) for EmailNotification
+
 0.1.1 (2016-10-24)
 ++++++++++++++++++
 
