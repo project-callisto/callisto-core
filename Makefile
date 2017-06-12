@@ -59,6 +59,7 @@ release: ## package and upload a release
 	make clean
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
+	python setup.py tag
 
 sdist: ## package
 	make clean
