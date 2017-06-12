@@ -41,8 +41,7 @@ license = open('LICENSE').read()
 setup(
     name='callisto-core',
     version=version,
-    description="""Report intake, escrow, matching and secure delivery code for Callisto,
-    an online reporting system for sexual assault.""",
+    description='Report intake, escrow, matching and secure delivery code for Callisto, an online reporting system for sexual assault.',
     license=license,
     long_description=readme + '\n\n' + history,
     author='Sexual Health Innovations',
