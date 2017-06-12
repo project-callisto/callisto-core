@@ -6,6 +6,7 @@ History
 0.6.2 (2017-06-08)
 ++++++++++++++++++
 
+* make django dependency explicit
 * removed 'environ' dependency
 
     https://github.com/SexualHealthInnovations/callisto-core/pull/191
