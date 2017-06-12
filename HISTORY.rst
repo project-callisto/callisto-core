@@ -3,6 +3,14 @@
 History
 -------
 
+0.6.2 (2017-06-08)
+++++++++++++++++++
+
+* make django dependency explicit
+* removed 'environ' dependency
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/191
+
 0.6.1 (2017-06-08)
 ++++++++++++++++++
 
@@ -54,6 +62,16 @@ History
 
 * Introduced MatchingApi to allow customization of matching behavior
 * Renamed many instances of "school" to "authority"
+
+0.3.0 (2017-04-24)
+++++++++++++++++++
+
+* Moved EmailNotification from delivery to notification (may cause subtle bugs with migrations)
+
+0.2.0 (2017-04-24)
+++++++++++++++++++
+
+* Added multi-tenant support (via django's sites framework) for EmailNotification
 
 0.1.1 (2016-10-24)
 ++++++++++++++++++

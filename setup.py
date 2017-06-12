@@ -4,7 +4,7 @@ import os
 import re
 import sys
 
-from callisto.delivery import __version__ as version
+from callisto import __version__ as version
 
 try:
     from setuptools import setup
@@ -56,12 +56,12 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
+        'django',
         'django-polymorphic==1.2',
         'django-ratelimit==1.0.1',
         'django-wizard-builder==0.1.2',
         'PyNaCl==1.1.2',
         'python-gnupg==0.4.0',
-        'environ',
         'pytz==2017.2',
         'reportlab==3.4.0',
         'zxcvbn-py3',
