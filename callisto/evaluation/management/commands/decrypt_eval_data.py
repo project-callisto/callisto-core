@@ -1,7 +1,6 @@
 import json
 import os
 
-import environ
 import gnupg
 import six
 
