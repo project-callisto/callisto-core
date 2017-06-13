@@ -5,7 +5,7 @@ from .base import ChoiceInline, DowncastedAdmin
 
 class FormQuestionAdminMixin(object):
     search_fields = ['text', 'descriptive_text']
-    list_filter = ['page__site']
+    list_filter = ['page__sites']
 
 
 class FormQuestionParentAdmin(FormQuestionAdminMixin, DowncastedAdmin):

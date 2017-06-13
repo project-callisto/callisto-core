@@ -4,17 +4,17 @@ from .base import DowncastedAdmin, QuestionInline
 
 
 class PageBaseAdmin(DowncastedAdmin):
-    list_filter = ['site']
+    list_filter = ['sites']
 
 
 class PageBaseChildAdmin(admin.ModelAdmin):
-    list_filter = ['site']
+    list_filter = ['sites']
 
 
 class QuestionPageAdmin(PageBaseChildAdmin):
     fieldsets = (
         (None, {
-            'fields': ('position', 'section', 'encouragement', 'infobox', 'site')
+            'fields': ('position', 'section', 'encouragement', 'infobox', 'sites')
         }),
         ('Advanced options', {
             'fields': (('multiple', 'name_for_multiple'),)
