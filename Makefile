@@ -39,7 +39,7 @@ test-lint: ## check style with pep8 and isort
 	isort --check-only --diff --quiet -rc callisto/
 
 test-suite: ## run the unit and integration tests
-	python runtests.py tests
+	pytest -v
 
 test: ## run the linters and the test suite
 	make test-lint
