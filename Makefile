@@ -45,14 +45,6 @@ test: ## run the linters and the test suite
 	make test-lint
 	make test-suite
 
-docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/callisto-core.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ callisto
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	$(BROWSER) docs/_build/html/index.html
-
 release: ## package and upload a release
 	make clean
 	python setup.py sdist upload
