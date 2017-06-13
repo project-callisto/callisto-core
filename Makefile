@@ -45,9 +45,6 @@ test: ## run the linters and the test suite
 	make test-lint
 	make test-suite
 
-test-all: ## run suite on every supported python version
-	tox
-
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/callisto-core.rst
 	rm -f docs/modules.rst
