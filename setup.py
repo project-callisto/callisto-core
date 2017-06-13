@@ -6,10 +6,7 @@ import sys
 
 from callisto import __version__ as version
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 if sys.argv[-1] == 'publish':
     try:
@@ -48,11 +45,7 @@ setup(
     author_email='tech@sexualhealthinnovations.org',
     url='https://github.com/SexualHealthInnovations/callisto-core',
     download_url='https://github.com/SexualHealthInnovations/callisto-core/tarball/release-8.15.16-2/',
-    packages=[
-        'callisto.delivery',
-        'callisto.evaluation',
-        'callisto.notification',
-    ],
+    packages=find_packages(),
     include_package_data=True,
     install_requires=[
         'django',

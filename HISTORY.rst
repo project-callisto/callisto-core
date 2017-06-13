@@ -3,7 +3,7 @@
 History
 -------
 
-0.6.3 (2017-06-12)
+0.6.7 (2017-06-12)
 ++++++++++++++++++
 
 * fix version missing from pypi release

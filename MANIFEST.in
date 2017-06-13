@@ -3,5 +3,4 @@ include CONTRIBUTING.md
 include HISTORY.rst
 include LICENSE
 include README.md
-recursive-include callisto/ *.html *.png *.gif *.js *.css *.jpg *.jpeg *.svg *.py
-*.py
+recursive-include callisto/ *
