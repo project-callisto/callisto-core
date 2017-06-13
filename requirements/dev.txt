@@ -1,9 +1,9 @@
-wheel==0.29.0
+wheel
 
 # Coding style compliance
-autopep8>=1.2.4
+autopep8
 
 # releasing to PyPI
-pypandoc==1.4
+pypandoc
 
 -r test.txt
