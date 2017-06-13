@@ -1,3 +1,4 @@
+from unittest import skip
 import json
 
 from django_migration_testcase import MigrationTest
@@ -21,6 +22,7 @@ class MatchReportMigrationTest(MigrationTest):
     before = '0003_allow_deletion_of_identifier'
     after = '0007_add_argon2_with_rolling_upgrades'
 
+    @skip('migration already run')
     def test_fields_are_encrypted(self):
 
         user = User.objects.create_user(username="dummy", password="dummy")
@@ -55,6 +57,7 @@ class MatchReportMigrationTest(MigrationTest):
         self.assertEqual(decrypted_report['email'], email)
         self.assertEqual(decrypted_report['notes'], None)
 
+    @skip('migration already run')
     @patch('callisto.delivery.matching.CallistoMatching.process_new_matches')
     def test_matches_after_encryption(self, mock_process):
 
@@ -98,6 +101,7 @@ class MultipleRecipientMigrationTest(MigrationTest):
     before = '0008_make_salt_nullable'
     after = '0009_to_address_to_textfield'
 
+    @skip('migration already run')
     def test_recipient_data_is_migrated(self):
 
         user = User.objects.create_user(username="dummy", password="dummy")

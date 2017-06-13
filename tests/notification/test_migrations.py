@@ -1,4 +1,5 @@
-# django
+from unittest import skip
+
 from django_migration_testcase import MigrationTest
 
 
@@ -13,6 +14,7 @@ class EmailNotificationDeliveryMigrationTest(MigrationTest):
         ('notification', '0001_initial_create_email_notification'),
     ]
 
+    @skip('migration already run')
     def test_email_notication_migration(self):
 
         name = 'migration_test'
@@ -46,6 +48,7 @@ class EmailNotificationPKTest(MigrationTest):
     before = '0002_emailnotification_sites'
     after = '0005_rename_to_emailnotification'
 
+    @skip('migration already run')
     def test_email_notication_primary_key_creation(self):
 
         name = 'migration_test'
