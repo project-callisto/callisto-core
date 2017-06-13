@@ -1,7 +1,6 @@
 
 def make_migrations():
     from django.core.management import call_command
-    call_command('makemigrations', 'test_app')
     call_command('makemigrations', 'wizard_builder')
 
 
@@ -17,7 +16,7 @@ if __name__ == '__main__':
                 'django.contrib.contenttypes',
                 'django.contrib.sites',
                 'wizard_builder',
-                'tests.test_app'
+                'wizard_builder.tests.test_app'
             ],
         )
 
