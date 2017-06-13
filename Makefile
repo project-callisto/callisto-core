@@ -25,9 +25,10 @@ clean-build: ## remove build artifacts
 	rm -fr *.egg-info
 
 clean-pyc: ## remove Python file artifacts
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
+	find callisto -name '*.pyc' -exec rm -f {} +
+	find callisto -name '*.pyo' -exec rm -f {} +
+	find callisto -name '*~' -exec rm -f {} +
+	find callisto -type d -name "__pycache__" -exec rm -rf {} +
 
 clean-lint: ## cleanup / display issues with isort and pep8
 	isort -rc callisto/
