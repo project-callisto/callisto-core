@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='pagebase',
             name='sites',
-            field=models.ManyToManyField(to='sites.Site', null=True),
+            field=models.ManyToManyField(to='sites.Site'),
         ),
         migrations.RunPython(
             copy_site_to_sites,
