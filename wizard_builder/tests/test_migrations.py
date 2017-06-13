@@ -19,7 +19,7 @@ class SitesMigrationTest(MigrationTest):
 
     def test_phantom_sites_not_populated(self):
         OldPageBase = self.get_model_before('wizard_builder.PageBase')
-        old_page = OldPageBase.objects.create(site_id=1)
+        old_page = OldPageBase.objects.create()
 
         self.run_migration()
         NewPageBase = self.get_model_after('wizard_builder.PageBase')
