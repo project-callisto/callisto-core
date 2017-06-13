@@ -1,3 +1,3 @@
-__version__ = '0.1.2'
+__version__ = '0.2.1'
 
 default_app_config = 'wizard_builder.apps.WizardBuilderConfig'

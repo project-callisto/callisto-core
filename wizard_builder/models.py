@@ -22,7 +22,7 @@ class PageBase(models.Model):
 
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
-    site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
+    sites = models.ManyToManyField(Site)
     objects = PageBaseManager()
 
     @property
@@ -30,11 +30,8 @@ class PageBase(models.Model):
         return "Page {}".format(self.position)
 
     @property
-    def site_name(self):
-        if self.site:
-            return self.site.name
-        else:
-            return None
+    def site_names(self):
+        return [site.name for site in self.sites.all()]
 
     def set_page_position(self):
         '''
@@ -82,9 +79,9 @@ class QuestionPage(PageBase):
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
-        if len(questions) > 0 and self.site_name:
+        if len(questions) > 0 and self.site_names:
             question_str = "(Question 1: {})".format(questions[0].text)
-            site_str = "(Site: {})".format(self.site_name)
+            site_str = "(Sites: {})".format(self.site_names)
             return "{} {} {}".format(self.short_str, question_str, site_str)
         elif len(questions) > 0:
             question_str = "(Question 1: {})".format(questions[0].text)
@@ -106,8 +103,8 @@ class FormQuestion(models.Model):
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
-        if self.site_name:
-            site_str = "(Site: {})".format(self.site_name)
+        if self.site_names:
+            site_str = "(Sites: {})".format(self.site_names)
             return "{} {} {}".format(self.short_str, type_str, site_str)
         else:
             return "{} {}".format(self.short_str, type_str)
@@ -117,9 +114,9 @@ class FormQuestion(models.Model):
         return self.text
 
     @property
-    def site_name(self):
+    def site_names(self):
         if self.page:
-            return self.page.site_name
+            return self.page.site_names
         else:
             return None
 

@@ -10,7 +10,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": 'wizard_builder.test_app.NOT_USED',
         'TEST': {
-            'NAME': 'wizard_builder.test_app',
+            'NAME': 'wizard_builder.test_app.sqlite3',
         },
     }
 }

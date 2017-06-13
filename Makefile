@@ -25,9 +25,10 @@ clean-build: ## remove build artifacts
 	rm -fr *.egg-info
 
 clean-pyc: ## remove Python file artifacts
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
+	find wizard_builder -name '*.pyc' -exec rm -f {} +
+	find wizard_builder -name '*.pyo' -exec rm -f {} +
+	find wizard_builder -name '*~' -exec rm -f {} +
+	find wizard_builder -type d -name "__pycache__" -exec rm -rf {} +
 
 clean-lint: ## run the cleanup functions for the linters
 	isort -rc wizard_builder/
@@ -39,6 +40,9 @@ test-lint: ## lint with isort and flake8
 
 test-suite: ## run the unit and intregration tests
 	pytest -v
+
+test-fast: ## runs the test suite, with fast failures and a re-used database
+	pytest -v -l -s --maxfail=1 --ff --reuse-db
 
 test: ## run both the test suite and the linters
 	make test-lint

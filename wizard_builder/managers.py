@@ -19,7 +19,7 @@ class PageBaseQuerySet(InheritanceQuerySet):
     def on_site(self, site_id=None):
         site_id = site_id or Site.objects.get_current().id
         return self.filter(
-            site__id=site_id,
+            sites__id__in=[site_id],
         )
 
 

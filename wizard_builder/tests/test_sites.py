@@ -30,7 +30,7 @@ class SiteIDTest(TestCase):
     def test_page_has_no_default_site_attribute(self):
         with TempSiteID(1):
             page = QuestionPage.objects.create()
-        self.assertEqual(page.site, None)
+        self.assertEqual(page.sites.count(), 0)
 
     @override_settings()
     def test_on_site_respects_SITE_ID_setting(self):
@@ -40,9 +40,11 @@ class SiteIDTest(TestCase):
         site_2 = Site.objects.create()
 
         for i in range(site_1_pages):
-            QuestionPage.objects.create(site_id=site_1.id)
+            page = QuestionPage.objects.create()
+            page.sites.add(site_1.id)
         for i in range(site_2_pages):
-            QuestionPage.objects.create(site_id=site_2.id)
+            page = QuestionPage.objects.create()
+            page.sites.add(site_2.id)
 
         with TempSiteID(site_1.id):
             self.assertEqual(QuestionPage.objects.on_site().count(), site_1_pages)
@@ -53,12 +55,12 @@ class SiteIDTest(TestCase):
     def test_can_override_site_id_when_setting_is_set(self):
         with TempSiteID(1):
             site_2 = Site.objects.create()
-            page = QuestionPage.objects.create(site_id=site_2.id)
+            page = QuestionPage.objects.create()
+            page.sites.add(site_2.id)
             self.assertNotEqual(settings.SITE_ID, site_2.id)
-            self.assertNotEqual(page.site.id, settings.SITE_ID)
+            self.assertNotEqual(page.sites.first().id, settings.SITE_ID)
 
-        self.assertEqual(page.site_id, site_2.id)
-        self.assertEqual(page.site.id, site_2.id)
+        self.assertEqual(page.sites.first().id, site_2.id)
 
 
 class SiteRequestTest(TestCase):
@@ -68,7 +70,8 @@ class SiteRequestTest(TestCase):
         self.site = Site.objects.get(id=1)
         self.site.domain = 'testserver'
         self.site.save()
-        self.page = QuestionPage.objects.create(site_id=self.site.id)
+        self.page = QuestionPage.objects.create()
+        self.page.sites.add(self.site.id)
         self.question = SingleLineText.objects.create(text="first question", page=self.page)
 
     @patch('wizard_builder.managers.PageBaseManager.on_site')

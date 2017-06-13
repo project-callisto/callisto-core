@@ -1,3 +1,6 @@
+# test dbs
+*.sqlite3
+
 # ignore webdriver screendumps
 screendumps/
 
