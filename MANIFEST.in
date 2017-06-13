@@ -2,3 +2,4 @@ include HISTORY.rst
 include LICENSE
 include README.rst
 recursive-include wizard_builder *
+recursive-exclude wizard_builder/tests *
