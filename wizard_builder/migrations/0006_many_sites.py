@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
+
 def copy_site_to_sites(apps, schema_editor):
     current_database = schema_editor.connection.alias
     PageBase = apps.get_model('wizard_builder.PageBase')
