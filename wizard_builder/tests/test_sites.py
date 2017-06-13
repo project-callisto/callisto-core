@@ -30,7 +30,7 @@ class SiteIDTest(TestCase):
     def test_page_has_no_default_site_attribute(self):
         with TempSiteID(1):
             page = QuestionPage.objects.create()
-        self.assertEqual(page.site, None)
+        self.assertEqual(page.sites.count(), 0)
 
     @override_settings()
     def test_on_site_respects_SITE_ID_setting(self):
@@ -58,7 +58,7 @@ class SiteIDTest(TestCase):
             page = QuestionPage.objects.create()
             page.sites.add(site_2.id)
             self.assertNotEqual(settings.SITE_ID, site_2.id)
-            self.assertNotEqual(page.site.id, settings.SITE_ID)
+            self.assertNotEqual(page.sites.first().id, settings.SITE_ID)
 
         self.assertEqual(page.sites.first().id, site_2.id)
 
