@@ -25,10 +25,10 @@ clean-build: ## remove build artifacts
 	rm -fr *.egg-info
 
 clean-pyc: ## remove Python file artifacts
-	find callisto -name '*.pyc' -exec rm -f {} +
-	find callisto -name '*.pyo' -exec rm -f {} +
-	find callisto -name '*~' -exec rm -f {} +
-	find callisto -type d -name "__pycache__" -exec rm -rf {} +
+	find wizard_builder -name '*.pyc' -exec rm -f {} +
+	find wizard_builder -name '*.pyo' -exec rm -f {} +
+	find wizard_builder -name '*~' -exec rm -f {} +
+	find wizard_builder -type d -name "__pycache__" -exec rm -rf {} +
 
 clean-lint: ## run the cleanup functions for the linters
 	isort -rc wizard_builder/
