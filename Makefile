@@ -1,16 +1,5 @@
-.PHONY: clean-pyc clean-build docs help
+.PHONY: clean-pyc clean-build help
 .DEFAULT_GOAL := help
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
-try:
-	from urllib import pathname2url
-except:
-	from urllib.request import pathname2url
-
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
-endef
-export BROWSER_PYSCRIPT
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
@@ -39,22 +28,11 @@ test-lint: ## check style with pep8 and isort
 	isort --check-only --diff --quiet -rc callisto/
 
 test-suite: ## run the unit and integration tests
-	python runtests.py tests
+	pytest -v
 
 test: ## run the linters and the test suite
 	make test-lint
 	make test-suite
-
-test-all: ## run suite on every supported python version
-	tox
-
-docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/callisto-core.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ callisto
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	$(BROWSER) docs/_build/html/index.html
 
 release: ## package and upload a release
 	make clean
