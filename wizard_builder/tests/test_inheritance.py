@@ -42,7 +42,9 @@ class InheritanceTest(TestCase):
 class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
-        QuestionPage.objects.using('test_app').create()
+        QuestionPage.objects.using('test_app').get_or_create(
+            infobox='dumpdata hack question',
+        )
 
         subprocess.check_call('''
             python wizard_builder/tests/test_app/manage.py \
