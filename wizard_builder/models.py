@@ -22,7 +22,7 @@ class PageBase(models.Model):
 
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
-    site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
+    sites = models.ManyToManyField(Site, null=True)
     objects = PageBaseManager()
 
     @property
