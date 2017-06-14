@@ -3,6 +3,13 @@
 History
 -------
 
+0.7.0 (2017-06-13)
+++++++++++++++++++
+
+* update to django wizard builder version 0.2.1
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/HISTORY.rst
+
 0.6.7 (2017-06-12)
 ++++++++++++++++++
 
