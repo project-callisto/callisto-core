@@ -66,8 +66,10 @@ class RecordFormBaseTest(SiteAwareTestCase):
 
     def setUp(self):
         super(RecordFormBaseTest, self).setUp()
-        self.page1 = QuestionPage.objects.create(site_id=self.site.id)
-        self.page2 = QuestionPage.objects.create(site_id=self.site.id)
+        self.page1 = QuestionPage.objects.create()
+        self.page1.sites.add(self.site.id)
+        self.page2 = QuestionPage.objects.create()
+        self.page2.sites.add(self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
 
@@ -113,7 +115,8 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         self.assertNotContains(response, 'name="1-question_%i"' % self.question2.pk)
 
     def test_wizard_generates_correct_number_of_pages(self):
-        page3 = QuestionPage.objects.create(site_id=self.site.id)
+        page3 = QuestionPage.objects.create()
+        page3.sites.add(self.site.id)
         SingleLineText.objects.create(text="first page question", page=page3)
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
         SingleLineText.objects.create(text="another first page question", page=page3, position=1)

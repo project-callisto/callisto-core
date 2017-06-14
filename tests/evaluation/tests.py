@@ -560,8 +560,10 @@ class EvalActionTest(MatchTest):
     def setUp(self):
         super(EvalActionTest, self).setUp()
 
-        self.page1 = QuestionPage.objects.create(site_id=self.site.id)
-        self.page2 = QuestionPage.objects.create(site_id=self.site.id)
+        self.page1 = QuestionPage.objects.create()
+        self.page1.sites.add(self.site.id)
+        self.page2 = QuestionPage.objects.create()
+        self.page2.sites.add(self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
 
