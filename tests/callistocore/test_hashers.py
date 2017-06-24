@@ -5,18 +5,18 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from django.utils.encoding import force_bytes
 
-import callisto.delivery.hashers as hashers
+import callisto_core.delivery.hashers as hashers
 
 
 class KeyHasherFunctionsTest(TestCase):
 
-    @override_settings(KEY_HASHERS=['callisto.delivery.hashers.BasePasswordHasher'])
+    @override_settings(KEY_HASHERS=['callisto_core.delivery.hashers.BasePasswordHasher'])
     def test_get_hashers_raises_improperly_configured_for_no_algorithm(self):
         with self.assertRaises(ImproperlyConfigured) as cm:
             hashers.get_hashers()
         ex = cm.exception
         self.assertEqual(str(ex), "hasher doesn't specify an algorithm name: "
-                                  "callisto.delivery.hashers.BasePasswordHasher")
+                                  "callisto_core.delivery.hashers.BasePasswordHasher")
 
     def test_get_hashers_returns_correct_hashers(self):
         hs = hashers.get_hashers()

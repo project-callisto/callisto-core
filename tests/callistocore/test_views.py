@@ -17,12 +17,12 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from callisto.delivery import matching_validators
-from callisto.delivery.api import DeliveryApi
-from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
-from callisto.delivery.models import MatchReport, Report, SentFullReport
-from callisto.evaluation.models import EvalRow
-from callisto.notification.models import EmailNotification
+from callisto_core.delivery import validators
+from callisto_core.utils.api import NotificationApi
+from callisto_core.delivery.forms import NewSecretKeyForm, SecretKeyForm
+from callisto_core.delivery.models import MatchReport, Report, SentFullReport
+from callisto_core.evaluation.models import EvalRow
+from callisto_core.notification.models import EmailNotification
 
 from .forms import EncryptedFormWizard
 
@@ -551,7 +551,7 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\\.pdf\\.gpg')
 
-    @patch('callisto.notification.api.NotificationApi.send_report_to_authority')
+    @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_report_to_authority')
     def test_submit_exception_is_handled(self, mock_send_report_to_authority):
         mock_send_report_to_authority.side_effect = Exception('Mock Send Report Exception')
         response = self.client.post((self.submission_url % self.report.pk),
@@ -562,8 +562,8 @@ class SubmitReportIntegrationTest(ExistingRecordTest):
                                           'key': self.report_key})
         self.assertIn('submit_error', response.context)
 
-    @patch('callisto.delivery.views.logger')
-    @patch('callisto.notification.api.NotificationApi.send_user_notification')
+    @patch('callisto_core.delivery.views.logger')
+    @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_user_notification')
     def test_submit_email_confirmation_is_handled(self, mock_send_user_notification, mock_logger):
         mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
         response = self.client.post((self.submission_url % self.report.pk),
@@ -755,7 +755,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
-    @override_settings(CALLISTO_IDENTIFIER_DOMAINS=matching_validators.facebook_or_twitter)
+    @override_settings(CALLISTO_IDENTIFIER_DOMAINS=validators.facebook_or_twitter)
     def test_non_fb_match(self):
         self.client.post((self.submission_url % self.report.pk),
                          data={'name': 'test submitter 1',
@@ -936,7 +936,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                'form-MAX_NUM_FORMS': '', })
         mock_process.assert_called_once()
 
-    @patch('callisto.delivery.views.MatchReport.encrypt_match_report')
+    @patch('callisto_core.delivery.views.MatchReport.encrypt_match_report')
     def test_match_send_exception_is_handled(self, mock_encrypt_match_report):
         mock_encrypt_match_report.side_effect = Exception('Mock Submit Match Exception')
         response = self.client.post((self.submission_url % self.report.pk),
@@ -951,8 +951,8 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                           'form-MAX_NUM_FORMS': '', })
         self.assertIn('submit_error', response.context)
 
-    @patch('callisto.delivery.views.logger')
-    @patch('callisto.notification.api.NotificationApi.send_user_notification')
+    @patch('callisto_core.delivery.views.logger')
+    @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_user_notification')
     def test_match_email_confirmation_exception_is_handled(self, mock_send_user_notification, mock_logger):
         mock_send_user_notification.side_effect = Exception('Mock Send Confirmation Exception')
         response = self.client.post((self.submission_url % self.report.pk),
@@ -1055,7 +1055,7 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         exported_report = BytesIO(response.content)
         pdf_reader = PyPDF2.PdfFileReader(exported_report)
-        self.assertEqual(DeliveryApi().get_report_title(), CustomNotificationApi().get_report_title())
+        self.assertEqual(NotificationApi.get_report_title(), CustomNotificationApi().get_report_title())
         self.assertIn(CustomNotificationApi().get_report_title(), pdf_reader.getPage(0).extractText())
 
     @override_settings(DEBUG=True)
@@ -1065,7 +1065,7 @@ class ExportRecordViewTest(ExistingRecordTest):
         response = self.client.get(self.export_url % report.id)
         self.assertEqual(response.status_code, 403)
 
-    @patch('callisto.delivery.views.PDFFullReport.generate_pdf_report')
+    @patch('callisto_core.delivery.views.PDFFullReport.generate_pdf_report')
     def test_export_exception_is_handled(self, mock_generate_pdf_report):
         mock_generate_pdf_report.side_effect = Exception('Mock Generate PDF Exception')
         response = self.client.post(
@@ -1118,7 +1118,7 @@ class DeleteRecordTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         self.assertIn('custom context', get_body(response))
 
-    @patch('callisto.delivery.views.Report.delete')
+    @patch('callisto_core.delivery.views.Report.delete')
     def test_delete_exception_is_handled(self, mock_delete):
         mock_delete.side_effect = Exception('Mock Delete Report Exception')
         response = self.client.post(

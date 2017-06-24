@@ -7,9 +7,9 @@ from mock import ANY, patch
 from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 
-from callisto.delivery.matching import MatchingApi
-from callisto.delivery.models import _pepper, _unpepper
-from callisto.delivery.report_delivery import MatchReportContent
+from callisto_core.utils.api import MatchingApi
+from callisto_core.delivery.models import _pepper, _unpepper
+from callisto_core.delivery.report_delivery import MatchReportContent
 
 from .models import _legacy_decrypt_report, _legacy_encrypt_report
 
@@ -90,7 +90,7 @@ class MatchReportMigrationTest(MigrationTest):
         encrypted_report = _pepper(_legacy_encrypt_report(salt, identifier, json.dumps(report_content.__dict__)))
         match_report = MatchReport.objects.create(report=report2, identifier=identifier, encrypted=encrypted_report,
                                                   salt=salt)
-        MatchingApi().find_matches(match_reports_to_check=[match_report])
+        MatchingApi.find_matches(match_reports_to_check=[match_report])
         # have to use ANY because objects in migration tests are faked
         mock_process.assert_called_once_with([ANY, ANY], 'test_identifier')
 

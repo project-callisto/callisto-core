@@ -5,7 +5,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
-from callisto.notification.models import EmailNotification
+from callisto_core.notification.models import EmailNotification
 
 
 class EmailValidationTest(TestCase):

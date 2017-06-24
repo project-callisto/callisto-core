@@ -24,9 +24,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.sites",
     "wizard_builder",
-    "callisto.delivery",
-    "callisto.evaluation",
-    "callisto.notification",
+    "callisto_core.delivery",
+    "callisto_core.evaluation",
+    "callisto_core.notification",
 ]
 
 MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
@@ -35,8 +35,8 @@ MIDDLEWARE_CLASSES = ('django.contrib.sessions.middleware.SessionMiddleware',
 SCHOOL_REPORT_PREFIX = "000"
 
 KEY_HASHERS = [
-    "callisto.delivery.hashers.Argon2KeyHasher",
-    "callisto.delivery.hashers.PBKDF2KeyHasher"
+    "callisto_core.delivery.hashers.Argon2KeyHasher",
+    "callisto_core.delivery.hashers.PBKDF2KeyHasher"
 ]
 
 # This low number is for testing purposes only, and is insufficient for production by several orders of magnitude
@@ -81,5 +81,3 @@ TEMPLATES = [
         'DIRS': ['%s/templates' % os.path.abspath(os.path.dirname(__file__))]
     },
 ]
-
-CALLISTO_NOTIFICATION_API = 'callisto.notification.api.NotificationApi'

@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from callisto.delivery.models import (
+from callisto_core.delivery.models import (
     MatchReport, Report, SentFullReport, SentMatchReport,
 )
 

@@ -20,7 +20,7 @@ from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
-from callisto.delivery.api import DeliveryApi
+from ..utils.api import NotificationApi
 
 date_format = "%m/%d/%Y @%H:%M%p"
 tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
@@ -275,7 +275,7 @@ class PDFFullReport(PDFReport):
 
     def get_metadata_page(self, recipient):
         MetadataPage = []
-        MetadataPage.append(Paragraph(DeliveryApi().get_report_title(), self.report_title_style))
+        MetadataPage.append(Paragraph(NotificationApi.get_report_title(), self.report_title_style))
 
         MetadataPage.append(Paragraph("Overview", self.section_title_style))
 
@@ -322,7 +322,6 @@ class PDFFullReport(PDFReport):
         return MetadataPage
 
     def generate_pdf_report(self, report_id, recipient=settings.COORDINATOR_NAME):
-
         # PREPARE PDF
         report_content = json.loads(self.decrypted_report)
 
@@ -333,7 +332,7 @@ class PDFFullReport(PDFReport):
 
         # COVER PAGE
         # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
-        self.pdf_elements.extend(DeliveryApi().get_cover_page(self, report_id=report_id, recipient=recipient))
+        self.pdf_elements.extend(NotificationApi.get_cover_page(self, report_id=report_id, recipient=recipient))
 
         # METADATA PAGE
         self.pdf_elements.extend(self.get_metadata_page(recipient))
@@ -372,7 +371,6 @@ class PDFMatchReport(PDFReport):
           bytes: a PDF with the submitted perp information & contact information of the reporters for this match
 
         """
-
         matches_with_reports = [(match, MatchReportContent(**json.loads(match.get_match(self.identifier))))
                                 for match in self.matches]
 
@@ -383,13 +381,13 @@ class PDFMatchReport(PDFReport):
         # COVER PAGE
         # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
         self.pdf_elements.extend(
-            DeliveryApi().get_cover_page(
+            NotificationApi.get_cover_page(
                 self,
                 report_id=report_id,
                 recipient=settings.COORDINATOR_NAME))
 
         # MATCH REPORTS
-        self.pdf_elements.append(Paragraph(DeliveryApi().get_report_title(), self.report_title_style))
+        self.pdf_elements.append(Paragraph(NotificationApi.get_report_title(), self.report_title_style))
 
         # perpetrator info
         self.pdf_elements.append(Paragraph("Perpetrator", self.section_title_style))

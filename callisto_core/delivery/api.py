@@ -1,32 +1,13 @@
 import logging
 
-from callisto.delivery.api import Api, DeliveryApi
-from callisto.evaluation.models import EvalRow
-
+from ..evaluation.models import EvalRow
+from ..utils.api import NotificationApi
 from .models import MatchReport
 
 logger = logging.getLogger(__name__)
 
 
-class MatchingApi(Api):
-    '''
-        Used to route calls to from inside of callisto/delivery/* to matching api(s) inside of other apps
-
-        this object is called with
-            from callisto.delivery.matching import MatchingApi
-            MatchingApi().run_matching()
-
-        which maps to CALLISTO_MATCHING_API
-            CALLISTO_MATCHING_API.run_matching
-
-        use CALLISTO_MATCHING_API to override the class that MatchingApi maps to
-    '''
-
-    api_env_variable = 'CALLISTO_MATCHING_API'
-    default_classpath = 'callisto.delivery.matching.CallistoMatching'
-
-
-class CallistoMatching(object):
+class CallistoCoreMatchingApi(object):
 
     @classmethod
     def run_matching(cls, match_reports_to_check=None):
@@ -102,7 +83,7 @@ class CallistoMatching(object):
             # only send notification emails to new matches
             if owner not in owners_notified and not match_report.report.match_found \
                     and not match_report.report.submitted_to_school:
-                DeliveryApi().send_match_notification(owner, match_report)
+                NotificationApi.send_match_notification(owner, match_report)
                 owners_notified.append(owner)
         # send report to school
-        DeliveryApi().send_matching_report_to_authority(matches, identifier)
+        NotificationApi.send_matching_report_to_authority(matches, identifier)

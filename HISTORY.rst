@@ -3,6 +3,19 @@
 History
 -------
 
+0.8.0 (2017-06-23)
+++++++++++++++++++
+
+* DeliveryApi => NotificationApi
+* cleanup and normalize Api classes
+* drop python 2 support
+* drop django 1.8, 1.10 support
+* callisto/ => callisto_core/
+* add UUID to Report
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/123
+    https://github.com/SexualHealthInnovations/callisto-core/pull/202
+
 0.7.0 (2017-06-13)
 ++++++++++++++++++
 

@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from callisto.delivery.views import (
+from callisto_core.delivery.views import (
     delete_report, edit_record_form_view, export_as_pdf, new_record_form_view,
     submit_report_to_authority, submit_to_matching, withdraw_from_matching,
 )

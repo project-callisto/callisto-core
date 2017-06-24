@@ -7,8 +7,7 @@ from wizard_builder.views import ConfigurableFormWizard
 from django.conf import settings
 from django.http import HttpResponseForbidden, HttpResponseServerError
 
-from callisto.evaluation.models import EvalRow
-
+from ..evaluation.models import EvalRow
 from .forms import NewSecretKeyForm, SecretKeyForm
 from .models import Report
 
