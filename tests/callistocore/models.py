@@ -6,7 +6,7 @@ import nacl.utils
 from django.conf import settings
 from django.utils.crypto import get_random_string, pbkdf2
 
-from callisto.delivery.models import _pepper
+from callisto_core.delivery.models import _pepper
 
 
 def _legacy_encrypt_report(salt, key, report_text):
