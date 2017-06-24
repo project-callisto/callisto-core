@@ -47,10 +47,7 @@ class DeliveryApi(Api):
     default_classpath = 'callisto.delivery.api.AbstractNotification'
 
     def __getattr__(self, attr):
-        if attr in AbstractNotification.__dict__.keys():
-            return getattr(self.api_implementation, attr)
-        else:
-            raise NotImplementedError('Attribute not implemented on abstract Notification class')
+        return getattr(self.api_implementation, attr, None)
 
 
 class AbstractNotification:
