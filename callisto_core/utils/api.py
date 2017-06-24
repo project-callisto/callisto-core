@@ -1,8 +1,10 @@
+from abc import ABCMeta
+
 from django.conf import settings
 from django.utils.module_loading import import_string
 
 
-class Api(object):
+class Api(metaclass=ABCMeta):
     '''
         Used to create overrideable calls
 
@@ -24,3 +26,9 @@ class Api(object):
             default_classpath,
         )
         self.api_implementation = import_string(override_class_path)
+
+class TestApi(Api):
+
+    @classmethod
+    def mew(cls):
+        print('mew!!!!!')

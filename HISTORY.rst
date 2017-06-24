@@ -10,6 +10,7 @@ History
 * cleanup and normalize Api classes
 * drop python 2 support
 * drop django 1.8, 1.10 support
+* callisto/ => callisto-core/
 
     https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/HISTORY.rst
 
