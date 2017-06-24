@@ -24,9 +24,11 @@ class ApiTest(TestCase):
         DeliveryApi().send_report_to_authority(self.mock_argument_1, self.mock_argument_2, 'cats')
         mock_process.assert_called_once_with(self.mock_argument_1, self.mock_argument_2, 'cats')
 
-    def test_invalid_notification_calls_raise_not_implemented(self):
-        with self.assertRaises(NotImplementedError):
-            DeliveryApi().send_claws_to_scratch_couch(self.mock_argument_1, self.mock_argument_2)
+    def test_abritrary_method_names_can_be_used(self):
+        self.assertEqual(
+            DeliveryApi().send_claws_to_scratch_couch(),
+            None,
+        )
 
     @patch('callisto.delivery.matching.CallistoMatching.find_matches')
     def test_default_matching_api_call(self, mock_process):

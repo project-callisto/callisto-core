@@ -1,88 +1,96 @@
-from abc import ABCMeta, abstractmethod
+import logging
 
-from django.conf import settings
-from django.utils.module_loading import import_string
+from callisto.utils.api import Api
+from callisto.notification.api import NotificationApi
+from callisto.evaluation.models import EvalRow
 
+from .models import MatchReport
 
-class Api(object):
-    '''
-        Used to route calls to from inside of callisto/delivery/* to api(s) inside of other apps
-
-        Extending objects should have 'api_env_variable' and 'default_classpath' members.
-        See DeliveryApi for an example
-    '''
-
-    def __init__(self):
-        self.set_api_class(self.api_env_variable, self.default_classpath)
-
-    def __getattr__(self, attr):
-        return getattr(self.api_implementation, attr)
-
-    def set_api_class(self, api_env_variable, default_classpath):
-        override_class_path = getattr(
-            settings,
-            api_env_variable,
-            default_classpath,
-        )
-        self.api_implementation = import_string(override_class_path)
+logger = logging.getLogger(__name__)
 
 
-class DeliveryApi(Api):
-    '''
-        Used to route calls to from inside of callisto/delivery/* to
-        notification api(s) inside of other apps
-
-        this object is called with
-            from callisto.delivery.api import DeliveryApi
-            DeliveryApi().example_call
-
-        which maps to CALLISTO_NOTIFICATION_API
-            CALLISTO_NOTIFICATION_API.example_call
-
-        use CALLISTO_NOTIFICATION_API to override the class that
-        DeliveryApi maps to
-    '''
-
-    api_env_variable = 'CALLISTO_NOTIFICATION_API'
-    default_classpath = 'callisto.delivery.api.AbstractNotification'
-
-    def __getattr__(self, attr):
-        return getattr(self.api_implementation, attr, None)
+class MatchingApi(Api):
+    api_env_variable = 'CALLISTO_MATCHING_API'
+    default_classpath = 'callisto.delivery.api.CallistoCoreMatchingApi'
 
 
-class AbstractNotification:
-    __metaclass__ = ABCMeta
+class CallistoCoreMatchingApi(object):
 
-    @abstractmethod
-    def send_report_to_authority(self):
-        pass
+    @classmethod
+    def run_matching(cls, match_reports_to_check=None):
+        """Compares existing match records to see if any match the given identifiers. If no identifiers are given,
+        checks existing match records against identifiers from records that weren't been marked as "seen" the last
+        time matching was run. For each identifier for which a new match is found, a report is sent to the receiving
+        authority and the reporting users are notified.
 
-    @abstractmethod
-    def send_matching_report_to_authority(self):
-        pass
+        Args:
+          match_reports_to_check(list of MatchReport, optional): the MatchReports to be checked (must have identifiers)
+          or None if the value is to be queried from the DB (Default value = None)
+        """
+        logger.info("running matching")
+        if match_reports_to_check is None:
+            match_reports_to_check = MatchReport.objects.filter(seen=False)
+        cls.find_matches(match_reports_to_check)
 
-    @abstractmethod
-    def send_user_notification(self):
-        pass
+    @classmethod
+    def get_all_eligible_match_reports(cls, match_report):
+        """Returns all match reports that are eligible to be checked for matches against a given MatchReport.
+        Designed to be overridden for applications that want more granular options for matching
+        (segmented for a given population or severity level of report, for example.)
 
-    @abstractmethod
-    def send_match_notification(self):
-        pass
+        Args:
+          match_report (MatchReport): MatchReport to be checked
+        """
+        return MatchReport.objects.all()
 
-    @abstractmethod
-    def send_email_to_authority_intake(self):
-        pass
+    @classmethod
+    def find_matches(cls, match_reports_to_check):
+        """Finds sets of matching records that haven't been identified yet. For a match to count as new, there must be
+        associated Reports from at least 2 different users and at least one MatchReport must be newly created since
+        we last checked for matches.
 
-    @abstractmethod
-    def get_user_site(self):
-        pass
+        Args:
+          match_reports_to_check (list of MatchReports): the MatchReports to check for matches
+        """
+        for match_report in match_reports_to_check:
+            identifier = match_report.identifier
+            match_list = [potential for potential in cls.get_all_eligible_match_reports(match_report)
+                          if potential.get_match(identifier)]
+            if len(match_list) > 1:
+                seen_match_owners = [match.report.owner for match in match_list if match.seen]
+                new_match_owners = [match.report.owner for match in match_list if not match.seen]
+                # filter out multiple reports made by the same person
+                if len(set(seen_match_owners + new_match_owners)) > 1:
+                    # only send notifications if new matches are submitted by owners we don't know about
+                    if not set(new_match_owners).issubset(set(seen_match_owners)):
+                        cls.process_new_matches(match_list, identifier)
+                    for matched_report in match_list:
+                        matched_report.report.match_found = True
+                        matched_report.report.save()
+            for match in match_list:
+                match.seen = True
+                # delete identifier, which should only be filled for newly added match reports in delayed matching case
+                match.identifier = None
+                match.save()
 
-    # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
-    # TODO (cont): create AbstractPDFGenerator class
-    @abstractmethod
-    def get_report_title(self):
-        pass
+    @classmethod
+    def process_new_matches(cls, matches, identifier):
+        """Sends a report to the receiving authority and notifies the reporting users.
+        Each user should only be notified one time when a match is found.
 
-    @abstractmethod
-    def get_cover_page(self):
-        pass
+        Args:
+          matches (list of MatchReports): the MatchReports that correspond to this identifier
+          identifier (str): identifier associated with the MatchReports
+        """
+        logger.info("new match found")
+        owners_notified = []
+        for match_report in matches:
+            EvalRow.store_eval_row(action=EvalRow.MATCH_FOUND, report=match_report.report)
+            owner = match_report.report.owner
+            # only send notification emails to new matches
+            if owner not in owners_notified and not match_report.report.match_found \
+                    and not match_report.report.submitted_to_school:
+                NotificationApi().send_match_notification(owner, match_report)
+                owners_notified.append(owner)
+        # send report to school
+        NotificationApi().send_matching_report_to_authority(matches, identifier)
