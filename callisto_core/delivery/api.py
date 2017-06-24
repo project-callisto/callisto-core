@@ -1,8 +1,8 @@
 import logging
 
-from callisto.utils.api import Api
-from callisto.notification.api import NotificationApi
-from callisto.evaluation.models import EvalRow
+from ..utils.api import Api
+from ..notification.api import NotificationApi
+from ..evaluation.models import EvalRow
 
 from .models import MatchReport
 
@@ -90,7 +90,7 @@ class CallistoCoreMatchingApi(object):
             # only send notification emails to new matches
             if owner not in owners_notified and not match_report.report.match_found \
                     and not match_report.report.submitted_to_school:
-                NotificationApi().send_match_notification(owner, match_report)
+                NotificationApi.send_match_notification(owner, match_report)
                 owners_notified.append(owner)
         # send report to school
-        NotificationApi().send_matching_report_to_authority(matches, identifier)
+        NotificationApi.send_matching_report_to_authority(matches, identifier)

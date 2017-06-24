@@ -7,5 +7,5 @@ class Command(BaseCommand):
     help = 'finds matches and sends match reports'
 
     def handle(self, *args, **options):
-        MatchingApi().run_matching()
+        MatchingApi.run_matching()
         self.stdout.write('Matching run')

@@ -11,7 +11,7 @@ from django.test import override_settings
 from django.utils import timezone
 from django.utils.timezone import localtime
 
-from callisto.delivery.api import DeliveryApi
+from callisto.notification.api import NotificationApi
 from callisto.delivery.models import Report, SentFullReport, SentMatchReport
 from callisto.delivery.report_delivery import (
     MatchReportContent, PDFFullReport, PDFMatchReport,
@@ -360,7 +360,7 @@ class ReportDeliveryTest(MatchTest):
             body="test body",
         ).sites.add(self.site.id)
         sent_full_report = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL)
-        DeliveryApi().send_report_to_authority(sent_full_report, self.decrypted_report, self.site.id)
+        NotificationApi.send_report_to_authority(sent_full_report, self.decrypted_report, self.site.id)
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test delivery')
@@ -426,7 +426,7 @@ class ReportDeliveryTest(MatchTest):
         ).sites.add(self.site.id)
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        DeliveryApi().send_matching_report_to_authority([match1, match2], "dummy")
+        NotificationApi.send_matching_report_to_authority([match1, match2], "dummy")
         sent_report_id = SentMatchReport.objects.latest('id').get_report_id()
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]

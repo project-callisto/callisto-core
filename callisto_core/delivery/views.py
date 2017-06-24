@@ -16,8 +16,8 @@ from django.shortcuts import render
 from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
 
-from callisto.delivery.api import DeliveryApi
-from callisto.evaluation.models import EvalRow
+from ..notification.api import NotificationApi
+from ..evaluation.models import EvalRow
 
 from .forms import (
     SecretKeyForm, SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
@@ -110,7 +110,7 @@ def submit_report_to_authority(request, report_id, form_template_name="submit_re
                 report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
                 report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
                 sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
-                DeliveryApi().send_report_to_authority(sent_full_report, form.decrypted_report, site.id)
+                NotificationApi.send_report_to_authority(sent_full_report, form.decrypted_report, site.id)
                 report.save()
             except Exception:
                 logger.exception("couldn't submit report for report {}".format(report_id))
@@ -122,7 +122,7 @@ def submit_report_to_authority(request, report_id, form_template_name="submit_re
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    DeliveryApi().send_user_notification(form, 'submit_confirmation', site.id)
+                    NotificationApi.send_user_notification(form, 'submit_confirmation', site.id)
                 except Exception:
                     # report was sent even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on submission")
@@ -184,7 +184,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
                     EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
                 if settings.MATCH_IMMEDIATELY:
-                    MatchingApi().run_matching(match_reports_to_check=matches_for_immediate_processing)
+                    MatchingApi.run_matching(match_reports_to_check=matches_for_immediate_processing)
 
             except Exception:
                 logger.exception("couldn't submit match report for report {}".format(report_id))
@@ -193,7 +193,7 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
 
             if form.cleaned_data.get('email_confirmation') == "True":
                 try:
-                    DeliveryApi().send_user_notification(form, 'match_confirmation', site.id)
+                    NotificationApi.send_user_notification(form, 'match_confirmation', site.id)
                 except Exception:
                     # matching was entered even if confirmation email fails, so don't show an error if so
                     logger.exception("couldn't send confirmation to user on match submission")

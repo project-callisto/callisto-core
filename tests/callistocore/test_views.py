@@ -18,7 +18,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from callisto.delivery import matching_validators
-from callisto.delivery.api import DeliveryApi
+from callisto.notification.api import NotificationApi
 from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
 from callisto.delivery.models import MatchReport, Report, SentFullReport
 from callisto.evaluation.models import EvalRow
@@ -1055,7 +1055,7 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         exported_report = BytesIO(response.content)
         pdf_reader = PyPDF2.PdfFileReader(exported_report)
-        self.assertEqual(DeliveryApi().get_report_title(), CustomNotificationApi().get_report_title())
+        self.assertEqual(NotificationApi.get_report_title(), CustomNotificationApi().get_report_title())
         self.assertIn(CustomNotificationApi().get_report_title(), pdf_reader.getPage(0).extractText())
 
     @override_settings(DEBUG=True)

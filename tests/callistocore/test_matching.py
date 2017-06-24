@@ -44,7 +44,7 @@ class MatchDiscoveryTest(MatchTest):
         self.create_match(self.user2, 'dummy2')
         for report in MatchReport.objects.all():
             self.assertFalse(report.seen)
-        MatchingApi().run_matching()
+        MatchingApi.run_matching()
         for report in MatchReport.objects.all():
             self.assertTrue(report.seen)
 
@@ -53,14 +53,14 @@ class MatchDiscoveryTest(MatchTest):
         self.create_match(self.user2, 'dummy2')
         for report in MatchReport.objects.all():
             self.assertIsNotNone(report.identifier)
-        MatchingApi().run_matching()
+        MatchingApi.run_matching()
         for report in MatchReport.objects.all():
             self.assertIsNone(report.identifier)
 
     def test_two_matching_reports_match(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        MatchingApi().run_matching()
+        MatchingApi.run_matching()
         mock_process.assert_called_once_with([match1, match2], 'dummy')
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
@@ -70,7 +70,7 @@ class MatchDiscoveryTest(MatchTest):
     def test_non_matching_reports_dont_match(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy1')
-        MatchingApi().run_matching()
+        MatchingApi.run_matching()
         self.assertFalse(mock_process.called)
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
@@ -81,7 +81,7 @@ class MatchDiscoveryTest(MatchTest):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy1')
         match3 = self.create_match(self.user2, 'dummy1')
-        MatchingApi().run_matching()
+        MatchingApi.run_matching()
         self.assertFalse(mock_process.called)
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()

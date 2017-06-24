@@ -603,7 +603,7 @@ class EvalActionTest(MatchTest):
     def test_match_trigger_creates_eval_row(self, mock_send_to_authority, mock_notify, mock_anonymise_record):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        MatchingApi().run_matching()
+        MatchingApi.run_matching()
         call1 = call(action=EvalRow.MATCH_FOUND, report=match1.report, decrypted_text=None, match_identifier=None)
         call2 = call(action=EvalRow.MATCH_FOUND, report=match2.report, decrypted_text=None, match_identifier=None)
         mock_anonymise_record.assert_has_calls([call1, call2])
