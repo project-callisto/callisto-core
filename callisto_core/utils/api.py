@@ -26,9 +26,3 @@ class Api(metaclass=ABCMeta):
             default_classpath,
         )
         self.api_implementation = import_string(override_class_path)
-
-class TestApi(Api):
-
-    @classmethod
-    def mew(cls):
-        print('mew!!!!!')
