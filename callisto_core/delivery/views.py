@@ -17,11 +17,10 @@ from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
 
 from ..evaluation.models import EvalRow
-from ..utils.api import NotificationApi
+from ..utils.api import MatchingApi, NotificationApi
 from .forms import (
     SecretKeyForm, SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
 )
-from .matching import MatchingApi
 from .models import MatchReport, Report, SentFullReport
 from .report_delivery import MatchReportContent, PDFFullReport
 

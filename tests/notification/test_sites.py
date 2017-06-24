@@ -105,7 +105,7 @@ class SiteRequestTest(TestCase):
         response = self.client.get(self.submit_url)
         self.assertNotEqual(response.status_code, 404)
 
-    @patch('callisto.notification.managers.EmailNotificationQuerySet.on_site')
+    @patch('callisto_core.notification.managers.EmailNotificationQuerySet.on_site')
     def test_site_passed_to_email_notification_manager(self, mock_on_site):
         self.client.post(
             self.submit_url,

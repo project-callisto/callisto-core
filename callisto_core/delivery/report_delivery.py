@@ -20,6 +20,8 @@ from django.utils import timezone
 from django.utils.html import conditional_escape
 from django.utils.timezone import localtime
 
+from ..utils.api import NotificationApi
+
 date_format = "%m/%d/%Y @%H:%M%p"
 tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
@@ -272,8 +274,6 @@ class PDFFullReport(PDFReport):
         self.decrypted_report = decrypted_report
 
     def get_metadata_page(self, recipient):
-        from ..notification.api import NotificationApi
-
         MetadataPage = []
         MetadataPage.append(Paragraph(NotificationApi.get_report_title(), self.report_title_style))
 
@@ -322,8 +322,6 @@ class PDFFullReport(PDFReport):
         return MetadataPage
 
     def generate_pdf_report(self, report_id, recipient=settings.COORDINATOR_NAME):
-        from ..notification.api import NotificationApi
-
         # PREPARE PDF
         report_content = json.loads(self.decrypted_report)
 
@@ -373,8 +371,6 @@ class PDFMatchReport(PDFReport):
           bytes: a PDF with the submitted perp information & contact information of the reporters for this match
 
         """
-        from ..notification.api import NotificationApi
-
         matches_with_reports = [(match, MatchReportContent(**json.loads(match.get_match(self.identifier))))
                                 for match in self.matches]
 

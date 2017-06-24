@@ -8,7 +8,7 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from callisto_core.delivery.api import MatchingApi
+from callisto_core.utils.api import MatchingApi
 from callisto_core.delivery.models import MatchReport, Report
 from callisto_core.delivery.report_delivery import MatchReportContent
 
@@ -201,8 +201,8 @@ class MatchDiscoveryTest(MatchTest):
         self.assertTrue(match2.report.match_found)
 
 
-@patch('callisto_core.notification.api.NotificationApi.send_match_notification')
-@patch('callisto_core.notification.api.NotificationApi.send_email_to_authority_intake')
+@patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_match_notification')
+@patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_email_to_authority_intake')
 @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
 class MatchNotificationTest(MatchTest):
 
@@ -261,7 +261,7 @@ class MatchNotificationTest(MatchTest):
 
 class MatchingCommandTest(MatchTest):
 
-    @patch('callisto_core.delivery.matching.CallistoMatching.process_new_matches')
+    @patch('callisto_core.delivery.api.CallistoCoreMatchingApi.process_new_matches')
     def test_command_runs_matches(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')

@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
 
-from callisto_core.delivery.api import MatchingApi
+from callisto_core.utils.api import MatchingApi
 from callisto_core.delivery.models import Report
 from callisto_core.evaluation.models import EvalRow, EvaluationField
 
@@ -579,27 +579,39 @@ class EvalActionTest(MatchTest):
         self.report.encrypt_report(self.report_text, self.key)
         self.report.save()
 
-    @patch('callisto.delivery.views.MatchingApi')
-    @patch('callisto.delivery.views.EvalRow.anonymise_record')
-    def test_submission_to_matching_creates_eval_row(self, mock_anonymise_record, mock_matching_api):
-        response = self.client.post(('/test_reports/match/%s/' % self.report.pk),
-                                    data={'name': 'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.key,
-                                          'form-0-perp': 'facebook.com/test_url',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '', })
+    @patch('callisto_core.delivery.views.MatchingApi')
+    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
+    def test_submission_to_matching_creates_eval_row(
+            self,
+            mock_anonymise_record,
+            mock_matching_api
+        ):
+        response = self.client.post(
+            ('/test_reports/match/%s/' % self.report.pk),
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': "False",
+                'key': self.key,
+                'form-0-perp': 'facebook.com/test_url',
+                'form-TOTAL_FORMS': '1',
+                'form-INITIAL_FORMS': '1',
+                'form-MAX_NUM_FORMS': '',
+            },
+        )
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        mock_anonymise_record.assert_called_with(action=EvalRow.MATCH, report=self.report, match_identifier="test_url",
-                                                 decrypted_text=None)
+        mock_anonymise_record.assert_called_with(
+            action=EvalRow.MATCH,
+            report=self.report,
+            match_identifier="test_url",
+            decrypted_text=None,
+        )
 
-    @patch('callisto.delivery.matching.EvalRow.anonymise_record')
-    @patch('callisto.notification.api.NotificationApi.send_match_notification')
-    @patch('callisto.notification.api.NotificationApi.send_matching_report_to_authority')
+    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
+    @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_match_notification')
+    @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_matching_report_to_authority')
     def test_match_trigger_creates_eval_row(self, mock_send_to_authority, mock_notify, mock_anonymise_record):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
@@ -608,8 +620,8 @@ class EvalActionTest(MatchTest):
         call2 = call(action=EvalRow.MATCH_FOUND, report=match2.report, decrypted_text=None, match_identifier=None)
         mock_anonymise_record.assert_has_calls([call1, call2])
 
-    @patch('callisto.delivery.views.EvalRow.anonymise_record')
-    @patch('callisto.notification.api.NotificationApi.send_report_to_authority')
+    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
+    @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_report_to_authority')
     def test_submit_creates_eval_row(self, mock_send_report, mock_anonymise_record):
         response = self.client.post(('/test_reports/submit/%s/' % self.report.pk),
                                     data={'name': 'test submitter',
@@ -622,8 +634,8 @@ class EvalActionTest(MatchTest):
         mock_anonymise_record.assert_called_with(action=EvalRow.SUBMIT, report=self.report, decrypted_text=None,
                                                  match_identifier=None)
 
-    @patch('callisto.delivery.views.EvalRow.anonymise_record')
-    @patch('callisto.delivery.views.Report.delete')
+    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
+    @patch('callisto_core.delivery.views.Report.delete')
     def test_delete_creates_eval_row(self, mock_delete, mock_anonymise_record):
         response = self.client.post(
             '/test_reports/delete/%s/' % self.report.id,
@@ -634,7 +646,7 @@ class EvalActionTest(MatchTest):
         mock_anonymise_record.assert_called_with(action=EvalRow.DELETE, report=self.report, decrypted_text=None,
                                                  match_identifier=None)
 
-    @patch('callisto.delivery.views.EvalRow.anonymise_record')
+    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
     def test_autosave_creates_eval_row(self, mock_anonymise_record):
         response = self.client.post(
             '/test_reports/new/0/',
