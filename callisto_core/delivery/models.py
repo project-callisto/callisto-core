@@ -1,3 +1,5 @@
+import uuid
+
 import nacl.secret
 import nacl.utils
 import six
@@ -90,6 +92,7 @@ def _unpepper(peppered_report):
 
 class Report(models.Model):
     """The full text of a reported incident."""
+    uuid = models.UUIDField(default=uuid.uuid4)
     encrypted = models.BinaryField(blank=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     added = models.DateTimeField(auto_now_add=True)
