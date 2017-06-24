@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils.module_loading import import_string
 
 
-class Api(metaclass=ABCMeta):
+class Api(type):
     '''
         Used to create overrideable calls
 
@@ -13,16 +13,11 @@ class Api(metaclass=ABCMeta):
             default_classpath, ex: 'project.app.api.ExampleApi'
     '''
 
-    def __init__(self):
-        self.set_api_class(self.api_env_variable, self.default_classpath)
-
-    def __getattr__(self, attr):
-        return getattr(self.api_implementation, attr, None)
-
-    def set_api_class(self, api_env_variable, default_classpath):
+    def __getattr__(cls, attr):
         override_class_path = getattr(
             settings,
-            api_env_variable,
-            default_classpath,
+            cls.api_env_variable,
+            cls.default_classpath,
         )
-        self.api_implementation = import_string(override_class_path)
+        api_class = import_string(override_class_path)
+        return getattr(api_class, attr, None)

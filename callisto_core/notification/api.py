@@ -18,9 +18,9 @@ tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
 
 
-class NotificationApi(Api):
+class NotificationApi(metaclass=Api):
     api_env_variable = 'CALLISTO_NOTIFICATION_API'
-    default_classpath = 'callisto.notification.api.CallistoCoreNotificationApi'
+    default_classpath = 'callisto_core.notification.api.CallistoCoreNotificationApi'
 
 
 class CallistoCoreNotificationApi(object):

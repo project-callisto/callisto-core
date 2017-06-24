@@ -189,7 +189,7 @@ class CreateKeyFormTest(TestCase):
         )
 
 
-@patch('callisto.delivery.forms.EvalRow.add_report_data')
+@patch('callisto_core.delivery.forms.EvalRow.add_report_data')
 class DecryptKeyFormTest(TestCase):
 
     def setUp(self):

@@ -8,9 +8,9 @@ from .models import MatchReport
 logger = logging.getLogger(__name__)
 
 
-class MatchingApi(Api):
+class MatchingApi(metaclass=Api):
     api_env_variable = 'CALLISTO_MATCHING_API'
-    default_classpath = 'callisto.delivery.api.CallistoCoreMatchingApi'
+    default_classpath = 'callisto_core.delivery.api.CallistoCoreMatchingApi'
 
 
 class CallistoCoreMatchingApi(object):
