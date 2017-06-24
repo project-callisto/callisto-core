@@ -7,7 +7,26 @@ class Api(type):
         Used to create overrideable calls
 
         See CallistoCoreNotificationApi and SiteAwareNotificationApi
-        for examples
+        for example implementations
+
+        By default, calls to (ex) NotificationApi will be routed to
+        CallistoCoreNotificationApi. So...
+
+            NotificationApi.example_call()
+
+        resolves to...
+
+            CallistoCoreNotificationApi.example_call()
+
+        The purposes of the Api classes are to allow implementors to define
+        custom functionality. So you can create an ProjectExampleApi that
+        is a subclass of CallistoCoreNotificationApi and redefines all of
+        its functions. You can also disable a function by overriding it and
+        making it return None.
+
+        You can also disable an api entirely by setting DEFAULT_CLASS_PATH to
+        a ProjectExampleApi that defines no functions. This is useful if you
+        want to disable an entire app (ex callisto_core.notification)
     '''
 
     def __getattr__(cls, attr):
