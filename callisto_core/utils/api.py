@@ -11,6 +11,8 @@ class Api(type):
         Extending objects should define
             api_env_variable, ex: 'CALLISTO_EXAMPLE_API'
             default_classpath, ex: 'project.app.api.ExampleApi'
+
+        See NotificationApi and SiteAwareNotificationApi for examples
     '''
 
     def __getattr__(cls, attr):
