@@ -206,12 +206,12 @@ class PDFReport(object):
         self.add_answer_list([build_list_item(i, t) for i, t in enumerate(answers)])
 
     def render_question(self, question):
-        question_type = question.get('type')
-        if question_type == 'RadioButton' or question_type == 'Checkbox':
+        def _render_multiple_choice():
             choices = []
             answer_ids = conditional_escape(question.get('answer'))
-            # RadioButton answers need to be stored as single int to keep edit working
-            if answer_ids and question_type == 'RadioButton':
+            # RadioButton answers need to be stored as single int to
+            # keep edit working
+            if answer_ids and question.get('type') == 'RadioButton':
                 answer_ids = [answer_ids]
             answers = []
             for idx, choice in enumerate(question.get('choices')):
@@ -220,14 +220,17 @@ class PDFReport(object):
                     answers.append(idx)
             extra = question.get('extra')
             if extra:
-                choices.append("<i>{0}</i>: {1}".format(extra.get('extra_text'),
-                                                        conditional_escape(extra.get('answer'))))
+                choices.append(
+                    "<i>{0}</i>: {1}".format(extra.get('extra_text'),
+                                             conditional_escape(extra.get('answer'))))
             self.add_multiple_choice(question.get('question_text'), choices, answers, last_is_free_text=bool(extra))
-        elif question_type == 'SingleLineText' or question_type == 'Date' or question_type == 'MultiLineText':
+
+        def _render_text():
             self.add_question(question.get('question_text'))
             answer = conditional_escape(question.get('answer')).replace('\n', '<br />\n') or '<i>Not answered</i>'
             self.add_answer_list([self.format_answer(answer, self.free_text)], keep_together=False)
-        elif question_type == 'FormSet':
+
+        def _render_formset():
             forms = question.get('answers')
             prompt = question.get('prompt').capitalize()
             if forms:
@@ -240,11 +243,24 @@ class PDFReport(object):
                     for q in form:
                         self.render_question(q)
                     self.pdf_elements.append(Indenter(left=-12))
-            else:
-                self.add_question(prompt)
-                self.pdf_elements.append(Indenter(left=12))
-                self.add_question('<i>None added</i>')
-                self.pdf_elements.append(Indenter(left=-12))
+
+        def _render_default():
+            prompt = question.get('prompt').capitalize()
+            self.add_question(prompt)
+            self.pdf_elements.append(Indenter(left=12))
+            self.add_question('<i>None added</i>')
+            self.pdf_elements.append(Indenter(left=-12))
+
+        render_functions = {
+            'Checkbox': _render_multiple_choice,
+            'FormSet': _render_formset,
+            'MultiLineText': _render_text,
+            'RadioButton': _render_multiple_choice,
+            'SingleLineText': _render_text,
+        }
+
+        render_function = render_functions.get(question.get('type'), _render_default)
+        render_function()
 
     def get_header_footer(self, recipient=settings.COORDINATOR_NAME):
         def func(canvas, doc):
