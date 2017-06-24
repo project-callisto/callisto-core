@@ -4,12 +4,9 @@ import os
 import re
 import sys
 
-from callisto.delivery import __version__ as version
+from callisto import __version__ as version
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 if sys.argv[-1] == 'publish':
     try:
@@ -41,27 +38,22 @@ license = open('LICENSE').read()
 setup(
     name='callisto-core',
     version=version,
-    description="""Report intake, escrow, matching and secure delivery code for Callisto,
-    an online reporting system for sexual assault.""",
+    description='Report intake, escrow, matching and secure delivery code for Callisto, an online reporting system for sexual assault.',
     license=license,
     long_description=readme + '\n\n' + history,
     author='Sexual Health Innovations',
     author_email='tech@sexualhealthinnovations.org',
     url='https://github.com/SexualHealthInnovations/callisto-core',
     download_url='https://github.com/SexualHealthInnovations/callisto-core/tarball/release-8.15.16-2/',
-    packages=[
-        'callisto.delivery',
-        'callisto.evaluation',
-        'callisto.notification',
-    ],
+    packages=find_packages(),
     include_package_data=True,
     install_requires=[
+        'django',
         'django-polymorphic==1.2',
         'django-ratelimit==1.0.1',
-        'django-wizard-builder==0.1.2',
+        'django-wizard-builder==0.2.1',
         'PyNaCl==1.1.2',
         'python-gnupg==0.4.0',
-        'environ',
         'pytz==2017.2',
         'reportlab==3.4.0',
         'zxcvbn-py3',
@@ -74,7 +66,7 @@ setup(
         'Development Status :: 3 - Alpha',
         'Framework :: Django',
         'Framework :: Django :: 1.8',
-        'Framework :: Django :: 1.9',
+        'Framework :: Django :: 1.10',
         'Framework :: Django :: 1.10',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
@@ -82,9 +74,9 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 )

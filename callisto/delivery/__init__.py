@@ -1,1 +1,1 @@
-__version__ = '0.6.0'
+from .. import __version__  # NOQA

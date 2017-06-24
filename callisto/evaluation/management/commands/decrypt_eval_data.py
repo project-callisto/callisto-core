@@ -1,6 +1,6 @@
 import json
+import os
 
-import environ
 import gnupg
 import six
 
@@ -9,8 +9,6 @@ from django.core.management.base import BaseCommand
 
 from callisto.evaluation.models import EvalRow
 
-env = environ.Env()
-
 
 class Command(BaseCommand):
     help = 'decrypts eval data. can only be run in local environments (import data from prod)'
@@ -18,7 +16,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not settings.DEBUG:
             raise RuntimeError("Don't run this in production!!! Import encrypted prod data to your local environment")
-        eval_key = env('CALLISTO_EVAL_PRIVATE_KEY')
+        eval_key = os.getenv('CALLISTO_EVAL_PRIVATE_KEY')
         decrypted_eval_data = []
         for row in EvalRow.objects.all():
             decrypted_row = {'pk': row.pk,
