@@ -10,7 +10,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('delivery', '0008_make_salt_nullable'),
+        ('delivery', '0010_email_notification_data_migration'),
     ]
 
     operations = [
