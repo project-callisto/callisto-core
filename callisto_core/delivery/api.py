@@ -1,16 +1,10 @@
 import logging
 
 from ..evaluation.models import EvalRow
-from ..notification.api import NotificationApi
-from ..utils.api import Api
+from ..utils.api import NotificationApi
 from .models import MatchReport
 
 logger = logging.getLogger(__name__)
-
-
-class MatchingApi(metaclass=Api):
-    api_env_variable = 'CALLISTO_MATCHING_API'
-    default_classpath = 'callisto_core.delivery.api.CallistoCoreMatchingApi'
 
 
 class CallistoCoreMatchingApi(object):

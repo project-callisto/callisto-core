@@ -17,7 +17,7 @@ from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
 
 from ..evaluation.models import EvalRow
-from ..notification.api import NotificationApi
+from ..utils.api import NotificationApi
 from .forms import (
     SecretKeyForm, SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
 )

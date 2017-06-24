@@ -10,17 +10,11 @@ from django.utils import timezone
 
 from ..delivery.models import SentMatchReport
 from ..delivery.report_delivery import PDFFullReport, PDFMatchReport
-from ..utils.api import Api
 from .models import EmailNotification
 
 logger = logging.getLogger(__name__)
 tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
 timezone.activate(pytz.timezone(tzname))
-
-
-class NotificationApi(metaclass=Api):
-    api_env_variable = 'CALLISTO_NOTIFICATION_API'
-    default_classpath = 'callisto_core.notification.api.CallistoCoreNotificationApi'
 
 
 class CallistoCoreNotificationApi(object):

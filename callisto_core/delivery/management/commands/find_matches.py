@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from callisto.delivery.matching import MatchingApi
+from ....utils.api import MatchingApi
 
 
 class Command(BaseCommand):
