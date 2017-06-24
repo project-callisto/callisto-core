@@ -14,18 +14,18 @@ clean-build: ## remove build artifacts
 	rm -fr *.egg-info
 
 clean-pyc: ## remove Python file artifacts
-	find callisto -name '*.pyc' -exec rm -f {} +
-	find callisto -name '*.pyo' -exec rm -f {} +
-	find callisto -name '*~' -exec rm -f {} +
-	find callisto -type d -name "__pycache__" -exec rm -rf {} +
+	find callisto-core -name '*.pyc' -exec rm -f {} +
+	find callisto-core -name '*.pyo' -exec rm -f {} +
+	find callisto-core -name '*~' -exec rm -f {} +
+	find callisto-core -type d -name "__pycache__" -exec rm -rf {} +
 
 clean-lint: ## cleanup / display issues with isort and pep8
-	isort -rc callisto/
-	autopep8 --in-place --recursive --aggressive --aggressive callisto/ --max-line-length 119 --exclude="*/migrations/*"
+	isort -rc callisto-core/
+	autopep8 --in-place --recursive --aggressive --aggressive callisto-core/ --max-line-length 119 --exclude="*/migrations/*"
 
 test-lint: ## check style with pep8 and isort
-	flake8 callisto/
-	isort --check-only --diff --quiet -rc callisto/
+	flake8 callisto-core/
+	isort --check-only --diff --quiet -rc callisto-core/
 
 test-suite: ## run the unit and integration tests
 	pytest -v

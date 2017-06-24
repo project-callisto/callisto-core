@@ -8,7 +8,6 @@ History
 
 * DeliveryApi => NotificationApi
 * cleanup and normalize Api classes
-* create callisto/utils/api.py
 * drop python 2 support
 * drop django 1.8, 1.10 support
 

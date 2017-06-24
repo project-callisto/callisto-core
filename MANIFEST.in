@@ -3,4 +3,4 @@ include CONTRIBUTING.md
 include HISTORY.rst
 include LICENSE
 include README.md
-recursive-include callisto/ *
+recursive-include callisto-core/ *
