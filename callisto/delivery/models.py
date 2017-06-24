@@ -1,8 +1,8 @@
 import uuid
+
 import nacl.secret
 import nacl.utils
 import six
-
 from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
 
