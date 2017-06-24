@@ -3,6 +3,17 @@
 History
 -------
 
+1.0.0 (2017-06-23)
+++++++++++++++++++
+
+* DeliveryApi => NotificationApi
+* cleanup and normalize Api classes
+* create callisto/utils/api.py
+* drop python 2 support
+* drop django 1.8, 1.10 support
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/HISTORY.rst
+
 0.7.0 (2017-06-13)
 ++++++++++++++++++
 
