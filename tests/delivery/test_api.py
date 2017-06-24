@@ -2,8 +2,8 @@ from mock import patch
 
 from django.test import TestCase, override_settings
 
-from callisto.notification.api import NotificationApi
-from callisto.delivery.matching import MatchingApi
+from callisto_core.notification.api import NotificationApi
+from callisto_core.delivery.api import MatchingApi
 
 
 class ApiTest(TestCase):
@@ -13,7 +13,7 @@ class ApiTest(TestCase):
         self.mock_argument_1 = 'mock argument 1'
         self.mock_argument_2 = 'mock argument 2'
 
-    @patch('callisto.notification.api.NotificationApi.send_report_to_authority')
+    @patch('callisto_core.notification.api.NotificationApi.send_report_to_authority')
     def test_default_notification_api_call(self, mock_process):
         NotificationApi.send_report_to_authority(self.mock_argument_1, self.mock_argument_2)
         mock_process.assert_called_once_with(self.mock_argument_1, self.mock_argument_2)
@@ -30,7 +30,7 @@ class ApiTest(TestCase):
             None,
         )
 
-    @patch('callisto.delivery.matching.CallistoMatching.find_matches')
+    @patch('callisto_core.delivery.api.MatchingApi.find_matches')
     def test_default_matching_api_call(self, mock_process):
         MatchingApi.find_matches()
         mock_process.assert_called_once_with()

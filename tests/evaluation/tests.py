@@ -12,9 +12,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
 
-from callisto.delivery.matching import MatchingApi
-from callisto.delivery.models import Report
-from callisto.evaluation.models import EvalRow, EvaluationField
+from callisto_core.delivery.api import MatchingApi
+from callisto_core.delivery.models import Report
+from callisto_core.evaluation.models import EvalRow, EvaluationField
 
 from ..callistocore.test_matching import MatchTest
 from .test_keypair import private_test_key, public_test_key

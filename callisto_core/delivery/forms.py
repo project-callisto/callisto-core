@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
 
-from callisto.delivery import matching_validators
+from callisto.delivery import validators
 from callisto.evaluation.models import EvalRow
 
 REQUIRED_ERROR = "The {0} field is required."
@@ -174,13 +174,13 @@ class SubmitToMatchingForm(forms.Form):
         designed to be overridden if more complicated assignment of matching validators is needed
     '''
 
-    def get_matching_validators(self):
-        return getattr(settings, 'CALLISTO_IDENTIFIER_DOMAINS', matching_validators.facebook_only)
+    def get_validators(self):
+        return getattr(settings, 'CALLISTO_IDENTIFIER_DOMAINS', validators.facebook_only)
 
     def __init__(self, *args, **kwargs):
         super(SubmitToMatchingForm, self).__init__(*args, **kwargs)
 
-        self.identifier_domain_info = self.get_matching_validators()
+        self.identifier_domain_info = self.get_validators()
 
         self.formatted_identifier_descriptions = join_list_with_or(list(self.identifier_domain_info))
         self.formatted_identifier_descriptions_title_case = join_list_with_or(

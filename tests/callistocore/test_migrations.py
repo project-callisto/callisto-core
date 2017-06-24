@@ -7,9 +7,9 @@ from mock import ANY, patch
 from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 
-from callisto.delivery.matching import MatchingApi
-from callisto.delivery.models import _pepper, _unpepper
-from callisto.delivery.report_delivery import MatchReportContent
+from callisto_core.delivery.matching import MatchingApi
+from callisto_core.delivery.models import _pepper, _unpepper
+from callisto_core.delivery.report_delivery import MatchReportContent
 
 from .models import _legacy_decrypt_report, _legacy_encrypt_report
 

@@ -1,18 +1,15 @@
-# external
 import nacl.secret
 import nacl.utils
 import six
 from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
 
-# django
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
-# local
-from callisto.delivery.hashers import get_hasher, make_key
+from .hashers import get_hasher, make_key
 
 
 def _encrypt_report(stretched_key, report_text):

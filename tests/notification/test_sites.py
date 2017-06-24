@@ -6,8 +6,8 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings
 
-from callisto.delivery.models import Report
-from callisto.notification.models import EmailNotification
+from callisto_core.delivery.models import Report
+from callisto_core.notification.models import EmailNotification
 
 User = get_user_model()
 

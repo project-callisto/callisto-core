@@ -8,9 +8,9 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from callisto.delivery.matching import MatchingApi
-from callisto.delivery.models import MatchReport, Report
-from callisto.delivery.report_delivery import MatchReportContent
+from callisto_core.delivery.matching import MatchingApi
+from callisto_core.delivery.models import MatchReport, Report
+from callisto_core.delivery.report_delivery import MatchReportContent
 
 User = get_user_model()
 
@@ -36,7 +36,7 @@ class MatchTest(TestCase):
         return match_report
 
 
-@patch('callisto.delivery.matching.CallistoMatching.process_new_matches')
+@patch('callisto.delivery.api.MatchingApi.process_new_matches')
 class MatchDiscoveryTest(MatchTest):
 
     def test_running_matching_sets_report_seen(self, mock_process):

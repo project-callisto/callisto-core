@@ -11,12 +11,12 @@ from django.test import override_settings
 from django.utils import timezone
 from django.utils.timezone import localtime
 
-from callisto.notification.api import NotificationApi
-from callisto.delivery.models import Report, SentFullReport, SentMatchReport
-from callisto.delivery.report_delivery import (
+from callisto_core.notification.api import NotificationApi
+from callisto_core.delivery.models import Report, SentFullReport, SentMatchReport
+from callisto_core.delivery.report_delivery import (
     MatchReportContent, PDFFullReport, PDFMatchReport,
 )
-from callisto.notification.models import EmailNotification
+from callisto_core.notification.models import EmailNotification
 
 from .test_matching import MatchTest
 

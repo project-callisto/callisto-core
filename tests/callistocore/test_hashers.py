@@ -5,7 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from django.utils.encoding import force_bytes
 
-import callisto.delivery.hashers as hashers
+import callisto_core.delivery.hashers as hashers
 
 
 class KeyHasherFunctionsTest(TestCase):

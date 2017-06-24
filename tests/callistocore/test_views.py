@@ -17,12 +17,12 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from callisto.delivery import matching_validators
-from callisto.notification.api import NotificationApi
-from callisto.delivery.forms import NewSecretKeyForm, SecretKeyForm
-from callisto.delivery.models import MatchReport, Report, SentFullReport
-from callisto.evaluation.models import EvalRow
-from callisto.notification.models import EmailNotification
+from callisto_core.delivery import validators
+from callisto_core.notification.api import NotificationApi
+from callisto_core.delivery.forms import NewSecretKeyForm, SecretKeyForm
+from callisto_core.delivery.models import MatchReport, Report, SentFullReport
+from callisto_core.evaluation.models import EvalRow
+from callisto_core.notification.models import EmailNotification
 
 from .forms import EncryptedFormWizard
 
@@ -755,7 +755,7 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
-    @override_settings(CALLISTO_IDENTIFIER_DOMAINS=matching_validators.facebook_or_twitter)
+    @override_settings(CALLISTO_IDENTIFIER_DOMAINS=validators.facebook_or_twitter)
     def test_non_fb_match(self):
         self.client.post((self.submission_url % self.report.pk),
                          data={'name': 'test submitter 1',

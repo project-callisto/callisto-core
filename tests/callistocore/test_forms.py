@@ -3,11 +3,11 @@ from mock import patch
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 
-from callisto.delivery import matching_validators
-from callisto.delivery.forms import (
+from callisto_core.delivery import matching_validators
+from callisto_core.delivery.forms import (
     NewSecretKeyForm, SecretKeyForm, SubmitToMatchingForm,
 )
-from callisto.delivery.models import Report
+from callisto_core.delivery.models import Report
 
 User = get_user_model()
 
