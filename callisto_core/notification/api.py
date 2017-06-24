@@ -10,9 +10,8 @@ from django.utils import timezone
 
 from ..delivery.models import SentMatchReport
 from ..delivery.report_delivery import PDFFullReport, PDFMatchReport
-from .models import EmailNotification
-
 from ..utils.api import Api
+from .models import EmailNotification
 
 logger = logging.getLogger(__name__)
 tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'

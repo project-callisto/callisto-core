@@ -1,9 +1,8 @@
 import logging
 
-from ..utils.api import Api
-from ..notification.api import NotificationApi
 from ..evaluation.models import EvalRow
-
+from ..notification.api import NotificationApi
+from ..utils.api import Api
 from .models import MatchReport
 
 logger = logging.getLogger(__name__)
