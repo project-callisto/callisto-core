@@ -8,7 +8,7 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from callisto_core.delivery.matching import MatchingApi
+from callisto_core.delivery.api import MatchingApi
 from callisto_core.delivery.models import MatchReport, Report
 from callisto_core.delivery.report_delivery import MatchReportContent
 

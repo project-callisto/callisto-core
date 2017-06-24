@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.http import HttpResponse
 
-from callisto_core.delivery.matching import CallistoMatching
+from callisto_core.delivery.api import MatchingApi
 from callisto_core.delivery.wizard import EncryptedFormBaseWizard
 from callisto_core.notification.api import NotificationApi
 
@@ -40,7 +40,7 @@ class ExtendedCustomNotificationApi(CustomNotificationApi):
         pass
 
 
-class CustomMatchingApi(CallistoMatching):
+class CustomMatchingApi(MatchingApi):
 
     @classmethod
     def run_matching(cls, match_reports_to_check=None):

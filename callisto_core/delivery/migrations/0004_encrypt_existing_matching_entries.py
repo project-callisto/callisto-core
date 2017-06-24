@@ -9,8 +9,8 @@ from django.conf import settings
 from django.db import migrations
 from django.utils.crypto import get_random_string, pbkdf2
 
-from callisto.delivery.models import _encrypt_report, _pepper
-from callisto.delivery.report_delivery import MatchReportContent
+from ..models import _encrypt_report, _pepper
+from ..report_delivery import MatchReportContent
 
 
 def encrypt_match_report(apps, schema_editor):

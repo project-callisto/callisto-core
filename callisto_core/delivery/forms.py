@@ -8,8 +8,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
 
-from callisto.delivery import validators
-from callisto.evaluation.models import EvalRow
+from . import validators
+from ..evaluation.models import EvalRow
 
 REQUIRED_ERROR = "The {0} field is required."
 
