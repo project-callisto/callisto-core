@@ -1,7 +1,6 @@
 import logging
 
 from nacl.exceptions import CryptoError
-from zxcvbn import password_strength
 
 from django import forms
 from django.conf import settings
@@ -44,19 +43,11 @@ class NewSecretKeyForm(forms.Form):
     key = make_key()
     key2 = make_key(confirmation=True)
 
-    # from http://birdhouse.org/blog/2015/06/16/sane-password-strength-validation-for-django-with-zxcvbn/
-
     # Portions of the below implementation are copyright cca.edu, and are under the Educational Community License:
     # https://opensource.org/licenses/ECL-2.0
 
     def clean_key(self):
-        # Password strength testing mostly done in JS; minimal validation here.
-        password = self.cleaned_data.get('key')
-        results = password_strength(password)
-
-        if results['entropy'] < settings.PASSWORD_MINIMUM_ENTROPY:
-            raise forms.ValidationError("Your password isn't strong enough.")
-        return password
+        return self.cleaned_data.get('key')
 
     def clean_key2(self):
         key1 = self.cleaned_data.get("key")

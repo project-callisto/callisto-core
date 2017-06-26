@@ -178,16 +178,6 @@ class CreateKeyFormTest(TestCase):
         form = NewSecretKeyForm(good_request)
         self.assertTrue(form.is_valid())
 
-    def test_too_short_key_rejected(self):
-        bad_request = {'key': 'key',
-                       'key2': 'key'}
-        form = NewSecretKeyForm(bad_request)
-        self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors['key'],
-            ["Your password isn't strong enough."]
-        )
-
 
 @patch('callisto_core.delivery.forms.EvalRow.add_report_data')
 class DecryptKeyFormTest(TestCase):
