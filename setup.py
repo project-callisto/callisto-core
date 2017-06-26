@@ -56,7 +56,6 @@ setup(
         'python-gnupg==0.4.0',
         'pytz==2017.2',
         'reportlab==3.4.0',
-        'zxcvbn-py3',
         'six',
         'argon2_cffi',
     ],
