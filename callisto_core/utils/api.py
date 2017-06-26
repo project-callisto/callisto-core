@@ -32,7 +32,7 @@ class Api(type):
     def __getattr__(cls, attr):
         override_class_path = getattr(
             settings,
-            cls.API_ENV_VAR,
+            cls.API_SETTING_NAME,
             cls.DEFAULT_CLASS_PATH,
         )
         api_class = import_string(override_class_path)
@@ -40,10 +40,10 @@ class Api(type):
 
 
 class MatchingApi(metaclass=Api):
-    API_ENV_VAR = 'CALLISTO_MATCHING_API'
+    API_SETTING_NAME = 'CALLISTO_MATCHING_API'
     DEFAULT_CLASS_PATH = 'callisto_core.delivery.api.CallistoCoreMatchingApi'
 
 
 class NotificationApi(metaclass=Api):
-    API_ENV_VAR = 'CALLISTO_NOTIFICATION_API'
+    API_SETTING_NAME = 'CALLISTO_NOTIFICATION_API'
     DEFAULT_CLASS_PATH = 'callisto_core.notification.api.CallistoCoreNotificationApi'
