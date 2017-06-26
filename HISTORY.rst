@@ -6,6 +6,13 @@ History
 0.8.0 (2017-06-23)
 ++++++++++++++++++
 
+* remove password entropy requirement
+
+https://github.com/SexualHealthInnovations/callisto-core/pull/205
+
+0.8.0 (2017-06-23)
+++++++++++++++++++
+
 * DeliveryApi => NotificationApi
 * cleanup and normalize Api classes
 * drop python 2 support
