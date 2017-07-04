@@ -1,3 +1,5 @@
+import logging
+
 import six
 
 from django.contrib.sites.models import Site
@@ -8,6 +10,8 @@ from django.utils.html import strip_tags
 
 from .managers import EmailNotificationQuerySet
 from .validators import validate_email_unique
+
+logger = logging.getLogger(__name__)
 
 
 @six.python_2_unicode_compatible
@@ -59,3 +63,4 @@ class EmailNotification(models.Model):
         email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
         email.attach_alternative(self.render_body(context), "text/html")
         email.send()
+        logger.info('email_notification.send(subject={})'.format(self.subject))
