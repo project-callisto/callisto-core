@@ -3,6 +3,13 @@
 History
 -------
 
+0.8.1 (2017-07-03)
+++++++++++++++++++
+
+* add logging to email notifications
+
+https://github.com/SexualHealthInnovations/callisto-core/pull/208
+
 0.8.0 (2017-06-23)
 ++++++++++++++++++
 
