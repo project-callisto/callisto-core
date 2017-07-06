@@ -171,7 +171,8 @@ class CallistoCoreNotificationApi(object):
 
     # send cycle
     # TODO: make self.send execute async
-    # TODO: pass context as an arguement to send?
+    # TODO: pass context as an arguement to send? (will help with async calls)
+    # TODO: tests a spec for pre / post (so they don't get deleted)
 
     def pre_send(self):
         self.set_domain()
