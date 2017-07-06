@@ -6,7 +6,6 @@ from django.contrib.sites.models import Site
 from django.core.mail.message import EmailMultiAlternatives
 from django.db import models
 from django.template import Context, Template
-from django.utils.html import strip_tags
 
 from .managers import EmailNotificationQuerySet
 from .validators import validate_email_unique
