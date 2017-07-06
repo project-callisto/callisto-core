@@ -21,6 +21,7 @@ class CallistoCoreNotificationApi(object):
     model = EmailNotification
     report_filename = "report_{0}.pdf.gpg"
     from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
+    report_title = 'Report'
 
     @classmethod
     def get_user_site(cls, user):
@@ -31,12 +32,6 @@ class CallistoCoreNotificationApi(object):
             return user.account.site
         '''
         return None
-
-    # TODO: create a PDFGenerationApi https://github.com/SexualHealthInnovations/callisto-core/issues/150
-    # TODO (cont): remove this method, make it a attribute
-    @classmethod
-    def get_report_title(cls):
-        return 'Report'
 
     @classmethod
     def get_cover_page(cls, *args, **kwargs):

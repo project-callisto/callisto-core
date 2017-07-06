@@ -275,7 +275,7 @@ class PDFFullReport(PDFReport):
 
     def get_metadata_page(self, recipient):
         MetadataPage = []
-        MetadataPage.append(Paragraph(NotificationApi.get_report_title(), self.report_title_style))
+        MetadataPage.append(Paragraph(NotificationApi.report_title, self.report_title_style))
 
         MetadataPage.append(Paragraph("Overview", self.section_title_style))
 
@@ -387,7 +387,7 @@ class PDFMatchReport(PDFReport):
                 recipient=settings.COORDINATOR_NAME))
 
         # MATCH REPORTS
-        self.pdf_elements.append(Paragraph(NotificationApi.get_report_title(), self.report_title_style))
+        self.pdf_elements.append(Paragraph(NotificationApi.report_title, self.report_title_style))
 
         # perpetrator info
         self.pdf_elements.append(Paragraph("Perpetrator", self.section_title_style))

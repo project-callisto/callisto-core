@@ -27,10 +27,7 @@ class CustomNotificationApi(SiteAwareNotificationApi):
 
     from_email = '"Custom" <custom@{0}>'.format(settings.APP_URL)
     report_filename = "custom_{0}.pdf.gpg"
-
-    @classmethod
-    def get_report_title(self):
-        return 'Custom'
+    report_title = 'Custom'
 
 
 class ExtendedCustomNotificationApi(CustomNotificationApi):
