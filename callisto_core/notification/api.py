@@ -173,6 +173,11 @@ class CallistoCoreNotificationApi(object):
     # TODO: make self.send execute async
     # TODO: pass context as an arguement to send?
 
+    def pre_send(self):
+        self.set_domain()
+        self.set_notification()
+        self.render_body()
+
     def send(self):
         '''
         required:
@@ -185,16 +190,14 @@ class CallistoCoreNotificationApi(object):
                 from_email
                 attachment
         '''
-        # pre send
-        self.set_domain()
-        self.set_notification()
-        self.render_body()
-
-        # send!
+        self.pre_send()
         self.send_email()
+        self.post_send()
 
-        # post send
+    def post_send(self):
         self.log_action()
+
+    # send cycle implementation
 
     def set_domain(self):
         site = Site.objects.get(id=self.context.get('site_id'))
