@@ -112,7 +112,6 @@ class CallistoCoreNotificationApi(object):
             notification.render_body(context),
             cls.from_email,
             to_addresses)
-        email.attach_alternative(notification.render_body(context), "text/html")
 
         gpg = gnupg.GPG()
         authority_public_key = settings.COORDINATOR_PUBLIC_KEY
