@@ -44,6 +44,10 @@ class CallistoCoreNotificationApi(object):
         return []
 
     @classmethod
+    def send(cls, notification):
+        pass
+
+    @classmethod
     def send_report_to_authority(cls, sent_full_report, decrypted_report, site_id=None):
         logger.info("sending report to reporting authority")
         pdf_report_id = sent_full_report.get_report_id()
