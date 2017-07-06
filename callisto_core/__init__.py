@@ -1,1 +1,1 @@
-__version__ = '0.8.2'
+from .utils.version import __version__
