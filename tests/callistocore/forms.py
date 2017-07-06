@@ -1,3 +1,5 @@
+# TODO: rename this file to api.py
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.http import HttpResponse
@@ -15,33 +17,31 @@ class EncryptedFormWizard(EncryptedFormBaseWizard):
 
 class SiteAwareNotificationApi(CallistoCoreNotificationApi):
 
-    @classmethod
-    def get_user_site(self, user):
-        site = Site.objects.get(id=1)
-        site.domain = 'testserver'
-        site.save()
-        return site
+    def user_site_id(self, user):
+        Site.objects.filter(id=1).update(domain='testserver')
+        return 1
+
+
+class SendDisabledNotificationApi(SiteAwareNotificationApi):
+
+    def send(self):
+        pass
 
 
 class CustomNotificationApi(SiteAwareNotificationApi):
 
     from_email = '"Custom" <custom@{0}>'.format(settings.APP_URL)
     report_filename = "custom_{0}.pdf.gpg"
-
-    @classmethod
-    def get_report_title(self):
-        return 'Custom'
+    report_title = 'Custom'
 
 
 class ExtendedCustomNotificationApi(CustomNotificationApi):
 
-    @classmethod
-    def send_report_to_authority(arg1, arg2, arg3):
+    def send_report_to_authority(*args):
         pass
 
 
 class CustomMatchingApi(CallistoCoreMatchingApi):
 
-    @classmethod
-    def process_new_matches(cls, matches, identifier):
+    def process_new_matches(*args):
         pass

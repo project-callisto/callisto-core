@@ -1055,8 +1055,8 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         exported_report = BytesIO(response.content)
         pdf_reader = PyPDF2.PdfFileReader(exported_report)
-        self.assertEqual(NotificationApi.get_report_title(), CustomNotificationApi().get_report_title())
-        self.assertIn(CustomNotificationApi().get_report_title(), pdf_reader.getPage(0).extractText())
+        self.assertEqual(NotificationApi.report_title, CustomNotificationApi.report_title)
+        self.assertIn(CustomNotificationApi.report_title, pdf_reader.getPage(0).extractText())
 
     @override_settings(DEBUG=True)
     def test_record_cannot_be_exported_by_non_owning_user(self):
