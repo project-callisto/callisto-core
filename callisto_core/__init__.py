@@ -1,1 +1,1 @@
-from .utils.version import __version__
+from .utils.version import __version__  # NOQA
