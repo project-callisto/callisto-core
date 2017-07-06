@@ -40,7 +40,7 @@ class EmailNotification(models.Model):
             context = {'domain': Site.objects.get_current()}
         return Template(self.body).render(Context(context))
 
-    def send(self, to, from_email, context=None):
+    def send(self, to, from_email, context=None, attachment=None):
         """Send the email as plain text.
 
         Includes an HTML equivalent version as an attachment.
@@ -48,10 +48,13 @@ class EmailNotification(models.Model):
 
         if context is None:
             context = {'domain': Site.objects.get_current()}
-        EmailMultiAlternatives(
+        email = EmailMultiAlternatives(
             self.subject,
             self.render_body(context),
             from_email,
             to,
-        ).send()
+        )
+        if attachment:
+            email.attach(*attachment)
+        email.send()
         logger.info('email_notification.send(subject={})'.format(self.subject))

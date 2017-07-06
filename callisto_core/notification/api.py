@@ -5,7 +5,6 @@ import pytz
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 
 from ..delivery.models import SentMatchReport
@@ -100,25 +99,46 @@ class CallistoCoreNotificationApi(object):
         notification.send(to=[to], from_email=from_email, context=context)
 
     @classmethod
-    def send_email_to_authority_intake(cls, pdf_to_attach, notification_name, report_id, site_id=None):
-        site = Site.objects.get(id=site_id)
-        context = {'domain': site.domain}
-        notification = cls.model.objects.on_site(site_id).get(name=notification_name)
-
-        to_addresses = [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
-
-        email = EmailMultiAlternatives(
-            notification.subject,
-            notification.render_body(context),
-            cls.from_email,
-            to_addresses)
-
+    def generate_attachment(cls, filename, attachment_file):
+        # TODO: sign encrypted reports with a Callisto admin key
         gpg = gnupg.GPG()
         authority_public_key = settings.COORDINATOR_PUBLIC_KEY
         imported_keys = gpg.import_keys(authority_public_key)
-        # TODO: sign encrypted doc https://github.com/SexualHealthInnovations/callisto-core/issues/32
-        attachment = gpg.encrypt(pdf_to_attach, imported_keys.fingerprints[0], armor=True, always_trust=True)
+        attachment_file = gpg.encrypt(
+            attachment_file,
+            imported_keys.fingerprints[0],
+            armor=True,
+            always_trust=True,
+        ).data
+        attachment = (
+            filename,
+            attachment_file,
+            "application/octet-stream",
+        )
+        return attachment
 
-        email.attach(cls.report_filename.format(report_id), attachment.data, "application/octet-stream")
-
-        email.send()
+    @classmethod
+    def send_email_to_authority_intake(
+        cls,
+        pdf_to_attach,
+        notification_name,
+        report_id,
+        site_id=None
+    ):
+        site = Site.objects.get(id=site_id)
+        context = {'domain': site.domain}
+        to_addresses = [
+            x.strip() for x in settings.COORDINATOR_EMAIL.split(',')
+        ]
+        attachment = cls.generate_attachment(
+            cls.report_filename.format(report_id),
+            pdf_to_attach,
+        )
+        cls.model.objects.on_site(site_id)\
+            .get(name=notification_name)\
+            .send(
+                to=to_addresses,
+                from_email=cls.from_email,
+                context=context,
+                attachment=attachment,
+        )
