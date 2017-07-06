@@ -28,7 +28,7 @@ class SendDisabledNotificationApi(SiteAwareNotificationApi):
         pass
 
 
-class CustomNotificationApi(CallistoCoreNotificationApi):
+class CustomNotificationApi(SiteAwareNotificationApi):
 
     from_email = '"Custom" <custom@{0}>'.format(settings.APP_URL)
     report_filename = "custom_{0}.pdf.gpg"
