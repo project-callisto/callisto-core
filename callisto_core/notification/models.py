@@ -1,19 +1,10 @@
-import logging
-
-import six
-
 from django.contrib.sites.models import Site
-from django.core.mail.message import EmailMultiAlternatives
 from django.db import models
-from django.template import Context, Template
 
 from .managers import EmailNotificationQuerySet
 from .validators import validate_email_unique
 
-logger = logging.getLogger(__name__)
 
-
-@six.python_2_unicode_compatible
 class EmailNotification(models.Model):
     """Record of Email constructed in and sent via the project"""
     name = models.CharField(blank=False, max_length=50)
@@ -33,28 +24,3 @@ class EmailNotification(models.Model):
     @property
     def sitenames(self):
         return [site.name for site in self.sites.all()]
-
-    def render_body(self, context=None):
-        """Format the email as HTML."""
-        if context is None:
-            context = {'domain': Site.objects.get_current()}
-        return Template(self.body).render(Context(context))
-
-    def send(self, to, from_email, context=None, attachment=None):
-        """Send the email as plain text.
-
-        Includes an HTML equivalent version as an attachment.
-        """
-
-        if context is None:
-            context = {'domain': Site.objects.get_current()}
-        email = EmailMultiAlternatives(
-            self.subject,
-            self.render_body(context),
-            from_email,
-            to,
-        )
-        if attachment:
-            email.attach(*attachment)
-        email.send()
-        logger.info('email_notification.send(subject={})'.format(self.subject))

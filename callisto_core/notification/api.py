@@ -5,6 +5,8 @@ import pytz
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.mail import EmailMessage
+from django.template import Context, Template
 from django.utils import timezone
 
 from ..delivery.models import SentMatchReport
@@ -23,117 +25,213 @@ class CallistoCoreNotificationApi(object):
     from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
     report_title = 'Report'
 
-    @classmethod
-    def get_user_site(cls, user):
-        '''Takes in a user model, and should return a site
-
-        example:
-            for an Account model 1 to 1 with User that has a site attribute
-            return user.account.site
-        '''
-        return None
-
-    @classmethod
-    def get_cover_page(cls, *args, **kwargs):
+    def get_cover_page(self, *args, **kwargs):
+        '''TODO: create pdf api, move this there'''
         return []
 
-    @classmethod
-    def send(cls, notification, attachments):
-        pass
+    def user_site_id(self, user):
+        '''
+        Redefine this method and change the value of 1 to the user's site id
 
-    @classmethod
-    def send_report_to_authority(cls, sent_full_report, decrypted_report, site_id=None):
-        logger.info("sending report to reporting authority")
-        pdf_report_id = sent_full_report.get_report_id()
-        sent_full_report.report.submitted_to_school = timezone.now()
-        # TODO: create a PDFGenerationApi https://github.com/SexualHealthInnovations/callisto-core/issues/150
-        pdf = PDFFullReport(sent_full_report.report, decrypted_report).generate_pdf_report(pdf_report_id)
-        cls.send_email_to_authority_intake(pdf, 'report_delivery', pdf_report_id, site_id)
+        examples:
+            # for an Account model 1 to 1 with User that has a site attribute
+            user.account.site.id
+
+            # for a setup that utilizes settings.SITE_ID
+            settings.SITE_ID
+        '''
+        return 1
+
+    def to_coordinators(self):
+        return [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
+
+    # entrypoints
+
+    def send_report_to_authority(self, sent_report, report_data, site_id=None):
+        '''
+        TODO: docs
+        '''
+        logger.debug('NotificationApi.send_report_to_authority')
+
+        self.context = {
+            'notification_name': 'report_delivery',
+            'to_addresses': self.to_coordinators(),
+            'site_id': site_id,
+        }
+        self.notification_with_full_report(sent_report, report_data)
+        self.send()
+
+        # TODO: re-evaluate this decision
         # save report timestamp only if generation & email work
-        sent_full_report.report.save()
+        sent_report.report.submitted_to_school = timezone.now()
+        sent_report.report.save()
 
-    @classmethod
-    def send_matching_report_to_authority(cls, matches, identifier):
-        """ Encrypts the generated PDF with GPG and attaches it to an email to the reporting authority """
-        # assume all matches are on the same site
+    def send_matching_report_to_authority(self, matches, identifier):
+        '''
+        Encrypts the generated PDF with GPG and attaches it
+        to an email to the reporting authority
+
+        assumes all matches are on the same site
+        '''
+        logger.debug('NotificationApi.send_matching_report_to_authority')
         user = matches[0].report.owner
-        site = cls.get_user_site(user)
-        logger.info("sending match report to reporting authority")
-        sent_match_report = SentMatchReport.objects.create(to_address=settings.COORDINATOR_EMAIL)
-        report_id = sent_match_report.get_report_id()
-        sent_match_report.reports.add(*matches)
-        sent_match_report.save()
-        # TODO: create a PDFGenerationApi https://github.com/SexualHealthInnovations/callisto-core/issues/150
-        pdf = PDFMatchReport(matches, identifier).generate_match_report(report_id)
-        cls.send_email_to_authority_intake(pdf, 'match_delivery', report_id, site_id=site.id)
 
-    @classmethod
-    def send_user_notification(cls, form, notification_name, site_id=None):
-        site = Site.objects.get(id=site_id)
-        notification = cls.model.objects.on_site(site_id).get(name=notification_name)
-        preferred_email = form.cleaned_data.get('email')
-        to_email = preferred_email
-        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(settings.APP_URL)
-        context = {'domain': site.domain}
-        notification.send(to=[to_email], from_email=from_email, context=context)
+        self.context = {
+            'notification_name': 'match_delivery',
+            'to_addresses': self.to_coordinators(),
+            'site_id': self.user_site_id(user),
+            'user': user,
+        }
+        self.notification_with_match_report(matches, identifier)
+        self.send()
 
-    @classmethod
-    def send_match_notification(cls, user, match_report):
-        """Notifies reporting user that a match has been found.
-        Requires an NotificationApi.model with `name="match_notification."`
+    def send_user_notification(self, form, notification_name, site_id=None):
+        '''
+        TODO: docs
+        '''
+        logger.debug('NotificationApi.send_user_notification')
+        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(
+            settings.APP_URL,
+        )
+        self.context = {
+            'notification_name': notification_name,
+            'to_addresses': [form.cleaned_data.get('email')],
+            'site_id': site_id,
+            'from_email': from_email,
+        }
+        self.send()
+
+    def send_match_notification(self, user, match_report):
+        '''
+        Notifies reporting user that a match has been found.
 
         Args:
-          user(User): reporting user
-          match_report(MatchReport): MatchReport for which a match has been found
-        """
-        site = cls.get_user_site(user)
-        notification = cls.model.objects.on_site(site.id).get(name='match_notification')
-        from_email = '"Callisto Matching" <notification@{0}>'.format(settings.APP_URL)
-        to = match_report.contact_email
-        context = {'report': match_report.report, 'domain': site.domain}
-        notification.send(to=[to], from_email=from_email, context=context)
+            user(User): reporting user
+            match_report(MatchReport): MatchReport for which
+                a match has been found
+        '''
+        logger.debug('NotificationApi.send_match_notification')
+        from_email = '"Callisto Matching" <notification@{0}>'.format(
+            settings.APP_URL,
+        )
 
-    @classmethod
-    def generate_attachment(cls, filename, attachment_file):
-        # TODO: sign encrypted reports with a Callisto admin key
+        self.context = {
+            'notification_name': 'match_notification',
+            'to_addresses': [match_report.contact_email],
+            'site_id': self.user_site_id(user),
+            'from_email': from_email,
+            'report': match_report.report,
+            'user': user,
+        }
+        self.send()
+
+    # report attachment
+    # TODO: write to self.attachment without dict.update
+
+    def notification_with_full_report(self, sent_report, report_data):
+        report_id = sent_report.get_report_id()
+        report_file = PDFFullReport(
+            sent_report.report, report_data
+        ).generate_pdf_report(report_id)
+
+        self._notification_with_report(report_id, report_file)
+
+    def notification_with_match_report(self, matches, identifier):
+        # TODO: make match notification_with_full_report more closely
+        sent_match_report = SentMatchReport.objects.create(
+            to_address=self.context['to_addresses'][0],
+        )
+        sent_match_report.reports.add(*matches)
+        sent_match_report.save()
+
+        report_id = sent_match_report.get_report_id()
+        report_pdf = PDFMatchReport(matches, identifier)
+        report_file = report_pdf.generate_match_report(report_id)
+
+        self._notification_with_report(report_id, report_file)
+
+    def _notification_with_report(self, report_id, report_file):
+        report_file = self._encrypt_file(report_file)
+        attachment = (
+            self.report_filename.format(report_id),
+            report_file,
+            "application/octet-stream",
+        )
+        self.context.update({'attachment': attachment})
+
+    def _encrypt_file(self, file_data):
         gpg = gnupg.GPG()
-        authority_public_key = settings.COORDINATOR_PUBLIC_KEY
-        imported_keys = gpg.import_keys(authority_public_key)
-        attachment_file = gpg.encrypt(
-            attachment_file,
+        imported_keys = gpg.import_keys(settings.COORDINATOR_PUBLIC_KEY)
+        return gpg.encrypt(
+            file_data,
             imported_keys.fingerprints[0],
             armor=True,
             always_trust=True,
         ).data
-        attachment = (
-            filename,
-            attachment_file,
-            "application/octet-stream",
-        )
-        return attachment
 
-    @classmethod
-    def send_email_to_authority_intake(
-        cls,
-        pdf_to_attach,
-        notification_name,
-        report_id,
-        site_id=None
-    ):
-        site = Site.objects.get(id=site_id)
-        context = {'domain': site.domain}
-        to_addresses = [
-            x.strip() for x in settings.COORDINATOR_EMAIL.split(',')
-        ]
-        attachment = cls.generate_attachment(
-            cls.report_filename.format(report_id),
-            pdf_to_attach,
+    # send cycle
+    # TODO: make self.send execute async
+    # TODO: pass context as an arguement to send?
+
+    def pre_send(self):
+        self.set_domain()
+        self.set_notification()
+        self.render_body()
+
+    def send(self):
+        '''
+        required:
+            self.context.
+                site_id
+                notification_name
+                to_addresses
+        optional:
+            self.context.
+                from_email
+                attachment
+        '''
+        self.pre_send()
+        self.send_email()
+        self.post_send()
+
+    def post_send(self):
+        self.log_action()
+
+    # send cycle implementation
+
+    def set_domain(self):
+        site = Site.objects.get(id=self.context.get('site_id'))
+        self.context.update({'domain': site.domain})
+
+    def set_notification(self):
+        notification = self.model.objects.on_site(
+            self.context.get('site_id'),
+        ).get(name=self.context['notification_name'])
+        self.context.update({
+            'subject': notification.subject,
+            'body': notification.body,
+        })
+
+    def render_body(self):
+        body_template = Template(self.context['body'])
+        body_context = Context(self.context)
+        body_rendered = body_template.render(body_context)
+        self.context.update({'body': body_rendered})
+
+    def send_email(self):
+        email = EmailMessage(
+            subject=self.context['subject'],
+            body=self.context['body'],
+            from_email=self.context.get('from_email', self.from_email),
+            to=self.context['to_addresses'],
         )
-        cls.model.objects.on_site(site_id)\
-            .get(name=notification_name)\
-            .send(
-                to=to_addresses,
-                from_email=cls.from_email,
-                context=context,
-                attachment=attachment,
-        )
+        if self.context.get('attachment'):
+            email.attach(*self.context.get('attachment'))
+        email.send()
+        self.context.update({'EmailMessage': email})
+
+    def log_action(self):
+        logger.info('notification.send(subject={}, name={})'.format(
+            self.context['subject'],
+            self.context['notification_name'],
+        ))

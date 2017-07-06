@@ -35,8 +35,16 @@ class Api(type):
             cls.API_SETTING_NAME,
             cls.DEFAULT_CLASS_PATH,
         )
-        api_class = import_string(override_class_path)
-        return getattr(api_class, attr, lambda: None)
+        api_instance = import_string(override_class_path)()
+        return getattr(api_instance, attr, lambda: None)
+
+    # def __getattribute__(cls, attr):
+    #     override_class_path = getattr(
+    #         settings,
+    #         cls.API_SETTING_NAME,
+    #         cls.DEFAULT_CLASS_PATH,
+    #     )
+    #     return import_string(override_class_path)()
 
 
 class MatchingApi(metaclass=Api):
