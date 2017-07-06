@@ -3,7 +3,7 @@
 History
 -------
 
-0.9.0 (2017-07-03)
+0.9.0 (2017-07-06)
 ++++++++++++++++++
 
 * NotificationApi update, allowing for me effective subclassing
@@ -17,7 +17,7 @@ https://github.com/SexualHealthInnovations/callisto-core/pull/210
 
 https://github.com/SexualHealthInnovations/callisto-core/pull/208
 
-0.8.1 (2017-06-23)
+0.8.1 (2017-06-26)
 ++++++++++++++++++
 
 * remove password entropy requirement
