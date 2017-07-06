@@ -24,7 +24,7 @@ class CallistoCoreNotificationApi(object):
     from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
 
     @classmethod
-    def get_user_site(self, user):
+    def get_user_site(cls, user):
         '''Takes in a user model, and should return a site
 
         example:
