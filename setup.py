@@ -53,7 +53,7 @@ setup(
         'django-ratelimit==1.0.1',
         'django-wizard-builder==0.2.1',
         'PyNaCl==1.1.2',
-        'python-gnupg==0.4.0',
+        'python-gnupg==0.4.1',
         'pytz==2017.2',
         'reportlab==3.4.0',
         'six',
