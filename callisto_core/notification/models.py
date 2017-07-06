@@ -41,17 +41,6 @@ class EmailNotification(models.Model):
             context = {'domain': Site.objects.get_current()}
         return Template(self.body).render(Context(context))
 
-    def render_body_plain(self, context=None):
-        """Format the email as plain text."""
-        if context is None:
-            context = {'domain': Site.objects.get_current()}
-        html = self.render_body(context)
-        cleaned = html.replace('<br />', '\n')
-        cleaned = cleaned.replace('<br/>', '\n')
-        cleaned = cleaned.replace('<p>', '\n')
-        cleaned = cleaned.replace('</p>', '\n')
-        return strip_tags(cleaned)
-
     def send(self, to, from_email, context=None):
         """Send the email as plain text.
 
@@ -60,7 +49,10 @@ class EmailNotification(models.Model):
 
         if context is None:
             context = {'domain': Site.objects.get_current()}
-        email = EmailMultiAlternatives(self.subject, self.render_body_plain(context), from_email, to)
-        email.attach_alternative(self.render_body(context), "text/html")
-        email.send()
+        EmailMultiAlternatives(
+            self.subject,
+            self.render_body(context),
+            from_email,
+            to,
+        ).send()
         logger.info('email_notification.send(subject={})'.format(self.subject))

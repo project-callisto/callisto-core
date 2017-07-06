@@ -44,7 +44,7 @@ class CallistoCoreNotificationApi(object):
         return []
 
     @classmethod
-    def send(cls, notification):
+    def send(cls, notification, attachments):
         pass
 
     @classmethod
@@ -109,7 +109,7 @@ class CallistoCoreNotificationApi(object):
 
         email = EmailMultiAlternatives(
             notification.subject,
-            notification.render_body_plain(context),
+            notification.render_body(context),
             cls.from_email,
             to_addresses)
         email.attach_alternative(notification.render_body(context), "text/html")
