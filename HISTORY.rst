@@ -3,6 +3,13 @@
 History
 -------
 
+0.9.2 (2017-07-07)
+++++++++++++++++++
+
+* don't overwrite email domain if it's already set
+
+https://github.com/SexualHealthInnovations/callisto-core/pull/212
+
 0.9.1 (2017-07-06)
 ++++++++++++++++++
 
