@@ -205,6 +205,7 @@ class CallistoCoreNotificationApi(object):
         self.context.update({'domain': site.domain})
 
     def set_notification(self):
+        # TODO: seperate funs for getting notification and assigning values
         notification = self.model.objects.on_site(
             self.context.get('site_id'),
         ).get(name=self.context['notification_name'])
