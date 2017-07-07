@@ -201,8 +201,9 @@ class CallistoCoreNotificationApi(object):
     # send cycle implementation
 
     def set_domain(self):
-        site = Site.objects.get(id=self.context.get('site_id'))
-        self.context.update({'domain': site.domain})
+        if not self.context.get('domain'):
+            site = Site.objects.get(id=self.context.get('site_id'))
+            self.context.update({'domain': site.domain})
 
     def set_notification(self):
         # TODO: seperate funs for getting notification and assigning values
