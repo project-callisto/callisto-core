@@ -3,6 +3,13 @@
 History
 -------
 
+0.9.1 (2017-07-06)
+++++++++++++++++++
+
+* update MatchingApi to match NotificationApi
+
+https://github.com/SexualHealthInnovations/callisto-core/pull/210
+
 0.9.0 (2017-07-06)
 ++++++++++++++++++
 

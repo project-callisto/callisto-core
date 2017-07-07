@@ -9,8 +9,7 @@ logger = logging.getLogger(__name__)
 
 class CallistoCoreMatchingApi(object):
 
-    @classmethod
-    def run_matching(cls, match_reports_to_check=None):
+    def run_matching(self, match_reports_to_check=None):
         """Compares existing match records to see if any match the given identifiers. If no identifiers are given,
         checks existing match records against identifiers from records that weren't been marked as "seen" the last
         time matching was run. For each identifier for which a new match is found, a report is sent to the receiving
@@ -23,10 +22,9 @@ class CallistoCoreMatchingApi(object):
         logger.info("running matching")
         if match_reports_to_check is None:
             match_reports_to_check = MatchReport.objects.filter(seen=False)
-        cls.find_matches(match_reports_to_check)
+        self.find_matches(match_reports_to_check)
 
-    @classmethod
-    def get_all_eligible_match_reports(cls, match_report):
+    def get_all_eligible_match_reports(self, match_report):
         """Returns all match reports that are eligible to be checked for matches against a given MatchReport.
         Designed to be overridden for applications that want more granular options for matching
         (segmented for a given population or severity level of report, for example.)
@@ -36,8 +34,7 @@ class CallistoCoreMatchingApi(object):
         """
         return MatchReport.objects.all()
 
-    @classmethod
-    def find_matches(cls, match_reports_to_check):
+    def find_matches(self, match_reports_to_check):
         """Finds sets of matching records that haven't been identified yet. For a match to count as new, there must be
         associated Reports from at least 2 different users and at least one MatchReport must be newly created since
         we last checked for matches.
@@ -47,7 +44,7 @@ class CallistoCoreMatchingApi(object):
         """
         for match_report in match_reports_to_check:
             identifier = match_report.identifier
-            match_list = [potential for potential in cls.get_all_eligible_match_reports(match_report)
+            match_list = [potential for potential in self.get_all_eligible_match_reports(match_report)
                           if potential.get_match(identifier)]
             if len(match_list) > 1:
                 seen_match_owners = [match.report.owner for match in match_list if match.seen]
@@ -56,7 +53,7 @@ class CallistoCoreMatchingApi(object):
                 if len(set(seen_match_owners + new_match_owners)) > 1:
                     # only send notifications if new matches are submitted by owners we don't know about
                     if not set(new_match_owners).issubset(set(seen_match_owners)):
-                        cls.process_new_matches(match_list, identifier)
+                        self.process_new_matches(match_list, identifier)
                     for matched_report in match_list:
                         matched_report.report.match_found = True
                         matched_report.report.save()
@@ -66,8 +63,7 @@ class CallistoCoreMatchingApi(object):
                 match.identifier = None
                 match.save()
 
-    @classmethod
-    def process_new_matches(cls, matches, identifier):
+    def process_new_matches(self, matches, identifier):
         """Sends a report to the receiving authority and notifies the reporting users.
         Each user should only be notified one time when a match is found.
 
