@@ -39,9 +39,7 @@ deactivate # exit virtualenv
 #### Supported versions:
 
 Django
-- 1.8
-- 1.9
-- 1.10
+- 1.11
 
 Python
 - 3.3
