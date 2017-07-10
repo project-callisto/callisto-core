@@ -29,7 +29,7 @@ try:
     import pypandoc
     readme = pypandoc.convert_file('README.md', 'rst')
     print("Converting README from markdown to restructured text")
-except (IOError, ImportError):
+except (IOError, ImportError, OSError):
     print("Please install PyPandoc to allow conversion of the README")
     readme = open('README.md').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
