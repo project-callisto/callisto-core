@@ -17,9 +17,6 @@ matrix:
           env: TOXENV=djangodev
         - python: "3.5"
           env: TOXENV=djangodev
-    allow_failures:
-        - python: "3.6"
-          env: TOXENV=djangodev
 install:
     - pip install -r requirements/test.txt
 script:
