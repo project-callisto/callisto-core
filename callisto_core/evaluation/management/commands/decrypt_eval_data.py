@@ -8,7 +8,7 @@ import six
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from callisto.evaluation.models import EvalRow
+from ...models import EvalRow
 
 logger = logging.getLogger(__name__)
 
