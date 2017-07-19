@@ -36,6 +36,6 @@ class Command(BaseCommand):
             if decrypted_eval_row:
                 decrypted_row.update(json.loads(decrypted_eval_row))
             decrypted_eval_data.append(decrypted_row)
-        with open('eval_data.json', 'w') as output:
-            json.dump(decrypted_eval_data, output)
+        with open('eval_data.json', 'w') as data_file:
+            json.dump(decrypted_eval_data, data_file)
         logger.info("Decrypted eval data written to eval_data.json")
