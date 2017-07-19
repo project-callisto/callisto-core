@@ -7,6 +7,7 @@ import six
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.core.exceptions import ImproperlyConfigured
 
 from ...models import EvalRow
 
@@ -20,6 +21,8 @@ class Command(BaseCommand):
         if not settings.DEBUG:
             raise RuntimeError("Don't run this in production!!! Import encrypted prod data to your local environment")
         eval_key = settings.CALLISTO_EVAL_PRIVATE_KEY
+        if not eval_key:
+            raise ImproperlyConfigured('CALLISTO_EVAL_PRIVATE_KEY not present')
         decrypted_eval_data = []
         for row in EvalRow.objects.all():
             decrypted_row = {'pk': row.pk,
