@@ -18,8 +18,6 @@ class Command(BaseCommand):
     help = 'decrypts eval data. can only be run in local environments (import data from prod)'
 
     def handle(self, *args, **options):
-        if not settings.DEBUG:
-            raise RuntimeError("Don't run this in production!!! Import encrypted prod data to your local environment")
         eval_key = settings.CALLISTO_EVAL_PRIVATE_KEY
         if not eval_key:
             raise ImproperlyConfigured('CALLISTO_EVAL_PRIVATE_KEY not present')
