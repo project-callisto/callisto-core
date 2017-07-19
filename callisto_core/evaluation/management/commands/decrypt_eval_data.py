@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 
 import gnupg
 import six
@@ -8,6 +9,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from callisto.evaluation.models import EvalRow
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -32,4 +35,4 @@ class Command(BaseCommand):
             decrypted_eval_data.append(decrypted_row)
         with open('eval_data.json', 'w') as output:
             json.dump(decrypted_eval_data, output)
-        self.stdout.write("Decrypted eval data written to eval_data.json")
+        logger.info("Decrypted eval data written to eval_data.json")
