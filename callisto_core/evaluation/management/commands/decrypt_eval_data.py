@@ -29,7 +29,7 @@ class Command(BaseCommand):
                              'user': row.user_identifier,
                              'record': row.record_identifier,
                              'action': row.action,
-                             'timestamp': row.timestamp.timestamp()}
+                             'timestamp': row.timestamp.__str__()}
             gpg = gnupg.GPG()
             gpg.import_keys(settings.CALLISTO_EVAL_PRIVATE_KEY)
             decrypted_eval_row = six.text_type(gpg.decrypt(six.binary_type(row.row)))
