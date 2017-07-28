@@ -1,13 +1,12 @@
 import json
-import os
 import logging
 
 import gnupg
 import six
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from django.core.exceptions import ImproperlyConfigured
+from django.core.management.base import BaseCommand
 
 from ...models import EvalRow
 
@@ -20,8 +19,8 @@ class Command(BaseCommand):
     def _write_to_file(self, data):
         with open('eval_data.json', 'w') as data_file:
             json.dump(data, data_file)
-        logger.info("Decrypted eval data written to eval_data.json")    
-    
+        logger.info("Decrypted eval data written to eval_data.json")
+
     def _decrypt(self):
         decrypted_eval_data = []
         for row in EvalRow.objects.all():
