@@ -26,13 +26,31 @@ class ReviewPageTest(TestCase):
         cls.page_2 = QuestionPage.objects.create()
         cls.page_2.sites.add(cls.site.id)
         cls.question_1 = SingleLineText.objects.create(
-            text="first question",
+            text='1st question',
             page=cls.page_1,
         )
         cls.question_2 = SingleLineText.objects.create(
-            text="2nd question",
+            text='2nd question',
             page=cls.page_2,
         )
+
+    @classmethod
+    def setup_report(cls, report):
+        report_text = [
+            {
+                'answer': '1st answer',
+                'id': cls.question_1.pk,
+                'question_text': cls.question_1.text,
+                'type': SingleLineText._meta.verbose_name,
+            },
+            {
+                'answer': '2nd answer',
+                'id': cls.question_2.pk,
+                'question_text': cls.question_2.text,
+                'type': SingleLineText._meta.verbose_name,
+            },
+        ]
+        report.encrypt_report(str(report_text), '')
 
     def setUp(self):
         self.client.login(username='test', password='test')
@@ -57,5 +75,10 @@ class ReviewPageTest(TestCase):
 
     def test_questions_displayed_on_page(self):
         response = self.page_response
-        self.assertIn(self.question_1.text, str(response.content))
-        self.assertIn(self.question_2.text, str(response.content))
+        self.assertIn('1st question', str(response.content))
+        self.assertIn('2nd question', str(response.content))
+
+    def test_answers_displayed_on_page(self):
+        response = self.page_response
+        self.assertIn('1st answer', str(response.content))
+        self.assertIn('2nd answer', str(response.content))
