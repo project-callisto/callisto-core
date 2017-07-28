@@ -80,18 +80,10 @@ class ReviewPageTest(TestCase):
 
     def test_questions_displayed_on_page(self):
         response = self.page_response
-        self.assertIn('1st question', str(response.content))
-        self.assertIn('2nd question', str(response.content))
+        self.assertIn(self.question_1.text, str(response.content))
+        self.assertIn(self.question_2.text, str(response.content))
 
     def test_answers_displayed_on_page(self):
         response = self.page_response
         self.assertIn('1st answer', str(response.content))
-        self.assertIn('2nd answer', str(response.content))
-
-    def test_radio_button_displayed(self):
-        response = self.page_response
-        self.assertIn('radio button', str(response.content))
-
-    def test_choices_displayed(self):
-        response = self.page_response
         self.assertIn('choice 2', str(response.content))
