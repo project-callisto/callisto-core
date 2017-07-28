@@ -17,6 +17,7 @@ class ReviewPageTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.site = Site.objects.get(id=1)
         Site.objects.filter(id=1).update(domain='testserver')
         cls.user = User.objects.create_user(username='test', password='test')
@@ -39,8 +40,14 @@ class ReviewPageTest(TestCase):
             owner=self.user,
         )
 
+    @property
+    def template(self):
+        view = ReportDetail()
+        view.object = self.report
+        return view.get_template_names()[0]
+
     def test_report_details_url_and_template(self):
         response = self.client.get(
             reverse('report_details', kwargs={'uuid':self.report.uuid}),
         )
-        self.assertTemplateUsed(response, 'create_key.html')
+        self.assertTemplateUsed(response, self.template)
