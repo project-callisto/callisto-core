@@ -29,8 +29,8 @@ class ReviewPageTest(TestCase):
             text='1st question',
             page=cls.page_1,
         )
-        cls.question_2 = SingleLineText.objects.create(
-            text='2nd question',
+        cls.question_2 = RadioButton.objects.create(
+            text='2nd question, radio button',
             page=cls.page_2,
         )
 
@@ -44,10 +44,15 @@ class ReviewPageTest(TestCase):
                 'type': 'SingleLineText',
             },
             {
-                'answer': '2nd answer',
-                'id': cls.question_2.pk,
-                'question_text': cls.question_2.text,
-                'type': 'SingleLineText',
+                "answer": "2",
+                "id": cls.question_1.pk,
+                "section": 1,
+                "question_text": cls.question_2.text,
+                "choices": [
+                    {"id": 1, "choice_text": "choice 1"},
+                    {"id": 2, "choice_text": "choice 2"},
+                ],
+                "type": "RadioButton"
             },
         ]
         report.encrypt_report(str(report_text), '')
@@ -82,3 +87,11 @@ class ReviewPageTest(TestCase):
         response = self.page_response
         self.assertIn('1st answer', str(response.content))
         self.assertIn('2nd answer', str(response.content))
+
+    def test_radio_button_displayed(self):
+        response = self.page_response
+        self.assertIn('radio button', str(response.content))
+
+    def test_choices_displayed(self):
+        response = self.page_response
+        self.assertIn('choice 2', str(response.content))
