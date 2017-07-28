@@ -8,6 +8,7 @@ from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
 
 from callisto_core.delivery.views import ReportDetail
+from callisto_core.delivery.models import Report
 
 User = get_user_model()
 
@@ -34,9 +35,12 @@ class ReviewPageTest(TestCase):
 
     def setUp(self):
         self.client.login(username='test', password='test')
+        self.report, _ = Report.objects.get_or_create(
+            owner=self.user,
+        )
 
     def test_report_details_url_and_template(self):
         response = self.client.get(
-            reverse('report_details', kwargs={'uuid':None}),
+            reverse('report_details', kwargs={'uuid':self.report.uuid}),
         )
         self.assertTemplateUsed(response, 'create_key.html')

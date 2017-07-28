@@ -30,7 +30,9 @@ logger = logging.getLogger(__name__)
 
 
 class ReportDetail(DetailView):
-    pass
+    model = Report
+    slug_field = 'uuid'
+    slug_url_kwarg = 'uuid'
 
 
 def check_owner(action_name, report_id_arg='report_id'):
