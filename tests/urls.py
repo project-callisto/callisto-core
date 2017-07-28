@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
 
 from callisto_core.delivery.views import (
     delete_report, edit_record_form_view, export_as_pdf, new_record_form_view,
@@ -6,8 +6,11 @@ from callisto_core.delivery.views import (
 )
 
 from .callistocore.forms import EncryptedFormWizard
+from callisto_core.delivery import urls as callisto_core_urls
+
 
 urlpatterns = [
+    url(r'^reports/', include(callisto_core_urls)),
     url(r'^test_reports/new/(?P<step>.+)/$', new_record_form_view,
         {'wizard': EncryptedFormWizard,
          'url_name': 'test_new_report'}, name="test_new_report"),
