@@ -46,8 +46,16 @@ class ReviewPageTest(TestCase):
         view.object = self.report
         return view.get_template_names()[0]
 
-    def test_report_details_url_and_template(self):
-        response = self.client.get(
+    @property
+    def page_response(self):
+        return self.client.get(
             reverse('report_details', kwargs={'uuid':self.report.uuid}),
         )
-        self.assertTemplateUsed(response, self.template)
+
+    def test_report_details_url_and_template(self):
+        self.assertTemplateUsed(self.page_response, self.template)
+
+    def test_questions_displayed_on_page(self):
+        response = self.page_response
+        self.assertIn(self.question_1.text, str(response.content))
+        self.assertIn(self.question_2.text, str(response.content))
