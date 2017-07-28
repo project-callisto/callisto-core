@@ -41,13 +41,13 @@ class ReviewPageTest(TestCase):
                 'answer': '1st answer',
                 'id': cls.question_1.pk,
                 'question_text': cls.question_1.text,
-                'type': SingleLineText._meta.verbose_name,
+                'type': 'SingleLineText',
             },
             {
                 'answer': '2nd answer',
                 'id': cls.question_2.pk,
                 'question_text': cls.question_2.text,
-                'type': SingleLineText._meta.verbose_name,
+                'type': 'SingleLineText',
             },
         ]
         report.encrypt_report(str(report_text), '')
