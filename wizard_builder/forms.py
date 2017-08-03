@@ -5,7 +5,20 @@ from django.utils.safestring import mark_safe
 
 from .models import Date, MultipleChoice, PageBase, QuestionPage, TextPage
 
+# rearranged from django-formtools
+
+# Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
+# are under the BSD-3 Clause License:
+# https://github.com/django/django-formtools/blob/master/LICENSE
+
 User = get_user_model()
+
+
+class ManagementForm(forms.Form):
+    """
+    ``ManagementForm`` is used to keep track of the current wizard step.
+    """
+    current_step = forms.CharField(widget=forms.HiddenInput)
 
 
 class BasePageForm(forms.Form):

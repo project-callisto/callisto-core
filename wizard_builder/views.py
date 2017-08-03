@@ -1,25 +1,21 @@
 from collections import OrderedDict
 from functools import partial
 
-from formtools.wizard.forms import ManagementForm
-from formtools.wizard.views import NamedUrlSessionWizardView
-
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
 
-from .forms import QuestionPageForm, get_form_pages
+from .forms import QuestionPageForm, get_form_pages, ManagementForm
 from .models import PageBase, QuestionPage, TextPage
+from .wizards import NamedUrlWizardView
 
-# rearranged from django-formtools to allow binding forms before skipping steps & submission
-# adds hook before done is called to process answers
-
+# from django-formtools
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
 # are under the BSD-3 Clause License:
 # https://github.com/django/django-formtools/blob/master/LICENSE
 
 
-class ModifiedSessionWizardView(NamedUrlSessionWizardView):
+class ModifiedSessionWizardView(NamedUrlWizardView):
 
     def __init__(self, **kwargs):
         super(ModifiedSessionWizardView, self).__init__(**kwargs)
