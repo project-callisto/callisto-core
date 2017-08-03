@@ -4,12 +4,11 @@ from django import forms
 from django.test import TestCase
 
 from ..models import (
-    Checkbox, Choice, Date, MultiLineText, Page, RadioButton,
-    SingleLineText,
+    Checkbox, Choice, Date, MultiLineText, Page, RadioButton, SingleLineText,
 )
 
 
-class PageTest(TestCase):
+class PageTest1(TestCase):
 
     def test_page_can_have_position(self):
         Page.objects.create()
@@ -263,7 +262,7 @@ class DateTestCase(ItemTestCase):
         self.assertEqual(serialized_q, json_report)
 
 
-class PageTest(TestCase):
+class PageTest2(TestCase):
 
     def test_can_save_encouragement(self):
         page_id = Page.objects.create(encouragement="you can do it!").pk

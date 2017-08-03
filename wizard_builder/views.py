@@ -1,7 +1,5 @@
 from collections import OrderedDict
-from functools import partial
 
-from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
 

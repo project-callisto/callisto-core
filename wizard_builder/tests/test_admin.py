@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 from distutils.util import strtobool
-from unittest import skip
 
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
@@ -12,8 +11,8 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
 from ..models import (
-    Checkbox, Choice, Date, FormQuestion, MultiLineText, MultipleChoice,
-    Page, RadioButton, SingleLineText, SingleLineTextWithMap,
+    Checkbox, Choice, Date, FormQuestion, MultiLineText, MultipleChoice, Page,
+    RadioButton, SingleLineText, SingleLineTextWithMap,
 )
 
 try:

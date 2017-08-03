@@ -8,9 +8,7 @@ from django.http import HttpRequest
 from django.test import TestCase
 
 from ..forms import PageForm
-from ..models import (
-    Checkbox, Choice, Date, Page, RadioButton, SingleLineText,
-)
+from ..models import Checkbox, Choice, Date, Page, RadioButton, SingleLineText
 from ..views import ConfigurableFormWizard
 from .test_app.models import Report
 from .test_app.views import WizardTestApp

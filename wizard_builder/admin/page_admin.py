@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .base import DowncastedAdmin, QuestionInline
+from .base import QuestionInline
 
 
 class PageAdmin(admin.ModelAdmin):

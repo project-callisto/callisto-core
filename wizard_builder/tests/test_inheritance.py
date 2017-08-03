@@ -2,9 +2,7 @@ import subprocess
 
 from django.test import TestCase
 
-from ..models import (
-    Choice, FormQuestion, MultipleChoice, Page, SingleLineText,
-)
+from ..models import Choice, MultipleChoice, Page, SingleLineText
 
 
 class InheritanceTest(TestCase):
