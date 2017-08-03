@@ -79,4 +79,3 @@ django-collectstatic:
 django-release: ## heroku build release command
 	make django-migrate
 	make django-create-admins
-	make django-collectstatic
