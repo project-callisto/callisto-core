@@ -43,7 +43,7 @@ class AutoDowncastingManager(InheritanceManager):
 
 
 class PageManager(Manager):
-    _queryset = PageQuerySet
+    _queryset_class = PageQuerySet
 
     def on_site(self, site_id=None):
         return self.get_queryset().on_site(site_id)
