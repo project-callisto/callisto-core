@@ -462,7 +462,7 @@ class EditRecordFormTest(FormBaseTest):
 
     def test_edit_record_page_renders_first_page(self):
         response = self.client.get(self.form_url % self.report.pk, follow=True)
-        self.assertTemplateUsed(response, 'wizard_form.html')
+        self.assertTemplateUsed(response, 'wizard_builder/wizard_form.html')
         self.assertIsInstance(response.context['form'], PageForm)
         self.assertContains(response, 'name="0-question_%i"' % self.question1.pk)
         self.assertNotContains(response, 'name="0-question_%i"' % self.question2.pk)
@@ -475,7 +475,7 @@ class EditRecordFormTest(FormBaseTest):
                   'form_wizard' + str(self.report.id) + '-current_step': 0},
             follow=True
         )
-        self.assertTemplateUsed(response, 'wizard_form.html')
+        self.assertTemplateUsed(response, 'wizard_builder/wizard_form.html')
         self.assertIsInstance(response.context['form'], PageForm)
         self.assertContains(response, 'name="1-question_%i"' % self.question2.pk)
         self.assertNotContains(response, 'name="1-question_%i"' % self.question1.pk)
