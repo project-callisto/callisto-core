@@ -22,7 +22,6 @@ class Page(models.Model):
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
-    encouragement = models.TextField(blank=True)
     infobox = models.TextField(
         blank=True,
         verbose_name='why is this asked? wrap additional titles in [[double brackets]]',
