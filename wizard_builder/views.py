@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
 
-from .forms import ManagementForm, QuestionPageForm, get_form_pages
+from .forms import QuestionPageForm, get_form_pages
 from .models import PageBase, QuestionPage, TextPage
 from .wizards import NamedUrlWizardView
 
