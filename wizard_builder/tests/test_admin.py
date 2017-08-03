@@ -106,16 +106,12 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_id('id_password').send_keys('pass')
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        port = urlparse(cls.live_server_url).port
-        Site.objects.create(domain='localhost')
-        Site.objects.create(domain='localhost:{}'.format(port))
-        User.objects.create_superuser('user', '', 'pass')
-
     def setUp(self):
         super().setUp()
+        port = urlparse(self.live_server_url).port
+        Site.objects.get_or_create(domain='localhost')
+        Site.objects.get_or_create(domain='localhost:{}'.format(port))
+        User.objects.create_superuser('user', '', 'pass')
         self.login_admin()
         self.browser.get(self.live_server_url + '/admin/')
         self.wait_for_until_body_loaded()
