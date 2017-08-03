@@ -16,7 +16,7 @@ django-wizard-builder
 
 =====  =====
    Support
-----
+------------
 False  False
 True   False
 =====  =====
