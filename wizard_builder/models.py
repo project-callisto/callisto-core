@@ -8,8 +8,8 @@ from django.utils.safestring import mark_safe
 from .managers import FormQuestionManager, QuestionPageManager
 
 
-# TODO: rename to just "Page"
-class QuestionPage(models.Model):
+# TODO: remove
+class PageBase(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -21,10 +21,14 @@ class QuestionPage(models.Model):
         (WHO, 'Who'),
     )
 
-    encouragement = models.TextField(blank=True)
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
+
+# TODO: rename to just "Page"
+class QuestionPage(PageBase):
+
+    encouragement = models.TextField(blank=True)
     infobox = models.TextField(
         blank=True,
         verbose_name='why is this asked? wrap additional titles in [[double brackets]]',

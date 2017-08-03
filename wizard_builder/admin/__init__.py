@@ -1,8 +1,8 @@
 from django.contrib import admin
 
 from ..models import (
-    Checkbox, Date, FormQuestion, MultiLineText, MultipleChoice,
-    QuestionPage, RadioButton, SingleLineText, SingleLineTextWithMap,
+    Checkbox, Date, FormQuestion, MultiLineText, MultipleChoice, QuestionPage,
+    RadioButton, SingleLineText, SingleLineTextWithMap,
 )
 from .page_admin import QuestionPageAdmin
 from .question_admin import (

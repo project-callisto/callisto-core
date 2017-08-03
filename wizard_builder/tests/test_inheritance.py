@@ -3,8 +3,7 @@ import subprocess
 from django.test import TestCase
 
 from ..models import (
-    Choice, FormQuestion, MultipleChoice, QuestionPage,
-    SingleLineText,
+    Choice, FormQuestion, MultipleChoice, QuestionPage, SingleLineText,
 )
 
 
