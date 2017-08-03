@@ -1,28 +1,16 @@
 language: python
 python:
-    - "2.7"
-    - "3.3"
     - "3.4"
     - "3.5"
     - "3.6"
 sudo: false
 cache: pip
 env:
-    - TOXENV=django18
-    - TOXENV=django110
     - TOXENV=django111
     - TOXENV=djangodev
 matrix:
     fast_finish: true
     exclude:
-        - python: "2.7"
-          env: TOXENV=djangodev
-        - python: "3.3"
-          env: TOXENV=django110
-        - python: "3.3"
-          env: TOXENV=django111
-        - python: "3.3"
-          env: TOXENV=djangodev
         - python: "3.4"
           env: TOXENV=djangodev
         - python: "3.5"

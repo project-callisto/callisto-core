@@ -57,7 +57,7 @@ def get_form_pages(pages):
 
     for idx, (page, item_set) in enumerate(pages):
         FormType = type(
-            f'Page{idx}Form',
+            'Page{}Form'.format(idx),
             (PageForm,),
             {
                 "items": sorted(item_set, key=lambda i: i.position),
