@@ -76,3 +76,4 @@ django-create-admins: ## create django admin users
 django-release: ## heroku build release command
 	make django-migrate
 	make django-create-admins
+	echo $(DATABASE_URL)
