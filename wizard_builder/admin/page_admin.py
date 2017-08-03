@@ -3,15 +3,8 @@ from django.contrib import admin
 from .base import DowncastedAdmin, QuestionInline
 
 
-class PageBaseAdmin(DowncastedAdmin):
+class QuestionPageAdmin(admin.ModelAdmin):
     list_filter = ['sites']
-
-
-class PageBaseChildAdmin(admin.ModelAdmin):
-    list_filter = ['sites']
-
-
-class QuestionPageAdmin(PageBaseChildAdmin):
     fieldsets = (
         (None, {
             'fields': ('position', 'section', 'encouragement', 'infobox', 'sites')

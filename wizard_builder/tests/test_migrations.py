@@ -8,22 +8,22 @@ class SitesMigrationTest(MigrationTest):
     after = '0006_many_sites'
 
     def test_sites_attribute_populated(self):
-        OldPageBase = self.get_model_before('wizard_builder.PageBase')
-        old_page = OldPageBase.objects.create(site_id=1)
+        OldQuestionPage = self.get_model_before('wizard_builder.QuestionPage')
+        old_page = OldQuestionPage.objects.create(site_id=1)
 
         self.run_migration()
-        NewPageBase = self.get_model_after('wizard_builder.PageBase')
-        new_page = NewPageBase.objects.first()
+        NewQuestionPage = self.get_model_after('wizard_builder.QuestionPage')
+        new_page = NewQuestionPage.objects.first()
 
         self.assertEqual(old_page.site_id, new_page.sites.first().id)
 
     def test_phantom_sites_not_populated(self):
-        OldPageBase = self.get_model_before('wizard_builder.PageBase')
-        old_page = OldPageBase.objects.create()
+        OldQuestionPage = self.get_model_before('wizard_builder.QuestionPage')
+        old_page = OldQuestionPage.objects.create()
 
         self.run_migration()
-        NewPageBase = self.get_model_after('wizard_builder.PageBase')
-        new_page = NewPageBase.objects.first()
+        NewQuestionPage = self.get_model_after('wizard_builder.QuestionPage')
+        new_page = NewQuestionPage.objects.first()
 
         self.assertEqual(old_page.site_id, None)
         self.assertEqual(new_page.sites.count(), 0)

@@ -5,10 +5,10 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from .managers import FormQuestionManager, PageBaseManager
+from .managers import FormQuestionManager, QuestionPageManager
 
 
-class PageBase(models.Model):
+class QuestionPage(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -20,62 +20,25 @@ class PageBase(models.Model):
         (WHO, 'Who'),
     )
 
+    encouragement = models.TextField(blank=True)
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
-    objects = PageBaseManager()
+    infobox = models.TextField(
+        blank=True,
+        verbose_name='why is this asked? wrap additional titles in [[double brackets]]',
+    )
+    multiple = models.BooleanField(
+        blank=False,
+        default=False,
+        verbose_name='User can add multiple',
+    )
+    name_for_multiple = models.TextField(
+        blank=True,
+        verbose_name='name of field for "add another" prompt',
+    )
 
-    @property
-    def short_str(self):
-        return "Page {}".format(self.position)
-
-    @property
-    def site_names(self):
-        return [site.name for site in self.sites.all()]
-
-    def set_page_position(self):
-        '''
-            PageBase.position defaults to 0, but we take 0 to mean "not set"
-            so when there are no pages, PageBase.position is set to 1
-
-            otherwise we PageBase.position to the position of the latest
-            object that isn't self, +1
-        '''
-        cls = self.__class__
-        if cls.objects.count() == 0:
-            self.position = 1
-        elif bool(cls.objects.exclude(pk=self.pk)) and not self.position:
-            self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
-
-    def save(self, *args, **kwargs):
-        self.set_page_position()
-        super(PageBase, self).save(*args, **kwargs)
-
-    class Meta:
-        ordering = ['position']
-        verbose_name = 'Form page'
-
-
-class TextPage(PageBase):
-    title = models.TextField(blank=True)
-    text = models.TextField(blank=False)
-    objects = PageBaseManager()
-
-    def __str__(self):
-        if len(self.title.strip()) > 0:
-            return "Page %i (%s)" % (self.position, self.title)
-        else:
-            return "Page %i (%s)" % (self.position, self.text[:97] + '...')
-
-
-class QuestionPage(PageBase):
-    encouragement = models.TextField(blank=True)
-    infobox = models.TextField(blank=True,
-                               verbose_name='why is this asked? wrap additional titles in [[double brackets]]')
-    multiple = models.BooleanField(blank=False, default=False,
-                                   verbose_name='User can add multiple')
-    name_for_multiple = models.TextField(blank=True, verbose_name='name of field for "add another" prompt')
-    objects = PageBaseManager()
+    objects = QuestionPageManager()
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
@@ -88,6 +51,32 @@ class QuestionPage(PageBase):
             return "{} {}".format(self.short_str, question_str)
         else:
             return "{}".format(self.short_str)
+
+    @property
+    def short_str(self):
+        return "Page {}".format(self.position)
+
+    @property
+    def site_names(self):
+        return [site.name for site in self.sites.all()]
+
+    def save(self, *args, **kwargs):
+        self.set_page_position()
+        super().save(*args, **kwargs)
+
+    def set_page_position(self):
+        '''
+            QuestionPage.position defaults to 0, but we take 0 to mean "not set"
+            so when there are no pages, QuestionPage.position is set to 1
+
+            otherwise we QuestionPage.position to the position of the latest
+            object that isn't self, +1
+        '''
+        cls = self.__class__
+        if cls.objects.count() == 0:
+            self.position = 1
+        elif bool(cls.objects.exclude(pk=self.pk)) and not self.position:
+            self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
 
     class Meta:
         ordering = ['position']

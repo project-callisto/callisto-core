@@ -40,7 +40,7 @@ class AutoDowncastingManager(InheritanceManager):
             return base_queryset.select_subclasses()
 
 
-class PageBaseManager(AutoDowncastingManager):
+class QuestionPageManager(AutoDowncastingManager):
     _queryset = PageBaseQuerySet
 
     def on_site(self, site_id=None):

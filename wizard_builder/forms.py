@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.forms.formsets import formset_factory
 from django.utils.safestring import mark_safe
 
-from .models import Date, MultipleChoice, PageBase, QuestionPage, TextPage
+from .models import Date, MultipleChoice, QuestionPage
 
 # rearranged from django-formtools
 
@@ -15,7 +15,7 @@ User = get_user_model()
 
 
 class BasePageForm(forms.Form):
-    sections = dict(PageBase.SECTION_CHOICES)
+    sections = dict(QuestionPage.SECTION_CHOICES)
 
 
 class QuestionPageForm(BasePageForm):
@@ -51,47 +51,42 @@ class QuestionPageForm(BasePageForm):
             self.date_fields = date_fields
 
 
-class TextPageForm(BasePageForm):
-    pass
-
-
 def get_form_pages(pages):
     generated_forms = []
     section_map = {}
-    for (section, _) in PageBase.SECTION_CHOICES:
+    for (section, _) in QuestionPage.SECTION_CHOICES:
         start = next((idx for idx, page in enumerate(pages) if page[0].section == section), None)
         section_map[section] = start
 
     for idx, (page, item_set) in enumerate(pages):
-        if isinstance(page, QuestionPage):
-            FormType = type(
-                f'Page{idx}Form',
-                (QuestionPageForm,),
+        FormType = type(
+            f'Page{idx}Form',
+            (QuestionPageForm,),
+            {
+                "items": sorted(item_set, key=lambda i: i.position),
+                "encouragement": page.encouragement,
+                "infobox": page.infobox,
+                "page_section": page.section,
+                "section_map": section_map,
+                "page_index": idx,
+            },
+        )
+        if page.multiple:
+            FormSet = formset_factory(FormType, extra=0, min_num=1)
+            FormSetType = type(
+                'FormSetForm',
+                (FormSet,),
                 {
-                    "items": sorted(item_set, key=lambda i: i.position),
-                    "encouragement": page.encouragement,
-                    "infobox": page.infobox,
+                    "sections": dict(QuestionPage.SECTION_CHOICES),
+                    "name_for_multiple": page.name_for_multiple,
+                    "page_id": page.pk,
                     "page_section": page.section,
                     "section_map": section_map,
                     "page_index": idx,
                 },
             )
-            if page.multiple:
-                FormSet = formset_factory(FormType, extra=0, min_num=1)
-                FormSetType = type('FormSetForm', (FormSet,), {"sections": dict(PageBase.SECTION_CHOICES),
-                                                               "name_for_multiple": page.name_for_multiple,
-                                                               "page_id": page.pk,
-                                                               "page_section": page.section,
-                                                               "section_map": section_map,
-                                                               "page_index": idx})
-                generated_forms.append(FormSetType)
-            else:
-                generated_forms.append(FormType)
-        elif isinstance(page, TextPage):
-            FormType = type('Page%iForm' % idx, (TextPageForm,),
-                            {"title": page.title,
-                             "text": page.text,
-                             "page_section": page.section,
-                             "section_map": section_map})
+            generated_forms.append(FormSetType)
+        else:
             generated_forms.append(FormType)
+
     return generated_forms

@@ -4,8 +4,8 @@ from django import forms
 from django.test import TestCase
 
 from ..models import (
-    Checkbox, Choice, Date, MultiLineText, PageBase, QuestionPage, RadioButton,
-    SingleLineText, TextPage,
+    Checkbox, Choice, Date, MultiLineText, QuestionPage, RadioButton,
+    SingleLineText,
 )
 
 
@@ -25,16 +25,16 @@ class PageTest(TestCase):
 
     def test_page_can_have_section(self):
         when_page = QuestionPage.objects.create()
-        who_page = QuestionPage.objects.create(section=PageBase.WHO)
-        self.assertEqual(PageBase.objects.get(pk=who_page.pk).section, PageBase.WHO)
-        self.assertEqual(PageBase.objects.get(pk=when_page.pk).section, PageBase.WHEN)
+        who_page = QuestionPage.objects.create(section=QuestionPage.WHO)
+        self.assertEqual(QuestionPage.objects.get(pk=who_page.pk).section, QuestionPage.WHO)
+        self.assertEqual(QuestionPage.objects.get(pk=when_page.pk).section, QuestionPage.WHEN)
 
     def test_page_can_have_multiple(self):
         single_page = QuestionPage.objects.create()
         multiple_page = QuestionPage.objects.create(multiple=True, name_for_multiple="random field")
-        self.assertFalse(PageBase.objects.get(pk=single_page.pk).multiple)
-        self.assertTrue(PageBase.objects.get(pk=multiple_page.pk).multiple)
-        self.assertTrue(PageBase.objects.get(pk=multiple_page.pk).name_for_multiple, "random field")
+        self.assertFalse(QuestionPage.objects.get(pk=single_page.pk).multiple)
+        self.assertTrue(QuestionPage.objects.get(pk=multiple_page.pk).multiple)
+        self.assertTrue(QuestionPage.objects.get(pk=multiple_page.pk).name_for_multiple, "random field")
 
     def test_page_infobox_can_be_specified(self):
         QuestionPage.objects.create(infobox="More information")
@@ -272,12 +272,3 @@ class QuestionPageTest(TestCase):
     def test_can_save_infobox(self):
         page_id = QuestionPage.objects.create(infobox="you'll be asked later").pk
         self.assertEqual(QuestionPage.objects.get(pk=page_id).infobox, "you'll be asked later")
-
-
-class TextPageTest(TestCase):
-
-    def test_can_save_with_or_without_title(self):
-        without_title = TextPage.objects.create(text="here's some instructions")
-        with_title = TextPage.objects.create(title="This Page's Title", text="more instructions")
-        self.assertEqual("here's some instructions", TextPage.objects.get(id=without_title.pk).text)
-        self.assertEqual("This Page's Title", TextPage.objects.get(id=with_title.pk).title)

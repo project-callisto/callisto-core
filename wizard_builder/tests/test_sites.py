@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 
-from ..models import PageBase, QuestionPage, SingleLineText
+from ..models import QuestionPage, SingleLineText
 
 
 class TempSiteID():
@@ -74,8 +74,8 @@ class SiteRequestTest(TestCase):
         self.page.sites.add(self.site.id)
         self.question = SingleLineText.objects.create(text="first question", page=self.page)
 
-    @patch('wizard_builder.managers.PageBaseManager.on_site')
+    @patch('wizard_builder.managers.QuestionPageManager.on_site')
     def test_site_passed_to_question_page_manager(self, mock_on_site):
-        mock_on_site.return_value = PageBase.objects.filter(id=self.page.id)
+        mock_on_site.return_value = QuestionPage.objects.filter(id=self.page.id)
         self.client.get('/wizard/new/0/')
         mock_on_site.assert_called_with(self.site.id)

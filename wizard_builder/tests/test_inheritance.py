@@ -3,7 +3,7 @@ import subprocess
 from django.test import TestCase
 
 from ..models import (
-    Choice, FormQuestion, MultipleChoice, PageBase, QuestionPage,
+    Choice, FormQuestion, MultipleChoice, QuestionPage,
     SingleLineText,
 )
 
@@ -19,7 +19,7 @@ class InheritanceTest(TestCase):
     def test_page_form_question_set_instance(self):
         page = QuestionPage.objects.create()
         SingleLineText.objects.create(page_id=page.id)
-        question = PageBase.objects.first().formquestion_set.first()
+        question = QuestionPage.objects.first().formquestion_set.first()
         self.assertIsInstance(question, SingleLineText)
 
     def test_choice_multiple_choice_instance(self):
@@ -55,6 +55,4 @@ class DumpdataHackTest(TestCase):
         with open('wizard_builder/tests/test_app/test-dump.json', 'r') as dump_file:
             dump_file_contents = dump_file.read()
         self.assertIn('wizard_builder.questionpage', dump_file_contents)
-        self.assertIn('wizard_builder.pagebase', dump_file_contents)
-        self.assertEqual(PageBase.objects.using('test_app').count(), 1)
         self.assertEqual(QuestionPage.objects.using('test_app').count(), 1)

@@ -7,10 +7,9 @@ from django.contrib.sites.models import Site
 from django.http import HttpRequest
 from django.test import TestCase
 
-from ..forms import QuestionPageForm, TextPageForm
+from ..forms import QuestionPageForm
 from ..models import (
     Checkbox, Choice, Date, QuestionPage, RadioButton, SingleLineText,
-    TextPage,
 )
 from ..views import ConfigurableFormWizard
 from .test_app.models import Report
@@ -92,23 +91,6 @@ class WizardIntegratedTest(FormBaseTest):
         wizard = WizardTestApp.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 2)
         self.assertIn(QuestionPageForm, inspect.getmro(wizard.form_list[0]))
-        self.assertNotIn(TextPageForm, inspect.getmro(wizard.form_list[-1]))
-
-    def test_text_pages_are_included(self):
-        page = TextPage.objects.create(
-            title="this page title",
-            text="some text goes here",
-            position=1,
-        )
-        page.sites.add(self.site.id)
-        self.page1.position = 2
-        self.page1.save()
-        wizard = WizardTestApp.wizard_factory(site_id=self.site.id)()
-        page_one_form = wizard.form_list[0]({})
-
-        self.assertEqual(len(wizard.form_list), 3)
-        self.assertEqual(page_one_form.title, "this page title")
-        self.assertTrue(page_one_form.is_valid())
 
     def test_displays_first_page(self):
         response = self.client.get(self.form_url)

@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
 
 from .forms import QuestionPageForm, get_form_pages
-from .models import PageBase, QuestionPage, TextPage
+from .models import QuestionPage
 from .wizards import NamedUrlWizardView
 
 # from django-formtools
@@ -213,7 +213,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
 
     @classmethod
     def wizard_factory(cls, object_to_edit=None, site_id=None, **kwargs):
-        pages = PageBase.objects.on_site(site_id).all()
+        pages = QuestionPage.objects.on_site(site_id).all()
         form_list = cls.generate_form_list(pages, object_to_edit, **kwargs)
         # TODO: eval this code smell
         return type(

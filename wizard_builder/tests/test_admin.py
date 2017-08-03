@@ -13,8 +13,7 @@ from django.test import override_settings
 
 from ..models import (
     Checkbox, Choice, Date, FormQuestion, MultiLineText, MultipleChoice,
-    PageBase, QuestionPage, RadioButton, SingleLineText, SingleLineTextWithMap,
-    TextPage,
+    QuestionPage, RadioButton, SingleLineText, SingleLineTextWithMap,
 )
 
 try:
@@ -128,9 +127,7 @@ class AdminFunctionalTest(FunctionalTest):
 
     def test_can_see_all_models(self):
         wizard_builder_models = [
-            PageBase,
             QuestionPage,
-            TextPage,
             FormQuestion,
             SingleLineText,
             SingleLineTextWithMap,
@@ -143,22 +140,6 @@ class AdminFunctionalTest(FunctionalTest):
         ]
         for Model in wizard_builder_models:
             self.assertIn(Model._meta.verbose_name.lower(), self.browser.page_source.lower())
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_pagebase_models_downcast(self):
-        QuestionPage.objects.create()
-        TextPage.objects.create()
-        self.browser.find_element_by_link_text(PageBase._meta.verbose_name + 's').click()
-        self.assertIn(PageBase._meta.verbose_name.capitalize(), self.browser.page_source)
-        self.assertIn(QuestionPage._meta.verbose_name.capitalize(), self.browser.page_source)
-        self.assertIn(TextPage._meta.verbose_name.capitalize(), self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_can_access_question_page_through_page_base(self):
-        QuestionPage.objects.create()
-        self.browser.find_element_by_link_text(PageBase._meta.verbose_name + 's').click()
-        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize()).click()
-        self.assertIn(QuestionPage._meta.verbose_name.capitalize().lower(), self.browser.page_source.lower())
 
     @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
     def test_question_page_question_inline_present(self):
