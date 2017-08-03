@@ -134,33 +134,40 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             if isinstance(form, QuestionPageForm):
                 try:
                     clean_data = form.cleaned_data
-                except BaseException:                    # process unbound form with initial data
+                # process unbound form with initial data
+                except BaseException:
                     initial_data = self.get_form_initial(str(idx))
                     clean_data = dict([(field, initial_data.get(field, '')) for field in form.fields.keys()])
                 process_form(clean_data, answered_questions)
             elif isinstance(form, BaseFormSet):
                 try:
                     clean_data = form.cleaned_data
-                except BaseException:                    # process unbound formset with initial data
+                # process unbound formset with initial data
+                except BaseException:
                     clean_data = self.get_form_initial(str(idx))
                 formset_answers = []
                 for entry in clean_data:
                     entry_answers = []
                     process_form(entry, entry_answers)
                     formset_answers.append(entry_answers)
-                answered_questions.append({'type': 'FormSet',
-                                           'page_id': form.page_id,
-                                           'prompt': form.name_for_multiple,
-                                           'section': form.page_section,
-                                           'answers': formset_answers})
+                answered_questions.append({
+                    'type': 'FormSet',
+                    'page_id': form.page_id,
+                    'prompt': form.name_for_multiple,
+                    'section': form.page_section,
+                    'answers': formset_answers,
+                })
         return answered_questions
 
     def get_context_data(self, form, **kwargs):
-        context = super(ConfigurableFormWizard, self).get_context_data(form=form, **kwargs)
+        context = super().get_context_data(form=form, **kwargs)
+        # TODO: eval this code smell
         if isinstance(form, QuestionPageForm) or isinstance(form, BaseFormSet):
-            context.update({'page_count': self.page_count,
-                            'current_page': self.page_count_map.get(form.page_index),
-                            'editing': self.object_to_edit})
+            context.update({
+                'page_count': self.page_count,
+                'current_page': form.page_index,
+                'editing': self.object_to_edit,
+            })
         return context
 
     def _process_non_formset_answers_for_edit(self, json_questions):
@@ -209,53 +216,29 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     @classmethod
     def wizard_factory(cls, object_to_edit=None, site_id=None, **kwargs):
         pages = PageBase.objects.on_site(site_id).all()
-        form_items_at_initialization = {}
-        page_map = []
-        formsets = {}
-        page_index = dict([(page.pk, cls.calculate_real_page_index(idx, pages, object_to_edit, **kwargs))
-                           for idx, page in enumerate(pages)])
-        condition_dict = {}
-        page_count = 0
-        for idx, page in enumerate(pages):
-            real_page_idx = cls.calculate_real_page_index(idx, pages, object_to_edit, **kwargs)
-            if isinstance(page, QuestionPage):
-                # increment page count
-                page_count += 1
-                # store question copies
-                questions = page.formquestion_set.order_by('position')
-                if len(questions) > 0:
-                    question_copies = [question.clone() for question in questions]
-                    page_map.append((page, question_copies))
-                    for question_copy in question_copies:
-                        form_items_at_initialization["question_%s" % question_copy.pk] = question_copy
-                        extras = question_copy.get_extras()
-                        if extras:
-                            for (extra_id, prompt) in extras:
-                                form_items_at_initialization[extra_id] = prompt
-                # store page_id if is formset
-                if page.multiple:
-                    formsets[str(real_page_idx)] = page.pk
-            elif isinstance(page, TextPage):
-                page_map.append((page, []))
-
-        form_list = cls.generate_form_list(page_map, pages, object_to_edit, **kwargs)
-        page_count_map = len(pages)
-
-        return type('FormWizard', (cls,),
-                    {"items": form_items_at_initialization,
-                     "form_list": form_list,
-                     "object_to_edit": object_to_edit,
-                     "formsets": formsets,
-                     "condition_dict": condition_dict,
-                     "page_count": page_count_map['page_count'],
-                     "page_count_map": page_count_map})
+        form_list = cls.generate_form_list([], pages, object_to_edit, **kwargs)
+        # TODO: eval this code smell
+        return type(
+            'FormWizard',
+            (cls,),
+            {
+                "items": {},
+                "form_list": form_list,
+                "object_to_edit": object_to_edit,
+                "formsets": {},
+                "page_count": len(pages),
+            },
+        )
 
     def get_prefix(self, request, *args, **kwargs):
         identifier = str(self.object_to_edit.id) if self.object_to_edit else ""
         return "form_wizard" + identifier
 
     def get_step_url(self, step):
-        '''Passes record to edit along to the next step. Edit url must have a named 'edit_id' group'''
+        '''
+            Passes record to edit along to the next step.
+            Edit url must have a named 'edit_id' group
+        '''
         kwargs = {'step': step, }
         if self.object_to_edit:
             kwargs['edit_id'] = self.object_to_edit.id
