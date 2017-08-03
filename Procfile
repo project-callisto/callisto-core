@@ -1,2 +1,2 @@
-release: make release
+release: make heroku-release
 web: gunicorn wizard_builder.tests.test_app.wsgi:application --timeout 120

@@ -61,7 +61,7 @@ sdist: clean ## package
 	python setup.py sdist
 	ls -l dist
 
-release: ## heroku build release command
+heroku-release: ## heroku build release command
 	python wizard_builder/tests/test_app/manage.py migrate --noinput --database default
 
 runserver: ## convenience shortcut
