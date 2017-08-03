@@ -2,10 +2,10 @@
 <form method="post" enctype="multipart/form-data">
 {% csrf_token %}
 {{ wizard.form.media }}
-<input type="hidden" name="current_step" value="{{ current_step }}"/>
+<input type="hidden" name="current_step" value="{{ wizard.current_step }}"/>
 
 {% if wizard.form.forms %}
-    <input type="hidden" name="current_step" value="{{ current_step }}"/>
+    <input type="hidden" name="current_step" value="{{ wizard.current_step }}"/>
     {% for form in wizard.form.forms %}
         {{ form.as_p }}
     {% endfor %}
