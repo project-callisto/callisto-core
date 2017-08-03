@@ -113,16 +113,21 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         # TODO: smell this function
         def process_form(cleaned_data, output_location):
             # order by position on page (python & json lists both preserve order)
-            questions = [(field_name, answer, self.items[field_name]) for field_name, answer in cleaned_data.items()
-                         if "extra" not in field_name]
+            questions = []
+            for field_name, answer in cleaned_data.items():
+                if "extra" not in field_name:
+                    items = self.items
+                    questions.append((field_name, answer, self.items[field_name]))
             questions.sort(key=lambda x: x[2].position)
             for field_name, answer, question in questions:
                 extra_key = "%s_extra-%s" % (field_name, answer)
                 extra_prompt = self.items.get(extra_key)
                 extra_context = None
                 if extra_prompt:
-                    extra_context = {'answer': cleaned_data.get(extra_key, ''),
-                                     'extra_text': extra_prompt}
+                    extra_context = {
+                        'answer': cleaned_data.get(extra_key, ''),
+                        'extra_text': extra_prompt,
+                    }
 
                 output_location.append(question.serialize_for_report(answer, extra_context))
 
@@ -217,15 +222,27 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     def wizard_factory(cls, object_to_edit=None, site_id=None, **kwargs):
         pages = Page.objects.on_site(site_id).all()
         form_list = cls.generate_form_list(pages, object_to_edit, **kwargs)
-        # TODO: eval this code smell
+        formsets = {}
+        items = {}
+        # TODO: smell the positioning of this for loop
+        for idx, page in enumerate(pages):
+            for question in page.questions:
+                items[question.field_id] = question
+                extras = question.get_extras()
+                if extras:
+                    for (extra_id, prompt) in extras:
+                        items[extra_id] = prompt
+            if page.multiple:
+                formsets[str(idx)] = page.pk
+        # TODO: smell this type
         return type(
-            'FormWizard',
+            cls.__name__,
             (cls,),
             {
-                "items": {},
+                "items": items,
                 "form_list": form_list,
                 "object_to_edit": object_to_edit,
-                "formsets": {},
+                "formsets": formsets,
                 "page_count": len(pages),
             },
         )

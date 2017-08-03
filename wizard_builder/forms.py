@@ -51,18 +51,18 @@ class PageForm(forms.Form):
 def get_form_pages(pages):
     generated_forms = []
     section_map = {}
-    # TODO: smell this code
+    # TODO: smell this next
     for (section, _) in Page.SECTION_CHOICES:
         start = next((idx for idx, page in enumerate(pages) if page.section == section), None)
         section_map[section] = start
 
     for idx, page in enumerate(pages):
-        questions = page.formquestion_set.all()
+        # TODO: smell this type
         FormType = type(
             'Page{}Form'.format(idx),
             (PageForm,),
             {
-                "items": sorted(questions, key=lambda i: i.position),
+                "items": page.questions,
                 "infobox": page.infobox,
                 "page_section": page.section,
                 "section_map": section_map,
@@ -72,7 +72,7 @@ def get_form_pages(pages):
         if page.multiple:
             FormSet = formset_factory(FormType, extra=0, min_num=1)
             FormSetType = type(
-                'FormSetForm',
+                FormSet.__name__,
                 (FormSet,),
                 {
                     "sections": dict(Page.SECTION_CHOICES),

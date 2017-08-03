@@ -58,6 +58,10 @@ class Page(models.Model):
     def site_names(self):
         return [site.name for site in self.sites.all()]
 
+    @property
+    def questions(self):
+        return list(self.formquestion_set.order_by('position'))
+
     def save(self, *args, **kwargs):
         self.set_page_position()
         super().save(*args, **kwargs)
@@ -96,6 +100,10 @@ class FormQuestion(models.Model):
             return "{} {} {}".format(self.short_str, type_str, site_str)
         else:
             return "{} {}".format(self.short_str, type_str)
+
+    @property
+    def field_id(self):
+        return "question_{}".format(self.pk)
 
     @property
     def short_str(self):
