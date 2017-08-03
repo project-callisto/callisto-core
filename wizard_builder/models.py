@@ -80,6 +80,7 @@ class Page(models.Model):
         ordering = ['position']
 
 
+# TODO: rename to Question when downcasting is removed
 class FormQuestion(models.Model):
     text = models.TextField(blank=False)
     page = models.ForeignKey(Page, editable=True, null=True, on_delete=models.SET_NULL)
