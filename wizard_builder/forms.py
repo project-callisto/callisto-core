@@ -55,8 +55,7 @@ class TextPageForm(BasePageForm):
     pass
 
 
-def get_form_pages(page_map):
-    pages = sorted(page_map, key=lambda p: p[0].position)
+def get_form_pages(pages):
     generated_forms = []
     section_map = {}
     for (section, _) in PageBase.SECTION_CHOICES:
@@ -65,13 +64,18 @@ def get_form_pages(page_map):
 
     for idx, (page, item_set) in enumerate(pages):
         if isinstance(page, QuestionPage):
-            FormType = type('Page%iForm' % idx, (QuestionPageForm,),
-                            {"items": sorted(item_set, key=lambda i: i.position),
-                             "encouragement": page.encouragement,
-                             "infobox": page.infobox,
-                             "page_section": page.section,
-                             "section_map": section_map,
-                             "page_index": idx})
+            FormType = type(
+                f'Page{idx}Form',
+                (QuestionPageForm,),
+                {
+                    "items": sorted(item_set, key=lambda i: i.position),
+                    "encouragement": page.encouragement,
+                    "infobox": page.infobox,
+                    "page_section": page.section,
+                    "section_map": section_map,
+                    "page_index": idx,
+                },
+            )
             if page.multiple:
                 FormSet = formset_factory(FormType, extra=0, min_num=1)
                 FormSetType = type('FormSetForm', (FormSet,), {"sections": dict(PageBase.SECTION_CHOICES),

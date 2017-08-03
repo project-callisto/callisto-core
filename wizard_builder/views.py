@@ -203,8 +203,8 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             return self.initial_dict.get(step, {})
 
     @classmethod
-    def generate_form_list(cls, page_map, pages, object_to_edit, **kwargs):
-        return get_form_pages(page_map)
+    def generate_form_list(cls, pages, object_to_edit, **kwargs):
+        return get_form_pages(pages)
 
     # allows you to append pages to the form like a password field
     @classmethod
@@ -214,7 +214,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     @classmethod
     def wizard_factory(cls, object_to_edit=None, site_id=None, **kwargs):
         pages = PageBase.objects.on_site(site_id).all()
-        form_list = cls.generate_form_list([], pages, object_to_edit, **kwargs)
+        form_list = cls.generate_form_list(pages, object_to_edit, **kwargs)
         # TODO: eval this code smell
         return type(
             'FormWizard',

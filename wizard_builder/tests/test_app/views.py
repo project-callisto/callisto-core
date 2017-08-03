@@ -28,9 +28,7 @@ def new_test_wizard_view(request, step=None):
     site = get_current_site(request)
     return WizardTestApp.wizard_factory(
         site_id=site.id,
-    ).as_view(
-        url_name="test_wizard",
-    )(
+    ).as_view()(
         request,
         step=step,
     )
@@ -42,9 +40,7 @@ def edit_test_wizard_view(request, edit_id, step=None):
     return WizardTestApp.wizard_factory(
         site_id=site.id,
         object_to_edit=report,
-    ).as_view(
-        url_name="test_edit_wizard",
-    )(
+    ).as_view()(
         request,
         step=step,
     )
