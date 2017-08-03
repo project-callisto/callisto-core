@@ -45,5 +45,5 @@ class DumpdataHackTest(TestCase):
 
         with open('wizard_builder/tests/test_app/test-dump.json', 'r') as dump_file:
             dump_file_contents = dump_file.read()
-        self.assertIn('wizard_builder.questionpage', dump_file_contents)
+        self.assertIn('wizard_builder.page', dump_file_contents)
         self.assertEqual(Page.objects.using('test_app').count(), 1)
