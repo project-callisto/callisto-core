@@ -11,8 +11,6 @@ from django.utils.decorators import classonlymethod
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 
-from .forms import ManagementForm
-
 # from django-formtools
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
 # are under the BSD-3 Clause License:
@@ -280,15 +278,7 @@ class WizardView(TemplateView):
         if wizard_goto_step and wizard_goto_step in self.get_form_list():
             return self.render_goto_step(wizard_goto_step)
 
-        # Check if form was refreshed
-        management_form = ManagementForm(self.request.POST, prefix=self.prefix)
-        if not management_form.is_valid():
-            raise ValidationError(
-                _('ManagementForm data is missing or has been tampered.'),
-                code='missing_management_form',
-            )
-
-        form_current_step = management_form.cleaned_data['current_step']
+        form_current_step = self.request.POST.get('current_step')
         if (form_current_step != self.steps.current and
                 self.storage.current_step is not None):
             # form refreshed, change current step
@@ -571,9 +561,7 @@ class WizardView(TemplateView):
         context['wizard'] = {
             'form': form,
             'steps': self.steps,
-            'management_form': ManagementForm(prefix=self.prefix, initial={
-                'current_step': self.steps.current,
-            }),
+            'current_step': self.steps.current,
         }
         return context
 
