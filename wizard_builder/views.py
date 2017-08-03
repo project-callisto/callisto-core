@@ -18,21 +18,15 @@ from .wizards import NamedUrlWizardView
 class ModifiedSessionWizardView(NamedUrlWizardView):
 
     def __init__(self, **kwargs):
-        super(ModifiedSessionWizardView, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.processed_answers = []
 
     def post(self, *args, **kwargs):
-        # Check if form was refreshed
-        management_form = ManagementForm(self.request.POST, prefix=self.prefix)
-        if not management_form.is_valid():
-            raise ValidationError(
-                'ManagementForm data is missing or has been tampered.',
-                code='missing_management_form',
-            )
-
-        form_current_step = management_form.cleaned_data['current_step']
-        if (form_current_step != self.steps.current and
-                self.storage.current_step is not None):
+        form_current_step = self.request.POST.get('current_step')
+        if (
+            form_current_step != self.steps.current and
+            self.storage.current_step is not None
+        ):
             # form refreshed, change current step
             self.storage.current_step = form_current_step
 
@@ -42,10 +36,14 @@ class ModifiedSessionWizardView(NamedUrlWizardView):
         # and try to validate
         if form.is_valid():
             # if the form is valid, store the cleaned data and files.
-            self.storage.set_step_data(self.steps.current,
-                                       self.process_step(form))
-            self.storage.set_step_files(self.steps.current,
-                                        self.process_step_files(form))
+            self.storage.set_step_data(
+                self.steps.current,
+                self.process_step(form),
+            )
+            self.storage.set_step_files(
+                self.steps.current,
+                self.process_step_files(form),
+            )
 
             # this check was moved from beginning of the method (modification from original)
             wizard_goto_step = self.request.POST.get('wizard_goto_step', None)
@@ -86,15 +84,19 @@ class ModifiedSessionWizardView(NamedUrlWizardView):
             final_forms[form_key] = form_obj
 
         # hook to allow processing of answers before done
-        self.processed_answers = self.process_answers(final_forms.values(),
-                                                      form_dict=final_forms)
+        self.processed_answers = self.process_answers(
+            final_forms.values(),
+            form_dict=final_forms,
+        )
 
         # render the done view and reset the wizard before returning the
         # response. This is needed to prevent from rendering done with the
         # same data twice.
-        done_response = self.done(final_forms.values(),
-                                  form_dict=final_forms,
-                                  **kwargs)
+        done_response = self.done(
+            final_forms.values(),
+            form_dict=final_forms,
+            **kwargs,
+        )
         self.storage.reset()
         return done_response
 

@@ -14,13 +14,6 @@ from .models import Date, MultipleChoice, PageBase, QuestionPage, TextPage
 User = get_user_model()
 
 
-class ManagementForm(forms.Form):
-    """
-    ``ManagementForm`` is used to keep track of the current wizard step.
-    """
-    current_step = forms.CharField(widget=forms.HiddenInput)
-
-
 class BasePageForm(forms.Form):
     sections = dict(PageBase.SECTION_CHOICES)
 
