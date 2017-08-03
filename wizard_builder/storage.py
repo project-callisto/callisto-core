@@ -1,8 +1,7 @@
 from django.core.files.uploadedfile import UploadedFile
 from django.utils import six
 from django.utils.datastructures import MultiValueDict
-
-from .exceptions import NoFileStorageConfigured
+from django.core.exceptions import ImproperlyConfigured
 
 # from django-formtools
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
@@ -94,7 +93,7 @@ class BaseStorage(object):
         wizard_files = self.data[self.step_files_key].get(step, {})
 
         if wizard_files and not self.file_storage:
-            raise NoFileStorageConfigured(
+            raise ImproperlyConfigured(
                 "You need to define 'file_storage' in your "
                 "wizard view in order to handle file uploads.")
 
@@ -110,7 +109,7 @@ class BaseStorage(object):
 
     def set_step_files(self, step, files):
         if files and not self.file_storage:
-            raise NoFileStorageConfigured(
+            raise ImproperlyConfigured(
                 "You need to define 'file_storage' in your "
                 "wizard view in order to handle file uploads.")
 

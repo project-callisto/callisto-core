@@ -9,10 +9,10 @@ from django.utils import six
 from django.utils.decorators import classonlymethod
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
+from django.core.exceptions import ImproperlyConfigured
 
 from .forms import ManagementForm
 from .storage import get_storage
-from .storage.exceptions import NoFileStorageConfigured
 
 # from django-formtools
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
@@ -192,7 +192,7 @@ class WizardView(TemplateView):
             for field in six.itervalues(form.base_fields):
                 if (isinstance(field, forms.FileField) and
                         not hasattr(cls, 'file_storage')):
-                    raise NoFileStorageConfigured(
+                    raise ImproperlyConfigured(
                         "You need to define 'file_storage' in your "
                         "wizard view in order to handle file uploads."
                     )
