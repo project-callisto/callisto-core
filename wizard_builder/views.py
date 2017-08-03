@@ -110,6 +110,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
 
     def process_answers(self, form_list, form_dict):
+        # TODO: smell this function
         def process_form(cleaned_data, output_location):
             # order by position on page (python & json lists both preserve order)
             questions = [(field_name, answer, self.items[field_name]) for field_name, answer in cleaned_data.items()
@@ -157,7 +158,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
 
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
-        # TODO: eval this code smell
+        # TODO: smell these isinstance calls
         if isinstance(form, PageForm) or isinstance(form, BaseFormSet):
             context.update({
                 'page_count': self.page_count,
@@ -172,6 +173,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             answer = question.get('answer')
             question_id = question.get('id')
             if answer and question_id:
+                # TODO: smell this string interpolation
                 answers["question_%i" % question_id] = answer
                 extra = question.get('extra')
                 if extra:
@@ -182,6 +184,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
 
     def _process_formset_answers_for_edit(self, json_questions, page_id):
         answers = []
+        # TODO: smell this next
         formset = next((i for i in json_questions if i.get('page_id') == page_id), None)
         if formset:
             for form in formset.get('answers'):
@@ -192,6 +195,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         if self.form_to_edit:
             form = self.form_list[step]
             # process formset answers
+            # TODO: smell this issubclass
             if issubclass(form, PageForm):
                 return self._process_non_formset_answers_for_edit(self.form_to_edit)
             elif issubclass(self.form_list[step], BaseFormSet):
