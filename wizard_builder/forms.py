@@ -53,7 +53,7 @@ def get_form_pages(pages):
     section_map = {}
     # TODO: smell this code
     for (section, _) in Page.SECTION_CHOICES:
-        start = next((idx for idx, page in enumerate(pages) if page[0].section == section), None)
+        start = next((idx for idx, page in enumerate(pages) if page.section == section), None)
         section_map[section] = start
 
     for idx, (page, item_set) in enumerate(pages):
