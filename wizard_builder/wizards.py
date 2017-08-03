@@ -12,7 +12,6 @@ from django.views.generic import TemplateView
 from django.core.exceptions import ImproperlyConfigured
 
 from .forms import ManagementForm
-from .storage import get_storage
 
 # from django-formtools
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
