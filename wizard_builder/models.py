@@ -10,20 +10,7 @@ from .managers import FormQuestionManager, QuestionPageManager
 
 # TODO: remove
 class PageBase(models.Model):
-    WHEN = 1
-    WHERE = 2
-    WHAT = 3
-    WHO = 4
-    SECTION_CHOICES = (
-        (WHEN, 'When'),
-        (WHERE, 'Where'),
-        (WHAT, 'What'),
-        (WHO, 'Who'),
-    )
-
-    position = models.PositiveSmallIntegerField("position", default=0)
-    section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
-    sites = models.ManyToManyField(Site)
+    pass
 
 # TODO: rename to just "Page"
 class QuestionPage(PageBase):
@@ -38,9 +25,9 @@ class QuestionPage(PageBase):
         (WHO, 'Who'),
     )
 
-    new_position = models.PositiveSmallIntegerField("position", default=0)
-    new_section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
-    new_sites = models.ManyToManyField(Site)
+    position = models.PositiveSmallIntegerField("position", default=0)
+    section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
+    sites = models.ManyToManyField(Site)
     encouragement = models.TextField(blank=True)
     infobox = models.TextField(
         blank=True,

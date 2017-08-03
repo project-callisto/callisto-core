@@ -7,11 +7,12 @@ from django.db import migrations, models
 
 def copy_to_question_page(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    Question = apps.get_model('wizard_builder.Question')
+    Question = apps.get_model('wizard_builder.QuestionPage')
     for page in Question.objects.using(current_database):
         page.new_position = page.position
         page.new_section = page.section
-        page.new_sites.add(page.sites.all())
+        for site in page.sites.all():
+            page.new_sites.add(site)
         page.save()
 
 
