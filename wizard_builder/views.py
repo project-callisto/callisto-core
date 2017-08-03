@@ -239,7 +239,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 page_map.append((page, []))
 
         form_list = cls.generate_form_list(page_map, pages, object_to_edit, **kwargs)
-        page_count_map = calculate_page_count_map(pages)
+        page_count_map = len(pages)
 
         return type('FormWizard', (cls,),
                     {"items": form_items_at_initialization,
@@ -261,19 +261,3 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             kwargs['edit_id'] = self.object_to_edit.id
         return reverse(self.url_name, kwargs=kwargs)
 
-
-def calculate_page_count_map(pages):
-    page_count = 0
-    depends_on_seen = []
-    page_count_map = {}
-    for idx, page in enumerate(pages):
-        if isinstance(page, QuestionPage):
-            try:
-                condition = page.conditional
-                depends_on_question = condition.question
-                if depends_on_question not in depends_on_seen:
-                    page_count += 1
-                    depends_on_seen.append(depends_on_question)
-                page_count_map[idx] = page_count
-    page_count_map['page_count'] = page_count
-    return page_count_map
