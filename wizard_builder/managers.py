@@ -4,6 +4,7 @@ from model_utils.managers import InheritanceManager, InheritanceQuerySet
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.db.models.query import QuerySet, Manager
 
 # in addition to explicitly depending on django-model-utils,
 # this code borrows in large part from django-polymorphic
@@ -14,7 +15,7 @@ from django.contrib.sites.models import Site
 # License: https://github.com/django-polymorphic/django-polymorphic/blob/master/LICENSE
 
 
-class PageBaseQuerySet(InheritanceQuerySet):
+class PageQuerySet(QuerySet):
 
     def on_site(self, site_id=None):
         site_id = site_id or Site.objects.get_current().id
@@ -40,8 +41,8 @@ class AutoDowncastingManager(InheritanceManager):
             return base_queryset.select_subclasses()
 
 
-class QuestionPageManager(AutoDowncastingManager):
-    _queryset = PageBaseQuerySet
+class PageManager(Manager):
+    _queryset = PageQuerySet
 
     def on_site(self, site_id=None):
         return self.get_queryset().on_site(site_id)

@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.forms.formsets import formset_factory
 from django.utils.safestring import mark_safe
 
-from .models import Date, MultipleChoice, QuestionPage
+from .models import Date, MultipleChoice, Page
 
 # rearranged from django-formtools
 
@@ -14,14 +14,11 @@ from .models import Date, MultipleChoice, QuestionPage
 User = get_user_model()
 
 
-class BasePageForm(forms.Form):
-    sections = dict(QuestionPage.SECTION_CHOICES)
-
-
-class QuestionPageForm(BasePageForm):
+class PageForm(forms.Form):
+    sections = dict(Page.SECTION_CHOICES)
 
     def __init__(self, *args, **kwargs):
-        super(QuestionPageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.has_tooltip = False
         extra_fields = {}
         date_fields = []
@@ -54,14 +51,14 @@ class QuestionPageForm(BasePageForm):
 def get_form_pages(pages):
     generated_forms = []
     section_map = {}
-    for (section, _) in QuestionPage.SECTION_CHOICES:
+    for (section, _) in Page.SECTION_CHOICES:
         start = next((idx for idx, page in enumerate(pages) if page[0].section == section), None)
         section_map[section] = start
 
     for idx, (page, item_set) in enumerate(pages):
         FormType = type(
             f'Page{idx}Form',
-            (QuestionPageForm,),
+            (PageForm,),
             {
                 "items": sorted(item_set, key=lambda i: i.position),
                 "encouragement": page.encouragement,
@@ -77,7 +74,7 @@ def get_form_pages(pages):
                 'FormSetForm',
                 (FormSet,),
                 {
-                    "sections": dict(QuestionPage.SECTION_CHOICES),
+                    "sections": dict(Page.SECTION_CHOICES),
                     "name_for_multiple": page.name_for_multiple,
                     "page_id": page.pk,
                     "page_section": page.section,

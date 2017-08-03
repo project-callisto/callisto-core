@@ -7,9 +7,9 @@ from django.contrib.sites.models import Site
 from django.http import HttpRequest
 from django.test import TestCase
 
-from ..forms import QuestionPageForm
+from ..forms import PageForm
 from ..models import (
-    Checkbox, Choice, Date, QuestionPage, RadioButton, SingleLineText,
+    Checkbox, Choice, Date, Page, RadioButton, SingleLineText,
 )
 from ..views import ConfigurableFormWizard
 from .test_app.models import Report
@@ -32,9 +32,9 @@ class FormBaseTest(TestCase):
         self.site = Site.objects.get(id=1)
         self.site.domain = 'testserver'
         self.site.save()
-        self.page1 = QuestionPage.objects.create()
+        self.page1 = Page.objects.create()
         self.page1.sites.add(self.site.id)
-        self.page2 = QuestionPage.objects.create()
+        self.page2 = Page.objects.create()
         self.page2.sites.add(self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
@@ -76,7 +76,7 @@ class WizardIntegratedTest(FormBaseTest):
             follow=True)
 
     def test_wizard_generates_correct_number_of_pages(self):
-        page3 = QuestionPage.objects.create()
+        page3 = Page.objects.create()
         page3.sites.add(self.site.id)
         SingleLineText.objects.create(text="first page question", page=page3)
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
@@ -86,15 +86,15 @@ class WizardIntegratedTest(FormBaseTest):
 
     def test_question_pages_without_questions_are_filtered_out(self):
         # empty_page
-        page = QuestionPage.objects.create()
+        page = Page.objects.create()
         page.sites.add(self.site.id)
         wizard = WizardTestApp.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 2)
-        self.assertIn(QuestionPageForm, inspect.getmro(wizard.form_list[0]))
+        self.assertIn(PageForm, inspect.getmro(wizard.form_list[0]))
 
     def test_displays_first_page(self):
         response = self.client.get(self.form_url)
-        self.assertIsInstance(response.context['form'], QuestionPageForm)
+        self.assertIsInstance(response.context['form'], PageForm)
         self.assertContains(response, 'name="0-question_%i"' % self.question1.pk)
         self.assertNotContains(response, 'name="0-question_%i"' % self.question2.pk)
 
@@ -297,7 +297,7 @@ class WizardIntegratedTest(FormBaseTest):
         self.assertIn('["%i", "%i"]' % (selected_1, selected_2), output)
 
     def test_pages_with_multiple(self):
-        multiple_page = QuestionPage.objects.create(
+        multiple_page = Page.objects.create(
             multiple=True,
             name_for_multiple="form",
         )
@@ -331,7 +331,7 @@ class WizardIntegratedTest(FormBaseTest):
         self.maxDiff = None
         self.page1.delete()
         self.page2.delete()
-        page3 = QuestionPage.objects.create()
+        page3 = Page.objects.create()
         page3.sites.add(self.site.id)
         question1 = RadioButton.objects.create(text="this is a radio button question", page=page3)
         for i in range(5):
@@ -465,7 +465,7 @@ class EditRecordFormTest(FormBaseTest):
     def test_edit_record_page_renders_first_page(self):
         response = self.client.get(self.form_url % self.report.pk, follow=True)
         self.assertTemplateUsed(response, 'wizard_form.html')
-        self.assertIsInstance(response.context['form'], QuestionPageForm)
+        self.assertIsInstance(response.context['form'], PageForm)
         self.assertContains(response, 'name="0-question_%i"' % self.question1.pk)
         self.assertNotContains(response, 'name="0-question_%i"' % self.question2.pk)
 
@@ -478,7 +478,7 @@ class EditRecordFormTest(FormBaseTest):
             follow=True
         )
         self.assertTemplateUsed(response, 'wizard_form.html')
-        self.assertIsInstance(response.context['form'], QuestionPageForm)
+        self.assertIsInstance(response.context['form'], PageForm)
         self.assertContains(response, 'name="1-question_%i"' % self.question2.pk)
         self.assertNotContains(response, 'name="1-question_%i"' % self.question1.pk)
 

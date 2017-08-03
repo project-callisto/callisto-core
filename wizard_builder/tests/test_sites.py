@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 
-from ..models import QuestionPage, SingleLineText
+from ..models import Page, SingleLineText
 
 
 class TempSiteID():
@@ -29,7 +29,7 @@ class SiteIDTest(TestCase):
     @override_settings()
     def test_page_has_no_default_site_attribute(self):
         with TempSiteID(1):
-            page = QuestionPage.objects.create()
+            page = Page.objects.create()
         self.assertEqual(page.sites.count(), 0)
 
     @override_settings()
@@ -40,22 +40,22 @@ class SiteIDTest(TestCase):
         site_2 = Site.objects.create()
 
         for i in range(site_1_pages):
-            page = QuestionPage.objects.create()
+            page = Page.objects.create()
             page.sites.add(site_1.id)
         for i in range(site_2_pages):
-            page = QuestionPage.objects.create()
+            page = Page.objects.create()
             page.sites.add(site_2.id)
 
         with TempSiteID(site_1.id):
-            self.assertEqual(QuestionPage.objects.on_site().count(), site_1_pages)
+            self.assertEqual(Page.objects.on_site().count(), site_1_pages)
         with TempSiteID(site_2.id):
-            self.assertEqual(QuestionPage.objects.on_site().count(), site_2_pages)
+            self.assertEqual(Page.objects.on_site().count(), site_2_pages)
 
     @override_settings()
     def test_can_override_site_id_when_setting_is_set(self):
         with TempSiteID(1):
             site_2 = Site.objects.create()
-            page = QuestionPage.objects.create()
+            page = Page.objects.create()
             page.sites.add(site_2.id)
             self.assertNotEqual(settings.SITE_ID, site_2.id)
             self.assertNotEqual(page.sites.first().id, settings.SITE_ID)
@@ -70,12 +70,12 @@ class SiteRequestTest(TestCase):
         self.site = Site.objects.get(id=1)
         self.site.domain = 'testserver'
         self.site.save()
-        self.page = QuestionPage.objects.create()
+        self.page = Page.objects.create()
         self.page.sites.add(self.site.id)
         self.question = SingleLineText.objects.create(text="first question", page=self.page)
 
-    @patch('wizard_builder.managers.QuestionPageManager.on_site')
+    @patch('wizard_builder.managers.PageManager.on_site')
     def test_site_passed_to_question_page_manager(self, mock_on_site):
-        mock_on_site.return_value = QuestionPage.objects.filter(id=self.page.id)
+        mock_on_site.return_value = Page.objects.filter(id=self.page.id)
         self.client.get('/wizard/new/0/')
         mock_on_site.assert_called_with(self.site.id)

@@ -5,15 +5,10 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from .managers import FormQuestionManager, QuestionPageManager
+from .managers import FormQuestionManager, PageManager
 
 
-# TODO: remove
-class PageBase(models.Model):
-    pass
-
-# TODO: rename to just "Page"
-class QuestionPage(PageBase):
+class Page(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -24,7 +19,6 @@ class QuestionPage(PageBase):
         (WHAT, 'What'),
         (WHO, 'Who'),
     )
-
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
@@ -43,7 +37,7 @@ class QuestionPage(PageBase):
         verbose_name='name of field for "add another" prompt',
     )
 
-    objects = QuestionPageManager()
+    objects = PageManager()
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
@@ -71,10 +65,10 @@ class QuestionPage(PageBase):
 
     def set_page_position(self):
         '''
-            QuestionPage.position defaults to 0, but we take 0 to mean "not set"
-            so when there are no pages, QuestionPage.position is set to 1
+            Page.position defaults to 0, but we take 0 to mean "not set"
+            so when there are no pages, Page.position is set to 1
 
-            otherwise we QuestionPage.position to the position of the latest
+            otherwise we Page.position to the position of the latest
             object that isn't self, +1
         '''
         cls = self.__class__
@@ -89,7 +83,7 @@ class QuestionPage(PageBase):
 
 class FormQuestion(models.Model):
     text = models.TextField(blank=False)
-    page = models.ForeignKey('QuestionPage', editable=True, null=True, on_delete=models.SET_NULL)
+    page = models.ForeignKey(Page, editable=True, null=True, on_delete=models.SET_NULL)
     position = models.PositiveSmallIntegerField("position", default=0)
     descriptive_text = models.TextField(blank=True)
     added = models.DateTimeField(auto_now_add=True)
@@ -132,7 +126,7 @@ class FormQuestion(models.Model):
 
     def set_question_page(self):
         if not self.page:
-            self.page = QuestionPage.objects.latest('position')
+            self.page = Page.objects.latest('position')
 
     def save(self, *args, **kwargs):
         self.set_question_page()

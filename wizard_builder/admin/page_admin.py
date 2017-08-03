@@ -3,7 +3,7 @@ from django.contrib import admin
 from .base import DowncastedAdmin, QuestionInline
 
 
-class QuestionPageAdmin(admin.ModelAdmin):
+class PageAdmin(admin.ModelAdmin):
     list_filter = ['sites']
     fieldsets = (
         (None, {

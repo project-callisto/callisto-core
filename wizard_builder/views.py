@@ -5,8 +5,8 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
 
-from .forms import QuestionPageForm, get_form_pages
-from .models import QuestionPage
+from .forms import PageForm, get_form_pages
+from .models import Page
 from .wizards import NamedUrlWizardView
 
 # from django-formtools
@@ -129,7 +129,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
 
         answered_questions = []
         for idx, form in form_dict.items():
-            if isinstance(form, QuestionPageForm):
+            if isinstance(form, PageForm):
                 try:
                     clean_data = form.cleaned_data
                 # process unbound form with initial data
@@ -160,7 +160,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
         # TODO: eval this code smell
-        if isinstance(form, QuestionPageForm) or isinstance(form, BaseFormSet):
+        if isinstance(form, PageForm) or isinstance(form, BaseFormSet):
             context.update({
                 'page_count': self.page_count,
                 'current_page': form.page_index,
@@ -194,7 +194,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         if self.form_to_edit:
             form = self.form_list[step]
             # process formset answers
-            if issubclass(form, QuestionPageForm):
+            if issubclass(form, PageForm):
                 return self._process_non_formset_answers_for_edit(self.form_to_edit)
             elif issubclass(self.form_list[step], BaseFormSet):
                 page_id = self.formsets.get(step)
@@ -213,7 +213,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
 
     @classmethod
     def wizard_factory(cls, object_to_edit=None, site_id=None, **kwargs):
-        pages = QuestionPage.objects.on_site(site_id).all()
+        pages = Page.objects.on_site(site_id).all()
         form_list = cls.generate_form_list(pages, object_to_edit, **kwargs)
         # TODO: eval this code smell
         return type(

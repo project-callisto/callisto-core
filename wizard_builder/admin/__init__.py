@@ -4,13 +4,13 @@ from ..models import (
     Checkbox, Date, FormQuestion, MultiLineText, MultipleChoice, QuestionPage,
     RadioButton, SingleLineText, SingleLineTextWithMap,
 )
-from .page_admin import QuestionPageAdmin
+from .page_admin import PageAdmin
 from .question_admin import (
     FormQuestionChildAdmin, FormQuestionParentAdmin, MultipleChoiceChildAdmin,
     MultipleChoiceParentAdmin,
 )
 
-admin.site.register(QuestionPage, QuestionPageAdmin)
+admin.site.register(Page, PageAdmin)
 
 admin.site.register(FormQuestion, FormQuestionParentAdmin)
 admin.site.register(SingleLineText, FormQuestionChildAdmin)
