@@ -237,15 +237,6 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                     formsets[str(real_page_idx)] = page.pk
             elif isinstance(page, TextPage):
                 page_map.append((page, []))
-            # populate condition dict
-            try:
-                condition = page.conditional
-                depends_on_question = condition.question
-                depends_on_page = depends_on_question.page
-                depends_on_page_idx = page_index[depends_on_page.pk]
-                depends_on_question_field = "question_%s" % depends_on_question.pk
-                condition_dict[str(real_page_idx)] = partial(predicate, condition, depends_on_page_idx,
-                                                             depends_on_question_field)
 
         form_list = cls.generate_form_list(page_map, pages, object_to_edit, **kwargs)
         page_count_map = calculate_page_count_map(pages)
@@ -271,22 +262,6 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         return reverse(self.url_name, kwargs=kwargs)
 
 
-def predicate(passed_condition, depends_on_page_idx, depends_on_question_field, wizard):
-    cleaned_data = wizard.get_cleaned_data_for_step(str(depends_on_page_idx)) \
-        or {depends_on_question_field: 'none'}
-    condition_type = passed_condition.condition_type
-
-    form_answer = cleaned_data.get(depends_on_question_field)
-    if (len(form_answer)) < 1:
-        form_answer = "none"
-
-    if isinstance(form_answer, str):
-        form_answer = [form_answer]
-    possibles = passed_condition.answer.split(',')
-    # return true if intersection of answers & possibles is non-empty
-    return len(list(set(form_answer) & set(possibles))) > 0
-
-
 def calculate_page_count_map(pages):
     page_count = 0
     depends_on_seen = []
@@ -299,6 +274,6 @@ def calculate_page_count_map(pages):
                 if depends_on_question not in depends_on_seen:
                     page_count += 1
                     depends_on_seen.append(depends_on_question)
-            page_count_map[idx] = page_count
+                page_count_map[idx] = page_count
     page_count_map['page_count'] = page_count
     return page_count_map
