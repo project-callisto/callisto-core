@@ -3,6 +3,17 @@
 History
 -------
 
+0.3.0 (2017-08-03)
+++++++++++++++++++
+
+* remove PageBase
+* remove TextPage
+* rename QuestionPage to Page
+* remove Conditional
+* remove formtools dependency
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/95
+
 0.2.1 (2017-06-12)
 ++++++++++++++++++
 
