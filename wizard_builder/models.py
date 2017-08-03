@@ -8,6 +8,7 @@ from django.utils.safestring import mark_safe
 from .managers import FormQuestionManager, QuestionPageManager
 
 
+# TODO: rename to just "Page"
 class QuestionPage(models.Model):
     WHEN = 1
     WHERE = 2
