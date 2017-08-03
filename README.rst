@@ -2,15 +2,15 @@
 django-wizard-builder
 =============================
 
-.. image:: https://travis-ci.org/SexualHealthInnovations/django-wizard-builder.png?branch=master
+.. |travis| image:: https://travis-ci.org/SexualHealthInnovations/django-wizard-builder.png?branch=master
     :target: https://travis-ci.org/SexualHealthInnovations/django-wizard-builder
     :alt: Build status
 
-.. image:: https://img.shields.io/pypi/v/django-wizard-builder.svg
+.. |pypi| image:: https://img.shields.io/pypi/v/django-wizard-builder.svg
    :target: https://pypi.python.org/pypi/django-wizard-builder
    :alt: PyPI Version
 
-.. image:: https://codeclimate.com/github/SexualHealthInnovations/django-wizard-builder/badges/gpa.svg
+.. |climate| image:: https://codeclimate.com/github/SexualHealthInnovations/django-wizard-builder/badges/gpa.svg
    :target: https://codeclimate.com/github/SexualHealthInnovations/django-wizard-builder
    :alt: Code Climate
 
@@ -25,6 +25,17 @@ django-wizard-builder
    
 .. |django111| image:: https://img.shields.io/badge/django-1.11-green.svg
    :alt: Django 1.11
+
++--------------+
+| Status       |
++==============+
+| |travis|     |
++--------------+
+| |pypi|       |
++--------------+
+| |climate|    |
++--------------+
+
 
 +------------+-------------+
 |         Support          |
