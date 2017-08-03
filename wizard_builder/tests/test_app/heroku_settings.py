@@ -1,8 +1,7 @@
+import os
+
 import dj_database_url
-
 from wizard_builder.tests.test_app.settings import *
-
-# STATIC FILES
 
 DEBUG = False
 
@@ -44,12 +43,12 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django':{
+        'django': {
             'handlers': ['console'],
             'propagate': False,
             'level': os.getenv('LOG_LEVEL', default='DEBUG'),
         },
-        'django.template':{
+        'django.template': {
             'handlers': ['console'],
             'propagate': False,
             'level': os.getenv('LOG_LEVEL', default='INFO'),

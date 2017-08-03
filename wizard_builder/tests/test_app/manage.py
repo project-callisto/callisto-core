@@ -2,10 +2,12 @@
 import os
 import sys
 
+
 def setup_sites():
     from django.conf import settings
     from django.contrib.sites.models import Site
     Site.objects.get_or_create(domain=settings.APP_URL)
+
 
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
@@ -14,6 +16,7 @@ def main():
     execute_from_command_line(sys.argv)
 
     setup_sites()
+
 
 if __name__ == "__main__":
     main()
