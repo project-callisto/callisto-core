@@ -307,22 +307,3 @@ class Date(FormQuestion):
         return {'id': self.pk, 'question_text': self.text, 'answer': answer,
                 'type': 'Date', 'section': self.section}
 
-
-class Conditional(models.Model):
-    EXACTLY = "and"
-    IN = "or"
-
-    OPTIONS = (
-        (EXACTLY, 'exactly'),
-        (IN, 'in'),
-    )
-    condition_type = models.CharField(max_length=50,
-                                      choices=OPTIONS,
-                                      default=EXACTLY)
-
-    page = models.OneToOneField(PageBase, on_delete=models.PROTECT)
-    question = models.ForeignKey(FormQuestion, on_delete=models.PROTECT)
-    answer = models.CharField(max_length=150)
-
-    def __str__(self):
-        return "Conditional for " + str(self.page)
