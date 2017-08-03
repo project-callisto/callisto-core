@@ -4,7 +4,8 @@ from model_utils.managers import InheritanceManager, InheritanceQuerySet
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.db.models.query import QuerySet, Manager
+from django.db.models.query import QuerySet
+from django.db.models.manager import Manager
 
 # in addition to explicitly depending on django-model-utils,
 # this code borrows in large part from django-polymorphic
