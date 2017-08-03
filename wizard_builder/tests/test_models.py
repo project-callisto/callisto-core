@@ -4,46 +4,45 @@ from django import forms
 from django.test import TestCase
 
 from ..models import (
-    Checkbox, Choice, Date, MultiLineText, PageBase, QuestionPage, RadioButton,
-    SingleLineText, TextPage,
+    Checkbox, Choice, Date, MultiLineText, Page, RadioButton, SingleLineText,
 )
 
 
-class PageTest(TestCase):
+class PageTest1(TestCase):
 
     def test_page_can_have_position(self):
-        QuestionPage.objects.create()
-        page = QuestionPage.objects.create(position=10)
-        self.assertEqual(QuestionPage.objects.get(pk=page.pk).position, 10)
+        Page.objects.create()
+        page = Page.objects.create(position=10)
+        self.assertEqual(Page.objects.get(pk=page.pk).position, 10)
 
     def test_page_position_defaults_to_last(self):
         pages = 7
         for i in range(pages):
-            QuestionPage.objects.create()
-        last_page = QuestionPage.objects.create()
+            Page.objects.create()
+        last_page = Page.objects.create()
         self.assertEqual(last_page.position, pages + 1)
 
     def test_page_can_have_section(self):
-        when_page = QuestionPage.objects.create()
-        who_page = QuestionPage.objects.create(section=PageBase.WHO)
-        self.assertEqual(PageBase.objects.get(pk=who_page.pk).section, PageBase.WHO)
-        self.assertEqual(PageBase.objects.get(pk=when_page.pk).section, PageBase.WHEN)
+        when_page = Page.objects.create()
+        who_page = Page.objects.create(section=Page.WHO)
+        self.assertEqual(Page.objects.get(pk=who_page.pk).section, Page.WHO)
+        self.assertEqual(Page.objects.get(pk=when_page.pk).section, Page.WHEN)
 
     def test_page_can_have_multiple(self):
-        single_page = QuestionPage.objects.create()
-        multiple_page = QuestionPage.objects.create(multiple=True, name_for_multiple="random field")
-        self.assertFalse(PageBase.objects.get(pk=single_page.pk).multiple)
-        self.assertTrue(PageBase.objects.get(pk=multiple_page.pk).multiple)
-        self.assertTrue(PageBase.objects.get(pk=multiple_page.pk).name_for_multiple, "random field")
+        single_page = Page.objects.create()
+        multiple_page = Page.objects.create(multiple=True, name_for_multiple="random field")
+        self.assertFalse(Page.objects.get(pk=single_page.pk).multiple)
+        self.assertTrue(Page.objects.get(pk=multiple_page.pk).multiple)
+        self.assertTrue(Page.objects.get(pk=multiple_page.pk).name_for_multiple, "random field")
 
     def test_page_infobox_can_be_specified(self):
-        QuestionPage.objects.create(infobox="More information")
-        self.assertEqual(QuestionPage.objects.last().infobox, "More information")
+        Page.objects.create(infobox="More information")
+        self.assertEqual(Page.objects.last().infobox, "More information")
 
     def test_position_not_overriden_on_save(self):
-        page = QuestionPage.objects.create()
+        page = Page.objects.create()
         starting_position = page.position
-        QuestionPage.objects.create()
+        Page.objects.create()
         page.save()
         self.assertEqual(starting_position, page.position)
 
@@ -51,7 +50,7 @@ class PageTest(TestCase):
 class ItemTestCase(TestCase):
 
     def setUp(self):
-        self.page = QuestionPage.objects.create()
+        self.page = Page.objects.create()
 
 
 class FormQuestionModelTest(ItemTestCase):
@@ -66,7 +65,7 @@ class FormQuestionModelTest(ItemTestCase):
         self.assertEqual(str(question), "What's up? (Type: SingleLineText)")
 
     def test_questions_can_have_pages(self):
-        page = QuestionPage.objects.create()
+        page = Page.objects.create()
         SingleLineText.objects.create(text="This is a question on page 4", page=page)
         self.assertEqual(SingleLineText.objects.first().page, page)
 
@@ -78,7 +77,7 @@ class FormQuestionModelTest(ItemTestCase):
         # setup creates one page
         pages = 9
         for i in range(pages):
-            QuestionPage.objects.create()
+            Page.objects.create()
         question = SingleLineText.objects.create(text="This is a question with no page")
         self.assertEqual(question.page.position, pages + 1)
 
@@ -205,7 +204,7 @@ class RadioButtonTestCase(ItemTestCase):
 class CheckboxTestCase(ItemTestCase):
 
     def setUp(self):
-        self.page = QuestionPage.objects.create()
+        self.page = Page.objects.create()
         self.question = Checkbox.objects.create(text="this is a checkbox question")
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question=self.question)
@@ -263,21 +262,8 @@ class DateTestCase(ItemTestCase):
         self.assertEqual(serialized_q, json_report)
 
 
-class QuestionPageTest(TestCase):
-
-    def test_can_save_encouragement(self):
-        page_id = QuestionPage.objects.create(encouragement="you can do it!").pk
-        self.assertEqual(QuestionPage.objects.get(pk=page_id).encouragement, "you can do it!")
+class PageTest2(TestCase):
 
     def test_can_save_infobox(self):
-        page_id = QuestionPage.objects.create(infobox="you'll be asked later").pk
-        self.assertEqual(QuestionPage.objects.get(pk=page_id).infobox, "you'll be asked later")
-
-
-class TextPageTest(TestCase):
-
-    def test_can_save_with_or_without_title(self):
-        without_title = TextPage.objects.create(text="here's some instructions")
-        with_title = TextPage.objects.create(title="This Page's Title", text="more instructions")
-        self.assertEqual("here's some instructions", TextPage.objects.get(id=without_title.pk).text)
-        self.assertEqual("This Page's Title", TextPage.objects.get(id=with_title.pk).title)
+        page_id = Page.objects.create(infobox="you'll be asked later").pk
+        self.assertEqual(Page.objects.get(pk=page_id).infobox, "you'll be asked later")

@@ -5,10 +5,10 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
 
-from .managers import FormQuestionManager, PageBaseManager
+from .managers import FormQuestionManager, PageManager
 
 
-class PageBase(models.Model):
+class Page(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -19,63 +19,24 @@ class PageBase(models.Model):
         (WHAT, 'What'),
         (WHO, 'Who'),
     )
-
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
-    objects = PageBaseManager()
+    infobox = models.TextField(
+        blank=True,
+        verbose_name='why is this asked? wrap additional titles in [[double brackets]]',
+    )
+    multiple = models.BooleanField(
+        blank=False,
+        default=False,
+        verbose_name='User can add multiple',
+    )
+    name_for_multiple = models.TextField(
+        blank=True,
+        verbose_name='name of field for "add another" prompt',
+    )
 
-    @property
-    def short_str(self):
-        return "Page {}".format(self.position)
-
-    @property
-    def site_names(self):
-        return [site.name for site in self.sites.all()]
-
-    def set_page_position(self):
-        '''
-            PageBase.position defaults to 0, but we take 0 to mean "not set"
-            so when there are no pages, PageBase.position is set to 1
-
-            otherwise we PageBase.position to the position of the latest
-            object that isn't self, +1
-        '''
-        cls = self.__class__
-        if cls.objects.count() == 0:
-            self.position = 1
-        elif bool(cls.objects.exclude(pk=self.pk)) and not self.position:
-            self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
-
-    def save(self, *args, **kwargs):
-        self.set_page_position()
-        super(PageBase, self).save(*args, **kwargs)
-
-    class Meta:
-        ordering = ['position']
-        verbose_name = 'Form page'
-
-
-class TextPage(PageBase):
-    title = models.TextField(blank=True)
-    text = models.TextField(blank=False)
-    objects = PageBaseManager()
-
-    def __str__(self):
-        if len(self.title.strip()) > 0:
-            return "Page %i (%s)" % (self.position, self.title)
-        else:
-            return "Page %i (%s)" % (self.position, self.text[:97] + '...')
-
-
-class QuestionPage(PageBase):
-    encouragement = models.TextField(blank=True)
-    infobox = models.TextField(blank=True,
-                               verbose_name='why is this asked? wrap additional titles in [[double brackets]]')
-    multiple = models.BooleanField(blank=False, default=False,
-                                   verbose_name='User can add multiple')
-    name_for_multiple = models.TextField(blank=True, verbose_name='name of field for "add another" prompt')
-    objects = PageBaseManager()
+    objects = PageManager()
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
@@ -89,13 +50,44 @@ class QuestionPage(PageBase):
         else:
             return "{}".format(self.short_str)
 
+    @property
+    def short_str(self):
+        return "Page {}".format(self.position)
+
+    @property
+    def site_names(self):
+        return [site.name for site in self.sites.all()]
+
+    @property
+    def questions(self):
+        return list(self.formquestion_set.order_by('position'))
+
+    def save(self, *args, **kwargs):
+        self.set_page_position()
+        super().save(*args, **kwargs)
+
+    def set_page_position(self):
+        '''
+            Page.position defaults to 0, but we take 0 to mean "not set"
+            so when there are no pages, Page.position is set to 1
+
+            otherwise we Page.position to the position of the latest
+            object that isn't self, +1
+        '''
+        cls = self.__class__
+        if cls.objects.count() == 0:
+            self.position = 1
+        elif bool(cls.objects.exclude(pk=self.pk)) and not self.position:
+            self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
+
     class Meta:
         ordering = ['position']
 
 
+# TODO: rename to Question when downcasting is removed
 class FormQuestion(models.Model):
     text = models.TextField(blank=False)
-    page = models.ForeignKey('QuestionPage', editable=True, null=True, on_delete=models.SET_NULL)
+    page = models.ForeignKey(Page, editable=True, null=True, on_delete=models.SET_NULL)
     position = models.PositiveSmallIntegerField("position", default=0)
     descriptive_text = models.TextField(blank=True)
     added = models.DateTimeField(auto_now_add=True)
@@ -108,6 +100,10 @@ class FormQuestion(models.Model):
             return "{} {} {}".format(self.short_str, type_str, site_str)
         else:
             return "{} {}".format(self.short_str, type_str)
+
+    @property
+    def field_id(self):
+        return "question_{}".format(self.pk)
 
     @property
     def short_str(self):
@@ -138,7 +134,7 @@ class FormQuestion(models.Model):
 
     def set_question_page(self):
         if not self.page:
-            self.page = QuestionPage.objects.latest('position')
+            self.page = Page.objects.latest('position')
 
     def save(self, *args, **kwargs):
         self.set_question_page()
@@ -306,23 +302,3 @@ class Date(FormQuestion):
     def serialize_for_report(self, answer, *args):
         return {'id': self.pk, 'question_text': self.text, 'answer': answer,
                 'type': 'Date', 'section': self.section}
-
-
-class Conditional(models.Model):
-    EXACTLY = "and"
-    IN = "or"
-
-    OPTIONS = (
-        (EXACTLY, 'exactly'),
-        (IN, 'in'),
-    )
-    condition_type = models.CharField(max_length=50,
-                                      choices=OPTIONS,
-                                      default=EXACTLY)
-
-    page = models.OneToOneField(PageBase, on_delete=models.PROTECT)
-    question = models.ForeignKey(FormQuestion, on_delete=models.PROTECT)
-    answer = models.CharField(max_length=150)
-
-    def __str__(self):
-        return "Conditional for " + str(self.page)

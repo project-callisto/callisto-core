@@ -30,7 +30,6 @@ def new_test_wizard_view(request, step=None):
         site_id=site.id,
     ).as_view(
         url_name="test_wizard",
-        template_name='wizard_form.html',
     )(
         request,
         step=step,
@@ -45,7 +44,6 @@ def edit_test_wizard_view(request, edit_id, step=None):
         object_to_edit=report,
     ).as_view(
         url_name="test_edit_wizard",
-        template_name='wizard_form.html',
     )(
         request,
         step=step,

@@ -1,20 +1,13 @@
 from django.contrib import admin
 
-from .base import DowncastedAdmin, QuestionInline
+from .base import QuestionInline
 
 
-class PageBaseAdmin(DowncastedAdmin):
+class PageAdmin(admin.ModelAdmin):
     list_filter = ['sites']
-
-
-class PageBaseChildAdmin(admin.ModelAdmin):
-    list_filter = ['sites']
-
-
-class QuestionPageAdmin(PageBaseChildAdmin):
     fieldsets = (
         (None, {
-            'fields': ('position', 'section', 'encouragement', 'infobox', 'sites')
+            'fields': ('position', 'section', 'infobox', 'sites')
         }),
         ('Advanced options', {
             'fields': (('multiple', 'name_for_multiple'),)

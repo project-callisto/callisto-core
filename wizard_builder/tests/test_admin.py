@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 from distutils.util import strtobool
-from unittest import skip
 
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
@@ -12,9 +11,8 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
 from ..models import (
-    Checkbox, Choice, Conditional, Date, FormQuestion, MultiLineText,
-    MultipleChoice, PageBase, QuestionPage, RadioButton, SingleLineText,
-    SingleLineTextWithMap, TextPage,
+    Checkbox, Choice, Date, FormQuestion, MultiLineText, MultipleChoice, Page,
+    RadioButton, SingleLineText, SingleLineTextWithMap,
 )
 
 try:
@@ -109,26 +107,22 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
 
     def setUp(self):
-        super(AdminFunctionalTest, self).setUp()
+        super().setUp()
         port = urlparse(self.live_server_url).port
-        Site.objects.create(domain='localhost')
-        Site.objects.create(domain='localhost:{}'.format(port))
+        Site.objects.get_or_create(domain='localhost')
+        Site.objects.get_or_create(domain='localhost:{}'.format(port))
         User.objects.create_superuser('user', '', 'pass')
         self.login_admin()
         self.browser.get(self.live_server_url + '/admin/')
         self.wait_for_until_body_loaded()
 
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
     def test_can_load_admin_with_wizard_builder_on_it(self):
         self.assertIn('Django administration', self.browser.page_source)
         self.assertIn('Wizard Builder', self.browser.page_source)
 
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
     def test_can_see_all_models(self):
         wizard_builder_models = [
-            PageBase,
-            QuestionPage,
-            TextPage,
+            Page,
             FormQuestion,
             SingleLineText,
             SingleLineTextWithMap,
@@ -138,116 +132,6 @@ class AdminFunctionalTest(FunctionalTest):
             RadioButton,
             Choice,
             Date,
-            Conditional,
         ]
         for Model in wizard_builder_models:
             self.assertIn(Model._meta.verbose_name.lower(), self.browser.page_source.lower())
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_pagebase_models_downcast(self):
-        QuestionPage.objects.create()
-        TextPage.objects.create()
-        self.browser.find_element_by_link_text(PageBase._meta.verbose_name + 's').click()
-        self.assertIn(PageBase._meta.verbose_name.capitalize(), self.browser.page_source)
-        self.assertIn(QuestionPage._meta.verbose_name.capitalize(), self.browser.page_source)
-        self.assertIn(TextPage._meta.verbose_name.capitalize(), self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_can_access_question_page_through_page_base(self):
-        QuestionPage.objects.create()
-        self.browser.find_element_by_link_text(PageBase._meta.verbose_name + 's').click()
-        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize()).click()
-        self.assertIn(QuestionPage._meta.verbose_name.capitalize().lower(), self.browser.page_source.lower())
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_question_page_question_inline_present(self):
-        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
-        self.browser.find_element_by_css_selector('.addlink').click()
-        self.assertIn(FormQuestion._meta.verbose_name_plural.capitalize(), self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_question_page_local_fields_present(self):
-        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
-        self.browser.find_element_by_css_selector('.addlink').click()
-        self.assertIn('id_infobox', self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_can_add_question_page(self):
-        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
-        self.assertNotIn('1337', self.browser.page_source)
-        self.browser.find_element_by_css_selector('.addlink').click()
-        self.browser.find_element_by_css_selector('#id_position').send_keys('1337')
-        self.browser.find_element_by_css_selector('input[type="submit"]').click()
-        self.assertIn('1337', self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_can_edit_question_page(self):
-        QuestionPage.objects.create()
-        self.browser.find_element_by_link_text(QuestionPage._meta.verbose_name.capitalize() + 's').click()
-        self.assertNotIn('1337', self.browser.page_source)
-        self.browser.find_element_by_css_selector('.addlink').click()
-        self.browser.find_element_by_css_selector('#id_position').send_keys('1337')
-        self.browser.find_element_by_css_selector('input[type="submit"]').click()
-        self.assertIn('1337', self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_form_question_models_downcast(self):
-        QuestionPage.objects.create()
-        form_question_models = [
-            SingleLineText,
-            SingleLineTextWithMap,
-            MultiLineText,
-            MultipleChoice,
-            Checkbox,
-            RadioButton,
-        ]
-        for Model in form_question_models:
-            Model.objects.create()
-        self.browser.find_element_by_link_text(FormQuestion._meta.verbose_name.capitalize() + 's').click()
-        for Model in form_question_models:
-            self.assertIn(Model._meta.verbose_name.capitalize(), self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_multiple_choice_models_downcast(self):
-        QuestionPage.objects.create()
-        Checkbox.objects.create()
-        RadioButton.objects.create()
-        self.browser.find_element_by_link_text(MultipleChoice._meta.verbose_name.capitalize() + 's').click()
-        self.assertIn(MultipleChoice._meta.verbose_name_plural.capitalize(), self.browser.page_source)
-        self.assertIn(Checkbox._meta.verbose_name.capitalize(), self.browser.page_source)
-        self.assertIn(RadioButton._meta.verbose_name.capitalize(), self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_can_access_radio_button_from_form_question(self):
-        QuestionPage.objects.create()
-        RadioButton.objects.create()
-        self.browser.find_element_by_link_text(FormQuestion._meta.verbose_name.capitalize() + 's').click()
-        self.browser.find_element_by_link_text(RadioButton._meta.verbose_name.capitalize()).click()
-        self.assertIn(RadioButton._meta.verbose_name_plural.capitalize(), self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_radio_button_choices_present(self):
-        self.browser.find_element_by_link_text(RadioButton._meta.verbose_name.capitalize() + 's').click()
-        self.browser.find_element_by_css_selector('.addlink').click()
-        self.assertIn(Choice._meta.verbose_name_plural.capitalize(), self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_can_add_radio_button(self):
-        QuestionPage.objects.create()
-        self.browser.find_element_by_link_text(RadioButton._meta.verbose_name.capitalize() + 's').click()
-        self.assertNotIn('unique_cattens', self.browser.page_source)
-        self.browser.find_element_by_css_selector('.addlink').click()
-        self.browser.find_element_by_css_selector('#id_text').send_keys('unique_cattens')
-        self.browser.find_element_by_css_selector('input[type="submit"]').click()
-        self.assertIn('unique_cattens', self.browser.page_source)
-
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
-    def test_can_edit_radio_button(self):
-        QuestionPage.objects.create()
-        RadioButton.objects.create()
-        self.browser.find_element_by_link_text(RadioButton._meta.verbose_name.capitalize() + 's').click()
-        self.assertNotIn('unique_cattens', self.browser.page_source)
-        self.browser.find_element_by_css_selector('.addlink').click()
-        self.browser.find_element_by_css_selector('#id_text').send_keys('unique_cattens')
-        self.browser.find_element_by_css_selector('input[type="submit"]').click()
-        self.assertIn('unique_cattens', self.browser.page_source)

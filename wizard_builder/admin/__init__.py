@@ -1,19 +1,16 @@
 from django.contrib import admin
 
 from ..models import (
-    Checkbox, Conditional, Date, FormQuestion, MultiLineText, MultipleChoice,
-    PageBase, QuestionPage, RadioButton, SingleLineText, SingleLineTextWithMap,
-    TextPage,
+    Checkbox, Date, FormQuestion, MultiLineText, MultipleChoice, Page,
+    RadioButton, SingleLineText, SingleLineTextWithMap,
 )
-from .page_admin import PageBaseAdmin, PageBaseChildAdmin, QuestionPageAdmin
+from .page_admin import PageAdmin
 from .question_admin import (
     FormQuestionChildAdmin, FormQuestionParentAdmin, MultipleChoiceChildAdmin,
     MultipleChoiceParentAdmin,
 )
 
-admin.site.register(PageBase, PageBaseAdmin)
-admin.site.register(QuestionPage, QuestionPageAdmin)
-admin.site.register(TextPage, PageBaseChildAdmin)
+admin.site.register(Page, PageAdmin)
 
 admin.site.register(FormQuestion, FormQuestionParentAdmin)
 admin.site.register(SingleLineText, FormQuestionChildAdmin)
@@ -24,5 +21,3 @@ admin.site.register(Date, FormQuestionChildAdmin)
 admin.site.register(MultipleChoice, MultipleChoiceParentAdmin)
 admin.site.register(Checkbox, MultipleChoiceChildAdmin)
 admin.site.register(RadioButton, MultipleChoiceChildAdmin)
-
-admin.site.register(Conditional)

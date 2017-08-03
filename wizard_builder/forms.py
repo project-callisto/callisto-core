@@ -3,19 +3,22 @@ from django.contrib.auth import get_user_model
 from django.forms.formsets import formset_factory
 from django.utils.safestring import mark_safe
 
-from .models import Date, MultipleChoice, PageBase, QuestionPage, TextPage
+from .models import Date, MultipleChoice, Page
+
+# rearranged from django-formtools
+
+# Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
+# are under the BSD-3 Clause License:
+# https://github.com/django/django-formtools/blob/master/LICENSE
 
 User = get_user_model()
 
 
-class BasePageForm(forms.Form):
-    sections = dict(PageBase.SECTION_CHOICES)
-
-
-class QuestionPageForm(BasePageForm):
+class PageForm(forms.Form):
+    sections = dict(Page.SECTION_CHOICES)
 
     def __init__(self, *args, **kwargs):
-        super(QuestionPageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.has_tooltip = False
         extra_fields = {}
         date_fields = []
@@ -45,43 +48,43 @@ class QuestionPageForm(BasePageForm):
             self.date_fields = date_fields
 
 
-class TextPageForm(BasePageForm):
-    pass
-
-
-def get_form_pages(page_map):
-    pages = sorted(page_map, key=lambda p: p[0].position)
+def get_form_pages(pages):
     generated_forms = []
     section_map = {}
-    for (section, _) in PageBase.SECTION_CHOICES:
-        start = next((idx for idx, page in enumerate(pages) if page[0].section == section), None)
+    # TODO: smell this next
+    for (section, _) in Page.SECTION_CHOICES:
+        start = next((idx for idx, page in enumerate(pages) if page.section == section), None)
         section_map[section] = start
 
-    for idx, (page, item_set) in enumerate(pages):
-        if isinstance(page, QuestionPage):
-            FormType = type('Page%iForm' % idx, (QuestionPageForm,),
-                            {"items": sorted(item_set, key=lambda i: i.position),
-                             "encouragement": page.encouragement,
-                             "infobox": page.infobox,
-                             "page_section": page.section,
-                             "section_map": section_map,
-                             "page_index": idx})
-            if page.multiple:
-                FormSet = formset_factory(FormType, extra=0, min_num=1)
-                FormSetType = type('FormSetForm', (FormSet,), {"sections": dict(PageBase.SECTION_CHOICES),
-                                                               "name_for_multiple": page.name_for_multiple,
-                                                               "page_id": page.pk,
-                                                               "page_section": page.section,
-                                                               "section_map": section_map,
-                                                               "page_index": idx})
-                generated_forms.append(FormSetType)
-            else:
-                generated_forms.append(FormType)
-        elif isinstance(page, TextPage):
-            FormType = type('Page%iForm' % idx, (TextPageForm,),
-                            {"title": page.title,
-                             "text": page.text,
-                             "page_section": page.section,
-                             "section_map": section_map})
+    for idx, page in enumerate(pages):
+        # TODO: smell this type
+        FormType = type(
+            'Page{}Form'.format(idx),
+            (PageForm,),
+            {
+                "items": page.questions,
+                "infobox": page.infobox,
+                "page_section": page.section,
+                "section_map": section_map,
+                "page_index": idx,
+            },
+        )
+        if page.multiple:
+            FormSet = formset_factory(FormType, extra=0, min_num=1)
+            FormSetType = type(
+                FormSet.__name__,
+                (FormSet,),
+                {
+                    "sections": dict(Page.SECTION_CHOICES),
+                    "name_for_multiple": page.name_for_multiple,
+                    "page_id": page.pk,
+                    "page_section": page.section,
+                    "section_map": section_map,
+                    "page_index": idx,
+                },
+            )
+            generated_forms.append(FormSetType)
+        else:
             generated_forms.append(FormType)
+
     return generated_forms
