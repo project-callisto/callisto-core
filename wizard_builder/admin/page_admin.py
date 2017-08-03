@@ -7,7 +7,7 @@ class PageAdmin(admin.ModelAdmin):
     list_filter = ['sites']
     fieldsets = (
         (None, {
-            'fields': ('position', 'section', 'encouragement', 'infobox', 'sites')
+            'fields': ('position', 'section', 'infobox', 'sites')
         }),
         ('Advanced options', {
             'fields': (('multiple', 'name_for_multiple'),)

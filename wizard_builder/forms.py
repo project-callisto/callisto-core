@@ -62,7 +62,6 @@ def get_form_pages(pages):
             (PageForm,),
             {
                 "items": sorted(item_set, key=lambda i: i.position),
-                "encouragement": page.encouragement,
                 "infobox": page.infobox,
                 "page_section": page.section,
                 "section_map": section_map,

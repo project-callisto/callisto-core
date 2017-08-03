@@ -264,10 +264,6 @@ class DateTestCase(ItemTestCase):
 
 class PageTest2(TestCase):
 
-    def test_can_save_encouragement(self):
-        page_id = Page.objects.create(encouragement="you can do it!").pk
-        self.assertEqual(Page.objects.get(pk=page_id).encouragement, "you can do it!")
-
     def test_can_save_infobox(self):
         page_id = Page.objects.create(infobox="you'll be asked later").pk
         self.assertEqual(Page.objects.get(pk=page_id).infobox, "you'll be asked later")
