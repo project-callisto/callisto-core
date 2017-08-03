@@ -15,6 +15,7 @@ from django.http import (
 from django.shortcuts import render
 from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
+from django.views.generic.detail import DetailView
 
 from ..evaluation.models import EvalRow
 from ..utils.api import MatchingApi, NotificationApi
@@ -26,6 +27,12 @@ from .report_delivery import MatchReportContent, PDFFullReport
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
+
+
+class ReportDetail(DetailView):
+    model = Report
+    slug_field = 'uuid'
+    slug_url_kwarg = 'uuid'
 
 
 def check_owner(action_name, report_id_arg='report_id'):
