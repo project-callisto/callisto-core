@@ -108,22 +108,24 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_id('id_password').send_keys('pass')
         self.browser.find_element_by_css_selector('input[type="submit"]').click()
 
-    def setUp(self):
-        super(AdminFunctionalTest, self).setUp()
-        port = urlparse(self.live_server_url).port
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        port = urlparse(cls.live_server_url).port
         Site.objects.create(domain='localhost')
         Site.objects.create(domain='localhost:{}'.format(port))
         User.objects.create_superuser('user', '', 'pass')
+
+    def setUp(self):
+        super().setUp()
         self.login_admin()
         self.browser.get(self.live_server_url + '/admin/')
         self.wait_for_until_body_loaded()
 
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
     def test_can_load_admin_with_wizard_builder_on_it(self):
         self.assertIn('Django administration', self.browser.page_source)
         self.assertIn('Wizard Builder', self.browser.page_source)
 
-    @skip('https://github.com/SexualHealthInnovations/django-wizard-builder/issues/45')
     def test_can_see_all_models(self):
         wizard_builder_models = [
             PageBase,
