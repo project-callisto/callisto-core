@@ -116,7 +116,6 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             questions = []
             for field_name, answer in cleaned_data.items():
                 if "extra" not in field_name:
-                    items = self.items
                     questions.append((field_name, answer, self.items[field_name]))
             questions.sort(key=lambda x: x[2].position)
             for field_name, answer, question in questions:
