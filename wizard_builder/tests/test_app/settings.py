@@ -16,3 +16,5 @@ DATABASES = {
 }
 
 WIZARD_BUILDER_DISABLE_DOWNCASTING = True
+
+APP_URL = os.environ.get('APP_URL', 'localhost')
