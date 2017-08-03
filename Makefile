@@ -62,4 +62,4 @@ sdist: clean ## package
 	ls -l dist
 
 release:
-	python manage.py migrate --noinput --database default
+	python wizard_builder/tests/test_app/manage.py migrate --noinput --database default
