@@ -12,7 +12,7 @@ from ..models import (
     Checkbox, Choice, Date, QuestionPage, RadioButton,
     SingleLineText, TextPage,
 )
-from ..views import ConfigurableFormWizard, calculate_page_count_map
+from ..views import ConfigurableFormWizard
 from .test_app.models import Report
 from .test_app.views import WizardTestApp
 
@@ -457,16 +457,6 @@ class WizardIntegratedTest(FormBaseTest):
             follow=True)
         output = get_body(response)
         self.assertIn('"answer": "test answer"', output)
-
-
-class PageCountTest(FormBaseTest):
-
-    def test_only_question_pages_are_counted(self):
-        page3 = TextPage.objects.create()
-        pages = [self.page1, self.page2, page3]
-        self.assertEqual(calculate_page_count_map(pages)[0], 1)
-        self.assertEqual(calculate_page_count_map(pages)[1], 2)
-        self.assertEqual(calculate_page_count_map(pages)['page_count'], 2)
 
 
 class EditRecordFormTest(FormBaseTest):
