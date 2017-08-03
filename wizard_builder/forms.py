@@ -56,12 +56,13 @@ def get_form_pages(pages):
         start = next((idx for idx, page in enumerate(pages) if page.section == section), None)
         section_map[section] = start
 
-    for idx, (page, item_set) in enumerate(pages):
+    for idx, page in enumerate(pages):
+        questions = page.formquestion_set.all()
         FormType = type(
             'Page{}Form'.format(idx),
             (PageForm,),
             {
-                "items": sorted(item_set, key=lambda i: i.position),
+                "items": sorted(questions, key=lambda i: i.position),
                 "infobox": page.infobox,
                 "page_section": page.section,
                 "section_map": section_map,
