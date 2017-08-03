@@ -2,6 +2,7 @@ import re
 from collections import OrderedDict
 
 from django import forms
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.forms import ValidationError, formsets
 from django.shortcuts import redirect
@@ -9,7 +10,6 @@ from django.utils import six
 from django.utils.decorators import classonlymethod
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
-from django.core.exceptions import ImproperlyConfigured
 
 from .forms import ManagementForm
 

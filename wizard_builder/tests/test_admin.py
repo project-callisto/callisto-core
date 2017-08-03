@@ -12,9 +12,9 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
 from ..models import (
-    Checkbox, Choice, Date, FormQuestion, MultiLineText,
-    MultipleChoice, PageBase, QuestionPage, RadioButton, SingleLineText,
-    SingleLineTextWithMap, TextPage,
+    Checkbox, Choice, Date, FormQuestion, MultiLineText, MultipleChoice,
+    PageBase, QuestionPage, RadioButton, SingleLineText, SingleLineTextWithMap,
+    TextPage,
 )
 
 try:

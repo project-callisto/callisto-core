@@ -1,7 +1,7 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.core.files.uploadedfile import UploadedFile
 from django.utils import six
 from django.utils.datastructures import MultiValueDict
-from django.core.exceptions import ImproperlyConfigured
 
 # from django-formtools
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and

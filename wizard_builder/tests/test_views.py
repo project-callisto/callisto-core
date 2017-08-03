@@ -9,8 +9,8 @@ from django.test import TestCase
 
 from ..forms import QuestionPageForm, TextPageForm
 from ..models import (
-    Checkbox, Choice, Date, QuestionPage, RadioButton,
-    SingleLineText, TextPage,
+    Checkbox, Choice, Date, QuestionPage, RadioButton, SingleLineText,
+    TextPage,
 )
 from ..views import ConfigurableFormWizard
 from .test_app.models import Report

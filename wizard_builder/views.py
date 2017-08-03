@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
 
-from .forms import QuestionPageForm, get_form_pages, ManagementForm
+from .forms import ManagementForm, QuestionPageForm, get_form_pages
 from .models import PageBase, QuestionPage, TextPage
 from .wizards import NamedUrlWizardView
 
@@ -241,4 +241,3 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         if self.object_to_edit:
             kwargs['edit_id'] = self.object_to_edit.id
         return reverse(self.url_name, kwargs=kwargs)
-
