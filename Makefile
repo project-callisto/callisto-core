@@ -60,3 +60,6 @@ release: clean ## package and upload a release
 sdist: clean ## package
 	python setup.py sdist
 	ls -l dist
+
+release:
+	python manage.py migrate --noinput --database default
