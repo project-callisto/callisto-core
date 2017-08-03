@@ -74,5 +74,5 @@ django-create-admins: ## create django admin users
 	make django-manage cmd='create_admins'
 
 django-release: ## heroku build release command
-	make django-migrate
-	make django-create-admins
+	DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.heroku_settings' make django-migrate
+	DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.heroku_settings' make django-create-admins
