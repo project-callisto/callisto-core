@@ -1,3 +1,6 @@
+import sys
+import django
+from django.conf import settings
 
 def make_migrations():
     from django.core.management import call_command
@@ -5,27 +8,13 @@ def make_migrations():
 
 
 if __name__ == '__main__':
-    import sys
-    sys.path.append('./src/')
-
-    try:
-        from django.conf import settings
-
-        settings.configure(
-            INSTALLED_APPS=[
-                'django.contrib.contenttypes',
-                'django.contrib.sites',
-                'wizard_builder',
-                'wizard_builder.tests.test_app'
-            ],
-        )
-
-        import django
-        django.setup()
-
-    except ImportError:
-        import traceback
-        traceback.print_exc()
-        raise ImportError('To fix this error, sort out the imports')
-
+    settings.configure(
+        INSTALLED_APPS=[
+            'django.contrib.contenttypes',
+            'django.contrib.sites',
+            'wizard_builder',
+            'wizard_builder.tests.test_app'
+        ],
+    )
+    django.setup()
     make_migrations()
