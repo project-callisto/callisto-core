@@ -237,7 +237,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             Passes record to edit along to the next step.
             Edit url must have a named 'edit_id' group
         '''
-        kwargs = {'step': step, }
+        kwargs = {'step': step}
         if self.object_to_edit:
             kwargs['edit_id'] = self.object_to_edit.id
         return reverse(self.url_name, kwargs=kwargs)
