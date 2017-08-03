@@ -40,12 +40,12 @@ django-wizard-builder
 +------------+-------------+
 |         Support          |
 +============+=============+
-| |python34| + |django111| |
-+------------+-------------+
-| |python35| + |django111| |
-+------------+-------------+
-| |python36| + |django111| |
-+------------+-------------+
+| |python34| |django111|   |
++--------------------------+
+| |python35| |django111|   |
++--------------------------+
+| |python36| |django111|   |
++--------------------------+
 
 Create multi-page forms with branching logic from the Django admin, no code required.
 
