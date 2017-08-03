@@ -12,7 +12,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
 from ..models import (
-    Checkbox, Choice, Conditional, Date, FormQuestion, MultiLineText,
+    Checkbox, Choice, Date, FormQuestion, MultiLineText,
     MultipleChoice, PageBase, QuestionPage, RadioButton, SingleLineText,
     SingleLineTextWithMap, TextPage,
 )
@@ -138,7 +138,6 @@ class AdminFunctionalTest(FunctionalTest):
             RadioButton,
             Choice,
             Date,
-            Conditional,
         ]
         for Model in wizard_builder_models:
             self.assertIn(Model._meta.verbose_name.lower(), self.browser.page_source.lower())

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from ..models import (
-    Checkbox, Conditional, Date, FormQuestion, MultiLineText, MultipleChoice,
+    Checkbox, Date, FormQuestion, MultiLineText, MultipleChoice,
     PageBase, QuestionPage, RadioButton, SingleLineText, SingleLineTextWithMap,
     TextPage,
 )
@@ -24,5 +24,3 @@ admin.site.register(Date, FormQuestionChildAdmin)
 admin.site.register(MultipleChoice, MultipleChoiceParentAdmin)
 admin.site.register(Checkbox, MultipleChoiceChildAdmin)
 admin.site.register(RadioButton, MultipleChoiceChildAdmin)
-
-admin.site.register(Conditional)

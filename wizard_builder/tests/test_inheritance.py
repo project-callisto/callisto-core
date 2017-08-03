@@ -3,7 +3,7 @@ import subprocess
 from django.test import TestCase
 
 from ..models import (
-    Choice, Conditional, FormQuestion, MultipleChoice, PageBase, QuestionPage,
+    Choice, FormQuestion, MultipleChoice, PageBase, QuestionPage,
     SingleLineText,
 )
 
@@ -28,15 +28,6 @@ class InheritanceTest(TestCase):
         Choice.objects.create(question_id=question.id)
         choice = Choice.objects.first()
         self.assertIsInstance(choice.question, MultipleChoice)
-
-    def test_conditional_instance(self):
-        page = QuestionPage.objects.create()
-        question = MultipleChoice.objects.create(page_id=page.id)
-        Conditional.objects.create(question_id=question.id, page_id=page.id)
-        condition = Conditional.objects.first()
-        self.assertTrue(QuestionPage.objects.first().conditional)
-        self.assertIsInstance(condition.question, MultipleChoice)
-        self.assertIsInstance(condition.page, QuestionPage)
 
 
 class DumpdataHackTest(TestCase):

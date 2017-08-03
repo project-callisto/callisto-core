@@ -9,7 +9,7 @@ from django.test import TestCase
 
 from ..forms import QuestionPageForm, TextPageForm
 from ..models import (
-    Checkbox, Choice, Conditional, Date, QuestionPage, RadioButton,
+    Checkbox, Choice, Date, QuestionPage, RadioButton,
     SingleLineText, TextPage,
 )
 from ..views import ConfigurableFormWizard, calculate_page_count_map
@@ -467,30 +467,6 @@ class PageCountTest(FormBaseTest):
         self.assertEqual(calculate_page_count_map(pages)[0], 1)
         self.assertEqual(calculate_page_count_map(pages)[1], 2)
         self.assertEqual(calculate_page_count_map(pages)['page_count'], 2)
-
-    def test_collapses_conditional_branches(self):
-        page1a = QuestionPage.objects.create()
-        page1a.sites.add(self.site.id)
-        SingleLineText.objects.create(text="first conditional question", page=page1a)
-        Conditional.objects.create(condition_type=Conditional.EXACTLY, page=page1a, question=self.question1,
-                                   answer="whatever")
-        page1b = QuestionPage.objects.create()
-        page1b.sites.add(self.site.id)
-        SingleLineText.objects.create(text="second conditional question", page=page1b)
-        Conditional.objects.create(condition_type=Conditional.EXACTLY, page=page1b, question=self.question1,
-                                   answer="whatever")
-        page2a = QuestionPage.objects.create()
-        page2a.sites.add(self.site.id)
-        SingleLineText.objects.create(text="single conditional question", page=page2a)
-        Conditional.objects.create(condition_type=Conditional.EXACTLY, page=page2a, question=self.question2,
-                                   answer="whatever again")
-        pages = [self.page1, self.page2, page1a, page1b, page2a]
-        self.assertEqual(calculate_page_count_map(pages)[0], 1)
-        self.assertEqual(calculate_page_count_map(pages)[1], 2)
-        self.assertEqual(calculate_page_count_map(pages)[2], 3)
-        self.assertEqual(calculate_page_count_map(pages)[3], 3)
-        self.assertEqual(calculate_page_count_map(pages)[4], 4)
-        self.assertEqual(calculate_page_count_map(pages)['page_count'], 4)
 
 
 class EditRecordFormTest(FormBaseTest):

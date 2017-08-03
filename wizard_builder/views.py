@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
 
 from .forms import QuestionPageForm, get_form_pages
-from .models import Conditional, PageBase, QuestionPage, TextPage
+from .models import PageBase, QuestionPage, TextPage
 
 # rearranged from django-formtools to allow binding forms before skipping steps & submission
 # adds hook before done is called to process answers
@@ -246,8 +246,6 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 depends_on_question_field = "question_%s" % depends_on_question.pk
                 condition_dict[str(real_page_idx)] = partial(predicate, condition, depends_on_page_idx,
                                                              depends_on_question_field)
-            except Conditional.DoesNotExist:
-                pass
 
         form_list = cls.generate_form_list(page_map, pages, object_to_edit, **kwargs)
         page_count_map = calculate_page_count_map(pages)
@@ -282,21 +280,11 @@ def predicate(passed_condition, depends_on_page_idx, depends_on_question_field, 
     if (len(form_answer)) < 1:
         form_answer = "none"
 
-    if condition_type == Conditional.EXACTLY:
-        if not isinstance(form_answer, str):
-            form_answer = ','.join(form_answer)
-
-        condition_answer = passed_condition.answer
-        if not isinstance(condition_answer, str):
-            condition_answer = ','.join(condition_answer)
-
-        return form_answer == condition_answer
-    else:
-        if isinstance(form_answer, str):
-            form_answer = [form_answer]
-        possibles = passed_condition.answer.split(',')
-        # return true if intersection of answers & possibles is non-empty
-        return len(list(set(form_answer) & set(possibles))) > 0
+    if isinstance(form_answer, str):
+        form_answer = [form_answer]
+    possibles = passed_condition.answer.split(',')
+    # return true if intersection of answers & possibles is non-empty
+    return len(list(set(form_answer) & set(possibles))) > 0
 
 
 def calculate_page_count_map(pages):
@@ -311,8 +299,6 @@ def calculate_page_count_map(pages):
                 if depends_on_question not in depends_on_seen:
                     page_count += 1
                     depends_on_seen.append(depends_on_question)
-            except Conditional.DoesNotExist:
-                page_count += 1
             page_count_map[idx] = page_count
     page_count_map['page_count'] = page_count
     return page_count_map
