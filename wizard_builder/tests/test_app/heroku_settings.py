@@ -4,15 +4,6 @@ from wizard_builder.tests.test_app.settings import *
 
 # STATIC FILES
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'staticfiles'))
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-]
-
 DEBUG = False
 
 DATABASES = {

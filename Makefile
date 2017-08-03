@@ -73,6 +73,10 @@ django-runserver: ## runserver
 django-create-admins: ## create django admin users
 	make django-manage cmd='create_admins'
 
+django-collectstatic:
+	make django-manage cmd='collectstatic'
+
 django-release: ## heroku build release command
 	make django-migrate
 	make django-create-admins
+	make django-collectstatic

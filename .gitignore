@@ -1,3 +1,5 @@
+staticfiles/
+
 # test dbs
 *.sqlite3
 

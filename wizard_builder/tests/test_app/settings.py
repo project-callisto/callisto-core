@@ -18,3 +18,13 @@ DATABASES = {
 WIZARD_BUILDER_DISABLE_DOWNCASTING = True
 
 APP_URL = os.environ.get('APP_URL', 'localhost')
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'staticfiles'))
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
