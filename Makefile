@@ -61,21 +61,6 @@ sdist: clean ## package
 	python setup.py sdist
 	ls -l dist
 
-django-manage:
-	python wizard_builder/tests/test_app/manage.py $(cmd)
-
-django-migrate: ## migrate database
-	make django-manage cmd='migrate --noinput --database default'
-
-django-runserver: ## runserver
-	make django-manage cmd='runserver'
-
-django-create-admins: ## create django admin users
-	make django-manage cmd='create_admins'
-
-django-collectstatic:
-	make django-manage cmd='collectstatic'
-
 django-release: ## heroku build release command
-	make django-migrate
-	make django-create-admins
+	python manage.py migrate --noinput --database default
+	python manage.py create_admins
