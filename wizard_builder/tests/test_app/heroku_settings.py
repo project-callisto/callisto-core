@@ -9,6 +9,7 @@ DATABASES = {
     'default': dj_database_url.parse(os.getenv('DATABASE_URL')),
 }
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MIDDLEWARE_CLASSES = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ] + MIDDLEWARE_CLASSES
