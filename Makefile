@@ -58,6 +58,7 @@ release: clean ## package and upload a release
 	python setup.py bdist_wheel upload
 	git tag -a $(VERSION) -m 'version $(VERSION)'
 	git push --tags
+	git push
 
 sdist: clean ## package
 	python setup.py sdist
