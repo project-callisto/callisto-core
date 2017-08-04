@@ -11,6 +11,7 @@ webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
 endef
 export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
+VERSION := $(shell cat wizard_builder/version.txt)
 
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
@@ -55,7 +56,8 @@ test-all: ## run tests on every Python version with tox
 release: clean ## package and upload a release
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
-	python setup.py tag
+	git tag -a $(VERSION) -m 'version $(VERSION)'
+	git push --tags
 
 sdist: clean ## package
 	python setup.py sdist
