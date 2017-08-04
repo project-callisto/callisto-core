@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 from distutils.util import strtobool
@@ -22,6 +23,7 @@ except ImportError:
 
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 SCREEN_DUMP_LOCATION = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'screendumps'
@@ -75,12 +77,12 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def take_screenshot(self):
         filename = self._get_filename() + '.png'
-        print('screenshotting to', filename)
+        logger.info('screenshotting to', filename)
         self.browser.get_screenshot_as_file(filename)
 
     def dump_html(self):
         filename = self._get_filename() + '.html'
-        print('dumping page HTML to', filename)
+        logger.info('dumping page HTML to', filename)
         with open(filename, 'w') as f:
             f.write(self.browser.page_source)
 
