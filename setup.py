@@ -19,6 +19,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'django-model-utils>=3.0',
+        'django-tinymce4-lite==1.4.2',
     ],
     license="BSD",
     zip_safe=False,
