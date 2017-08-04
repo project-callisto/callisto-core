@@ -1,15 +1,18 @@
-.. :changelog:
-
 History
 -------
+
+0.3.1 (2017-08-04)
+++++++++++++++++++
+
+* pypi cleanup release
 
 0.3.0 (2017-08-03)
 ++++++++++++++++++
 
-* remove PageBase
-* remove TextPage
-* rename QuestionPage to Page
-* remove Conditional
+* remove models.PageBase
+* remove models.TextPage
+* rename models.QuestionPage to models.Page
+* remove models.Conditional
 * remove formtools dependency
 
     https://github.com/SexualHealthInnovations/django-wizard-builder/pull/95
@@ -17,7 +20,7 @@ History
 0.2.1 (2017-06-12)
 ++++++++++++++++++
 
-* change page.site to page.sites
+* change models.PageBase.site to models.PageBase.sites
 
     https://github.com/SexualHealthInnovations/django-wizard-builder/pull/72
 
