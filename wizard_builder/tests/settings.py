@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "wizard_builder",
     "wizard_builder.tests.test_app",
+    'tinymce',
 ]
 
 MIDDLEWARE_CLASSES = [

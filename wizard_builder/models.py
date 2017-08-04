@@ -22,10 +22,7 @@ class Page(models.Model):
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
-    infobox = models.TextField(
-        blank=True,
-        verbose_name='why is this asked? wrap additional titles in [[double brackets]]',
-    )
+    infobox = HTMLField(blank=True)
     multiple = models.BooleanField(
         blank=False,
         default=False,
@@ -85,8 +82,9 @@ class Page(models.Model):
 
 
 # TODO: rename to Question when downcasting is removed
-class FormQuestion(models.Model):
-    text = models.TextField(blank=False)
+class FormQuestion(TimekeepingBase, models.Model):
+    text = HTMLField(blank=False)
+    descriptive_text = HTMLField(blank=True)
     page = models.ForeignKey(Page, editable=True, null=True, on_delete=models.SET_NULL)
     position = models.PositiveSmallIntegerField("position", default=0)
     descriptive_text = models.TextField(blank=True)
