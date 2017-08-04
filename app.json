@@ -1,0 +1,40 @@
+{
+  "name": "django-wizard-builder",
+  "scripts": {},
+  "env": {
+    "ADMIN_PASS": {
+      "required": true
+    },
+    "ADMIN_USER": {
+      "required": true
+    },
+    "APP_URL": {
+      "required": true
+    },
+    "DJANGO_SETTINGS_MODULE": {
+      "required": true
+    },
+    "PAPERTRAIL_API_TOKEN": {
+      "required": true
+    },
+    "SECRET_KEY": {
+      "generator": "secret"
+    },
+    "HEROKU_APP_NAME": {
+      "required": true
+    },
+    "HEROKU_PARENT_APP_NAME": {
+      "required": true
+    }
+  },
+  "formation": {},
+  "addons": [
+    "papertrail",
+    "heroku-postgresql"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
