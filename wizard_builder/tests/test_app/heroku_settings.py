@@ -24,7 +24,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-ALLOWED_HOSTS = [APP_URL]
+ALLOWED_HOSTS = [
+    APP_URL,
+    os.getenv('HEROKU_APP_NAME', default=''),
+    os.getenv('HEROKU_PARENT_APP_NAME', default=''),
+]
 
 LOGGING = {
     'version': 1,
