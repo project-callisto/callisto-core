@@ -251,6 +251,9 @@ class Checkbox(MultipleChoice):
             result['extra'] = args[0]
         return result
 
+    class Meta:
+        verbose_name_plural = "checkboxes"
+
 
 class RadioButton(MultipleChoice):
     is_dropdown = models.BooleanField(default=False)
