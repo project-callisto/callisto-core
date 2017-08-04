@@ -1,30 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-import sys
-import logging
 from wizard_builder import __version__ as version
 
 from setuptools import setup, find_packages
-
-logger = logging.getLogger(__name__)
-
-if sys.argv[-1] == 'publish':
-    try:
-        import wheel
-        logger.info("Wheel version: ", wheel.__version__)
-    except ImportError:
-        logger.info('Wheel library missing. Please run "pip install wheel"')
-        sys.exit()
-    os.system('python setup.py sdist upload')
-    os.system('python setup.py bdist_wheel upload')
-    sys.exit()
-
-if sys.argv[-1] == 'tag':
-    logger.info("Tagging the version on github:")
-    os.system("git tag -a %s -m 'version %s'" % (version, version))
-    os.system("git push --tags")
-    sys.exit()
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
@@ -32,7 +10,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 setup(
     name='django-wizard-builder',
     version=version,
-    description='Create multi-page wizard with branching logic from the Django admin, no code required.',
+    description='Create multi-page forms from the Django admin',
     long_description=readme + '\n\n' + history,
     author='Sexual Health Innovations',
     author_email='tech@sexualhealthinnovations.org',
