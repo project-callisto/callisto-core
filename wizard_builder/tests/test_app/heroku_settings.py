@@ -13,17 +13,6 @@ MIDDLEWARE_CLASSES = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ] + MIDDLEWARE_CLASSES
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'staticfiles'))
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-]
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
-
 ALLOWED_HOSTS = [
     APP_URL,
     os.getenv('HEROKU_APP_NAME', default=''),
