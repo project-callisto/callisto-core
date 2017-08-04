@@ -5,10 +5,20 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
 
+from tinymce import HTMLField
+
 from .managers import FormQuestionManager, PageManager
 
 
-class Page(models.Model):
+class TimekeepingBase(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Page(TimekeepingBase, models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -87,8 +97,6 @@ class FormQuestion(TimekeepingBase, models.Model):
     descriptive_text = HTMLField(blank=True)
     page = models.ForeignKey(Page, editable=True, null=True, on_delete=models.SET_NULL)
     position = models.PositiveSmallIntegerField("position", default=0)
-    descriptive_text = models.TextField(blank=True)
-    added = models.DateTimeField(auto_now_add=True)
     objects = FormQuestionManager()
 
     def __str__(self):
