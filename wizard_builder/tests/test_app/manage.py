@@ -6,7 +6,11 @@ import sys
 def setup_sites():
     from django.conf import settings
     from django.contrib.sites.models import Site
-    Site.objects.get_or_create(domain=settings.APP_URL)
+    if getattr(settings, 'ALLOWED_HOSTS'):
+        for host in settings.ALLOWED_HOSTS:
+            Site.objects.get_or_create(domain=host)
+    else:
+        Site.objects.get_or_create(domain=settings.APP_URL)
 
 
 def main():

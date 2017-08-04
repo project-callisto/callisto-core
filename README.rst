@@ -22,8 +22,8 @@ django-wizard-builder
 
 .. |python36| image:: https://img.shields.io/badge/python-3.6-green.svg
    :alt: Python 3.6
-   
-.. |django111| image:: https://img.shields.io/badge/django-1.11-green.svg
+
+.. |django111| image:: https://img.shields.io/badge/django-1.11-yellowgreen.svg
    :alt: Django 1.11
 
 Create multi-page forms with branching logic from the Django admin, no code required.
@@ -49,22 +49,6 @@ Create multi-page forms with branching logic from the Django admin, no code requ
 | |python36| |django111|   |
 +--------------------------+
 
-Documentation
--------------
-
-The full documentation will eventually be at https://django-wizard-builder.readthedocs.org.
-
-Quickstart
-----------
-
-Install django-wizard-builder::
-
-    pip install django-wizard-builder
-
-Then use it in a project::
-
-    import wizard_builder
-
 Developement
 -------------
 
@@ -72,26 +56,14 @@ setup
 
 ::
 
-    source <YOURVIRTUALENV>/bin/activate
-    (myenv) $ pip install -r requirements/dev.txt
+    $ source $VENV/bin/activate
+    $ pip install -r requirements/dev.txt
 
 
 cleanup / linting / tests
 
 ::
 
-    (myenv) $ make clean-lint
-    (myenv) $ make test
-    (myenv) $ make test-all
-
-
-Credits
----------
-
-Tools used in rendering this package:
-
-*  Cookiecutter_
-*  `cookiecutter-djangopackage`_
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`cookiecutter-djangopackage`: https://github.com/pydanny/cookiecutter-djangopackage
+    $ make clean-lint
+    $ make test
+    $ make test-all
