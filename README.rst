@@ -26,8 +26,6 @@ django-wizard-builder
 .. |django111| image:: https://img.shields.io/badge/django-1.11-yellowgreen.svg
    :alt: Django 1.11
 
-Create multi-page forms with branching logic from the Django admin, no code required.
-
 +--------------+------------+-------------+
 | Status       |         Support          |
 +==============+============+=============+

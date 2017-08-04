@@ -10,7 +10,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 setup(
     name='django-wizard-builder',
     version=version,
-    description='Create multi-page wizard with branching logic from the Django admin, no code required.',
+    description='Create multi-page forms from the Django admin',
     long_description=readme + '\n\n' + history,
     author='Sexual Health Innovations',
     author_email='tech@sexualhealthinnovations.org',
