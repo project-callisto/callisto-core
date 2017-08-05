@@ -1,8 +1,9 @@
 import os
+from django.utils.crypto import get_random_string
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-SECRET_KEY = "not important"
+SECRET_KEY = os.getenv("SECRET_KEY", default=get_random_string(50, "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"))
 
 DEBUG = True
 
