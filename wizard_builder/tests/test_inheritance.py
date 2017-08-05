@@ -25,7 +25,7 @@ class InheritanceTest(TestCase):
 class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'wizard_builder.tests.test_app.settings'
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'wizard_builder.tests.test_app.ops_settings'
         Page.objects.using('test_app').get_or_create(
             infobox='dumpdata hack question',
         )

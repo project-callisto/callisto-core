@@ -1,6 +1,14 @@
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+SECRET_KEY = "not important"
+
 DEBUG = True
 
-USE_TZ = True
+ROOT_URLCONF = "wizard_builder.tests.urls"
+
+APP_URL = os.environ.get('APP_URL', 'localhost')
 
 DATABASES = {
     "default": {
@@ -56,8 +64,51 @@ TEMPLATES = [
     },
 ]
 
-SECRET_KEY = "not important"
-
-ROOT_URLCONF = "wizard_builder.tests.urls"
-
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'staticfiles'))
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] [%(levelname)s] [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
+            'datefmt': '%I:%M %p %A(%d) %B(%m) %Y %Z',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': os.getenv('LOG_LEVEL', default='DEBUG'),
+        },
+        'django.template': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': os.getenv('LOG_LEVEL', default='INFO'),
+        },
+        'django.db.backends':{
+            'handlers': ['console'],
+            'propagate': False,
+            'level': os.getenv('LOG_LEVEL', default='INFO'),
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': os.getenv('LOG_LEVEL', default='DEBUG'),
+    },
+}
