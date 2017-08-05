@@ -25,22 +25,22 @@ class InheritanceTest(TestCase):
 class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'wizard_builder.tests.test_app.settings'
         Page.objects.using('test_app').get_or_create(
             infobox='dumpdata hack question',
         )
-
         subprocess.check_call('''
-            python manage.py dumpdata \
-                wizard_builder \
-                -o wizard_builder/tests/test_app/test-dump.json \
-                --natural-foreign \
-                --indent 2
+            DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.ops_settings' \
+                python manage.py dumpdata \
+                    wizard_builder \
+                    -o wizard_builder/tests/test_app/test-dump.json \
+                    --natural-foreign \
+                    --indent 2
         ''', shell=True)
 
         subprocess.check_call('''
-            python manage.py loaddata \
-                wizard_builder/tests/test_app/test-dump.json
+            DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.ops_settings' \
+                python manage.py loaddata \
+                    wizard_builder/tests/test_app/test-dump.json
         ''', shell=True)
 
         with open('wizard_builder/tests/test_app/test-dump.json', 'r') as dump_file:

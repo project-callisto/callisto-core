@@ -1,5 +1,7 @@
 import copy
 
+from tinymce import HTMLField
+
 from django import forms
 from django.contrib.sites.models import Site
 from django.db import models
@@ -8,7 +10,15 @@ from django.utils.safestring import mark_safe
 from .managers import FormQuestionManager, PageManager
 
 
-class Page(models.Model):
+class TimekeepingBase(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Page(TimekeepingBase, models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -22,10 +32,7 @@ class Page(models.Model):
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
-    infobox = models.TextField(
-        blank=True,
-        verbose_name='why is this asked? wrap additional titles in [[double brackets]]',
-    )
+    infobox = HTMLField(blank=True)
     multiple = models.BooleanField(
         blank=False,
         default=False,
@@ -85,12 +92,11 @@ class Page(models.Model):
 
 
 # TODO: rename to Question when downcasting is removed
-class FormQuestion(models.Model):
-    text = models.TextField(blank=False)
+class FormQuestion(TimekeepingBase, models.Model):
+    text = HTMLField(blank=False)
+    descriptive_text = HTMLField(blank=True)
     page = models.ForeignKey(Page, editable=True, null=True, on_delete=models.SET_NULL)
     position = models.PositiveSmallIntegerField("position", default=0)
-    descriptive_text = models.TextField(blank=True)
-    added = models.DateTimeField(auto_now_add=True)
     objects = FormQuestionManager()
 
     def __str__(self):
@@ -244,6 +250,9 @@ class Checkbox(MultipleChoice):
         if len(args) > 0 and args[0]:
             result['extra'] = args[0]
         return result
+
+    class Meta:
+        verbose_name_plural = "checkboxes"
 
 
 class RadioButton(MultipleChoice):
