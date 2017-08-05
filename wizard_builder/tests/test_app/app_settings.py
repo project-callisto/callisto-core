@@ -1,6 +1,6 @@
 import sys
 
-from wizard_builder.tests.settings import *
+from wizard_builder.tests.test_settings import *
 
 # add wizard_builder folder to path
 # needed to add wizard_builder to INSTALLED_APPS
