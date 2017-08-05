@@ -26,23 +26,25 @@ class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'wizard_builder.tests.test_app.ops_settings'
-        Page.objects.get_or_create(
+        Page.objects.using('test_app').get_or_create(
             infobox='dumpdata hack question',
         )
         subprocess.check_call('''
-            python manage.py dumpdata \
-                wizard_builder \
-                -o wizard_builder/tests/test_app/test-dump.json \
-                --natural-foreign \
-                --indent 2
+            DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.ops_settings' \
+                python manage.py dumpdata \
+                    wizard_builder \
+                    -o wizard_builder/tests/test_app/test-dump.json \
+                    --natural-foreign \
+                    --indent 2
         ''', shell=True)
 
         subprocess.check_call('''
-            python manage.py loaddata \
-                wizard_builder/tests/test_app/test-dump.json
+            DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.ops_settings' \
+                python manage.py loaddata \
+                    wizard_builder/tests/test_app/test-dump.json
         ''', shell=True)
 
         with open('wizard_builder/tests/test_app/test-dump.json', 'r') as dump_file:
             dump_file_contents = dump_file.read()
         self.assertIn('wizard_builder.page', dump_file_contents)
-        self.assertEqual(Page.objects.count(), 1)
+        self.assertEqual(Page.objects.using('test_app').count(), 1)
