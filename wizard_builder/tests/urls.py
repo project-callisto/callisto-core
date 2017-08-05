@@ -1,16 +1,16 @@
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.views.generic.base import RedirectView
+from django.core.urlresolvers import reverse_lazy
 
 from .test_app.views import edit_test_wizard_view, new_test_wizard_view
 
 urlpatterns = [
     url(r'^$',
-        new_test_wizard_view,
-        name='index',
+        RedirectView.as_view(url=reverse_lazy('test_wizard'), permanent=True),
     ),
     url(r'^wizard/new/$',
-        new_test_wizard_view,
-        name='new_test_wizard',
+        RedirectView.as_view(url=reverse_lazy('test_wizard'), permanent=True),
     ),
     url(r'^wizard/new/(?P<step>.+)/$',
         new_test_wizard_view,

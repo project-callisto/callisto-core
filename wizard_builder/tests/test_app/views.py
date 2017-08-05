@@ -29,7 +29,7 @@ def new_test_wizard_view(request, step=None):
     return WizardTestApp.wizard_factory(
         site_id=site.id,
     ).as_view(
-        url_name="test_wizard",
+        url_name=request.resolver_match.url_name,
     )(
         request,
         step=step,
@@ -43,7 +43,7 @@ def edit_test_wizard_view(request, edit_id, step=None):
         site_id=site.id,
         object_to_edit=report,
     ).as_view(
-        url_name="test_edit_wizard",
+        url_name=request.resolver_match.url_name,
     )(
         request,
         step=step,
