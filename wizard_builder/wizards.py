@@ -167,8 +167,6 @@ class WizardView(TemplateView):
 
         computed_form_list = OrderedDict()
 
-        assert len(form_list) > 0, 'at least one form is needed'
-
         # walk through the passed form list
         for i, form in enumerate(form_list):
             if isinstance(form, (list, tuple)):
@@ -598,16 +596,12 @@ class NamedUrlWizardView(WizardView):
         We require a url_name to reverse URLs later. Additionally users can
         pass a done_step_name to change the URL name of the "done" view.
         """
-        assert 'url_name' in kwargs, 'URL name is needed to resolve correct wizard URLs'
         extra_kwargs = {
             'done_step_name': kwargs.pop('done_step_name', 'done'),
             'url_name': kwargs.pop('url_name'),
         }
         initkwargs = super(NamedUrlWizardView, cls).get_initkwargs(*args, **kwargs)
         initkwargs.update(extra_kwargs)
-
-        assert initkwargs['done_step_name'] not in initkwargs['form_list'], \
-            'step name "%s" is reserved for "done" view' % initkwargs['done_step_name']
         return initkwargs
 
     def get_step_url(self, step):
