@@ -1,23 +1,15 @@
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.views.generic.base import RedirectView
-from django.core.urlresolvers import reverse_lazy
 
 from .test_app.views import edit_test_wizard_view, new_test_wizard_view
 
 urlpatterns = [
     url(r'^$',
-        RedirectView.as_view(
-            url=reverse_lazy('new_test_wizard'),
-            permanent=True,
-        ),
+        new_test_wizard_view,
         name='index',
     ),
     url(r'^wizard/new/$',
-        RedirectView.as_view(
-            url=reverse_lazy('test_wizard', kwargs={'step': 0}),
-            permanent=True,
-        ),
+        new_test_wizard_view,
         name='new_test_wizard',
     ),
     url(r'^wizard/new/(?P<step>.+)/$',
