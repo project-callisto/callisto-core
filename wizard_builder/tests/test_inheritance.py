@@ -26,10 +26,9 @@ class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'wizard_builder.tests.test_app.ops_settings'
-        Page.objects.using('test_app').get_or_create(
+        Page.objects.get_or_create(
             infobox='dumpdata hack question',
         )
-
         subprocess.check_call('''
             python manage.py dumpdata \
                 wizard_builder \
@@ -46,4 +45,4 @@ class DumpdataHackTest(TestCase):
         with open('wizard_builder/tests/test_app/test-dump.json', 'r') as dump_file:
             dump_file_contents = dump_file.read()
         self.assertIn('wizard_builder.page', dump_file_contents)
-        self.assertEqual(Page.objects.using('test_app').count(), 1)
+        self.assertEqual(Page.objects.count(), 1)
