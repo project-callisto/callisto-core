@@ -64,6 +64,7 @@ sdist: clean ## package
 	python setup.py sdist
 	ls -l dist
 
-django-release: ## heroku build release command
+app-setup: ## setup the test application environment
 	python manage.py migrate --noinput --database default
 	python manage.py create_admins
+	python manage.py setup_sites
