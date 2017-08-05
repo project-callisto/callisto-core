@@ -1,5 +1,4 @@
 import dj_database_url
-
 from wizard_builder.tests.test_app.live_settings import *
 
 DATABASES = {

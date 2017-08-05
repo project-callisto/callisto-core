@@ -1,11 +1,11 @@
 import copy
 
+from tinymce import HTMLField
+
 from django import forms
 from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.safestring import mark_safe
-
-from tinymce import HTMLField
 
 from .managers import FormQuestionManager, PageManager
 
