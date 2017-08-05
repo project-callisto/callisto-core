@@ -1,4 +1,4 @@
-from wizard_builder.tests.test_app.settings import *
+from wizard_builder.tests.test_app.app_settings import *
 
 DEBUG = False
 
