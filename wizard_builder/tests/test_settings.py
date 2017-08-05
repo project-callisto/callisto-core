@@ -106,6 +106,11 @@ LOGGING = {
             'propagate': False,
             'level': os.getenv('LOG_LEVEL', default='INFO'),
         },
+        'selenium':{
+            'handlers': ['console'],
+            'propagate': False,
+            'level': os.getenv('LOG_LEVEL', default='WARNING'),
+        },
     },
     'root': {
         'handlers': ['console'],
