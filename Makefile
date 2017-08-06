@@ -10,6 +10,7 @@ except:
 webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
 endef
 export BROWSER_PYSCRIPT
+DATA_FILE = 'wizard_builder/tests/test_app/fixtures/data.json'
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 VERSION := $(shell cat wizard_builder/version.txt)
 
@@ -68,6 +69,11 @@ app-setup: ## setup the test application environment
 	python manage.py migrate --noinput --database default
 	python manage.py create_admins
 	python manage.py setup_sites
+	python manage.py loaddata $(DATA_FILE)
 
 shell:
 	DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.ops_settings' python manage.py shell_plus
+
+fixture:
+	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
+	npx json -f $(DATA_FILE) -I

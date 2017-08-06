@@ -1,0 +1,40 @@
+[
+  {
+    "model": "wizard_builder.page",
+    "pk": 2,
+    "fields": {
+      "created": "2017-08-05T18:49:02.040",
+      "modified": "2017-08-05T18:49:02.040",
+      "position": 1,
+      "section": 1,
+      "infobox": "",
+      "multiple": false,
+      "name_for_multiple": "",
+      "sites": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "wizard_builder.formquestion",
+    "pk": 1,
+    "fields": {
+      "created": "2017-08-05T18:49:33.607",
+      "modified": "2017-08-05T18:49:33.607",
+      "text": "",
+      "descriptive_text": "",
+      "page": 2,
+      "position": 0
+    }
+  },
+  {
+    "model": "wizard_builder.multiplechoice",
+    "pk": 1,
+    "fields": {}
+  },
+  {
+    "model": "wizard_builder.checkbox",
+    "pk": 1,
+    "fields": {}
+  }
+]
