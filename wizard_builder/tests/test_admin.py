@@ -10,7 +10,6 @@ from ..models import (
 )
 from .base import FunctionalTest
 
-
 User = get_user_model()
 
 

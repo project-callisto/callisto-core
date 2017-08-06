@@ -1,13 +1,13 @@
-import os
 import logging
+import os
 from datetime import datetime
 from distutils.util import strtobool
 
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.contrib.sites.models import Site
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 SCREEN_DUMP_LOCATION = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'screendumps'
