@@ -217,7 +217,6 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     def wizard_factory(cls, object_to_edit=None, site_id=None, **kwargs):
         pages = Page.objects.on_site(site_id).all()
         form_list = cls.generate_form_list(pages, object_to_edit, **kwargs)
-        from IPython import embed; embed()
         formsets = {}
         items = {}
         # TODO: smell the positioning of this for loop
