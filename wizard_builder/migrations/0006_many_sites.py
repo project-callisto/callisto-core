@@ -8,8 +8,10 @@ from django.db import migrations, models
 def copy_site_to_sites(apps, schema_editor):
     current_database = schema_editor.connection.alias
     PageBase = apps.get_model('wizard_builder.PageBase')
-    for page in PageBase.objects.using(current_database).filter(site__isnull=False):
+    for page in PageBase.objects.using(
+            current_database).filter(site__isnull=False):
         page.sites.add(page.site.id)
+
 
 def copy_sites_to_site(apps, schema_editor):
     current_database = schema_editor.connection.alias
@@ -17,6 +19,7 @@ def copy_sites_to_site(apps, schema_editor):
     for page in PageBase.objects.using(current_database):
         site_id = page.sites.first().id
         PageBase.objects.using(current_database).update(site=site_id)
+
 
 class Migration(migrations.Migration):
 

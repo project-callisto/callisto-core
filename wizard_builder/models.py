@@ -85,7 +85,8 @@ class Page(TimekeepingBase, models.Model):
         if cls.objects.count() == 0:
             self.position = 1
         elif bool(cls.objects.exclude(pk=self.pk)) and not self.position:
-            self.position = cls.objects.exclude(pk=self.pk).latest('position').position + 1
+            self.position = cls.objects.exclude(
+                pk=self.pk).latest('position').position + 1
 
     class Meta:
         ordering = ['position']
@@ -95,7 +96,11 @@ class Page(TimekeepingBase, models.Model):
 class FormQuestion(TimekeepingBase, models.Model):
     text = HTMLField(blank=False)
     descriptive_text = HTMLField(blank=True)
-    page = models.ForeignKey(Page, editable=True, null=True, on_delete=models.SET_NULL)
+    page = models.ForeignKey(
+        Page,
+        editable=True,
+        null=True,
+        on_delete=models.SET_NULL)
     position = models.PositiveSmallIntegerField("position", default=0)
     objects = FormQuestionManager()
 
@@ -226,27 +231,35 @@ class MultipleChoice(FormQuestion):
         if self.cached_choices:
             return self.cached_choices
         else:
-            choices = [copy.deepcopy(choice) for choice in self.choice_set.all()]
+            choices = [copy.deepcopy(choice)
+                       for choice in self.choice_set.all()]
             self.cached_choices = choices
             return choices
 
     def serialize_choices(self):
-        return [{"id": choice.pk, "choice_text": choice.text} for choice in self.get_choices()]
+        return [{"id": choice.pk, "choice_text": choice.text}
+                for choice in self.get_choices()]
 
 
 class Checkbox(MultipleChoice):
 
     def make_field(self):
         choices = self.get_choices()
-        choice_tuples = [(choice.pk, choice.make_choice()) for choice in choices]
+        choice_tuples = [(choice.pk, choice.make_choice())
+                         for choice in choices]
         return forms.MultipleChoiceField(choices=choice_tuples,
                                          label=self.text,
                                          required=False,
                                          widget=forms.CheckboxSelectMultiple)
 
     def serialize_for_report(self, answer, *args):
-        result = {'id': self.pk, 'question_text': self.text, 'choices': self.serialize_choices(),
-                  'answer': answer, 'type': 'Checkbox', 'section': self.section}
+        result = {
+            'id': self.pk,
+            'question_text': self.text,
+            'choices': self.serialize_choices(),
+            'answer': answer,
+            'type': 'Checkbox',
+            'section': self.section}
         if len(args) > 0 and args[0]:
             result['extra'] = args[0]
         return result
@@ -260,33 +273,43 @@ class RadioButton(MultipleChoice):
 
     def make_field(self):
         choices = self.get_choices()
-        choice_tuples = [(choice.pk, choice.make_choice()) for choice in choices]
-        return forms.ChoiceField(choices=choice_tuples,
-                                 label=self.text,
-                                 required=False,
-                                 widget=forms.Select(attrs={'class': "form-control input-lg"}) if self.is_dropdown else
-                                 forms.RadioSelect)
+        choice_tuples = [(choice.pk, choice.make_choice())
+                         for choice in choices]
+        return forms.ChoiceField(
+            choices=choice_tuples,
+            label=self.text,
+            required=False,
+            widget=forms.Select(
+                attrs={
+                    'class': "form-control input-lg"}) if self.is_dropdown else forms.RadioSelect)
 
     def serialize_for_report(self, answer, *args):
-        result = {'id': self.pk, 'question_text': self.text, 'choices': self.serialize_choices(),
-                  'answer': answer, 'type': 'RadioButton', 'section': self.section}
+        result = {
+            'id': self.pk,
+            'question_text': self.text,
+            'choices': self.serialize_choices(),
+            'answer': answer,
+            'type': 'RadioButton',
+            'section': self.section}
         if len(args) > 0 and args[0]:
             result['extra'] = args[0]
         return result
 
     def get_extras(self):
         choices = self.cached_choices or self.choice_set.all()
-        return [("question_%s_extra-%s" % (self.pk, choice.pk),
-                 choice.extra_info_placeholder) for choice in choices if choice.extra_info_placeholder]
+        return [("question_%s_extra-%s" % (self.pk, choice.pk), choice.extra_info_placeholder)
+                for choice in choices if choice.extra_info_placeholder]
 
 
 class Choice(models.Model):
     question = models.ForeignKey('MultipleChoice', on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
-    extra_info_placeholder = models.CharField(blank=True, max_length=500,
-                                              verbose_name='Placeholder for extra info field (leave blank for no '
-                                              'field)')
+    extra_info_placeholder = models.CharField(
+        blank=True,
+        max_length=500,
+        verbose_name='Placeholder for extra info field (leave blank for no '
+        'field)')
 
     def make_choice(self):
         return self.text

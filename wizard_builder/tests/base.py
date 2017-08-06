@@ -84,5 +84,4 @@ class FunctionalTest(StaticLiveServerTestCase):
             classname=self.__class__.__name__,
             method=self._testMethodName,
             windowid=self._windowid,
-            timestamp=timestamp
-        )
+            timestamp=timestamp)

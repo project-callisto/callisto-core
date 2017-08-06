@@ -29,7 +29,8 @@ class AdminFunctionalTest(FunctionalTest):
         self.browser.find_element_by_id('id_username').send_keys('user')
         self.browser.find_element_by_id('id_password').clear()
         self.browser.find_element_by_id('id_password').send_keys('pass')
-        self.browser.find_element_by_css_selector('input[type="submit"]').click()
+        self.browser.find_element_by_css_selector(
+            'input[type="submit"]').click()
 
     def test_can_load_admin_with_wizard_builder_on_it(self):
         self.assertIn('Django administration', self.browser.page_source)
@@ -49,4 +50,6 @@ class AdminFunctionalTest(FunctionalTest):
             Date,
         ]
         for Model in wizard_builder_models:
-            self.assertIn(Model._meta.verbose_name.lower(), self.browser.page_source.lower())
+            self.assertIn(
+                Model._meta.verbose_name.lower(),
+                self.browser.page_source.lower())

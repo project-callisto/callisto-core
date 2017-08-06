@@ -72,7 +72,8 @@ class SiteRequestTest(TestCase):
         self.site.save()
         self.page = Page.objects.create()
         self.page.sites.add(self.site.id)
-        self.question = SingleLineText.objects.create(text="first question", page=self.page)
+        self.question = SingleLineText.objects.create(
+            text="first question", page=self.page)
 
     @patch('wizard_builder.managers.PageManager.on_site')
     def test_site_passed_to_question_page_manager(self, mock_on_site):

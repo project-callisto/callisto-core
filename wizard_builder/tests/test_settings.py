@@ -4,7 +4,8 @@ from django.utils.crypto import get_random_string
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-SECRET_KEY = os.getenv("SECRET_KEY", default=get_random_string(50, "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"))
+SECRET_KEY = os.getenv("SECRET_KEY", default=get_random_string(
+    50, "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"))
 
 DEBUG = True
 
@@ -103,12 +104,12 @@ LOGGING = {
             'propagate': False,
             'level': os.getenv('LOG_LEVEL', default='INFO'),
         },
-        'django.db.backends':{
+        'django.db.backends': {
             'handlers': ['console'],
             'propagate': False,
             'level': os.getenv('LOG_LEVEL', default='INFO'),
         },
-        'selenium':{
+        'selenium': {
             'handlers': ['console'],
             'propagate': False,
             'level': os.getenv('LOG_LEVEL', default='WARNING'),

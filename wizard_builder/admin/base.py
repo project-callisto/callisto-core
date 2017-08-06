@@ -58,8 +58,8 @@ class QuestionInline(admin.TabularInline):
         if not self.id_cache:
             self.id_cache = obj.pk
         if self.id_cache:
-            url = '<a href="%s" target="_blank">%s</a>' % (reverse_lazy("admin:wizard_builder_formquestion_change",
-                                                                        args=(self.id_cache,)), obj.text)
+            url = '<a href="%s" target="_blank">%s</a>' % (reverse_lazy(
+                "admin:wizard_builder_formquestion_change", args=(self.id_cache,)), obj.text)
             self.id_cache = None
             return url
 
