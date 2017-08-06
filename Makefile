@@ -72,7 +72,7 @@ app-setup: ## setup the test application environment
 	python manage.py loaddata $(DATA_FILE)
 
 shell:
-	DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.ops_settings' python manage.py shell_plus
+	DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.dev_settings' python manage.py shell_plus
 
 fixture:
 	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
