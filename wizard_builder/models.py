@@ -174,25 +174,6 @@ class SingleLineText(FormQuestion):
                 'type': 'SingleLineText', 'section': self.section}
 
 
-class MultiLineText(FormQuestion):
-
-    def make_field(self):
-        return forms.CharField(
-            label=self.get_label(),
-            required=False,
-            widget=forms.Textarea(
-                attrs={
-                    'class': "form-control",
-                    'max_length': 30000,
-                },
-            ),
-        )
-
-    def serialize_for_report(self, answer="", *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
-                'type': 'MultiLineText', 'section': self.section}
-
-
 class MultipleChoice(FormQuestion):
     cached_choices = None
     objects = FormQuestionManager()

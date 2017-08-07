@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 
 from ..models import (
-    Checkbox, Choice, FormQuestion, MultiLineText, MultipleChoice, Page,
+    Checkbox, Choice, FormQuestion, MultipleChoice, Page,
     RadioButton, SingleLineText,
 )
 from .base import FunctionalTest
@@ -38,7 +38,6 @@ class AdminFunctionalTest(FunctionalTest):
             Page,
             FormQuestion,
             SingleLineText,
-            MultiLineText,
             MultipleChoice,
             Checkbox,
             RadioButton,

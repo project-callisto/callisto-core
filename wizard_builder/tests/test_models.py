@@ -4,7 +4,7 @@ from django import forms
 from django.test import TestCase
 
 from ..models import (
-    Checkbox, Choice, MultiLineText, Page, RadioButton, SingleLineText,
+    Checkbox, Choice, Page, RadioButton, SingleLineText,
 )
 
 
@@ -142,35 +142,6 @@ class SingleLineTextModelTestCase(ItemTestCase):
       "question_text": "This is a question to be answered",
       "type": "SingleLineText"
     }""" % question.pk)
-        self.assertEqual(serialized_q, json_report)
-
-
-class MultiLineTextTestCase(ItemTestCase):
-
-    def test_make_field_is_textarea(self):
-        question = MultiLineText.objects.create(
-            text="This is a big question with css").make_field()
-        self.assertIsInstance(question.widget, forms.Textarea)
-
-    def test_make_field_applies_css(self):
-        question = MultiLineText.objects.create(
-            text="This is a big question with css").make_field()
-        self.assertIn('form-control', question.widget.attrs['class'])
-
-    def test_serializes_correctly(self):
-        self.maxDiff = None
-        question = MultiLineText.objects.create(
-            text="This is a big question to be answered")
-        serialized_q = question.serialize_for_report("""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""")  # noqa
-        json_report = json.loads("""
-        {"id": %i,
-         "answer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\\nquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\\n\\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-         "question_text": "This is a big question to be answered",
-         "section": 1,
-         "type": "MultiLineText"}""" % question.pk)  # noqa
         self.assertEqual(serialized_q, json_report)
 
 
