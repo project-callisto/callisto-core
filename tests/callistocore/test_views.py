@@ -205,13 +205,19 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
         response = self.create_key()
         self.client.post(
             response.redirect_chain[0][0],
-            data={'1-question_%i' % self.question1.pk: 'test answer',
-                  'form_wizard-current_step': 1,
-                  'wizard_goto_step': 2},
-            follow=True)
+            data={
+                '1-question_{}'.format(self.question1.pk): 'test answer',
+                'form_wizard-current_step': 1,
+                'wizard_goto_step': 2,
+            },
+            follow=True,
+        )
         self.client.get("www.google.com")  # TODO: a local page
         self.assertEqual(Report.objects.count(), 1)
-        self.assertIn("test answer", Report.objects.first().decrypted_report(self.report_key))
+        self.assertIn(
+            "test answer",
+            Report.objects.first().decrypted_report(self.report_key),
+        )
 
     def test_auto_save_is_set_correctly(self):
         # record flagged as autosave on an autosaved record
