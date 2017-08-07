@@ -43,7 +43,7 @@
     "fields": {
       "question": 1,
       "text": "choice 1",
-      "position": 0,
+      "position": 0
     }
   },
   {
@@ -52,7 +52,7 @@
     "fields": {
       "question": 1,
       "text": "choice 2",
-      "position": 0,
+      "position": 0
     }
   }
 ]
