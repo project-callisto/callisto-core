@@ -234,10 +234,6 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         for idx, page in enumerate(pages):
             for question in page.questions:
                 items[question.field_id] = question
-                extras = question.get_extras()
-                if extras:
-                    for (extra_id, prompt) in extras:
-                        items[extra_id] = prompt
             if page.multiple:
                 formsets[str(idx)] = page.pk
         # TODO: smell this type
