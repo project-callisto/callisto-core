@@ -2,6 +2,7 @@ from django.test import override_settings
 
 from .base import FunctionalTest
 
+
 @override_settings(DEBUG=True)
 class FrontendTest(FunctionalTest):
 
