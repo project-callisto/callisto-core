@@ -43,6 +43,7 @@ Installation
 
     INSTALLED_APPS = [
       .. ...
+      'django.contrib.sites',
       'tinymce',
       'widget_tweaks',
       'wizard_builder',
