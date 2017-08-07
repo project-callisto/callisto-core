@@ -209,7 +209,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
                   'form_wizard-current_step': 1,
                   'wizard_goto_step': 2},
             follow=True)
-        self.client.get("www.google.com")
+        self.client.get("www.google.com")  # TODO: a local page
         self.assertEqual(Report.objects.count(), 1)
         self.assertIn("test answer", Report.objects.first().decrypted_report(self.report_key))
 
@@ -222,7 +222,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
                   'form_wizard-current_step': 1,
                   'wizard_goto_step': 2},
             follow=True)
-        self.client.get("www.google.com")
+        self.client.get("www.google.com")  # TODO: a local page
         self.assertTrue(Report.objects.first().autosaved)
 
         # record is not flagged as autosave on an explicitly saved record
