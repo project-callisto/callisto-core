@@ -40,17 +40,15 @@ class EncryptedFormBaseWizard(ConfigurableFormWizard):
         form_list.insert(0, cls.get_key_form(record_to_edit))
         return form_list
 
-    @classmethod
-    def calculate_real_page_index(cls, raw_idx, pages, record_to_edit, **kwargs):
-        # add one for key creation/entry page
-        return raw_idx + 1
-
     def wizard_complete(self, report, **kwargs):
         """
-        This method must be overridden by a subclass to redirect wizard after the report has been processed.
+        This method must be overridden by a subclass
+        to redirect wizard after the report has been processed.
         """
-        raise NotImplementedError("Your %s class has not defined a wizard_complete() "
-                                  "method, which is required." % self.__class__.__name__)
+        raise NotImplementedError(
+            "Your %s class has not defined a wizard_complete() "
+            "method, which is required." % self.__class__.__name__
+        )
 
     def _unauthorized_access(self, req, report):
         logger.error("user {} and report {} don't match in wizard.done".format(req.user, report.id))
