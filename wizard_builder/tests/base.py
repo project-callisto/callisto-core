@@ -25,8 +25,8 @@ class Assertions(object):
 
     def assertSelectorContains(self, css, text):
         assertion_valid = False
-        elements = self.browser.find_elements_by_css_selector(css)[0],
-        print(elements)
+        elements = list(self.browser.find_elements_by_css_selector(css)),
+        elements = elements[0]
         element_text = []
         for element in elements:
             element_text.append(element.text)
