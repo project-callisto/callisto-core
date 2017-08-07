@@ -31,6 +31,9 @@ test-lint: ## check style with pep8 and isort
 test-suite: ## run the unit and integration tests
 	pytest -v
 
+test-fast: ## runs the test suite, with fast failures and a re-used database
+	pytest -v -l -s --maxfail=1 --ff --reuse-db
+
 test: ## run the linters and the test suite
 	make test-lint
 	make test-suite
