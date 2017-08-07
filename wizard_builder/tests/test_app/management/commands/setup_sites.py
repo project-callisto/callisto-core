@@ -11,8 +11,8 @@ User = get_user_model()
 class Command(BaseCommand):
 
     def _setup_current_site(self):
-        if getattr(settings, 'HEROKU_APP_NAME', None):
-            current_domain = settings.HEROKU_APP_NAME
+        if getattr(settings, 'HEROKU_REVIEW_APP_DOMAIN', None):
+            current_domain = settings.HEROKU_REVIEW_APP_DOMAIN
         else:
             current_domain = settings.APP_URL
         Site.objects.exclude(id=1).delete()
