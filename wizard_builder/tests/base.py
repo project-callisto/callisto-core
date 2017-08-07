@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import datetime
 from distutils.util import strtobool
+from urllib.parse import urlparse
 
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
