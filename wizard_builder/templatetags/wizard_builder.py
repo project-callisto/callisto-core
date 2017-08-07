@@ -1,8 +1,9 @@
+from widget_tweaks.templatetags.widget_tweaks import append_attr
+
 from django import template
 from django.forms import (
     CheckboxInput, CheckboxSelectMultiple, RadioSelect, Textarea,
 )
-
 
 register = template.Library()
 
@@ -80,5 +81,3 @@ def get_field_type(field):
         return "radio"
     else:
         return ""
-
-

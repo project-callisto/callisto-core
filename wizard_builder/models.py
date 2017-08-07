@@ -274,4 +274,3 @@ class Choice(models.Model):
 
     class Meta:
         ordering = ['position', 'pk']
-
