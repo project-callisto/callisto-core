@@ -23,6 +23,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         port = urlparse(self.live_server_url).port
         Site.objects.get_or_create(domain='localhost')
         Site.objects.get_or_create(domain='localhost:{}'.format(port))
+        self.browser.get(self.live_server_url)
+        self.wait_for_until_body_loaded()
 
     @classmethod
     def setUpClass(cls):

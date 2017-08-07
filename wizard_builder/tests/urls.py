@@ -11,6 +11,7 @@ urlpatterns = [
         ),
     url(r'^wizard/new/$',
         RedirectView.as_view(url=reverse_lazy('test_wizard'), permanent=True),
+        name='test_wizard',
         ),
     url(r'^wizard/new/(?P<step>.+)/$',
         new_test_wizard_view,
