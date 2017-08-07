@@ -230,7 +230,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         form_list = cls.generate_form_list(pages, object_to_edit, **kwargs)
         formsets = {}
         items = {}
-        # TODO: smell the positioning of this for loop
+        # TODO: make this for loop a manager method
         for idx, page in enumerate(pages):
             for question in page.questions:
                 items[question.field_id] = question
