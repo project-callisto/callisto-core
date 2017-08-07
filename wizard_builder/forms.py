@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.forms.formsets import formset_factory
 from django.utils.safestring import mark_safe
 
-from .models import Date, MultipleChoice, Page
+from .models import MultipleChoice, Page
 
 # rearranged from django-formtools
 
@@ -21,7 +21,6 @@ class PageForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.has_tooltip = False
         extra_fields = {}
-        date_fields = []
         for item in self.items:
             question_id = 'question_%s' % item.pk
             self.fields[question_id] = item.make_field()
@@ -45,12 +44,8 @@ class PageForm(forms.Form):
                         extra_checked = "%s_%s" % (radio_button_name, idx)
                         extra_dict['extra_checked'] = extra_checked
                         extra_fields["id_%s" % extra_checked] = extra_dict
-            if isinstance(item, Date):
-                date_fields.append('id_%s-%s' % (self.prefix, question_id))
         if len(extra_fields) > 0:
             self.extra_fields = extra_fields
-        if len(date_fields) > 0:
-            self.date_fields = date_fields
 
 
 def get_form_pages(pages):
