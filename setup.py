@@ -11,7 +11,7 @@ setup(
     name='django-wizard-builder',
     version=version,
     description='Create multi-page forms from the Django admin',
-    long_description=pypandoc.convert_file('README.md', 'rst'),
+    long_description=readme + '\n\n' + history,
     author='Sexual Health Innovations',
     author_email='tech@sexualhealthinnovations.org',
     url='https://github.com/SexualHealthInnovations/django-wizard-builder',
