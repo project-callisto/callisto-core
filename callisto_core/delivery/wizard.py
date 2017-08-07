@@ -1,7 +1,6 @@
 import json
 import logging
 
-from wizard_builder.forms import get_form_pages
 from wizard_builder.views import ConfigurableFormWizard
 
 from django.conf import settings
