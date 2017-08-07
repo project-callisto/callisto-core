@@ -1,21 +1,21 @@
 {% load i18n %}
 <form method="post" enctype="multipart/form-data">
-{% csrf_token %}
-{{ wizard.form.media }}
-<input type="hidden" name="current_step" value="{{ wizard.current_step }}"/>
-
-{% if wizard.form.forms %}
+    {% csrf_token %}
+    {{ wizard.form.media }}
     <input type="hidden" name="current_step" value="{{ wizard.current_step }}"/>
-    {% for form in wizard.form.forms %}
-        {{ form.as_p }}
-    {% endfor %}
-{% else %}
-    {{ wizard.form.as_p }}
-{% endif %}
 
-{% if wizard.steps.prev %}
-<button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
-<button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
-{% endif %}
-<input type="submit" name="submit" value="{% trans "submit" %}" />
+    {% if wizard.form.forms %}
+        <input type="hidden" name="current_step" value="{{ wizard.current_step }}"/>
+        {% for form in wizard.form.forms %}
+            {{ form.as_p }}
+        {% endfor %}
+    {% else %}
+        {{ wizard.form.as_p }}
+    {% endif %}
+
+    {% if wizard.steps.prev %}
+        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
+        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+    {% endif %}
+    <input type="submit" name="submit" value="{% trans "submit" %}" />
 </form>

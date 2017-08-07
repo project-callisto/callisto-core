@@ -16,16 +16,23 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='conditional',
             name='page',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, to='wizard_builder.PageBase'),
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.PROTECT,
+                to='wizard_builder.PageBase'),
         ),
         migrations.AlterField(
             model_name='conditional',
             name='question',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='wizard_builder.FormQuestion'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                to='wizard_builder.FormQuestion'),
         ),
         migrations.AlterField(
             model_name='formquestion',
             name='page',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='wizard_builder.QuestionPage'),
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to='wizard_builder.QuestionPage'),
         ),
     ]

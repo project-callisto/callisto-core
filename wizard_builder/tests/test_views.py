@@ -32,13 +32,21 @@ class FormBaseTest(TestCase):
         self.page1.sites.add(self.site.id)
         self.page2 = Page.objects.create()
         self.page2.sites.add(self.site.id)
-        self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
-        self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
+        self.question1 = SingleLineText.objects.create(
+            text="first question", page=self.page1)
+        self.question2 = SingleLineText.objects.create(
+            text="2nd question", page=self.page2)
 
     def _get_wizard_response(self, wizard, form_list, **kwargs):
         # simulate what wizard does on final form submit
-        wizard.processed_answers = wizard.process_answers(form_list=form_list, form_dict=dict(enumerate(form_list)))
-        return get_body(wizard.done(form_list=form_list, form_dict=dict(enumerate(form_list)), **kwargs))
+        wizard.processed_answers = wizard.process_answers(
+            form_list=form_list, form_dict=dict(enumerate(form_list)))
+        return get_body(
+            wizard.done(
+                form_list=form_list,
+                form_dict=dict(
+                    enumerate(form_list)),
+                **kwargs))
 
 
 class WizardIntegratedTest(FormBaseTest):
@@ -66,25 +74,37 @@ class WizardIntegratedTest(FormBaseTest):
     def _answer_page_two(self, response):
         return self.client.post(
             response.redirect_chain[0][0],
-            data={'1-question_%i' % self.question2.pk: 'another answer to a different question',
-                  'wizard_goto_step': 2,
-                  'form_wizard-current_step': 1},
+            data={
+                '1-question_%i' %
+                self.question2.pk: 'another answer to a different question',
+                'wizard_goto_step': 2,
+                'form_wizard-current_step': 1},
             follow=True)
 
     def test_wizard_generates_correct_number_of_pages(self):
         page3 = Page.objects.create()
         page3.sites.add(self.site.id)
         SingleLineText.objects.create(text="first page question", page=page3)
-        SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
-        SingleLineText.objects.create(text="another first page question", page=page3, position=1)
+        SingleLineText.objects.create(
+            text="one more first page question",
+            page=page3,
+            position=2)
+        SingleLineText.objects.create(
+            text="another first page question", page=page3, position=1)
         wizard = ConfigurableFormWizard.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 3)
 
     def test_displays_first_page(self):
         response = self.client.get(self.form_url)
         self.assertIsInstance(response.context['form'], PageForm)
-        self.assertContains(response, 'name="0-question_%i"' % self.question1.pk)
-        self.assertNotContains(response, 'name="0-question_%i"' % self.question2.pk)
+        self.assertContains(
+            response,
+            'name="0-question_%i"' %
+            self.question1.pk)
+        self.assertNotContains(
+            response,
+            'name="0-question_%i"' %
+            self.question2.pk)
 
     def test_form_advances_to_second_page(self):
         response = self.client.post(
@@ -94,12 +114,20 @@ class WizardIntegratedTest(FormBaseTest):
                   'form_wizard-current_step': 0},
             follow=True)
 
-        self.assertTrue(response.redirect_chain[0][0].endswith("/wizard/new/1/"))
-        self.assertContains(response, 'name="1-question_%i"' % self.question2.pk)
-        self.assertNotContains(response, 'name="1-question_%i"' % self.question1.pk)
+        self.assertTrue(
+            response.redirect_chain[0][0].endswith("/wizard/new/1/"))
+        self.assertContains(
+            response,
+            'name="1-question_%i"' %
+            self.question2.pk)
+        self.assertNotContains(
+            response,
+            'name="1-question_%i"' %
+            self.question1.pk)
 
     def test_can_alter_form_without_restarting_server(self):
-        new_question = SingleLineText.objects.create(text="another first page question", page=self.page1)
+        new_question = SingleLineText.objects.create(
+            text="another first page question", page=self.page1)
         response = self.client.get(self.form_url)
         self.assertContains(response, 'name="0-question_%i"' % new_question.pk)
 
@@ -107,17 +135,23 @@ class WizardIntegratedTest(FormBaseTest):
     def test_done_serializes_questions(self):
         self.maxDiff = None
 
-        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=self.page2)
+        radio_button_q = RadioButton.objects.create(
+            text="this is a radio button question", page=self.page2)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
+            Choice.objects.create(
+                text="This is choice %i" %
+                i, question=radio_button_q)
 
         response = self._answer_page_one()
         response = self.client.post(
             response.redirect_chain[0][0],
-            data={'1-question_%i' % self.question2.pk: 'another answer to a different question',
-                  '1-question_%i' % radio_button_q.pk: radio_button_q.choice_set.all()[2].pk,
-                  'wizard_goto_step': 2,
-                  'form_wizard-current_step': 1},
+            data={
+                '1-question_%i' %
+                self.question2.pk: 'another answer to a different question',
+                '1-question_%i' %
+                radio_button_q.pk: radio_button_q.choice_set.all()[2].pk,
+                'wizard_goto_step': 2,
+                'form_wizard-current_step': 1},
             follow=True)
 
         object_ids = [choice.pk for choice in radio_button_q.choice_set.all()]
@@ -157,34 +191,46 @@ class WizardIntegratedTest(FormBaseTest):
 
     @skip('TODO: evaluate if this is a valid test')
     def test_form_saves_date(self):
-        date_q = Date.objects.create(text="When did it happen?", page=self.page2)
+        date_q = Date.objects.create(
+            text="When did it happen?", page=self.page2)
 
         response = self._answer_page_one()
         response = self.client.post(
             response.redirect_chain[0][0],
-            data={'1-question_%i' % self.question2.pk: 'another answer to a different question',
-                  '1-question_%i' % date_q.pk: '7/4/15',
-                  'wizard_goto_step': 2,
-                  'form_wizard-current_step': 1},
+            data={
+                '1-question_%i' %
+                self.question2.pk: 'another answer to a different question',
+                '1-question_%i' %
+                date_q.pk: '7/4/15',
+                'wizard_goto_step': 2,
+                'form_wizard-current_step': 1},
             follow=True)
         output = get_body(response)
         self.assertIn('7/4/15', output)
 
     @skip('TODO: evaluate if this is a valid test')
     def test_form_saves_checkboxes(self):
-        checkbox_q = Checkbox.objects.create(text="this is a checkbox question", page=self.page2)
+        checkbox_q = Checkbox.objects.create(
+            text="this is a checkbox question", page=self.page2)
         for i in range(5):
-            Choice.objects.create(text="This is checkbox choice %i" % i, question=checkbox_q)
+            Choice.objects.create(
+                text="This is checkbox choice %i" %
+                i, question=checkbox_q)
         selected_1 = checkbox_q.choice_set.all()[0].pk
         selected_2 = checkbox_q.choice_set.all()[4].pk
 
         response = self._answer_page_one()
         response = self.client.post(
             response.redirect_chain[0][0],
-            data={'1-question_%i' % self.question2.pk: 'another answer to a different question',
-                  '1-question_%i' % checkbox_q.pk: [str(selected_1), str(selected_2)],
-                  'wizard_goto_step': 2,
-                  'form_wizard-current_step': 1},
+            data={
+                '1-question_%i' %
+                self.question2.pk: 'another answer to a different question',
+                '1-question_%i' %
+                checkbox_q.pk: [
+                    str(selected_1),
+                    str(selected_2)],
+                'wizard_goto_step': 2,
+                'form_wizard-current_step': 1},
             follow=True)
         output = get_body(response)
         self.assertIn("checkbox choice", output)
@@ -197,8 +243,10 @@ class WizardIntegratedTest(FormBaseTest):
             name_for_multiple="form",
         )
         multiple_page.sites.add(self.site.id)
-        q1 = SingleLineText.objects.create(text="question 1", page=multiple_page)
-        q2 = SingleLineText.objects.create(text="question 2", page=multiple_page)
+        q1 = SingleLineText.objects.create(
+            text="question 1", page=multiple_page)
+        q2 = SingleLineText.objects.create(
+            text="question 2", page=multiple_page)
 
         response = self._answer_page_one()
         response = self._answer_page_two(response)
@@ -216,7 +264,8 @@ class WizardIntegratedTest(FormBaseTest):
 
         output = json.loads(get_body(response))
         self.assertEqual(multiple_page.pk, output[2]['page_id'])
-        answers = [sort_json(json.dumps(answer)) for answer in output[2]['answers']]
+        answers = [sort_json(json.dumps(answer))
+                   for answer in output[2]['answers']]
         self.assertEquals("question 1 first answer", answers[0][0]['answer'])
         self.assertEquals("question 2 first answer", answers[0][1]['answer'])
         self.assertEquals("question 1 second answer", answers[1][0]['answer'])
@@ -228,41 +277,58 @@ class WizardIntegratedTest(FormBaseTest):
         self.page2.delete()
         page3 = Page.objects.create()
         page3.sites.add(self.site.id)
-        question1 = RadioButton.objects.create(text="this is a radio button question", page=page3)
+        question1 = RadioButton.objects.create(
+            text="this is a radio button question", page=page3)
         for i in range(5):
-            choice = Choice.objects.create(text="This is choice %i" % i, question=question1)
+            choice = Choice.objects.create(
+                text="This is choice %i" %
+                i, question=question1)
             if i == 0:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
-        question2 = RadioButton.objects.create(text="this is another radio button question", page=page3)
+        question2 = RadioButton.objects.create(
+            text="this is another radio button question", page=page3)
         for i in range(5):
-            choice = Choice.objects.create(text="This is choice %i" % i, question=question2)
+            choice = Choice.objects.create(
+                text="This is choice %i" %
+                i, question=question2)
             if i % 2 == 1:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
-        question3 = RadioButton.objects.create(text="this is a radio button question too", page=page3)
+        question3 = RadioButton.objects.create(
+            text="this is a radio button question too", page=page3)
         for i in range(5):
-            choice = Choice.objects.create(text="This is choice %i" % i, question=question3)
+            choice = Choice.objects.create(
+                text="This is choice %i" %
+                i, question=question3)
             if i == 0:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
 
         response = self.client.post(
             self.form_url,
-            data={'0-question_%i' % question1.pk: question1.choice_set.all()[1].pk,
-                  '0-question_%i_extra-%i' % (question1.pk, question1.choice_set.all()[0].pk):
-                      "this shouldn't be in the report",
-                  '0-question_%i' % question2.pk: question2.choice_set.all()[3].pk,
-                  '0-question_%i_extra-%i' % (question2.pk, question2.choice_set.all()[1].pk):
-                      "this shouldn't be in the report either",
-                  '0-question_%i_extra-%i' % (question2.pk, question2.choice_set.all()[3].pk):
-                      "this should be in the report",
-                  '0-question_%i' % question3.pk: question3.choice_set.all()[0].pk,
-                  'wizard_goto_step': 1,
-                  'form_wizard-current_step': 0},
+            data={
+                '0-question_%i' %
+                question1.pk: question1.choice_set.all()[1].pk,
+                '0-question_%i_extra-%i' %
+                (question1.pk,
+                 question1.choice_set.all()[0].pk): "this shouldn't be in the report",
+                '0-question_%i' %
+                question2.pk: question2.choice_set.all()[3].pk,
+                '0-question_%i_extra-%i' %
+                (question2.pk,
+                 question2.choice_set.all()[1].pk): "this shouldn't be in the report either",
+                '0-question_%i_extra-%i' %
+                (question2.pk,
+                 question2.choice_set.all()[3].pk): "this should be in the report",
+                '0-question_%i' %
+                question3.pk: question3.choice_set.all()[0].pk,
+                'wizard_goto_step': 1,
+                'form_wizard-current_step': 0},
             follow=True)
 
-        first_q_object_ids = [q_choice.pk for q_choice in question1.choice_set.all()]
+        first_q_object_ids = [
+            q_choice.pk for q_choice in question1.choice_set.all()]
         selected_id = first_q_object_ids[1]
         first_q_object_ids.insert(0, question1.pk)
         first_q_object_ids.insert(0, selected_id)
@@ -279,7 +345,8 @@ class WizardIntegratedTest(FormBaseTest):
           "section": 1
          }""" % tuple(first_q_object_ids)
 
-        second_q_object_ids = [q_choice.pk for q_choice in question2.choice_set.all()]
+        second_q_object_ids = [
+            q_choice.pk for q_choice in question2.choice_set.all()]
         selected_id = second_q_object_ids[3]
         second_q_object_ids.insert(0, question2.pk)
         second_q_object_ids.insert(0, selected_id)
@@ -300,7 +367,8 @@ class WizardIntegratedTest(FormBaseTest):
                     }
          }""" % tuple(second_q_object_ids)
 
-        third_q_object_ids = [q_choice.pk for q_choice in question3.choice_set.all()]
+        third_q_object_ids = [
+            q_choice.pk for q_choice in question3.choice_set.all()]
         selected_id = third_q_object_ids[0]
         third_q_object_ids.insert(0, question3.pk)
         third_q_object_ids.insert(0, selected_id)
@@ -321,7 +389,11 @@ class WizardIntegratedTest(FormBaseTest):
                     }
          }""" % tuple(third_q_object_ids)
 
-        desired_output = ("[%s, %s, %s]" % (first_q_output, second_q_output, third_q_output))
+        desired_output = (
+            "[%s, %s, %s]" %
+            (first_q_output,
+             second_q_output,
+             third_q_output))
         output = get_body(response)
         self.assertEqual(sort_json(desired_output), sort_json(output))
 
@@ -361,8 +433,14 @@ class EditRecordFormTest(FormBaseTest):
         response = self.client.get(self.form_url % self.report.pk, follow=True)
         self.assertTemplateUsed(response, 'wizard_builder/wizard_form.html')
         self.assertIsInstance(response.context['form'], PageForm)
-        self.assertContains(response, 'name="0-question_%i"' % self.question1.pk)
-        self.assertNotContains(response, 'name="0-question_%i"' % self.question2.pk)
+        self.assertContains(
+            response,
+            'name="0-question_%i"' %
+            self.question1.pk)
+        self.assertNotContains(
+            response,
+            'name="0-question_%i"' %
+            self.question2.pk)
 
     def test_edit_form_advances_to_second_page(self):
         response = self.client.post(
@@ -374,16 +452,26 @@ class EditRecordFormTest(FormBaseTest):
         )
         self.assertTemplateUsed(response, 'wizard_builder/wizard_form.html')
         self.assertIsInstance(response.context['form'], PageForm)
-        self.assertContains(response, 'name="1-question_%i"' % self.question2.pk)
-        self.assertNotContains(response, 'name="1-question_%i"' % self.question1.pk)
+        self.assertContains(
+            response,
+            'name="1-question_%i"' %
+            self.question2.pk)
+        self.assertNotContains(
+            response,
+            'name="1-question_%i"' %
+            self.question1.pk)
 
     def test_initial_is_passed_to_forms(self):
         response = self.client.get(self.form_url % self.report.pk, follow=True)
         form = response.context['form']
         self.assertIn('test answer', form.initial.values())
-        self.assertIn('another answer to a different question', form.initial.values())
+        self.assertIn(
+            'another answer to a different question',
+            form.initial.values())
         self.assertIn('test answer', get_body(response))
-        self.assertNotIn('another answer to a different question', get_body(response))
+        self.assertNotIn(
+            'another answer to a different question',
+            get_body(response))
         response = self.client.post(
             self.form_url % self.report.pk,
             data={'0-question_1': "first answer",
@@ -392,7 +480,9 @@ class EditRecordFormTest(FormBaseTest):
             follow=True
         )
         self.assertNotIn('test answer', get_body(response))
-        self.assertIn('another answer to a different question', get_body(response))
+        self.assertIn(
+            'another answer to a different question',
+            get_body(response))
 
     @skip('TODO: evaluate if this is a valid test')
     def test_edit_modifies_record(self):

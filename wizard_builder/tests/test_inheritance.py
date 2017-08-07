@@ -25,6 +25,7 @@ class InheritanceTest(TestCase):
 class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
+        Page.objects.using('test_app').delete()
         Page.objects.using('test_app').get_or_create(
             infobox='dumpdata hack question',
         )

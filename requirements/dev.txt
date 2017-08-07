@@ -4,5 +4,9 @@ wheel==0.29.0
 # Coding style compliance
 autopep8==1.3.2
 
+# dev tools
+django-extensions
+ptipython
+
 -r test.txt
 -r heroku.txt

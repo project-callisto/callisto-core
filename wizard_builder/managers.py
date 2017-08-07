@@ -13,7 +13,8 @@ from django.db.models.query import QuerySet
 # Portions of the below implementation are copyright django-polymorphic [Authors] contributors,
 # and are under the BSD-3 Clause [License]
 # Authors: https://github.com/django-polymorphic/django-polymorphic/blob/master/AUTHORS.rst
-# License: https://github.com/django-polymorphic/django-polymorphic/blob/master/LICENSE
+# License:
+# https://github.com/django-polymorphic/django-polymorphic/blob/master/LICENSE
 
 
 class PageQuerySet(QuerySet):

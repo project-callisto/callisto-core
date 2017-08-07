@@ -10,6 +10,7 @@ except:
 webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
 endef
 export BROWSER_PYSCRIPT
+DATA_FILE = 'wizard_builder/tests/test_app/fixtures/data.json'
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 VERSION := $(shell cat wizard_builder/version.txt)
 
@@ -33,12 +34,12 @@ clean-pyc: ## remove Python file artifacts
 
 clean-lint: ## run the cleanup functions for the linters
 	isort -rc wizard_builder/
-	autopep8 --in-place --recursive --aggressive --aggressive wizard_builder/ --max-line-length 119 --exclude="*/migrations/*, */tests/*"
+	autopep8 --in-place --recursive --aggressive --aggressive wizard_builder/
 	make test-lint
 
 test-lint: ## lint with isort and flake8
 	isort --check-only --diff --quiet -rc wizard_builder/
-	flake8 wizard_builder/ --exclude="*/migrations/*, */tests/*"
+	flake8 wizard_builder/
 
 test-suite: ## run the unit and intregration tests
 	pytest -v
@@ -64,6 +65,15 @@ sdist: clean ## package
 	python setup.py sdist
 	ls -l dist
 
-django-release: ## heroku build release command
+app-setup: ## setup the test application environment
 	python manage.py migrate --noinput --database default
 	python manage.py create_admins
+	python manage.py setup_sites
+	python manage.py loaddata $(DATA_FILE)
+
+shell:
+	DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.dev_settings' python manage.py shell_plus
+
+fixture:
+	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
+	npx json -f $(DATA_FILE) -I

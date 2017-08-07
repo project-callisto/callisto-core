@@ -43,13 +43,15 @@ class ModifiedSessionWizardView(NamedUrlWizardView):
                 self.process_step_files(form),
             )
 
-            # this check was moved from beginning of the method (modification from original)
+            # this check was moved from beginning of the method (modification
+            # from original)
             wizard_goto_step = self.request.POST.get('wizard_goto_step', None)
             if wizard_goto_step and wizard_goto_step in self.get_form_list():
                 return self.render_goto_step(wizard_goto_step)
 
             # check if the current step is the last step
-            # render done if "skip to end" has been sent (modification from original)
+            # render done if "skip to end" has been sent (modification from
+            # original)
             if self.steps.current == self.steps.last or wizard_goto_step == "end":
                 # no more steps, render done view
                 return self.render_done(form, **kwargs)
@@ -71,9 +73,10 @@ class ModifiedSessionWizardView(NamedUrlWizardView):
         final_forms = OrderedDict()
         # walk through the form list and try to validate the data again.
         for form_key in self.get_form_list():
-            form_obj = self.get_form(step=form_key,
-                                     data=self.storage.get_step_data(form_key),
-                                     files=self.storage.get_step_files(form_key))
+            form_obj = self.get_form(
+                step=form_key,
+                data=self.storage.get_step_data(form_key),
+                files=self.storage.get_step_files(form_key))
             # don't reject form if it's not bound (modification from original)
             if form_obj.is_bound and not form_obj.is_valid():
                 return self.render_revalidation_failure(form_key,
@@ -90,7 +93,10 @@ class ModifiedSessionWizardView(NamedUrlWizardView):
         # render the done view and reset the wizard before returning the
         # response. This is needed to prevent from rendering done with the
         # same data twice.
-        done_response = self.done(final_forms.values(), form_dict=final_forms, **kwargs)
+        done_response = self.done(
+            final_forms.values(),
+            form_dict=final_forms,
+            **kwargs)
         self.storage.reset()
         return done_response
 
@@ -108,11 +114,13 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     def process_answers(self, form_list, form_dict):
         # TODO: smell this function
         def process_form(cleaned_data, output_location):
-            # order by position on page (python & json lists both preserve order)
+            # order by position on page (python & json lists both preserve
+            # order)
             questions = []
             for field_name, answer in cleaned_data.items():
                 if "extra" not in field_name:
-                    questions.append((field_name, answer, self.items[field_name]))
+                    questions.append(
+                        (field_name, answer, self.items[field_name]))
             questions.sort(key=lambda x: x[2].position)
             for field_name, answer, question in questions:
                 extra_key = "%s_extra-%s" % (field_name, answer)
@@ -124,7 +132,9 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                         'extra_text': extra_prompt,
                     }
 
-                output_location.append(question.serialize_for_report(answer, extra_context))
+                output_location.append(
+                    question.serialize_for_report(
+                        answer, extra_context))
 
         answered_questions = []
         for idx, form in form_dict.items():
@@ -134,7 +144,8 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 # process unbound form with initial data
                 except BaseException:
                     initial_data = self.get_form_initial(str(idx))
-                    clean_data = dict([(field, initial_data.get(field, '')) for field in form.fields.keys()])
+                    clean_data = dict([(field, initial_data.get(field, ''))
+                                       for field in form.fields.keys()])
                 process_form(clean_data, answered_questions)
             elif isinstance(form, BaseFormSet):
                 try:
@@ -179,16 +190,19 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 if extra:
                     extra_answer = extra.get('answer')
                     if extra_answer:
-                        answers['question_%i_extra-%s' % (question_id, answer)] = extra_answer
+                        answers['question_%i_extra-%s' %
+                                (question_id, answer)] = extra_answer
         return answers
 
     def _process_formset_answers_for_edit(self, json_questions, page_id):
         answers = []
         # TODO: smell this next
-        formset = next((i for i in json_questions if i.get('page_id') == page_id), None)
+        formset = next(
+            (i for i in json_questions if i.get('page_id') == page_id), None)
         if formset:
             for form in formset.get('answers'):
-                answers.append(self._process_non_formset_answers_for_edit(form))
+                answers.append(
+                    self._process_non_formset_answers_for_edit(form))
         return answers
 
     def get_form_initial(self, step):
@@ -197,10 +211,12 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             # process formset answers
             # TODO: smell this issubclass
             if issubclass(form, PageForm):
-                return self._process_non_formset_answers_for_edit(self.form_to_edit)
+                return self._process_non_formset_answers_for_edit(
+                    self.form_to_edit)
             elif issubclass(self.form_list[step], BaseFormSet):
                 page_id = self.formsets.get(step)
-                return self._process_formset_answers_for_edit(self.form_to_edit, page_id)
+                return self._process_formset_answers_for_edit(
+                    self.form_to_edit, page_id)
         else:
             return self.initial_dict.get(step, {})
 
@@ -210,7 +226,12 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
 
     # allows you to append pages to the form like a password field
     @classmethod
-    def calculate_real_page_index(cls, raw_idx, pages, object_to_edit, **kwargs):
+    def calculate_real_page_index(
+            cls,
+            raw_idx,
+            pages,
+            object_to_edit,
+            **kwargs):
         return raw_idx
 
     @classmethod
