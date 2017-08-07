@@ -1,4 +1,5 @@
 {% load i18n %}
+
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ wizard.form.media }}
@@ -7,10 +8,10 @@
     {% if wizard.form.forms %}
         <input type="hidden" name="current_step" value="{{ wizard.current_step }}"/>
         {% for form in wizard.form.forms %}
-            {{ form.as_p }}
+            {% include "wizard_builder/wizard_fields.html" %}
         {% endfor %}
     {% else %}
-        {{ wizard.form.as_p }}
+        {% include "wizard_builder/wizard_fields.html" %}
     {% endif %}
 
     {% if wizard.steps.prev %}

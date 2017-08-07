@@ -1,6 +1,16 @@
 History
 -------
 
+0.3.2 (2017-08-07)
+++++++++++++++++++
+
+* add wizard form templates
+* remove SingleLineTextWithMap, MultiLineText, Date
+* add Choice conditionals
+* add django-widget-tweaks dependency
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/112
+
 0.3.1 (2017-08-04)
 ++++++++++++++++++
 
@@ -9,11 +19,10 @@ History
 0.3.0 (2017-08-03)
 ++++++++++++++++++
 
-* remove models.PageBase
-* remove models.TextPage
+* remove models.PageBase, TextPage, Conditional
 * rename models.QuestionPage to models.Page
-* remove models.Conditional
 * remove formtools dependency
+* add django-tinymce4-lite dependency
 
     https://github.com/SexualHealthInnovations/django-wizard-builder/pull/95
 

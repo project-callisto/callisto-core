@@ -34,9 +34,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tinymce',
     "wizard_builder",
     "wizard_builder.tests.test_app",
-    'tinymce',
 ]
 
 MIDDLEWARE_CLASSES = [

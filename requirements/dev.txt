@@ -1,4 +1,5 @@
 # pypi deploy
+pypandoc
 wheel==0.29.0
 
 # Coding style compliance

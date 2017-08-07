@@ -36,12 +36,25 @@ django-wizard-builder
 | |climate|    | |python36| |django111|   |
 +--------------+--------------------------+
 
+Installation
+-------------
+
+:: python
+
+    INSTALLED_APPS = [
+      .. ...
+      'tinymce',
+      'widget_tweaks',
+      'wizard_builder',
+      .. ...
+    ]
+
 Developement
 -------------
 
 setup
 
-::
+:: bash
 
     $ source $VENV/bin/activate
     $ pip install -r requirements/dev.txt
@@ -49,7 +62,7 @@ setup
 
 cleanup / linting / tests
 
-::
+:: bash
 
     $ make clean-lint
     $ make test
