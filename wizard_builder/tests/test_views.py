@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from django.test import TestCase
 
 from ..forms import PageForm
-from ..models import Checkbox, Choice, Date, Page, RadioButton, SingleLineText
+from ..models import Checkbox, Choice, Page, RadioButton, SingleLineText
 from ..views import ConfigurableFormWizard
 from .test_app.models import Report
 
@@ -188,25 +188,6 @@ class WizardIntegratedTest(FormBaseTest):
   ]""" % tuple(object_ids)
 
         self.assertEqual(sort_json(get_body(response)), sort_json(json_report))
-
-    @skip('TODO: evaluate if this is a valid test')
-    def test_form_saves_date(self):
-        date_q = Date.objects.create(
-            text="When did it happen?", page=self.page2)
-
-        response = self._answer_page_one()
-        response = self.client.post(
-            response.redirect_chain[0][0],
-            data={
-                '1-question_%i' %
-                self.question2.pk: 'another answer to a different question',
-                '1-question_%i' %
-                date_q.pk: '7/4/15',
-                'wizard_goto_step': 2,
-                'form_wizard-current_step': 1},
-            follow=True)
-        output = get_body(response)
-        self.assertIn('7/4/15', output)
 
     @skip('TODO: evaluate if this is a valid test')
     def test_form_saves_checkboxes(self):

@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 
 from ..models import (
-    Checkbox, Choice, Date, FormQuestion, MultiLineText, MultipleChoice, Page,
-    RadioButton, SingleLineText, SingleLineTextWithMap,
+    Checkbox, Choice, FormQuestion, MultiLineText, MultipleChoice, Page,
+    RadioButton, SingleLineText,
 )
 from .base import FunctionalTest
 
@@ -38,13 +38,11 @@ class AdminFunctionalTest(FunctionalTest):
             Page,
             FormQuestion,
             SingleLineText,
-            SingleLineTextWithMap,
             MultiLineText,
             MultipleChoice,
             Checkbox,
             RadioButton,
             Choice,
-            Date,
         ]
         for Model in wizard_builder_models:
             self.assertIn(

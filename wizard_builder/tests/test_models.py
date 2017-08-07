@@ -4,7 +4,7 @@ from django import forms
 from django.test import TestCase
 
 from ..models import (
-    Checkbox, Choice, Date, MultiLineText, Page, RadioButton, SingleLineText,
+    Checkbox, Choice, MultiLineText, Page, RadioButton, SingleLineText,
 )
 
 
@@ -282,26 +282,6 @@ class CheckboxTestCase(ItemTestCase):
                   {"id": %i, "choice_text": "This is choice 4"}],
       "type": "Checkbox"
     }""" % tuple(object_ids))
-        self.assertEqual(serialized_q, json_report)
-
-
-class DateTestCase(ItemTestCase):
-
-    def test_make_field_is_text_input(self):
-        question = Date.objects.create(text="When did it happen?").make_field()
-        self.assertIsInstance(question.widget, forms.TextInput)
-
-    def test_serializes_correctly(self):
-        self.maxDiff = None
-        question = Date.objects.create(text="When did it happen?")
-        serialized_q = question.serialize_for_report('08/05/2015')
-        json_report = json.loads("""
-    {  "id": %i,
-        "answer": "08/05/2015",
-        "question_text": "When did it happen?",
-        "section": 1,
-      "type": "Date"
-    }""" % question.pk)
         self.assertEqual(serialized_q, json_report)
 
 
