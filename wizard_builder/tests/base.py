@@ -68,6 +68,20 @@ class FunctionalTest(StaticLiveServerTestCase):
             self.browser.find_elements_by_css_selector(css),
         )
 
+    def assertSelectorContains(self, css, text):
+        assertion_valid = False
+        elements = self.browser.find_elements_by_css_selector(css),
+        element_text = []
+        for element in elements:
+            element = element[0]
+            element_text.append(element.text)
+            if text in element.text:
+                assertion_valid = True
+        if not assertion_valid:
+            raise AssertionError('''
+                {} not found in {}
+            '''.format(text, element_text))
+
     def _test_has_failed(self):
         try:
             for method, error in self._outcome.errors:

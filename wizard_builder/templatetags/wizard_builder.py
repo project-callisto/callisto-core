@@ -44,7 +44,7 @@ def is_extra(field):
     return 'extra' in field.id_for_label
 
 
-# TODO: remove, replace with widget
+# TODO: remove, replace with widget template
 @register.filter(name='is_multiple_choice')
 def is_multiple_choice(field):
     widget_name = field.field.widget.__class__.__name__
@@ -53,15 +53,7 @@ def is_multiple_choice(field):
             widget_name == RadioSelect().__class__.__name__)
 
 
-# TODO: remove, replace with widget
-@register.filter(name='is_checkbox')
-def is_checkbox(field):
-    widget_name = field.field.widget.__class__.__name__
-    return (widget_name == CheckboxInput().__class__.__name__ or
-            widget_name == CheckboxSelectMultiple().__class__.__name__)
-
-
-# TODO: remove, replace with widget
+# TODO: remove, replace with widget template
 @register.filter(name='is_multiple_choice')
 def is_multiple_choice(field):
     widget_name = field.field.widget.__class__.__name__
@@ -70,14 +62,14 @@ def is_multiple_choice(field):
             widget_name == RadioSelect().__class__.__name__)
 
 
-# TODO: remove, replace with widget
+# TODO: remove, replace with widget template
 @register.filter(name='is_textarea')
 def is_textarea(field):
     widget_name = field.field.widget.__class__.__name__
     return (widget_name == Textarea().__class__.__name__)
 
 
-# TODO: remove, replace with widget
+# TODO: remove, replace with widget template
 @register.filter(name='get_field_type', is_safe=True)
 def get_field_type(field):
     widget_name = field.field.widget.__class__.__name__

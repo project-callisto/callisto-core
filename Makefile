@@ -70,11 +70,14 @@ app-setup: ## setup the test application environment
 	python manage.py migrate --noinput --database default
 	python manage.py create_admins
 	python manage.py setup_sites
-	python manage.py loaddata $(DATA_FILE)
+	make load-fixture
 
 shell:
 	DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.dev_settings' python manage.py shell_plus
 
-fixture:
+load-fixture:
+	python manage.py loaddata $(DATA_FILE)
+
+create-fixture:
 	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
 	npx json -f $(DATA_FILE) -I

@@ -28,9 +28,6 @@
                         {% else %}
                             <p class="help-label">{{ field.label }}</p>
                         {% endif %}
-                        {% if field|is_checkbox %}
-                            <p class="checkall">(Check all that apply)</p>
-                        {% endif %}
                         {% if field.help_text %}
                             <p class="help-block">{{ field.help_text }}</p>
                         {% endif %}

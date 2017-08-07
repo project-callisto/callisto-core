@@ -12,3 +12,11 @@ class FrontendTest(FunctionalTest):
     def test_step_0_presense(self):
         self.assertCss('[name="current_step"]')
         self.assertCss('[value="0"]')
+
+    def test_step_0_presense(self):
+        self.assertCss('[name="current_step"]')
+        self.assertCss('[value="0"]')
+
+    def test_question_fields(self):
+        self.assertSelectorContains('h2', 'text!!!')
+        self.assertSelectorContains('.help-block', '~descriptive text~')

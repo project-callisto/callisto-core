@@ -20,9 +20,9 @@
     "pk": 1,
     "fields": {
       "created": "2017-08-05T18:49:33.607",
-      "modified": "2017-08-05T18:49:33.607",
-      "text": "",
-      "descriptive_text": "",
+      "modified": "2017-08-07T17:10:22.854",
+      "text": "text!!!",
+      "descriptive_text": "~descriptive text~",
       "page": 2,
       "position": 0
     }
