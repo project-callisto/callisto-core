@@ -4,9 +4,9 @@ from io import BytesIO
 import PyPDF2
 from mock import patch
 from tests.callistocore.forms import CustomNotificationApi
-from wizard_builder.forms import QuestionPageForm
+from wizard_builder.forms import PageForm
 from wizard_builder.models import (
-    Choice, QuestionPage, RadioButton, SingleLineText,
+    Choice, Page, RadioButton, SingleLineText,
 )
 
 from django.contrib.auth import get_user_model
@@ -66,9 +66,9 @@ class RecordFormBaseTest(SiteAwareTestCase):
 
     def setUp(self):
         super(RecordFormBaseTest, self).setUp()
-        self.page1 = QuestionPage.objects.create()
+        self.page1 = Page.objects.create()
         self.page1.sites.add(self.site.id)
-        self.page2 = QuestionPage.objects.create()
+        self.page2 = Page.objects.create()
         self.page2.sites.add(self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
@@ -110,12 +110,12 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
     def test_new_record_form_advances_to_second_page(self):
         response = self.create_key()
         self.assertTemplateUsed(response, 'record_form.html')
-        self.assertIsInstance(response.context['form'], QuestionPageForm)
+        self.assertIsInstance(response.context['form'], PageForm)
         self.assertContains(response, 'name="1-question_%i"' % self.question1.pk)
         self.assertNotContains(response, 'name="1-question_%i"' % self.question2.pk)
 
     def test_wizard_generates_correct_number_of_pages(self):
-        page3 = QuestionPage.objects.create()
+        page3 = Page.objects.create()
         page3.sites.add(self.site.id)
         SingleLineText.objects.create(text="first page question", page=page3)
         SingleLineText.objects.create(text="one more first page question", page=page3, position=2)
@@ -299,7 +299,7 @@ class EditRecordFormTest(ExistingRecordTest):
     def test_edit_record_form_advances_to_second_page(self):
         response = self.enter_edit_key()
         self.assertTemplateUsed(response, 'record_form.html')
-        self.assertIsInstance(response.context['form'], QuestionPageForm)
+        self.assertIsInstance(response.context['form'], PageForm)
         self.assertContains(response, 'name="1-question_%i"' % self.question1.pk)
         self.assertNotContains(response, 'name="1-question_%i"' % self.question2.pk)
 

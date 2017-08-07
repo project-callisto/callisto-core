@@ -4,7 +4,7 @@ import gnupg
 import six
 from mock import ANY, call, patch
 from wizard_builder.models import (
-    Checkbox, Choice, QuestionPage, RadioButton, SingleLineText,
+    Checkbox, Choice, Page, RadioButton, SingleLineText,
 )
 
 from django.contrib.auth import get_user_model
@@ -121,7 +121,7 @@ class EvalRowTest(TestCase):
 class EvalFieldTest(TestCase):
 
     def test_question_can_have_eval_field(self):
-        page = QuestionPage.objects.create()
+        page = Page.objects.create()
         rfi = SingleLineText(text="This is a question", page=page)
         rfi.save()
         EvaluationField.objects.create(question=rfi)
@@ -130,13 +130,13 @@ class EvalFieldTest(TestCase):
         self.assertEqual(SingleLineText.objects.first().evaluationfield, EvaluationField.objects.first())
 
     def test_question_can_not_have_eval_field(self):
-        page = QuestionPage.objects.create()
+        page = Page.objects.create()
         rfi = SingleLineText(text="This is a question", page=page)
         rfi.save()
         self.assertRaises(ObjectDoesNotExist, lambda: SingleLineText.objects.first().evaluationfield)
 
     def test_evalfield_label_is_non_unique(self):
-        page = QuestionPage.objects.create()
+        page = Page.objects.create()
         q1 = SingleLineText(text="This is a question", page=page)
         q1.save()
         EvaluationField.objects.create(question=q1, label="question")
@@ -149,8 +149,8 @@ class EvalFieldTest(TestCase):
 class ExtractAnswersTest(TestCase):
 
     def set_up_simple_report_scenario(self):
-        page1 = QuestionPage.objects.create()
-        page2 = QuestionPage.objects.create()
+        page1 = Page.objects.create()
+        page2 = Page.objects.create()
         question1 = SingleLineText.objects.create(text="first question", page=page1)
         question2 = SingleLineText.objects.create(text="2nd question", page=page2)
         EvaluationField.objects.create(question=question2, label="q2")
@@ -234,7 +234,7 @@ class ExtractAnswersTest(TestCase):
 
     def test_extract_answers_with_extra(self):
         self.maxDiff = None
-        page1 = QuestionPage.objects.create()
+        page1 = Page.objects.create()
 
         question1 = RadioButton.objects.create(text="this is a radio button question", page=page1)
         for i in range(5):
@@ -348,11 +348,11 @@ class ExtractAnswersTest(TestCase):
     def test_extract_answers_with_multiple(self):
         self.maxDiff = None
 
-        page1 = QuestionPage.objects.create()
+        page1 = Page.objects.create()
         single_question = SingleLineText.objects.create(text="single question", page=page1)
         EvaluationField.objects.create(question=single_question, label="single_q")
 
-        page2 = QuestionPage.objects.create(multiple=True, name_for_multiple="form")
+        page2 = Page.objects.create(multiple=True, name_for_multiple="form")
         question1 = SingleLineText.objects.create(text="first question", page=page2)
         question2 = SingleLineText.objects.create(text="2nd question", page=page2)
         EvaluationField.objects.create(question=question2, label="q2")
@@ -441,7 +441,7 @@ class ExtractAnswersTest(TestCase):
     def test_tracking_of_answered_questions(self):
         self.maxDiff = None
 
-        page1 = QuestionPage.objects.create()
+        page1 = Page.objects.create()
         question1 = SingleLineText.objects.create(text="first question", page=page1)
         question2 = SingleLineText.objects.create(text="2nd question", page=page1)
         radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page1)
@@ -488,7 +488,7 @@ class ExtractAnswersTest(TestCase):
     def test_tracking_of_answered_questions_checkbox(self):
         self.maxDiff = None
 
-        page1 = QuestionPage.objects.create()
+        page1 = Page.objects.create()
         checkbox_q_1 = Checkbox.objects.create(text="this is a checkbox question", page=page1)
         for i in range(5):
             Choice.objects.create(text="This is choice %i" % i, question=checkbox_q_1)
@@ -560,9 +560,9 @@ class EvalActionTest(MatchTest):
     def setUp(self):
         super(EvalActionTest, self).setUp()
 
-        self.page1 = QuestionPage.objects.create()
+        self.page1 = Page.objects.create()
         self.page1.sites.add(self.site.id)
-        self.page2 = QuestionPage.objects.create()
+        self.page2 = Page.objects.create()
         self.page2.sites.add(self.site.id)
         self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
         self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)

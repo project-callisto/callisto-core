@@ -13,7 +13,7 @@ from reportlab.platypus import (
     SimpleDocTemplate, Spacer,
 )
 from reportlab.platypus.doctemplate import Indenter
-from wizard_builder.models import PageBase
+from wizard_builder.models import Page
 
 from django.conf import settings
 from django.utils import timezone
@@ -338,7 +338,7 @@ class PDFFullReport(PDFReport):
         self.pdf_elements.extend(self.get_metadata_page(recipient))
 
         # REPORT
-        for section_id, section_name in PageBase.SECTION_CHOICES:
+        for section_id, section_name in Page.SECTION_CHOICES:
             self.pdf_elements.append(Paragraph(section_name, self.section_title_style))
             section_qs = [x for x in report_content if x.get('section') == section_id]
             for q in section_qs:
