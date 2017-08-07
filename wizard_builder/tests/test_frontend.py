@@ -9,11 +9,11 @@ class FrontendTest(FunctionalTest):
     def test_submit_presence(self):
         self.assertCss('[type="submit"]')
 
-    def test_step_0_presense(self):
+    def test_step_0_presence(self):
         self.assertCss('[name="current_step"]')
         self.assertCss('[value="0"]')
 
-    def test_step_0_presense(self):
+    def test_step_0_presence(self):
         self.assertCss('[name="current_step"]')
         self.assertCss('[value="0"]')
 
