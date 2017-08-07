@@ -174,29 +174,6 @@ class SingleLineText(FormQuestion):
                 'type': 'SingleLineText', 'section': self.section}
 
 
-class SingleLineTextWithMap(FormQuestion):
-    map_link = models.CharField(blank=False, max_length=500)
-
-    def make_field(self):
-        link_to_map = """<a href='{0}' target='_blank' class="map_link">
-                          <img alt="Map of campus" src="/static/images/map_icon.png" />
-                      </a>""".format(self.map_link)
-        return forms.CharField(
-            label=self.get_label(),
-            help_text=mark_safe(link_to_map),
-            required=False,
-            widget=forms.TextInput(
-                attrs={
-                    'class': "form-control input-lg map-field",
-                },
-            ),
-        )
-
-    def serialize_for_report(self, answer="", *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
-                'type': 'SingleLineText', 'section': self.section}
-
-
 class MultiLineText(FormQuestion):
 
     def make_field(self):
@@ -317,20 +294,3 @@ class Choice(models.Model):
     class Meta:
         ordering = ['position', 'pk']
 
-
-class Date(FormQuestion):
-
-    def make_field(self):
-        return forms.CharField(
-            label=self.get_label(),
-            required=False,
-            widget=forms.TextInput(
-                attrs={
-                    'class': "form-control input-lg date-field",
-                },
-            ),
-        )
-
-    def serialize_for_report(self, answer, *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
-                'type': 'Date', 'section': self.section}
