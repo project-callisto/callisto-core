@@ -42,6 +42,7 @@ test-lint: ## lint with isort and flake8
 	flake8 wizard_builder/
 
 test-suite: ## run the unit and intregration tests
+	python manage.py check
 	pytest -v
 
 test-fast: ## runs the test suite, with fast failures and a re-used database
