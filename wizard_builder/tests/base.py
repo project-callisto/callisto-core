@@ -16,7 +16,29 @@ SCREEN_DUMP_LOCATION = os.path.join(
 logger = logging.getLogger(__name__)
 
 
-class FunctionalTest(StaticLiveServerTestCase):
+class Assertions(object):
+
+    def assertCss(self, css):
+        self.assertTrue(
+            self.browser.find_elements_by_css_selector(css),
+        )
+
+    def assertSelectorContains(self, css, text):
+        assertion_valid = False
+        elements = self.browser.find_elements_by_css_selector(css),
+        element_text = []
+        for element in elements:
+            element = element[0]
+            element_text.append(element.text)
+            if text in element.text:
+                assertion_valid = True
+        if not assertion_valid:
+            raise AssertionError('''
+                {} not found in {}
+            '''.format(text, element_text))
+
+
+class FunctionalTest(Assertions, StaticLiveServerTestCase):
 
     fixtures = [
         'data',
@@ -62,25 +84,6 @@ class FunctionalTest(StaticLiveServerTestCase):
         WebDriverWait(self.browser, 3).until(
             lambda driver: driver.find_element_by_tag_name('body'),
         )
-
-    def assertCss(self, css):
-        self.assertTrue(
-            self.browser.find_elements_by_css_selector(css),
-        )
-
-    def assertSelectorContains(self, css, text):
-        assertion_valid = False
-        elements = self.browser.find_elements_by_css_selector(css),
-        element_text = []
-        for element in elements:
-            element = element[0]
-            element_text.append(element.text)
-            if text in element.text:
-                assertion_valid = True
-        if not assertion_valid:
-            raise AssertionError('''
-                {} not found in {}
-            '''.format(text, element_text))
 
     def _test_has_failed(self):
         try:
