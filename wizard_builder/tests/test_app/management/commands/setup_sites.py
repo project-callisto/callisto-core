@@ -15,4 +15,7 @@ class Command(BaseCommand):
             for host in settings.ALLOWED_HOSTS:
                 Site.objects.get_or_create(domain=host)
         else:
-            Site.objects.get_or_create(domain=settings.APP_URL)
+            Site.objects.exclude(id=1).delete()
+            site = Site.objects.get(id=1)
+            site.domain = settings.APP_URL
+            site.save()
