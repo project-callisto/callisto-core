@@ -12,14 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='date',
-            name='formquestion_ptr',
-        ),
-        migrations.RemoveField(
-            model_name='singlelinetextwithmap',
-            name='formquestion_ptr',
-        ),
         migrations.DeleteModel(
             name='Date',
         ),
