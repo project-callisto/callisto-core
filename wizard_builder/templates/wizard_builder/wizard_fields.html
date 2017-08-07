@@ -35,7 +35,7 @@
                     {% for choice in field %}
                         {% with extra_field=form.extra_fields|lookup:choice.id_for_label %}
                             <div class={{field|get_field_type}}>
-                                <div class="choice {% if extra_field %}extra-choice{% endif %}">
+                                <div class="choice{% if extra_field %} extra-choice{% endif %}">
                                     <label for="{{choice.id_for_label}}">
                                         {{ choice.tag }}
                                         <span class="label-text">{{ choice.choice_label }}</span>
