@@ -20,3 +20,7 @@ class FrontendTest(FunctionalTest):
     def test_question_fields(self):
         self.assertSelectorContains('h2', 'text!!!')
         self.assertSelectorContains('.help-block', '~descriptive text~')
+
+    def test_question_fields(self):
+        self.assertSelectorContains('.choice', 'choice 1')
+        self.assertSelectorContains('.choice', 'choice 2')
