@@ -1,7 +1,20 @@
 from django import template
+from django.forms import (
+    CheckboxInput, CheckboxSelectMultiple, RadioSelect, Textarea,
+)
 
 
 register = template.Library()
+
+
+# TODO: remove
+# TODO: figure out why extra on formsets doesn't work
+@register.filter
+def lookup(d, key):
+    if isinstance(d, dict):
+        return d.get(key)
+    else:
+        return None
 
 
 @register.filter(is_safe=True)
