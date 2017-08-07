@@ -25,25 +25,8 @@ class PageForm(forms.Form):
             question_id = 'question_%s' % item.pk
             self.fields[question_id] = item.make_field()
             self.fields[question_id].help_text = mark_safe(
-                item.descriptive_text + self.fields[question_id].help_text)
-            if isinstance(item, MultipleChoice):
-                for idx, choice_with_extra in enumerate(item.get_choices()):
-                    placeholder = choice_with_extra.extra_info_placeholder
-                    if placeholder:
-                        extra_dict = {}
-                        extra_field = forms.CharField(
-                            required=False, max_length=500, label=placeholder)
-                        id_for_extra_field = '%s_extra-%s' % (
-                            question_id, choice_with_extra.pk)
-                        self.fields[id_for_extra_field] = extra_field
-                        radio_button_name = "%s-%s" % (self.prefix,
-                                                       question_id)
-                        extra_dict['radio_button_name'] = radio_button_name
-                        extra_dict['extra_field_id'] = '%s-%s' % (
-                            self.prefix, id_for_extra_field)
-                        extra_checked = "%s_%s" % (radio_button_name, idx)
-                        extra_dict['extra_checked'] = extra_checked
-                        extra_fields["id_%s" % extra_checked] = extra_dict
+                item.descriptive_text + self.fields[question_id].help_text
+            )
         if len(extra_fields) > 0:
             self.extra_fields = extra_fields
 

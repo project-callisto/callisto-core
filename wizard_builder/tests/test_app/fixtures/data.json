@@ -44,7 +44,6 @@
       "question": 1,
       "text": "choice 1",
       "position": 0,
-      "extra_info_placeholder": ""
     }
   },
   {
@@ -54,7 +53,6 @@
       "question": 1,
       "text": "choice 2",
       "position": 0,
-      "extra_info_placeholder": ""
     }
   }
 ]

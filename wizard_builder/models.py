@@ -253,21 +253,11 @@ class RadioButton(MultipleChoice):
             result['extra'] = args[0]
         return result
 
-    def get_extras(self):
-        choices = self.cached_choices or self.choice_set.all()
-        return [("question_%s_extra-%s" % (self.pk, choice.pk), choice.extra_info_placeholder)
-                for choice in choices if choice.extra_info_placeholder]
-
 
 class Choice(models.Model):
     question = models.ForeignKey('MultipleChoice', on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
-    extra_info_placeholder = models.CharField(
-        blank=True,
-        max_length=500,
-        verbose_name='Placeholder for extra info field (leave blank for no '
-        'field)')
 
     def make_choice(self):
         return self.text
