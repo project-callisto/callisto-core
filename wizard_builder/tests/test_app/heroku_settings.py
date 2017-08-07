@@ -6,6 +6,6 @@ DATABASES = {
 }
 ALLOWED_HOSTS = [
     APP_URL,
-    os.getenv('HEROKU_APP_NAME', default=''),
-    os.getenv('HEROKU_PARENT_APP_NAME', default=''),
+    os.getenv('HEROKU_APP_NAME', default='') + '.herokuapp.com',
+    os.getenv('HEROKU_PARENT_APP_NAME', default='') + '.herokuapp.com',
 ]
