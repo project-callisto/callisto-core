@@ -7,10 +7,11 @@ from .test_app.views import edit_test_wizard_view, new_test_wizard_view
 
 urlpatterns = [
     url(r'^$',
-        RedirectView.as_view(url=reverse_lazy('test_wizard'), permanent=True),
+        new_test_wizard_view,
+        name='test_wizard',
         ),
     url(r'^wizard/new/$',
-        RedirectView.as_view(url=reverse_lazy('test_wizard'), permanent=True),
+        new_test_wizard_view,
         name='test_wizard',
         ),
     url(r'^wizard/new/(?P<step>.+)/$',
