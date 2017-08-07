@@ -39,15 +39,15 @@ django-wizard-builder
 Installation
 -------------
 
-:: python
+django settings
+
+::
 
     INSTALLED_APPS = [
-      .. ...
       'django.contrib.sites',
       'tinymce',
       'widget_tweaks',
       'wizard_builder',
-      .. ...
     ]
 
 Developement
@@ -55,7 +55,7 @@ Developement
 
 setup
 
-:: bash
+::
 
     $ source $VENV/bin/activate
     $ pip install -r requirements/dev.txt
@@ -63,7 +63,7 @@ setup
 
 cleanup / linting / tests
 
-:: bash
+::
 
     $ make clean-lint
     $ make test
