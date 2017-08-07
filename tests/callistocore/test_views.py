@@ -225,6 +225,7 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
             follow=True)
         self.assertTrue(Report.objects.first().autosaved)
 
+    def test_auto_save_not_set_incorrectly(self):
         # record is not flagged as autosave on an explicitly saved record
         # need to load first page of record form because that's how storage gets reset
         self.client.get(self.record_form_url, follow=True)
