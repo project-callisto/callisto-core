@@ -36,5 +36,25 @@
     "model": "wizard_builder.checkbox",
     "pk": 1,
     "fields": {}
+  },
+  {
+    "model": "wizard_builder.choice",
+    "pk": 1,
+    "fields": {
+      "question": 1,
+      "text": "choice 1",
+      "position": 0,
+      "extra_info_placeholder": ""
+    }
+  },
+  {
+    "model": "wizard_builder.choice",
+    "pk": 2,
+    "fields": {
+      "question": 1,
+      "text": "choice 2",
+      "position": 0,
+      "extra_info_placeholder": ""
+    }
   }
 ]
