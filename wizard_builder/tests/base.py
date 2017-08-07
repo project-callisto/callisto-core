@@ -63,6 +63,11 @@ class FunctionalTest(StaticLiveServerTestCase):
             lambda driver: driver.find_element_by_tag_name('body'),
         )
 
+    def assertCss(self, css):
+        self.assertTrue(
+            self.browser.find_elements_by_css_selector(css),
+        )
+
     def _test_has_failed(self):
         try:
             for method, error in self._outcome.errors:
