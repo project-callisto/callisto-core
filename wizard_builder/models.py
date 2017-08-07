@@ -137,9 +137,6 @@ class FormQuestion(TimekeepingBase, models.Model):
     def clone(self):
         return copy.deepcopy(self)
 
-    def get_extras(self):
-        return None
-
     def get_label(self):
         return mark_safe(self.text)
 
@@ -211,16 +208,14 @@ class Checkbox(MultipleChoice):
                                          widget=forms.CheckboxSelectMultiple)
 
     def serialize_for_report(self, answer, *args):
-        result = {
+        return {
             'id': self.pk,
             'question_text': self.text,
             'choices': self.serialize_choices(),
             'answer': answer,
             'type': 'Checkbox',
-            'section': self.section}
-        if len(args) > 0 and args[0]:
-            result['extra'] = args[0]
-        return result
+            'section': self.section,
+        }
 
     class Meta:
         verbose_name_plural = "checkboxes"
@@ -242,16 +237,14 @@ class RadioButton(MultipleChoice):
                     'class': "form-control input-lg"}) if self.is_dropdown else forms.RadioSelect)
 
     def serialize_for_report(self, answer, *args):
-        result = {
+        return {
             'id': self.pk,
             'question_text': self.text,
             'choices': self.serialize_choices(),
             'answer': answer,
             'type': 'RadioButton',
-            'section': self.section}
-        if len(args) > 0 and args[0]:
-            result['extra'] = args[0]
-        return result
+            'section': self.section,
+        }
 
 
 class Choice(models.Model):
