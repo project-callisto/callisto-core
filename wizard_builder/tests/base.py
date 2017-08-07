@@ -25,10 +25,10 @@ class Assertions(object):
 
     def assertSelectorContains(self, css, text):
         assertion_valid = False
-        elements = self.browser.find_elements_by_css_selector(css),
+        elements = self.browser.find_elements_by_css_selector(css)[0],
+        print(elements)
         element_text = []
         for element in elements:
-            element = element[0]
             element_text.append(element.text)
             if text in element.text:
                 assertion_valid = True
@@ -96,12 +96,12 @@ class FunctionalTest(Assertions, StaticLiveServerTestCase):
 
     def _take_screenshot(self):
         filename = self._get_filename() + '.png'
-        logger.info('screenshotting to', filename)
+        logger.info('screenshotting to {}'.format(filename))
         self.browser.get_screenshot_as_file(filename)
 
     def _dump_html(self):
         filename = self._get_filename() + '.html'
-        logger.info('dumping page HTML to', filename)
+        logger.info('dumping page HTML to {}'.format(filename))
         with open(filename, 'w') as f:
             f.write(self.browser.page_source)
 
