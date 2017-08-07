@@ -224,16 +224,6 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
     def generate_form_list(cls, pages, object_to_edit, **kwargs):
         return get_form_pages(pages)
 
-    # allows you to append pages to the form like a password field
-    @classmethod
-    def calculate_real_page_index(
-            cls,
-            raw_idx,
-            pages,
-            object_to_edit,
-            **kwargs):
-        return raw_idx
-
     @classmethod
     def wizard_factory(cls, object_to_edit=None, site_id=None, **kwargs):
         pages = Page.objects.on_site(site_id).all()
