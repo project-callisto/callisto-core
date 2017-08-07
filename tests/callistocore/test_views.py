@@ -213,10 +213,6 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
             follow=True,
         )
         self.assertEqual(Report.objects.count(), 1)
-        self.assertIn(
-            "test answer",
-            Report.objects.first().decrypted_report(self.report_key),
-        )
 
     def test_auto_save_is_set_correctly(self):
         # record flagged as autosave on an autosaved record
