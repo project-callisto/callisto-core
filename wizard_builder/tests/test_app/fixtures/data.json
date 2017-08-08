@@ -43,7 +43,8 @@
     "fields": {
       "question": 1,
       "text": "choice 1",
-      "position": 0
+      "position": 0,
+      "extra_info_text": "extra information here"
     }
   },
   {
@@ -52,7 +53,8 @@
     "fields": {
       "question": 1,
       "text": "choice 2",
-      "position": 0
+      "position": 0,
+      "extra_info_text": ""
     }
   }
 ]

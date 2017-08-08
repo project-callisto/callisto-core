@@ -20,11 +20,11 @@ class PageForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.has_tooltip = False
+        # TODO: there is almost certainly a django builtin for this
         for question in self.items:
-            question_id = 'question_%s' % question.pk
-            self.fields[question_id] = question.make_field()
-            self.fields[question_id].help_text = mark_safe(
-                question.descriptive_text + self.fields[question_id].help_text
+            self.fields[question.field_id] = question.make_field()
+            self.fields[question.field_id].help_text = mark_safe(
+                question.descriptive_text + self.fields[question.field_id].help_text
             )
 
 

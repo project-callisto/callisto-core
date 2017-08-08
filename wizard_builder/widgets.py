@@ -1,8 +1,19 @@
-from django.forms.widgets import RadioSelect, CheckboxSelectMultiple
+from django.forms.widgets import CheckboxSelectMultiple, RadioSelect
 
 
-class RadioExtraSelect(RadioSelect):
+class InputOptionExtraMixin(object):
     option_template_name = 'wizard_builder/input_option_extra.html'
 
-class CheckboxExtraSelectMultiple(CheckboxSelectMultiple):
-    option_template_name = 'wizard_builder/input_option_extra.html'
+
+class RadioExtraSelect(
+    InputOptionExtraMixin,
+    RadioSelect,
+):
+    pass
+
+
+class CheckboxExtraSelectMultiple(
+    InputOptionExtraMixin,
+    CheckboxSelectMultiple,
+):
+    pass
