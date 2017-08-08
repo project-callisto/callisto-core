@@ -18,8 +18,11 @@ class FrontendTest(FunctionalTest):
         self.assertSelectorContains('.help-block', '~descriptive text~')
 
     def test_choice_text(self):
-        self.assertSelectorContains('.choice', 'choice 1')
-        self.assertSelectorContains('.choice', 'choice 2')
+        self.assertSelectorContains('li', 'choice 1')
+        self.assertSelectorContains('li', 'choice 2')
+
+    def test_extra_info(self):
+        self.assertCss('[placeholder="extra information here"]')
 
     def test_extra_options(self):
         self.assertSelectorContains('option', 'option 1')
