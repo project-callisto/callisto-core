@@ -5,6 +5,8 @@ from tinymce import HTMLField
 from django import forms
 from django.contrib.sites.models import Site
 from django.db import models
+from django.forms.fields import ChoiceField, MultipleChoiceField
+from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Select
 from django.utils.safestring import mark_safe
 
 from .managers import FormQuestionManager, PageManager
@@ -218,23 +220,22 @@ class MultipleChoice(FormQuestion):
             for choice in self.get_choices()
         ]
 
-
     def get_widget(self):
         if getattr(self, 'is_dropdown', False):
-            return forms.Select(attrs={
+            return Select(attrs={
                 'class': "form-control input-lg",
             })
         elif self._meta.model == RadioButton:
-            return forms.RadioSelect
+            return RadioSelect
         elif self._meta.model == Checkbox:
-            return forms.CheckboxSelectMultiple
+            return CheckboxSelectMultiple
 
     def make_field(self):
         if self._meta.model == RadioButton:
-            field = forms.ChoiceField
+            Field = ChoiceField
         elif self._meta.model == Checkbox:
-            field = forms.MultipleChoiceField
-        return field(
+            Field = MultipleChoiceField
+        return Field(
             choices=self.get_choice_tuples(),
             label=self.text,
             required=False,
@@ -257,6 +258,10 @@ class Choice(models.Model):
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
     extra_info_text = models.TextField(blank=True)
+
+    @property
+    def options(self):
+        return self.choiceoption_set.all()
 
     def make_choice(self):
         return self.text
