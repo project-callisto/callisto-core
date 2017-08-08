@@ -9,7 +9,11 @@
 {% include "django/forms/widgets/input.html" %}
 {% if wrap_label %}
     {{ widget.label }}
-    {% include "wizard_builder/input_extra_info.html" %}
-    {% include "wizard_builder/input_extra_dropdown.html" %}
+    {% with field=widget.extra_options_field %}
+        {% include "wizard_builder/input_extra_widget.html" %}
+    {% endwith %}
+    {% with field=widget.extra_info_field %}
+        {% include "wizard_builder/input_extra_widget.html" %}
+    {% endwith %}
     </label>
 {% endif %}

@@ -282,7 +282,7 @@ class Choice(models.Model):
                 attrs={'placeholder': self.extra_info_text},
             ),
         )
-        return field.widget.subwidgets('extra_info', '')
+        return field.widget.get_context('extra_info', '', {})
 
     @property
     def extra_widget_options(self):

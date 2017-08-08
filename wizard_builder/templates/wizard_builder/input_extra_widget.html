@@ -1,0 +1,5 @@
+{% if field %}
+    {% with field.widget as widget %}
+        {% include widget.template_name %}
+    {% endwith %}
+{% endif %}
