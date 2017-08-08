@@ -1,4 +1,5 @@
 import copy
+import logging
 
 from tinymce import HTMLField
 
@@ -11,6 +12,9 @@ from django.utils.safestring import mark_safe
 
 from .managers import FormQuestionManager, PageManager
 from .widgets import CheckboxExtraSelectMultiple, RadioExtraSelect
+
+
+logger = logging.getLogger(__name__)
 
 
 class TimekeepingBase(models.Model):
@@ -278,16 +282,19 @@ class Choice(models.Model):
             ),
         )
 
-    def add_extra_options(self, options):
-        if self.options:
-            options.update({
-                'extra_options_field': self.extra_options_field,
-            })
+    @property
+    def extra_widget_options(self):
+        if self.options and self.extra_info_text:
+            logger.error('''
+                self.options and self.extra_info_text defined for Choice(pk={})
+            '''.format(self.pk))
+            return {}
+        elif self.options:
+            return {'extra_options_field': self.extra_options_field}
         elif self.extra_info_text:
-            options.update({
-                'extra_info_field': self.extra_info_field,
-            })
-        return options
+            return {'extra_info_field': self.extra_info_field}
+        else:
+            return {}
 
     class Meta:
         ordering = ['position', 'pk']

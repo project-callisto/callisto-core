@@ -9,7 +9,7 @@ class InputOptionExtraMixin(object):
         from .models import Choice  # TODO: grab this class without an import
         options = super().create_option(*args, **kwargs)
         choice = Choice.objects.get(id=options['value'])
-        options = choice.add_extra_options(options)
+        options.update(choice.extra_widget_options)
         return options
 
 
