@@ -262,7 +262,7 @@ class Choice(models.Model):
         ]
 
     @property
-    def extra_options_field(self):
+    def extra_dropdown_widget_context(self):
         '''
             render widget for choice.options
         '''
@@ -277,7 +277,7 @@ class Choice(models.Model):
         return field.widget.get_context('extra_options', '', {})
 
     @property
-    def extra_info_field(self):
+    def extra_text_widget_context(self):
         '''
             render widget for choice.extra_info_text
         '''
@@ -294,7 +294,7 @@ class Choice(models.Model):
         return field.widget.get_context('extra_info', '', {})
 
     @property
-    def extra_widget_options(self):
+    def extra_widget_context(self):
         '''
             render context for any extra widgets this instance may have
         '''
@@ -304,9 +304,12 @@ class Choice(models.Model):
             '''.format(self.pk))
             return {}
         elif self.options:
-            return {'extra_options_field': self.extra_options_field}
+            return {
+                'extra_dropdown_widget_context': self.extra_dropdown_widget_context, }
         elif self.extra_info_text:
-            return {'extra_info_field': self.extra_info_field}
+            return {
+                'extra_text_widget_context': self.extra_text_widget_context,
+            }
         else:
             return {}
 
