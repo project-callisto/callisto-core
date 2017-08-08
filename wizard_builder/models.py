@@ -13,7 +13,6 @@ from django.utils.safestring import mark_safe
 from .managers import FormQuestionManager, PageManager
 from .widgets import CheckboxExtraSelectMultiple, RadioExtraSelect
 
-
 logger = logging.getLogger(__name__)
 
 

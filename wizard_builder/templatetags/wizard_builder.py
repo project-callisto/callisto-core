@@ -15,7 +15,8 @@ def label_with_classes(value, arg):
 
 @register.filter(is_safe=True)
 def ipython(arg):
-    from IPython import embed; embed()
+    from IPython import embed
+    embed()
     return ''
 
 

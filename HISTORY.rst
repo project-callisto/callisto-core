@@ -6,7 +6,7 @@ History
 
 * add wizard form templates
 * remove SingleLineTextWithMap, MultiLineText, Date
-* add Choice conditionals
+* add Choice extra widgets
 * add django-widget-tweaks dependency
 
     https://github.com/SexualHealthInnovations/django-wizard-builder/pull/112
