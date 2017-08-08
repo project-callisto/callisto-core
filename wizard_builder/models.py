@@ -272,18 +272,18 @@ class Choice(models.Model):
         return self.text
 
     @property
-    def extra_info_widget(self):
-        return TextInput(
-            attrs={'placeholder': self.extra_info_text},
+    def extra_info_field(self):
+        return Field(
+            required=False,
+            widget=TextInput(
+                attrs={'placeholder': self.extra_info_text},
+            ),
         )
 
     def add_extra_options(self, options):
         if self.extra_info_text:
             options.update({
-                'extra_info_field': Field(
-                    required=False,
-                    widget=self.extra_info_widget,
-                ),
+                'extra_info_field': self.extra_info_field,
             })
         return options
 
