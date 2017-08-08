@@ -251,6 +251,7 @@ class Choice(models.Model):
     question = models.ForeignKey('MultipleChoice', on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
+    extra_info_text = models.TextField(blank=True)
 
     def make_choice(self):
         return self.text
