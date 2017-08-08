@@ -56,5 +56,21 @@
       "position": 0,
       "extra_info_text": ""
     }
+  },
+  {
+    "model": "wizard_builder.choiceoption",
+    "pk": 1,
+    "fields": {
+      "choice": 2,
+      "text": "option 1"
+    }
+  },
+  {
+    "model": "wizard_builder.choiceoption",
+    "pk": 2,
+    "fields": {
+      "choice": 2,
+      "text": "option 2"
+    }
   }
 ]

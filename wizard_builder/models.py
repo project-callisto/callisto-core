@@ -199,7 +199,7 @@ class MultipleChoice(FormQuestion):
     @property
     def choice_tuples(self):
         return [
-            (choice.pk, choice.make_choice())
+            (choice.pk, choice.text)
             for choice in self.choices
         ]
 
@@ -268,8 +268,19 @@ class Choice(models.Model):
     def options(self):
         return self.choiceoption_set.all()
 
-    def make_choice(self):
-        return self.text
+    @property
+    def option_tuples(self):
+        return [
+            (option.pk, option.text)
+            for option in self.options
+        ]
+
+    @property
+    def extra_options_field(self):
+        return ChoiceField(
+            choices=self.option_tuples,
+            required=False,
+        )
 
     @property
     def extra_info_field(self):
@@ -281,7 +292,11 @@ class Choice(models.Model):
         )
 
     def add_extra_options(self, options):
-        if self.extra_info_text:
+        if self.options:
+            options.update({
+                'extra_options_field': self.extra_options_field,
+            })
+        elif self.extra_info_text:
             options.update({
                 'extra_info_field': self.extra_info_field,
             })
@@ -292,5 +307,5 @@ class Choice(models.Model):
 
 
 class ChoiceOption(models.Model):
-    question = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     text = models.TextField(blank=False)

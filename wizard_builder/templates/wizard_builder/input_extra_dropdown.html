@@ -1,1 +1,5 @@
-<p>extra dropdown</p>
+{% if widget.extra_options_field %}
+    {% with widget=widget.extra_options_field.widget %}
+        {% include "django/forms/widgets/select.html" %}
+    {% endwith %}
+{% endif %}
