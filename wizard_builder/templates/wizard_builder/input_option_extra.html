@@ -1,3 +1,6 @@
+{% comment "Optional note" %}
+    from 'django/forms/widgets/input_option.html'
+{% endcomment %}
 {% if wrap_label %}
     <label
         {% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}
@@ -5,5 +8,8 @@
 {% endif %}
 {% include "django/forms/widgets/input.html" %}
 {% if wrap_label %}
-    {{ widget.label }}</label>
+    {{ widget.label }}
+    {% include "wizard_builder/input_extra_info.html" %}
+    {% include "wizard_builder/input_extra_dropdown.html" %}
+    </label>
 {% endif %}
