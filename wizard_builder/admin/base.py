@@ -39,7 +39,7 @@ class DowncastedAdmin(admin.ModelAdmin):
 
 
 class ChoiceInline(admin.TabularInline):
-    fields = ['text', 'position', 'id']
+    fields = ['text', 'extra_info_text', 'position', 'id']
     model = Choice
     sortable_field_name = "position"
     extra = 0
