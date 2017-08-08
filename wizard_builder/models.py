@@ -248,7 +248,7 @@ class RadioButton(MultipleChoice):
 
 
 class Choice(models.Model):
-    question = models.ForeignKey('MultipleChoice', on_delete=models.CASCADE)
+    question = models.ForeignKey(MultipleChoice, on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
     extra_info_text = models.TextField(blank=True)
@@ -258,3 +258,8 @@ class Choice(models.Model):
 
     class Meta:
         ordering = ['position', 'pk']
+
+
+class ChoiceOption(models.Model):
+    question = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    text = models.TextField(blank=False)
