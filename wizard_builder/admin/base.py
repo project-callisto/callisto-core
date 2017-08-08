@@ -42,8 +42,7 @@ class ChoiceInline(admin.TabularInline):
     fields = ['text', 'extra_info_text', 'position', 'id']
     model = Choice
     sortable_field_name = "position"
-    extra = 0
-    readonly_fields = ('id',)
+    extra = 1
     formfield_overrides = {
         models.TextField: {'widget': forms.TextInput},
     }
