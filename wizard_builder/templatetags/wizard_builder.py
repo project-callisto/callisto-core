@@ -29,12 +29,6 @@ def add_aria_tags_to_field(field):
     return field
 
 
-# TODO: smell
-@register.filter(name='is_extra')
-def is_extra(field):
-    return 'extra' in field.id_for_label
-
-
 # TODO: remove, replace with widget template
 @register.filter(name='is_multiple_choice')
 def is_multiple_choice(field):

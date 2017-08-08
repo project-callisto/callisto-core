@@ -2,11 +2,10 @@
 {% load wizard_builder %}
 
 {% for field in form %}
-    {% if not field|is_extra %}
-        <div class="form-group
-            {% if field.errors %}has-error{% endif %}
-            {% if forloop.counter != 1 %}more_questions{% endif %}
-        ">
+    <div class="form-group
+        {% if field.errors %}has-error{% endif %}
+        {% if forloop.counter != 1 %}more_questions{% endif %}
+    ">
 
         {% if not field|is_multiple_choice %}
             <label id='help-{{ field.id_for_label }}' class="help-block">
@@ -39,6 +38,5 @@
         {% if field.errors %}
             <span class="help-block" role="alert">{{ field.errors }}</span>
         {% endif %}
-            </div>
-    {% endif %}
+    </div>
 {% endfor %}
