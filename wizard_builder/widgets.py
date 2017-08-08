@@ -2,7 +2,11 @@ from django.forms.widgets import CheckboxSelectMultiple, RadioSelect
 
 
 class InputOptionExtraMixin(object):
-    # TODO: add a hook into this template, instead of overwritting it
+    '''
+        adds extra_options_field and extra_info_field inline with a Choice
+        instance
+    '''
+    # TODO: add a hook into this template in django, instead of overwritting it
     option_template_name = 'wizard_builder/input_option_extra.html'
 
     def create_option(self, *args, **kwargs):
@@ -17,6 +21,9 @@ class RadioExtraSelect(
     InputOptionExtraMixin,
     RadioSelect,
 ):
+    '''
+        A RadioSelect with inline widgets
+    '''
     pass
 
 
@@ -24,4 +31,7 @@ class CheckboxExtraSelectMultiple(
     InputOptionExtraMixin,
     CheckboxSelectMultiple,
 ):
+    '''
+        A Checkbox with inline widgets
+    '''
     pass

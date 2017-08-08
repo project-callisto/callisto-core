@@ -1,4 +1,3 @@
-import copy
 import logging
 
 from tinymce import HTMLField
@@ -106,7 +105,8 @@ class FormQuestion(TimekeepingBase, models.Model):
         Page,
         editable=True,
         null=True,
-        on_delete=models.SET_NULL)
+        on_delete=models.SET_NULL,
+    )
     position = models.PositiveSmallIntegerField("position", default=0)
     objects = FormQuestionManager()
 
@@ -141,9 +141,6 @@ class FormQuestion(TimekeepingBase, models.Model):
         else:
             return None
 
-    def clone(self):
-        return copy.deepcopy(self)
-
     def get_label(self):
         return mark_safe(self.text)
 
@@ -172,6 +169,7 @@ class FormQuestion(TimekeepingBase, models.Model):
 class SingleLineText(FormQuestion):
 
     def make_field(self):
+        # TODO: use the django field creation hook instead
         return forms.CharField(
             label=self.get_label(),
             required=False,
@@ -186,19 +184,12 @@ class SingleLineText(FormQuestion):
 class MultipleChoice(FormQuestion):
     objects = FormQuestionManager()
 
-    def clone(self):
-        question_copy = copy.deepcopy(self)
-        # copy choices
-        choices = [copy.deepcopy(choice) for choice in self.choice_set.all()]
-        question_copy.cached_choices = choices
-        return question_copy
-
     @property
     def choices(self):
         return self.choice_set.all()
 
     @property
-    def choice_tuples(self):
+    def choices_field_display(self):
         return [
             (choice.pk, choice.text)
             for choice in self.choices
@@ -206,11 +197,11 @@ class MultipleChoice(FormQuestion):
 
     def serialize_for_report(self, answer=''):
         data = super().serialize_for_report(answer)
-        data.update({'choices': self.serialized_choices})
+        data.update({'choices': self.serialized_choices_for_report})
         return data
 
     @property
-    def serialized_choices(self):
+    def serialized_choices_for_report(self):
         return [
             {"id": choice.pk, "choice_text": choice.text}
             for choice in self.choices
@@ -218,6 +209,10 @@ class MultipleChoice(FormQuestion):
 
     @property
     def widget(self):
+        # TODO: merge into a more versatile feild creation function that
+            # works entirely off of checking variables on the instance
+            # (instead of self._meta.model)
+            # and move this function to FormQuestion
         if getattr(self, 'is_dropdown', False):
             return Select
         elif self._meta.model == RadioButton:
@@ -226,12 +221,13 @@ class MultipleChoice(FormQuestion):
             return CheckboxExtraSelectMultiple
 
     def make_field(self):
+        # TODO: use the django field creation hook instead
         if self._meta.model == RadioButton:
             _Field = ChoiceField
         elif self._meta.model == Checkbox:
             _Field = MultipleChoiceField
         return _Field(
-            choices=self.choice_tuples,
+            choices=self.choices_field_display,
             label=self.text,
             required=False,
             widget=self.widget,
@@ -259,7 +255,7 @@ class Choice(models.Model):
         return self.choiceoption_set.all()
 
     @property
-    def option_tuples(self):
+    def options_field_display(self):
         return [
             (option.pk, option.text)
             for option in self.options
@@ -267,8 +263,11 @@ class Choice(models.Model):
 
     @property
     def extra_options_field(self):
+        '''
+            render widget for choice.options
+        '''
         field = ChoiceField(
-            choices=self.option_tuples,
+            choices=self.options_field_display,
             required=False,
             widget=ChoiceField.widget(attrs={
                 'class': "extra-widget",
@@ -279,6 +278,9 @@ class Choice(models.Model):
 
     @property
     def extra_info_field(self):
+        '''
+            render widget for choice.extra_info_text
+        '''
         field = Field(
             required=False,
             widget=TextInput(
@@ -293,6 +295,9 @@ class Choice(models.Model):
 
     @property
     def extra_widget_options(self):
+        '''
+            render context for any extra widgets this instance may have
+        '''
         if self.options and self.extra_info_text:
             logger.error('''
                 self.options and self.extra_info_text defined for Choice(pk={})
