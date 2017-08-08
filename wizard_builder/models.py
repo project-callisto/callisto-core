@@ -10,7 +10,7 @@ from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Select
 from django.utils.safestring import mark_safe
 
 from .managers import FormQuestionManager, PageManager
-from .widgets import RadioExtraInfoSelect
+from .widgets import RadioExtraSelect, CheckboxExtraSelectMultiple
 
 
 class TimekeepingBase(models.Model):
@@ -231,9 +231,9 @@ class MultipleChoice(FormQuestion):
                 'class': "form-control input-lg",
             })
         elif self._meta.model == RadioButton:
-            return RadioExtraInfoSelect
+            return RadioExtraSelect
         elif self._meta.model == Checkbox:
-            return CheckboxSelectMultiple
+            return CheckboxExtraSelectMultiple
 
     def make_field(self):
         if self._meta.model == RadioButton:

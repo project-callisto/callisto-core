@@ -4,5 +4,6 @@
     >
 {% endif %}
 {% include "django/forms/widgets/input.html" %}
-{% if wrap_label %}{{ widget.label }}</label>{% endif %}
-{% include "django/forms/widgets/multiple_input.html" %}
+{% if wrap_label %}
+    {{ widget.label }}</label>
+{% endif %}
