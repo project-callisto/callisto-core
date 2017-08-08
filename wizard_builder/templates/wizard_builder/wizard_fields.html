@@ -33,26 +33,25 @@
                         {% endif %}
                     </legend>
                     {% for choice in field %}
-                        {% with extra_field=form.extra_fields|lookup:choice.id_for_label %}
-                            <div class={{field|get_field_type}}>
-                                <div class="choice{% if extra_field %} extra-choice{% endif %}">
-                                    <label for="{{choice.id_for_label}}">
-                                        {{ choice.tag }}
-                                        <span class="label-text">{{ choice.choice_label }}</span>
-                                    </label>
-                                    {% if extra_field %}
-                                        {% for field in form %}
-                                            {% if field.html_name == extra_field.extra_field_id %}
-                                                <span id="{{extra_field.extra_field_id}}-wrapper" class="extra-wrapper" aria-hidden="true">
-                                                    {{ field|label_with_classes:"control-label"}}
-                                                    {{ field|add_error_attr:"aria-invalid:true"|add_class:"form-control"}}
-                                                </span>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
+                        {{ choice }}
+                        <div class={{field|get_field_type}}>
+                            <div class="choice">
+                                <label for="{{choice.id_for_label}}">
+                                    {{ choice.tag }}
+                                    <span class="label-text">{{ choice.choice_label }}</span>
+                                </label>
+                                {% if False %}
+                                    {% for field in form %}
+                                        {% if field.html_name == extra_field.extra_field_id %}
+                                            <span id="{{extra_field.extra_field_id}}-wrapper" class="extra-wrapper" aria-hidden="true">
+                                                {{ field|label_with_classes:"control-label"}}
+                                                {{ field|add_error_attr:"aria-invalid:true"|add_class:"form-control"}}
+                                            </span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                             </div>
-                        {% endwith %}
+                        </div>
                     {% endfor %}
                 </fieldset>
         {% endif %}

@@ -20,15 +20,12 @@ class PageForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.has_tooltip = False
-        extra_fields = {}
-        for item in self.items:
-            question_id = 'question_%s' % item.pk
-            self.fields[question_id] = item.make_field()
+        for question in self.items:
+            question_id = 'question_%s' % question.pk
+            self.fields[question_id] = question.make_field()
             self.fields[question_id].help_text = mark_safe(
-                item.descriptive_text + self.fields[question_id].help_text
+                question.descriptive_text + self.fields[question_id].help_text
             )
-        if len(extra_fields) > 0:
-            self.extra_fields = extra_fields
 
 
 def get_form_pages(pages):

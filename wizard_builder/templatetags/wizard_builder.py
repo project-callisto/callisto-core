@@ -8,16 +8,6 @@ from django.forms import (
 register = template.Library()
 
 
-# TODO: remove
-# TODO: figure out why extra on formsets doesn't work
-@register.filter
-def lookup(d, key):
-    if isinstance(d, dict):
-        return d.get(key)
-    else:
-        return None
-
-
 @register.filter(is_safe=True)
 def label_with_classes(value, arg):
     return value.label_tag(attrs={'class': arg}, label_suffix="")
