@@ -144,6 +144,15 @@ class FormQuestion(TimekeepingBase, models.Model):
         if not self.page:
             self.page = Page.objects.latest('position')
 
+    def serialize_for_report(self, answer=""):
+        return {
+            'id': self.pk,
+            'question_text': self.text,
+            'answer': answer,
+            'type': self._meta.model_name.capitalize(),
+            'section': self.section,
+        }
+
     def save(self, *args, **kwargs):
         self.set_question_page()
         super(FormQuestion, self).save(*args, **kwargs)
@@ -166,13 +175,9 @@ class SingleLineText(FormQuestion):
             ),
         )
 
-    def serialize_for_report(self, answer="", *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
-                'type': 'SingleLineText', 'section': self.section}
-
 
 class MultipleChoice(FormQuestion):
-    cached_choices = None
+    cached_choices = None  # TODO: smell
     objects = FormQuestionManager()
 
     def clone(self):
@@ -186,36 +191,58 @@ class MultipleChoice(FormQuestion):
         if self.cached_choices:
             return self.cached_choices
         else:
-            choices = [copy.deepcopy(choice)
-                       for choice in self.choice_set.all()]
+            choices = [
+                copy.deepcopy(choice)
+                for choice in self.choice_set.all()
+            ]
             self.cached_choices = choices
             return choices
 
+    def get_choice_tuples(self):
+        choices = self.get_choices()
+        return [
+            (choice.pk, choice.make_choice())
+            for choice in choices
+        ]
+
+    def serialize_for_report(self, answer='', *args):
+        data = super().serialize_for_report(answer)
+        data.update({
+            'choices': self.serialize_choices(),
+        })
+        return data
+
     def serialize_choices(self):
-        return [{"id": choice.pk, "choice_text": choice.text}
-                for choice in self.get_choices()]
+        return [
+            {"id": choice.pk, "choice_text": choice.text}
+            for choice in self.get_choices()
+        ]
+
+
+    def get_widget(self):
+        if getattr(self, 'is_dropdown', False):
+            return forms.Select(attrs={
+                'class': "form-control input-lg",
+            })
+        elif self._meta.model == RadioButton:
+            return forms.RadioSelect
+        elif self._meta.model == Checkbox:
+            return forms.CheckboxSelectMultiple
+
+    def make_field(self):
+        if self._meta.model == RadioButton:
+            field = forms.ChoiceField
+        elif self._meta.model == Checkbox:
+            field = forms.MultipleChoiceField
+        return field(
+            choices=self.get_choice_tuples(),
+            label=self.text,
+            required=False,
+            widget=self.get_widget(),
+        )
 
 
 class Checkbox(MultipleChoice):
-
-    def make_field(self):
-        choices = self.get_choices()
-        choice_tuples = [(choice.pk, choice.make_choice())
-                         for choice in choices]
-        return forms.MultipleChoiceField(choices=choice_tuples,
-                                         label=self.text,
-                                         required=False,
-                                         widget=forms.CheckboxSelectMultiple)
-
-    def serialize_for_report(self, answer, *args):
-        return {
-            'id': self.pk,
-            'question_text': self.text,
-            'choices': self.serialize_choices(),
-            'answer': answer,
-            'type': 'Checkbox',
-            'section': self.section,
-        }
 
     class Meta:
         verbose_name_plural = "checkboxes"
@@ -223,28 +250,6 @@ class Checkbox(MultipleChoice):
 
 class RadioButton(MultipleChoice):
     is_dropdown = models.BooleanField(default=False)
-
-    def make_field(self):
-        choices = self.get_choices()
-        choice_tuples = [(choice.pk, choice.make_choice())
-                         for choice in choices]
-        return forms.ChoiceField(
-            choices=choice_tuples,
-            label=self.text,
-            required=False,
-            widget=forms.Select(
-                attrs={
-                    'class': "form-control input-lg"}) if self.is_dropdown else forms.RadioSelect)
-
-    def serialize_for_report(self, answer, *args):
-        return {
-            'id': self.pk,
-            'question_text': self.text,
-            'choices': self.serialize_choices(),
-            'answer': answer,
-            'type': 'RadioButton',
-            'section': self.section,
-        }
 
 
 class Choice(models.Model):
