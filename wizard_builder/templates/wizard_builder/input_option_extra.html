@@ -1,6 +1,7 @@
 {% comment "Optional note" %}
     from 'django/forms/widgets/input_option.html'
 {% endcomment %}
+
 {% if wrap_label %}
     <label
         {% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}
@@ -9,11 +10,17 @@
 {% include "django/forms/widgets/input.html" %}
 {% if wrap_label %}
     {{ widget.label }}
+
+    {% comment "Optional note" %}
+        this entire section would be better off as a 'post_label_block' or
+        similar in django/forms/widgets/input_option.html
+    {% endcomment %}
     {% with field=widget.extra_dropdown_widget_context %}
         {% include "wizard_builder/input_extra_widget.html" %}
     {% endwith %}
     {% with field=widget.extra_text_widget_context %}
         {% include "wizard_builder/input_extra_widget.html" %}
     {% endwith %}
+
     </label>
 {% endif %}

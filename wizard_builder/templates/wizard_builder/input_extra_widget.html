@@ -2,6 +2,14 @@
     {% with field.widget as widget %}
         {% include widget.template_name %}
     {% endwith %}
+
+    {% comment "Optional note" %}
+        the script handles showing / hiding the extra-widgets based on
+        whether or not their input option is selected
+
+        TODO: scope this jquery include to the following script tag somehow
+    {% endcomment %}
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script type="text/javascript">
         $('#{{ widget.attrs.id }}').each(function(index, el) {
@@ -15,4 +23,5 @@
             });
         })
     </script>
+
 {% endif %}
