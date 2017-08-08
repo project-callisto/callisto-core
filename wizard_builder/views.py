@@ -133,8 +133,8 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                     }
 
                 output_location.append(
-                    question.serialize_for_report(
-                        answer, extra_context))
+                    question.serialize_for_report(answer),
+                )
 
         answered_questions = []
         for idx, form in form_dict.items():

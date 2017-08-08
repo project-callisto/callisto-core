@@ -10,6 +10,7 @@ from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Select
 from django.utils.safestring import mark_safe
 
 from .managers import FormQuestionManager, PageManager
+from .widgets import RadioExtraInfoSelect
 
 
 class TimekeepingBase(models.Model):
@@ -146,7 +147,7 @@ class FormQuestion(TimekeepingBase, models.Model):
         if not self.page:
             self.page = Page.objects.latest('position')
 
-    def serialize_for_report(self, answer=""):
+    def serialize_for_report(self, answer=''):
         return {
             'id': self.pk,
             'question_text': self.text,
@@ -207,7 +208,7 @@ class MultipleChoice(FormQuestion):
             for choice in choices
         ]
 
-    def serialize_for_report(self, answer='', *args):
+    def serialize_for_report(self, answer=''):
         data = super().serialize_for_report(answer)
         data.update({
             'choices': self.serialize_choices(),
@@ -220,13 +221,17 @@ class MultipleChoice(FormQuestion):
             for choice in self.get_choices()
         ]
 
+    @property
+    def has_extra_info(self):
+        pass
+
     def get_widget(self):
         if getattr(self, 'is_dropdown', False):
             return Select(attrs={
                 'class': "form-control input-lg",
             })
         elif self._meta.model == RadioButton:
-            return RadioSelect
+            return RadioExtraInfoSelect
         elif self._meta.model == Checkbox:
             return CheckboxSelectMultiple
 
