@@ -20,3 +20,7 @@ class FrontendTest(FunctionalTest):
     def test_choice_text(self):
         self.assertSelectorContains('.choice', 'choice 1')
         self.assertSelectorContains('.choice', 'choice 2')
+
+    def test_extra_options(self):
+        self.assertSelectorContains('option', 'option 1')
+        self.assertSelectorContains('option', 'option 2')
