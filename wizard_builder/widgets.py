@@ -6,9 +6,9 @@ class InputOptionExtraMixin(object):
     option_template_name = 'wizard_builder/input_option_extra.html'
 
     def create_option(self, *args, **kwargs):
+        from .models import Choice
         options = super().create_option(*args, **kwargs)
-        choice_id = options['value']
-        choice = self.attrs['choice_map'][choice_id]
+        choice = Choice.objects.get(id=options['value'])
         options = choice.add_extra_options(options)
         return options
 

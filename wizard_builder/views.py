@@ -123,15 +123,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                         (field_name, answer, self.items[field_name]))
             questions.sort(key=lambda x: x[2].position)
             for field_name, answer, question in questions:
-                extra_key = "%s_extra-%s" % (field_name, answer)
-                extra_prompt = self.items.get(extra_key)
-                extra_context = None
-                if extra_prompt:
-                    extra_context = {
-                        'answer': cleaned_data.get(extra_key, ''),
-                        'extra_text': extra_prompt,
-                    }
-
+                # TODO: include extra info
                 output_location.append(
                     question.serialize_for_report(answer),
                 )
