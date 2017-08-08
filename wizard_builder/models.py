@@ -5,8 +5,10 @@ from tinymce import HTMLField
 from django import forms
 from django.contrib.sites.models import Site
 from django.db import models
-from django.forms.fields import ChoiceField, MultipleChoiceField
-from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Select
+from django.forms.fields import ChoiceField, MultipleChoiceField, Field
+from django.forms.widgets import (
+    CheckboxSelectMultiple, RadioSelect, Select, TextInput,
+)
 from django.utils.safestring import mark_safe
 
 from .managers import FormQuestionManager, PageManager
@@ -115,6 +117,7 @@ class FormQuestion(TimekeepingBase, models.Model):
         else:
             return "{} {}".format(self.short_str, type_str)
 
+    # TODO: I feel like there is a django model option for this
     @property
     def field_id(self):
         return "question_{}".format(self.pk)
@@ -180,7 +183,6 @@ class SingleLineText(FormQuestion):
 
 
 class MultipleChoice(FormQuestion):
-    cached_choices = None  # TODO: smell
     objects = FormQuestionManager()
 
     def clone(self):
@@ -190,53 +192,42 @@ class MultipleChoice(FormQuestion):
         question_copy.cached_choices = choices
         return question_copy
 
-    def get_choices(self):
-        if self.cached_choices:
-            return self.cached_choices
-        else:
-            choices = [
-                copy.deepcopy(choice)
-                for choice in self.choice_set.all()
-            ]
-            self.cached_choices = choices
-            return choices
+    @property
+    def choices(self):
+        return self.choice_set.all()
 
-    def get_choice_tuples(self):
-        choices = self.get_choices()
+    @property
+    def choice_tuples(self):
         return [
             (choice.pk, choice.make_choice())
-            for choice in choices
+            for choice in self.choices
         ]
 
     def serialize_for_report(self, answer=''):
         data = super().serialize_for_report(answer)
-        data.update({
-            'choices': self.serialize_choices(),
-        })
+        data.update({'choices': self.serialized_choices})
         return data
 
-    def serialize_choices(self):
+    @property
+    def serialized_choices(self):
         return [
             {"id": choice.pk, "choice_text": choice.text}
-            for choice in self.get_choices()
+            for choice in self.choices
         ]
 
     @property
-    def extra_dict(self):
-        return {}
-
-    @property
-    def dropdown_dict(self):
-        return {}
+    def choice_map(self):
+        return {
+            choice.id: choice
+            for choice in self.choices
+        }
 
     @property
     def widget_attrs(self):
-        return {
-            'extra_dict': self.extra_dict,
-            'dropdown_dict': self.dropdown_dict,
-        }
+        return {'choice_map': self.choice_map}
 
-    def get_widget(self):
+    @property
+    def widget(self):
         if getattr(self, 'is_dropdown', False):
             return Select()
         elif self._meta.model == RadioButton:
@@ -246,14 +237,14 @@ class MultipleChoice(FormQuestion):
 
     def make_field(self):
         if self._meta.model == RadioButton:
-            Field = ChoiceField
+            _Field = ChoiceField
         elif self._meta.model == Checkbox:
-            Field = MultipleChoiceField
-        return Field(
-            choices=self.get_choice_tuples(),
+            _Field = MultipleChoiceField
+        return _Field(
+            choices=self.choice_tuples,
             label=self.text,
             required=False,
-            widget=self.get_widget(),
+            widget=self.widget,
         )
 
 
@@ -279,6 +270,22 @@ class Choice(models.Model):
 
     def make_choice(self):
         return self.text
+
+    @property
+    def extra_info_widget(self):
+        return TextInput(
+            attrs={'placeholder': self.extra_info_text},
+        )
+
+    def add_extra_options(self, options):
+        if self.extra_info_text:
+            options.update({
+                'extra_info_field': Field(
+                    required=False,
+                    widget=self.extra_info_widget,
+                ),
+            })
+        return options
 
     class Meta:
         ordering = ['position', 'pk']
