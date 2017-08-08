@@ -32,9 +32,7 @@
                             <p class="help-block">{{ field.help_text }}</p>
                         {% endif %}
                     </legend>
-                    {% for choice in field %}
-                        <div>{{ choice }}</div>
-                    {% endfor %}
+                    {{ field }}
                 </fieldset>
         {% endif %}
 
