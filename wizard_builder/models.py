@@ -271,6 +271,10 @@ class Choice(models.Model):
         field = ChoiceField(
             choices=self.option_tuples,
             required=False,
+            widget=ChoiceField.widget(attrs={
+                'class': "extra-widget",
+                'style': "display: none;",
+            }),
         )
         return field.widget.get_context('extra_options', '', {})
 
@@ -279,7 +283,11 @@ class Choice(models.Model):
         field = Field(
             required=False,
             widget=TextInput(
-                attrs={'placeholder': self.extra_info_text},
+                attrs={
+                    'placeholder': self.extra_info_text,
+                    'class': "extra-widget",
+                    'style': "display: none;",
+                },
             ),
         )
         return field.widget.get_context('extra_info', '', {})
