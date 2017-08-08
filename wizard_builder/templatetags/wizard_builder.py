@@ -55,15 +55,6 @@ def is_multiple_choice(field):
 
 
 # TODO: remove, replace with widget template
-@register.filter(name='is_multiple_choice')
-def is_multiple_choice(field):
-    widget_name = field.field.widget.__class__.__name__
-    return (widget_name == CheckboxInput().__class__.__name__ or
-            widget_name == CheckboxSelectMultiple().__class__.__name__ or
-            widget_name == RadioSelect().__class__.__name__)
-
-
-# TODO: remove, replace with widget template
 @register.filter(name='is_textarea')
 def is_textarea(field):
     widget_name = field.field.widget.__class__.__name__

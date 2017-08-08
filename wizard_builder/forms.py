@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.forms.formsets import formset_factory
 from django.utils.safestring import mark_safe
 
-from .models import MultipleChoice, Page
+from .models import Page
 
 # rearranged from django-formtools
 
