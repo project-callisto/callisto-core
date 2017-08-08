@@ -13,6 +13,12 @@ def label_with_classes(value, arg):
     return value.label_tag(attrs={'class': arg}, label_suffix="")
 
 
+@register.filter(is_safe=True)
+def ipython(arg):
+    from IPython import embed; embed()
+    return ''
+
+
 # TODO: pull request against django-widget-tweaks ?
 @register.filter(is_safe=True)
 def add_aria_tags_to_field(field):

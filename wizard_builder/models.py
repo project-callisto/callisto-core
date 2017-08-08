@@ -268,19 +268,21 @@ class Choice(models.Model):
 
     @property
     def extra_options_field(self):
-        return ChoiceField(
+        field = ChoiceField(
             choices=self.option_tuples,
             required=False,
         )
+        return field.widget.get_context('extra_options', '', {})
 
     @property
     def extra_info_field(self):
-        return Field(
+        field = Field(
             required=False,
             widget=TextInput(
                 attrs={'placeholder': self.extra_info_text},
             ),
         )
+        return field.widget.subwidgets('extra_info', '')
 
     @property
     def extra_widget_options(self):

@@ -1,5 +1,5 @@
 {% if widget.extra_info_field %}
-    {% with widget=widget.extra_info_field.widget %}
-        {% include "django/forms/widgets/input.html" %}
-    {% endwith %}
+    {% for widget in widget.extra_info_field %}
+        {% include widget.template_name %}
+    {% endfor %}
 {% endif %}

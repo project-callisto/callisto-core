@@ -1,5 +1,5 @@
 {% if widget.extra_options_field %}
-    {% with widget=widget.extra_options_field.widget %}
-        {% include "django/forms/widgets/select.html" %}
+    {% with widget.extra_options_field.widget as widget %}
+        {% include widget.template_name %}
     {% endwith %}
 {% endif %}
