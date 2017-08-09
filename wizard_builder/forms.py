@@ -19,12 +19,10 @@ class PageForm(forms.Form):
 
     @property
     def processed(self):
-        output = []
-        for field_name, answer in cleaned_data.items():
-            question = self.items[field_name]
-            output.append(
-                question.serialize_for_report(answer),
-            )
+        return [
+            self.items[field_name].serialize_for_report(answer)
+            for field_name, answer in self.cleaned_data.items()
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
