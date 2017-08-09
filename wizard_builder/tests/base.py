@@ -27,14 +27,14 @@ class Assertions(object):
         assertion_valid = False
         elements = list(self.browser.find_elements_by_css_selector(css)),
         elements = elements[0]
-        element_text = []
+        element_text = ''
         for element in elements:
-            element_text.append(element.text)
+            element_text += element.text
             if text in element.text:
                 assertion_valid = True
         if not assertion_valid:
             raise AssertionError('''
-                '{}' not found in {}
+                '{}' not found in '{}'
             '''.format(text, element_text))
 
 
