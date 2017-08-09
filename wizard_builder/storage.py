@@ -9,7 +9,7 @@ from django.utils.datastructures import MultiValueDict
 # https://github.com/django/django-formtools/blob/master/LICENSE
 
 
-class BaseStorage(object):
+class SessionStorage(object):
     step_key = 'step'
     step_data_key = 'step_data'
     step_files_key = 'step_files'
@@ -21,6 +21,8 @@ class BaseStorage(object):
         self.file_storage = file_storage
         self._files = {}
         self._tmp_files = []
+        if self.prefix not in self.request.session:
+            self.init_data()
 
     def init_data(self):
         self.data = {
@@ -143,14 +145,6 @@ class BaseStorage(object):
             response.add_post_render_callback(post_render_callback)
         else:
             post_render_callback(response)
-
-
-class SessionStorage(BaseStorage):
-
-    def __init__(self, *args, **kwargs):
-        super(SessionStorage, self).__init__(*args, **kwargs)
-        if self.prefix not in self.request.session:
-            self.init_data()
 
     def _get_data(self):
         self.request.session.modified = True
