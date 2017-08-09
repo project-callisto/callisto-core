@@ -109,6 +109,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
 
     def __init__(self, *args, **kwargs):
         super(ConfigurableFormWizard, self).__init__(*args, **kwargs)
+        # TODO: don't define self values before init???
         self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
 
     def process_form(self, cleaned_data, output_location):
