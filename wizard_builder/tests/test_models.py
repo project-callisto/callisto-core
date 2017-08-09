@@ -162,6 +162,12 @@ class RadioButtonTestCase(ItemTestCase):
         self.assertEqual(type(serialized_q['choices']), list)
         self.assertTrue(len(serialized_q['choices']))
 
+    def test_choice_extra_info_serialized(self):
+        pass
+
+    def test_choice_extra_dropdown_serialized(self):
+        pass
+
 
 class CheckboxTestCase(ItemTestCase):
 

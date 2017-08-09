@@ -5,8 +5,8 @@ from tinymce import HTMLField
 from django import forms
 from django.contrib.sites.models import Site
 from django.db import models
-from django.forms.fields import ChoiceField, Field, MultipleChoiceField
-from django.forms.widgets import Select, TextInput
+from django.forms.fields import ChoiceField, MultipleChoiceField
+from django.forms.widgets import Select
 from django.utils.safestring import mark_safe
 
 from .managers import FormQuestionManager, PageManager
@@ -253,65 +253,6 @@ class Choice(models.Model):
     @property
     def options(self):
         return self.choiceoption_set.all()
-
-    @property
-    def options_field_display(self):
-        return [
-            (option.pk, option.text)
-            for option in self.options
-        ]
-
-    @property
-    def extra_dropdown_widget_context(self):
-        '''
-            render widget for choice.options
-        '''
-        field = ChoiceField(
-            choices=self.options_field_display,
-            required=False,
-            widget=ChoiceField.widget(attrs={
-                'class': "extra-widget extra-widget-dropdown",
-                'style': "display: none;",
-            }),
-        )
-        return field.widget.get_context('extra_options', '', {})
-
-    @property
-    def extra_text_widget_context(self):
-        '''
-            render widget for choice.extra_info_text
-        '''
-        field = Field(
-            required=False,
-            widget=TextInput(
-                attrs={
-                    'placeholder': self.extra_info_text,
-                    'class': "extra-widget extra-widget-text",
-                    'style': "display: none;",
-                },
-            ),
-        )
-        return field.widget.get_context('extra_info', '', {})
-
-    @property
-    def extra_widget_context(self):
-        '''
-            render context for any extra widgets this instance may have
-        '''
-        if self.options and self.extra_info_text:
-            logger.error('''
-                self.options and self.extra_info_text defined for Choice(pk={})
-            '''.format(self.pk))
-            return {}
-        elif self.options:
-            return {
-                'extra_dropdown_widget_context': self.extra_dropdown_widget_context, }
-        elif self.extra_info_text:
-            return {
-                'extra_text_widget_context': self.extra_text_widget_context,
-            }
-        else:
-            return {}
 
     class Meta:
         ordering = ['position', 'pk']
