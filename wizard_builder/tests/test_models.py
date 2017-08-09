@@ -57,26 +57,23 @@ class ItemTestCase(TestCase):
 
 class FormQuestionModelTest(ItemTestCase):
 
-    def test_questions_have_text(self):
-        SingleLineText.objects.create(text="This is a question")
-        self.assertEqual(SingleLineText.objects.count(), 1)
+    def test_question_text_serializes_correctly(self):
+        question = FormQuestion.objects.create(
+            text='This is a question to be answered',
+        )
+        serialized_q = question.serialize_for_report()
         self.assertEqual(
-            SingleLineText.objects.first().text,
-            "This is a question")
+            serialized_q['question_text'],
+            question.text,
+        )
 
-    def test_string_representation(self):
-        question = SingleLineText.objects.create(text="What's up?")
-        self.assertEqual(str(question), "What's up? (Type: SingleLineText)")
-
-    def test_questions_can_have_pages(self):
-        page = Page.objects.create()
-        SingleLineText.objects.create(
-            text="This is a question on page 4", page=page)
-        self.assertEqual(SingleLineText.objects.first().page, page)
-
-    def test_questions_have_pages_by_default(self):
-        SingleLineText.objects.create(text="This is a question with no page")
-        self.assertEqual(SingleLineText.objects.first().page.position, 1)
+    def test_answer_serializes_correctly(self):
+        question = FormQuestion.objects.create()
+        serialized_q = question.serialize_for_report('words')
+        self.assertEqual(
+            serialized_q['answer'],
+            'words',
+        )
 
     def test_questions_get_added_to_end_by_default(self):
         # setup creates one page
@@ -84,16 +81,9 @@ class FormQuestionModelTest(ItemTestCase):
         for i in range(pages):
             Page.objects.create()
         question = SingleLineText.objects.create(
-            text="This is a question with no page")
+            text="This is a question with no page",
+        )
         self.assertEqual(question.page.position, pages + 1)
-
-    def test_questions_can_have_descriptive_text(self):
-        SingleLineText.objects.create(
-            text="This is a question",
-            descriptive_text="You might answer it so")
-        self.assertEqual(
-            SingleLineText.objects.first().descriptive_text,
-            "You might answer it so")
 
     def test_questions_have_position(self):
         SingleLineText.objects.create(text="some question")
@@ -106,42 +96,23 @@ class FormQuestionModelTest(ItemTestCase):
 
 class SingleLineTextModelTestCase(ItemTestCase):
 
-    def test_make_field_applies_css(self):
-        question = SingleLineText.objects.create(
-            text="This is a question with css").make_field()
-        self.assertIn('form-control input-lg', question.widget.attrs['class'])
-
-    def test_make_field_works_without_placeholder(self):
-        question = SingleLineText.objects.create(
-            text="This is a question without placeholder").make_field()
-        self.assertEqual(None, question.widget.attrs.get('placeholder'))
-
-    def test_serializes_correctly(self):
-        question = SingleLineText.objects.create(
-            text="This is a question to be answered")
-        serialized_q = question.serialize_for_report("my answer")
-        json_report = json.loads("""
-    { "answer": "my answer",
-      "id": %i,
-      "section": 1,
-      "question_text": "This is a question to be answered",
-      "type": "SingleLineText"
-    }""" % question.pk)
-        self.assertEqual(serialized_q, json_report)
-
-    def test_serializes_no_answer_correctly(self):
-        question = SingleLineText.objects.create(
-            text="This is a question to be answered")
+    def test_question_text_serializes_correctly(self):
+        question = FormQuestion.objects.create(
+            text='This is a question to be answered',
+        )
         serialized_q = question.serialize_for_report()
-        json_report = json.loads("""
-    { "answer": "",
-      "id": %i,
-      "section": 1,
-      "question_text": "This is a question to be answered",
-      "type": "SingleLineText"
-    }""" % question.pk)
-        self.assertEqual(serialized_q, json_report)
+        self.assertEqual(
+            serialized_q['question_text'],
+            question.text,
+        )
 
+    def test_answer_serializes_correctly(self):
+        question = FormQuestion.objects.create()
+        serialized_q = question.serialize_for_report('words')
+        self.assertEqual(
+            serialized_q['answer'],
+            'words',
+        )
 
 class RadioButtonTestCase(ItemTestCase):
 
