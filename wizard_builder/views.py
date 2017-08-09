@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 
-from .forms import PageForm, get_form_pages
+from .forms import PageFormManager
 from .models import Page
 from .wizards import NamedUrlWizardView
 
@@ -114,13 +114,8 @@ class ConfigurableFormWizard(NamedUrlWizardView):
             return self.initial_dict.get(step, {})
 
     @classmethod
-    def generate_form_list(cls, pages, object_to_edit, **kwargs):
-        return get_form_pages(pages)
-
-    @classmethod
     def wizard_factory(cls, object_to_edit=None, site_id=None, **kwargs):
         pages = Page.objects.on_site(site_id).all()
-        form_list = cls.generate_form_list(pages, object_to_edit, **kwargs)
         formsets = {}
         items = {}
         # TODO: make this for loop a manager method
@@ -133,7 +128,7 @@ class ConfigurableFormWizard(NamedUrlWizardView):
             (cls,),
             {
                 "items": items,
-                "form_list": form_list,
+                "form_list": PageFormManager.forms(pages),
                 "object_to_edit": object_to_edit,
                 "formsets": formsets,
                 "page_count": len(pages),

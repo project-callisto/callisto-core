@@ -4,7 +4,6 @@ from collections import OrderedDict
 from django import forms
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
-from django.forms import formsets
 from django.shortcuts import redirect
 from django.utils import six
 from django.utils.decorators import classonlymethod

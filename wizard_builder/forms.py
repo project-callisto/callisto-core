@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.forms.formsets import formset_factory
 from django.utils.safestring import mark_safe
 
 from .models import Page
@@ -26,36 +25,40 @@ class PageForm(forms.Form):
             for question in self.page.questions
         ]
 
-    def setup(self):
+    @classmethod
+    def setup(cls, page, page_index, section_map):
+        cls.page = page
+        cls.page_index = page_index
+        cls.section_map = section_map
+        self = cls()
         for question in self.page.questions:
             self.fields[question.field_id] = question.make_field()
             self.fields[question.field_id].help_text = mark_safe(
                 question.descriptive_text + self.fields[question.field_id].help_text
             )
+        return self
 
 
-def get_form_pages(pages):
-    generated_forms = []
-    section_map = {}
+class PageFormManager(object):
+    form_class = PageForm
 
-    # TODO: smell this next
-    for (section, _) in Page.SECTION_CHOICES:
-        start = next((idx for idx, page in enumerate(
-            pages) if page.section == section), None)
-        section_map[section] = start
+    @classmethod
+    def forms(cls, pages):
+        _forms = []
+        # TODO: smell section_map
+        section_map = {}
 
-    for idx, page in enumerate(pages):
-        form = PageForm()
-        for name, value in {
-            "page": page,
-            "page_index": idx,
-            "section_map": section_map,
-            # "items": page.questions,
-            # "infobox": page.infobox,
-            # "page_section": page.section,
-        }.items():
-            setattr(form, name, value)
-        form.setup()
-        generated_forms.append(form)
+        for (section, _) in Page.SECTION_CHOICES:
+            start = next((idx for idx, page in enumerate(
+                pages) if page.section == section), None)
+            section_map[section] = start
 
-    return generated_forms
+        for idx, page in enumerate(pages):
+            form = cls.form_class.setup(
+                page=page,
+                page_index=idx,
+                section_map=section_map,
+            )
+            _forms.append(form)
+
+        return _forms
