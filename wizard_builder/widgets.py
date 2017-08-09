@@ -20,7 +20,7 @@ class InputOptionExtraMixin(object):
     def _option_fields(self):
         return [
             (option.pk, option.text)
-            for option in self.choice.options
+            for option in self._choice.options
         ]
 
     @property
@@ -47,7 +47,7 @@ class InputOptionExtraMixin(object):
             required=False,
             widget=TextInput(
                 attrs={
-                    'placeholder': self.choice.extra_info_text,
+                    'placeholder': self._choice.extra_info_text,
                     'class': "extra-widget extra-widget-text",
                     'style': "display: none;",
                 },
@@ -60,14 +60,14 @@ class InputOptionExtraMixin(object):
         '''
             render context for any extra widgets this instance may have
         '''
-        if self.choice.options and self.choice.extra_info_text:
+        if self._choice.options and self._choice.extra_info_text:
             logger.error('''
                 self.options and self.extra_info_text defined for Choice(pk={})
-            '''.format(self.choice.pk))
+            '''.format(self._choice.pk))
             return {}
-        elif self.choice.options:
+        elif self._choice.options:
             return {self._dropdown_var: self._get_context_dropdown}
-        elif self.choice.extra_info_text:
+        elif self._choice.extra_info_text:
             return {self._text_var: self._get_context_text}
         else:
             return {}
@@ -75,7 +75,7 @@ class InputOptionExtraMixin(object):
     def create_option(self, *args, **kwargs):
         from .models import Choice  # TODO: grab this class without an import
         options = super().create_option(*args, **kwargs)
-        self.choice = Choice.objects.get(id=options['value'])
+        self._choice = Choice.objects.get(id=options['value'])
         options.update(self._get_context)
         return options
 
