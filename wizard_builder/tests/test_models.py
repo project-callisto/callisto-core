@@ -29,17 +29,6 @@ class PageTest1(TestCase):
         self.assertEqual(Page.objects.get(pk=who_page.pk).section, Page.WHO)
         self.assertEqual(Page.objects.get(pk=when_page.pk).section, Page.WHEN)
 
-    def test_page_can_have_multiple(self):
-        single_page = Page.objects.create()
-        multiple_page = Page.objects.create(
-            multiple=True, name_for_multiple="random field")
-        self.assertFalse(Page.objects.get(pk=single_page.pk).multiple)
-        self.assertTrue(Page.objects.get(pk=multiple_page.pk).multiple)
-        self.assertTrue(
-            Page.objects.get(
-                pk=multiple_page.pk).name_for_multiple,
-            "random field")
-
     def test_page_infobox_can_be_specified(self):
         Page.objects.create(infobox="More information")
         self.assertEqual(Page.objects.last().infobox, "More information")
@@ -170,9 +159,6 @@ class RadioButtonTestCase(ItemTestCase):
         serialized_q = self.question.serialize_for_report()
         self.assertIn('extra_info_text', str(serialized_q))
         self.assertIn('cats are good', str(serialized_q))
-        from pprint import pprint
-        print()
-        pprint(serialized_q)
 
     def test_choice_extra_dropdown_serialized(self):
         choice = self.question.choices[0]
@@ -188,9 +174,6 @@ class RadioButtonTestCase(ItemTestCase):
         self.assertIn('options', str(serialized_q))
         self.assertIn('lizards are cool', str(serialized_q))
         self.assertIn('birds can skateboard', str(serialized_q))
-        from pprint import pprint
-        print()
-        pprint(serialized_q)
 
 
 class CheckboxTestCase(ItemTestCase):
@@ -218,13 +201,3 @@ class CheckboxTestCase(ItemTestCase):
         self.assertIsInstance(
             self.question.make_field().widget,
             forms.CheckboxSelectMultiple)
-
-
-class PageTest2(TestCase):
-
-    def test_can_save_infobox(self):
-        page_id = Page.objects.create(infobox="you'll be asked later").pk
-        self.assertEqual(
-            Page.objects.get(
-                pk=page_id).infobox,
-            "you'll be asked later")
