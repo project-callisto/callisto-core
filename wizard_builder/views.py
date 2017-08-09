@@ -118,11 +118,13 @@ class ConfigurableFormWizard(NamedUrlWizardView):
 
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
-        context.update({
-            'page_count': self.page_count,
-            'current_page': form.page_index,
-            'editing': self.object_to_edit,
-        })
+        # TODO: smell these isinstance calls
+        if isinstance(form, PageForm) or isinstance(form, BaseFormSet):
+            context.update({
+                'page_count': self.page_count,
+                'current_page': form.page_index,
+                'editing': self.object_to_edit,
+            })
         return context
 
     def _process_non_formset_answers_for_edit(self, json_questions):
