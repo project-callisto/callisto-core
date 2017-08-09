@@ -34,7 +34,7 @@ class Assertions(object):
                 assertion_valid = True
         if not assertion_valid:
             raise AssertionError('''
-                {} not found in {}
+                '{}' not found in {}
             '''.format(text, element_text))
 
 
