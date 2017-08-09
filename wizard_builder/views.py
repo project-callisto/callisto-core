@@ -111,23 +111,23 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         super(ConfigurableFormWizard, self).__init__(*args, **kwargs)
         self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
 
+    def process_form(self, cleaned_data, output_location):
+        # order by position on page (python & json lists both preserve
+        # order)
+        questions = []
+        for field_name, answer in cleaned_data.items():
+            if "extra" not in field_name:
+                questions.append(
+                    (field_name, answer, self.items[field_name]))
+        questions.sort(key=lambda x: x[2].position)
+        for field_name, answer, question in questions:
+            # TODO: include extra info
+            output_location.append(
+                question.serialize_for_report(answer),
+            )
+
     def process_answers(self, form_list, form_dict):
         # TODO: smell this function
-        def process_form(cleaned_data, output_location):
-            # order by position on page (python & json lists both preserve
-            # order)
-            questions = []
-            for field_name, answer in cleaned_data.items():
-                if "extra" not in field_name:
-                    questions.append(
-                        (field_name, answer, self.items[field_name]))
-            questions.sort(key=lambda x: x[2].position)
-            for field_name, answer, question in questions:
-                # TODO: include extra info
-                output_location.append(
-                    question.serialize_for_report(answer),
-                )
-
         answered_questions = []
         for idx, form in form_dict.items():
             if isinstance(form, PageForm):
@@ -138,7 +138,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                     initial_data = self.get_form_initial(str(idx))
                     clean_data = dict([(field, initial_data.get(field, ''))
                                        for field in form.fields.keys()])
-                process_form(clean_data, answered_questions)
+                self.process_form(clean_data, answered_questions)
             elif isinstance(form, BaseFormSet):
                 try:
                     clean_data = form.cleaned_data
@@ -148,7 +148,7 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 formset_answers = []
                 for entry in clean_data:
                     entry_answers = []
-                    process_form(entry, entry_answers)
+                    self.process_form(entry, entry_answers)
                     formset_answers.append(entry_answers)
                 answered_questions.append({
                     'type': 'FormSet',
