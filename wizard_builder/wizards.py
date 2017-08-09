@@ -107,7 +107,9 @@ class WizardView(TemplateView):
     initial_dict = None
     instance_dict = None
     condition_dict = None
+    url_name = None
     template_name = 'wizard_builder/wizard_form.html'
+    done_step_name = 'done'
 
     def __repr__(self):
         return '<%s: forms: %s>' % (self.__class__.__name__, self.form_list)
@@ -153,6 +155,7 @@ class WizardView(TemplateView):
           will be called with the wizardview instance as the only argument.
           If the return value is true, the step's form will be used.
         """
+
         kwargs.update({
             'initial_dict': (
                 initial_dict or
@@ -198,7 +201,11 @@ class WizardView(TemplateView):
 
         # build the kwargs for the wizardview instances
         kwargs['form_list'] = computed_form_list
+
         return kwargs
+
+    def get_step_url(self, step):
+        return reverse(self.url_name, kwargs={'step': step})
 
     def get_prefix(self, request, *args, **kwargs):
         # TODO: Add some kind of unique id to prefix
@@ -252,18 +259,54 @@ class WizardView(TemplateView):
         return response
 
     def get(self, request, *args, **kwargs):
-        """
-        This method handles GET requests.
+        step_url = kwargs.get('step', None)
+        if step_url is None:
+            if 'reset' in self.request.GET:
+                self.storage.reset()
+                self.storage.current_step = self.steps.first
+            if self.request.GET:
+                query_string = "?%s" % self.request.GET.urlencode()
+            else:
+                query_string = ""
+            return redirect(
+                self.get_step_url(
+                    self.steps.current) +
+                query_string)
 
-        If a GET request reaches this point, the wizard assumes that the user
-        just starts at the first step or wants to restart the process.
-        The data of the wizard will be resetted before rendering the first step
-        """
-        self.storage.reset()
+        # is the current step the "done" name/view?
+        elif step_url == self.done_step_name:
+            last_step = self.steps.last
+            form = self.get_form(
+                step=last_step,
+                data=self.storage.get_step_data(last_step),
+                files=self.storage.get_step_files(last_step),
+            )
+            return self.render_done(form, **kwargs)
 
-        # reset the current step to the first step.
-        self.storage.current_step = self.steps.first
-        return self.render(self.get_form())
+        # is the url step name not equal to the step in the storage?
+        # if yes, change the step in the storage (if name exists)
+        elif step_url == self.steps.current:
+            # URL step name and storage step name are equal, render!
+            form = self.get_form(
+                data=self.storage.current_step_data,
+                files=self.storage.current_step_files,
+            )
+            return self.render(form, **kwargs)
+
+        elif step_url in self.get_form_list():
+            self.storage.current_step = step_url
+            return self.render(
+                self.get_form(
+                    data=self.storage.current_step_data,
+                    files=self.storage.current_step_files,
+                ),
+                **kwargs
+            )
+
+        # invalid step name, reset to first and redirect.
+        else:
+            self.storage.current_step = self.steps.first
+            return redirect(self.get_step_url(self.steps.first))
 
     def post(self, *args, **kwargs):
         """
@@ -307,32 +350,13 @@ class WizardView(TemplateView):
         return self.render(form)
 
     def render_next_step(self, form, **kwargs):
-        """
-        This method gets called when the next step/form should be rendered.
-        `form` contains the last/current form.
-        """
-        # get the form instance based on the data from the storage backend
-        # (if available).
-        next_step = self.steps.next
-        new_form = self.get_form(
-            next_step,
-            data=self.storage.get_step_data(next_step),
-            files=self.storage.get_step_files(next_step),
-        )
-        # change the stored current step
+        next_step = self.get_next_step()
         self.storage.current_step = next_step
-        return self.render(new_form, **kwargs)
+        return redirect(self.get_step_url(next_step))
 
     def render_goto_step(self, goto_step, **kwargs):
-        """
-        This method gets called when the current step has to be changed.
-        `goto_step` contains the requested step to go to.
-        """
         self.storage.current_step = goto_step
-        form = self.get_form(
-            data=self.storage.get_step_data(self.steps.current),
-            files=self.storage.get_step_files(self.steps.current))
-        return self.render(form)
+        return redirect(self.get_step_url(goto_step))
 
     def render_done(self, form, **kwargs):
         """
@@ -429,13 +453,8 @@ class WizardView(TemplateView):
         return self.get_form_step_files(form)
 
     def render_revalidation_failure(self, step, form, **kwargs):
-        """
-        Gets called when a form doesn't validate when rendering the done
-        view. By default, it changes the current step to failing forms step
-        and renders the form.
-        """
-        self.storage.current_step = step
-        return self.render(form, **kwargs)
+        self.storage.current_step = failed_step
+        return redirect(self.get_step_url(failed_step))
 
     def get_form_step_data(self, form):
         """
@@ -554,6 +573,7 @@ class WizardView(TemplateView):
             'form': form,
             'steps': self.steps,
             'current_step': self.steps.current,
+            'url_name': self.url_name,
         }
         return context
 
@@ -570,147 +590,7 @@ class WizardView(TemplateView):
         This method must be overridden by a subclass to process to form data
         after processing all steps.
         """
-        raise NotImplementedError(
-            "Your %s class has not defined a done() method, which is required."
-            % self.__class__.__name__
-        )
-
-
-class NamedUrlWizardView(WizardView):
-    """
-    A WizardView with URL named steps support.
-    """
-    url_name = None
-    done_step_name = None
-
-    @classmethod
-    def get_initkwargs(cls, *args, **kwargs):
-        """
-        We require a url_name to reverse URLs later. Additionally users can
-        pass a done_step_name to change the URL name of the "done" view.
-        """
-        extra_kwargs = {
-            'done_step_name': kwargs.pop('done_step_name', 'done'),
-            'url_name': kwargs.pop('url_name'),
-        }
-        initkwargs = super(
-            NamedUrlWizardView,
-            cls).get_initkwargs(
-            *
-            args,
-            **kwargs)
-        initkwargs.update(extra_kwargs)
-        return initkwargs
-
-    def get_step_url(self, step):
-        return reverse(self.url_name, kwargs={'step': step})
-
-    def get(self, *args, **kwargs):
-        """
-        This renders the form or, if needed, does the http redirects.
-        """
-        step_url = kwargs.get('step', None)
-        if step_url is None:
-            if 'reset' in self.request.GET:
-                self.storage.reset()
-                self.storage.current_step = self.steps.first
-            if self.request.GET:
-                query_string = "?%s" % self.request.GET.urlencode()
-            else:
-                query_string = ""
-            return redirect(
-                self.get_step_url(
-                    self.steps.current) +
-                query_string)
-
-        # is the current step the "done" name/view?
-        elif step_url == self.done_step_name:
-            last_step = self.steps.last
-            form = self.get_form(
-                step=last_step,
-                data=self.storage.get_step_data(last_step),
-                files=self.storage.get_step_files(last_step),
-            )
-            return self.render_done(form, **kwargs)
-
-        # is the url step name not equal to the step in the storage?
-        # if yes, change the step in the storage (if name exists)
-        elif step_url == self.steps.current:
-            # URL step name and storage step name are equal, render!
-            form = self.get_form(
-                data=self.storage.current_step_data,
-                files=self.storage.current_step_files,
-            )
-            return self.render(form, **kwargs)
-
-        elif step_url in self.get_form_list():
-            self.storage.current_step = step_url
-            return self.render(
-                self.get_form(
-                    data=self.storage.current_step_data,
-                    files=self.storage.current_step_files,
-                ),
-                **kwargs
-            )
-
-        # invalid step name, reset to first and redirect.
-        else:
-            self.storage.current_step = self.steps.first
-            return redirect(self.get_step_url(self.steps.first))
-
-    def post(self, *args, **kwargs):
-        """
-        Do a redirect if user presses the prev. step button. The rest of this
-        is super'd from WizardView.
-        """
-        wizard_goto_step = self.request.POST.get('wizard_goto_step', None)
-        if wizard_goto_step and wizard_goto_step in self.get_form_list():
-            return self.render_goto_step(wizard_goto_step)
-        return super(NamedUrlWizardView, self).post(*args, **kwargs)
-
-    def get_context_data(self, form, **kwargs):
-        """
-        NamedUrlWizardView provides the url_name of this wizard in the context
-        dict `wizard`.
-        """
-        context = super(
-            NamedUrlWizardView,
-            self).get_context_data(
-            form=form,
-            **kwargs)
-        context['wizard']['url_name'] = self.url_name
-        return context
-
-    def render_next_step(self, form, **kwargs):
-        """
-        When using the NamedUrlWizardView, we have to redirect to update the
-        browser's URL to match the shown step.
-        """
-        next_step = self.get_next_step()
-        self.storage.current_step = next_step
-        return redirect(self.get_step_url(next_step))
-
-    def render_goto_step(self, goto_step, **kwargs):
-        """
-        This method gets called when the current step has to be changed.
-        `goto_step` contains the requested step to go to.
-        """
-        self.storage.current_step = goto_step
-        return redirect(self.get_step_url(goto_step))
-
-    def render_revalidation_failure(self, failed_step, form, **kwargs):
-        """
-        When a step fails, we have to redirect the user to the first failing
-        step.
-        """
-        self.storage.current_step = failed_step
-        return redirect(self.get_step_url(failed_step))
-
-    def render_done(self, form, **kwargs):
-        """
-        When rendering the done view, we have to redirect first (if the URL
-        name doesn't fit).
-        """
         if kwargs.get('step', None) != self.done_step_name:
             return redirect(self.get_step_url(self.done_step_name))
-        return super(NamedUrlWizardView, self).render_done(form, **kwargs)
+        else:
+            return self.render_done(form, **kwargs)

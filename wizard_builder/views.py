@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 
 from .forms import PageFormManager
 from .models import Page
-from .wizards import NamedUrlWizardView
+from .wizards import WizardView
 
 # from django-formtools
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
@@ -12,7 +12,7 @@ from .wizards import NamedUrlWizardView
 # https://github.com/django/django-formtools/blob/master/LICENSE
 
 
-class ConfigurableFormWizard(NamedUrlWizardView):
+class ConfigurableFormWizard(WizardView):
 
     def get_form_to_edit(self, object_to_edit):
         '''Takes the passed in object and returns a list of dicts representing the answered questions'''
