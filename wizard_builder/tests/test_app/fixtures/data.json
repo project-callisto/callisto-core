@@ -14,6 +14,20 @@
     }
   },
   {
+    "model": "wizard_builder.page",
+    "pk": 17,
+    "fields": {
+      "created": "2017-08-09T17:53:42.794",
+      "modified": "2017-08-09T17:54:27.828",
+      "position": 2,
+      "section": 1,
+      "infobox": "the second page",
+      "sites": [
+        1
+      ]
+    }
+  },
+  {
     "model": "wizard_builder.formquestion",
     "pk": 1,
     "fields": {
@@ -24,6 +38,23 @@
       "page": 2,
       "position": 0
     }
+  },
+  {
+    "model": "wizard_builder.formquestion",
+    "pk": 2,
+    "fields": {
+      "created": "2017-08-09T17:54:45.286",
+      "modified": "2017-08-09T17:54:45.286",
+      "text": "",
+      "descriptive_text": "",
+      "page": 17,
+      "position": 0
+    }
+  },
+  {
+    "model": "wizard_builder.singlelinetext",
+    "pk": 2,
+    "fields": {}
   },
   {
     "model": "wizard_builder.multiplechoice",

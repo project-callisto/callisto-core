@@ -29,3 +29,8 @@ class FrontendTest(FunctionalTest):
             '.extra_options input').click()
         self.assertSelectorContains('option', 'option 1')
         self.assertSelectorContains('option', 'option 2')
+
+    def test_can_navigate_to_second_page(self):
+        self.browser.find_element_by_css_selector(
+            '[type="submit"]').click()
+        self.assertSelectorContains('body', 'the second page')
