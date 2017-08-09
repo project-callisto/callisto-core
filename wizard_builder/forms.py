@@ -20,15 +20,14 @@ class PageForm(forms.Form):
     @property
     def processed(self):
         return [
-            self.items[field_name].serialize_for_report(answer)
-            for field_name, answer in self.cleaned_data.items()
+            question.serialize_for_report(
+                self.cleaned_data[question.field_id],
+            )
+            for question in self.page.questions
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.has_tooltip = False
-        # TODO: there is almost certainly a django builtin for this
-        for question in self.items:
+    def setup(self):
+        for question in self.page.questions:
             self.fields[question.field_id] = question.make_field()
             self.fields[question.field_id].help_text = mark_safe(
                 question.descriptive_text + self.fields[question.field_id].help_text
@@ -38,6 +37,7 @@ class PageForm(forms.Form):
 def get_form_pages(pages):
     generated_forms = []
     section_map = {}
+
     # TODO: smell this next
     for (section, _) in Page.SECTION_CHOICES:
         start = next((idx for idx, page in enumerate(
@@ -45,34 +45,17 @@ def get_form_pages(pages):
         section_map[section] = start
 
     for idx, page in enumerate(pages):
-        # TODO: smell this type
-        FormType = type(
-            'Page{}Form'.format(idx),
-            (PageForm,),
-            {
-                "items": page.questions,
-                "infobox": page.infobox,
-                "page_section": page.section,
-                "section_map": section_map,
-                "page_index": idx,
-            },
-        )
-        if page.multiple:
-            FormSet = formset_factory(FormType, extra=0, min_num=1)
-            FormSetType = type(
-                FormSet.__name__,
-                (FormSet,),
-                {
-                    "sections": dict(Page.SECTION_CHOICES),
-                    "name_for_multiple": page.name_for_multiple,
-                    "page_id": page.pk,
-                    "page_section": page.section,
-                    "section_map": section_map,
-                    "page_index": idx,
-                },
-            )
-            generated_forms.append(FormSetType)
-        else:
-            generated_forms.append(FormType)
+        form = PageForm()
+        for name, value in {
+            "page": page,
+            "page_index": idx,
+            "section_map": section_map,
+            # "items": page.questions,
+            # "infobox": page.infobox,
+            # "page_section": page.section,
+        }.items():
+            setattr(form, name, value)
+        form.setup()
+        generated_forms.append(form)
 
     return generated_forms

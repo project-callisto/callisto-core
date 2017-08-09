@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
-from django.forms.formsets import BaseFormSet
 
 from .forms import PageForm, get_form_pages
 from .models import Page
@@ -71,14 +70,12 @@ class ConfigurableFormWizard(NamedUrlWizardView):
             self.processed_answers.append(form.processed)
 
     def get_context_data(self, form, **kwargs):
-        context = super().get_context_data(form=form, **kwargs)
-        # TODO: smell these isinstance calls
-        if isinstance(form, PageForm) or isinstance(form, BaseFormSet):
-            context.update({
-                'page_count': self.page_count,
-                'current_page': form.page_index,
-                'editing': self.object_to_edit,
-            })
+        context = super().get_context_data(form, **kwargs)
+        context.update({
+            'page_count': self.page_count,
+            'current_page': form.page_index,
+            'editing': self.object_to_edit,
+        })
         return context
 
     def _process_non_formset_answers_for_edit(self, json_questions):
@@ -110,16 +107,9 @@ class ConfigurableFormWizard(NamedUrlWizardView):
 
     def get_form_initial(self, step):
         if self.form_to_edit:
-            form = self.form_list[step]
-            # process formset answers
-            # TODO: smell this issubclass
-            if issubclass(form, PageForm):
-                return self._process_non_formset_answers_for_edit(
-                    self.form_to_edit)
-            elif issubclass(self.form_list[step], BaseFormSet):
-                page_id = self.formsets.get(step)
-                return self._process_formset_answers_for_edit(
-                    self.form_to_edit, page_id)
+            return self._process_non_formset_answers_for_edit(
+                self.form_to_edit,
+            )
         else:
             return self.initial_dict.get(step, {})
 
@@ -137,8 +127,6 @@ class ConfigurableFormWizard(NamedUrlWizardView):
         for idx, page in enumerate(pages):
             for question in page.questions:
                 items[question.field_id] = question
-            if page.multiple:
-                formsets[str(idx)] = page.pk
         # TODO: smell this type
         return type(
             cls.__name__,

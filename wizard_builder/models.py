@@ -38,15 +38,6 @@ class Page(TimekeepingBase, models.Model):
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
     infobox = HTMLField(blank=True)
-    multiple = models.BooleanField(
-        blank=False,
-        default=False,
-        verbose_name='User can add multiple',
-    )
-    name_for_multiple = models.TextField(
-        blank=True,
-        verbose_name='name of field for "add another" prompt',
-    )
 
     objects = PageManager()
 

@@ -187,10 +187,6 @@ class WizardView(TemplateView):
 
         # walk through the new created list of forms
         for form in six.itervalues(computed_form_list):
-            if issubclass(form, formsets.BaseFormSet):
-                # if the element is based on BaseFormSet (FormSet/ModelFormSet)
-                # we need to override the form variable.
-                form = form.form
             # check if any form contains a FileField, if yes, we need a
             # file_storage added to the wizardview (by subclassing).
             for field in six.itervalues(form.base_fields):
@@ -369,7 +365,7 @@ class WizardView(TemplateView):
         self.storage.reset()
         return done_response
 
-    def get_form_prefix(self, step=None, form=None):
+    def get_form_prefix(self, step=None):
         """
         Returns the prefix which will be used when calling the actual form for
         the given step. `step` contains the step-name, `form` the form which
@@ -398,13 +394,6 @@ class WizardView(TemplateView):
         """
         return self.instance_dict.get(step, None)
 
-    def get_form_kwargs(self, step=None):
-        """
-        Returns the keyword arguments for instantiating the form
-        (or formset) on the given step.
-        """
-        return {}
-
     def get_form(self, step=None, data=None, files=None):
         """
         Constructs the form for a given `step`. If no `step` is defined, the
@@ -416,27 +405,15 @@ class WizardView(TemplateView):
         """
         if step is None:
             step = self.steps.current
-        form_class = self.form_list[step]
-        # prepare the kwargs for the form instance.
-        kwargs = self.get_form_kwargs(step)
-        kwargs.update({
+        form = self.form_list[step]
+        for name, value in {
             'data': data,
             'files': files,
-            'prefix': self.get_form_prefix(step, form_class),
+            'prefix': self.get_form_prefix(step),
             'initial': self.get_form_initial(step),
-        })
-        if issubclass(
-            form_class,
-            (forms.ModelForm,
-             forms.models.BaseInlineFormSet)):
-            # If the form is based on ModelForm or InlineFormSet,
-            # add instance if available and not previously set.
-            kwargs.setdefault('instance', self.get_form_instance(step))
-        elif issubclass(form_class, forms.models.BaseModelFormSet):
-            # If the form is based on ModelFormSet, add queryset if available
-            # and not previous set.
-            kwargs.setdefault('queryset', self.get_form_instance(step))
-        return form_class(**kwargs)
+        }.items():
+            setattr(form, name, value)
+        return form
 
     def process_step(self, form):
         """

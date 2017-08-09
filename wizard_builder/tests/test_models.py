@@ -4,8 +4,8 @@ from django import forms
 from django.test import TestCase
 
 from ..models import (
-    Checkbox, Choice, FormQuestion, Page, RadioButton, SingleLineText,
-    ChoiceOption,
+    Checkbox, Choice, ChoiceOption, FormQuestion, Page, RadioButton,
+    SingleLineText,
 )
 
 
@@ -170,7 +170,9 @@ class RadioButtonTestCase(ItemTestCase):
         serialized_q = self.question.serialize_for_report()
         self.assertIn('extra_info_text', str(serialized_q))
         self.assertIn('cats are good', str(serialized_q))
-        from pprint import pprint; print(); pprint(serialized_q)
+        from pprint import pprint
+        print()
+        pprint(serialized_q)
 
     def test_choice_extra_dropdown_serialized(self):
         choice = self.question.choices[0]
@@ -186,7 +188,9 @@ class RadioButtonTestCase(ItemTestCase):
         self.assertIn('options', str(serialized_q))
         self.assertIn('lizards are cool', str(serialized_q))
         self.assertIn('birds can skateboard', str(serialized_q))
-        from pprint import pprint; print(); pprint(serialized_q)
+        from pprint import pprint
+        print()
+        pprint(serialized_q)
 
 
 class CheckboxTestCase(ItemTestCase):
