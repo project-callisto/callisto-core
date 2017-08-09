@@ -24,6 +24,8 @@ class FrontendTest(FunctionalTest):
     def test_extra_info(self):
         self.assertCss('[placeholder="extra information here"]')
 
-    def test_extra_options(self):
+    def test_extra_dropdown(self):
+        self.browser.find_element_by_css_selector(
+            '.extra_options input').click()
         self.assertSelectorContains('option', 'option 1')
         self.assertSelectorContains('option', 'option 2')

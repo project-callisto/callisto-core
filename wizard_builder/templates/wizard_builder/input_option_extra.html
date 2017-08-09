@@ -1,3 +1,5 @@
+{% load wizard_builder %}
+
 {% comment "Optional note" %}
     from 'django/forms/widgets/input_option.html'
 {% endcomment %}
@@ -5,6 +7,14 @@
 {% if wrap_label %}
     <label
         {% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}
+        class='
+            {{ widget.class }}
+            {{ widget.type }}
+            {{ widget.extra_text_widget_context.widget.name }}
+            {{ widget.extra_text_widget_context.widget.attrs.class }}
+            {{ widget.extra_dropdown_widget_context.widget.name }}
+            {{ widget.extra_dropdown_widget_context.widget.attrs.class }}
+        '
     >
 {% endif %}
 {% include "django/forms/widgets/input.html" %}

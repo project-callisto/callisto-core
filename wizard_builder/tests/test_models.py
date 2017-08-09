@@ -3,7 +3,9 @@ import json
 from django import forms
 from django.test import TestCase
 
-from ..models import Checkbox, Choice, Page, RadioButton, SingleLineText
+from ..models import (
+    Checkbox, Choice, FormQuestion, Page, RadioButton, SingleLineText,
+)
 
 
 class PageTest1(TestCase):
@@ -113,6 +115,7 @@ class SingleLineTextModelTestCase(ItemTestCase):
             serialized_q['answer'],
             'words',
         )
+
 
 class RadioButtonTestCase(ItemTestCase):
 

@@ -270,7 +270,7 @@ class Choice(models.Model):
             choices=self.options_field_display,
             required=False,
             widget=ChoiceField.widget(attrs={
-                'class': "extra-widget",
+                'class': "extra-widget extra-widget-dropdown",
                 'style': "display: none;",
             }),
         )
@@ -286,7 +286,7 @@ class Choice(models.Model):
             widget=TextInput(
                 attrs={
                     'placeholder': self.extra_info_text,
-                    'class': "extra-widget",
+                    'class': "extra-widget extra-widget-text",
                     'style': "display: none;",
                 },
             ),
