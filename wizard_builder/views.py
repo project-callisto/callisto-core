@@ -13,11 +13,17 @@ from .wizards import NamedUrlWizardView
 # https://github.com/django/django-formtools/blob/master/LICENSE
 
 
-class ModifiedSessionWizardView(NamedUrlWizardView):
+class ConfigurableFormWizard(NamedUrlWizardView):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def get_form_to_edit(self, object_to_edit):
+        '''Takes the passed in object and returns a list of dicts representing the answered questions'''
+        return []
+
+    def __init__(self, *args, **kwargs):
+        super(ConfigurableFormWizard, self).__init__(*args, **kwargs)
+        # TODO: don't define self values before init???
         self.processed_answers = []
+        self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
 
     def post(self, *args, **kwargs):
         form_current_step = self.request.POST.get('current_step')
@@ -60,58 +66,6 @@ class ModifiedSessionWizardView(NamedUrlWizardView):
                 return self.render_next_step(form)
         return self.render(form)
 
-    def process_answers(self, form_list, form_dict):
-        return []
-
-    def render_done(self, form, **kwargs):
-        """
-        This method gets called when all forms passed. The method should also
-        re-validate all steps to prevent manipulation. If any form fails to
-        validate, `render_revalidation_failure` should get called.
-        If everything is fine call `done`.
-        """
-        final_forms = OrderedDict()
-        # walk through the form list and try to validate the data again.
-        for form_key in self.get_form_list():
-            form_obj = self.get_form(
-                step=form_key,
-                data=self.storage.get_step_data(form_key),
-                files=self.storage.get_step_files(form_key))
-            # don't reject form if it's not bound (modification from original)
-            if form_obj.is_bound and not form_obj.is_valid():
-                return self.render_revalidation_failure(form_key,
-                                                        form_obj,
-                                                        **kwargs)
-            final_forms[form_key] = form_obj
-
-        # hook to allow processing of answers before done
-        self.processed_answers = self.process_answers(
-            final_forms.values(),
-            form_dict=final_forms,
-        )
-
-        # render the done view and reset the wizard before returning the
-        # response. This is needed to prevent from rendering done with the
-        # same data twice.
-        done_response = self.done(
-            final_forms.values(),
-            form_dict=final_forms,
-            **kwargs)
-        self.storage.reset()
-        return done_response
-
-
-class ConfigurableFormWizard(ModifiedSessionWizardView):
-
-    def get_form_to_edit(self, object_to_edit):
-        '''Takes the passed in object and returns a list of dicts representing the answered questions'''
-        return []
-
-    def __init__(self, *args, **kwargs):
-        super(ConfigurableFormWizard, self).__init__(*args, **kwargs)
-        # TODO: don't define self values before init???
-        self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
-
     def process_form(self, cleaned_data, output_location):
         # order by position on page (python & json lists both preserve
         # order)
@@ -119,7 +73,8 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         for field_name, answer in cleaned_data.items():
             if "extra" not in field_name:
                 questions.append(
-                    (field_name, answer, self.items[field_name]))
+                    (field_name, answer, self.items[field_name]),
+                )
         questions.sort(key=lambda x: x[2].position)
         for field_name, answer, question in questions:
             # TODO: include extra info
@@ -128,7 +83,6 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
             )
 
     def process_answers(self, form_list, form_dict):
-        # TODO: smell this function
         answered_questions = []
         for idx, form in form_dict.items():
             if isinstance(form, PageForm):
@@ -137,9 +91,11 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
                 # process unbound form with initial data
                 except BaseException:
                     initial_data = self.get_form_initial(str(idx))
-                    clean_data = dict([(field, initial_data.get(field, ''))
-                                       for field in form.fields.keys()])
-                self.process_form(clean_data, answered_questions)
+                    clean_data = dict([
+                        (field, initial_data.get(field, ''))
+                        for field in form.fields.keys()
+                    ])
+                self.process_form(form.cleaned_data, answered_questions)
             elif isinstance(form, BaseFormSet):
                 try:
                     clean_data = form.cleaned_data
@@ -162,13 +118,11 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
 
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
-        # TODO: smell these isinstance calls
-        if isinstance(form, PageForm) or isinstance(form, BaseFormSet):
-            context.update({
-                'page_count': self.page_count,
-                'current_page': form.page_index,
-                'editing': self.object_to_edit,
-            })
+        context.update({
+            'page_count': self.page_count,
+            'current_page': form.page_index,
+            'editing': self.object_to_edit,
+        })
         return context
 
     def _process_non_formset_answers_for_edit(self, json_questions):
@@ -255,3 +209,40 @@ class ConfigurableFormWizard(ModifiedSessionWizardView):
         if self.object_to_edit:
             kwargs['edit_id'] = self.object_to_edit.id
         return reverse(self.url_name, kwargs=kwargs)
+
+    def render_done(self, form, **kwargs):
+        """
+        This method gets called when all forms passed. The method should also
+        re-validate all steps to prevent manipulation. If any form fails to
+        validate, `render_revalidation_failure` should get called.
+        If everything is fine call `done`.
+        """
+        final_forms = OrderedDict()
+        # walk through the form list and try to validate the data again.
+        for form_key in self.get_form_list():
+            form_obj = self.get_form(
+                step=form_key,
+                data=self.storage.get_step_data(form_key),
+                files=self.storage.get_step_files(form_key))
+            # don't reject form if it's not bound (modification from original)
+            if form_obj.is_bound and not form_obj.is_valid():
+                return self.render_revalidation_failure(form_key,
+                                                        form_obj,
+                                                        **kwargs)
+            final_forms[form_key] = form_obj
+
+        # hook to allow processing of answers before done
+        self.processed_answers = self.process_answers(
+            final_forms.values(),
+            form_dict=final_forms,
+        )
+
+        # render the done view and reset the wizard before returning the
+        # response. This is needed to prevent from rendering done with the
+        # same data twice.
+        done_response = self.done(
+            final_forms.values(),
+            form_dict=final_forms,
+            **kwargs)
+        self.storage.reset()
+        return done_response
