@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from ..models import (
     Checkbox, Choice, FormQuestion, Page, RadioButton, SingleLineText,
+    ChoiceOption,
 )
 
 
@@ -167,17 +168,25 @@ class RadioButtonTestCase(ItemTestCase):
         choice.extra_info_text = 'cats are good'
         choice.save()
         serialized_q = self.question.serialize_for_report()
-        self.assertIn('cats are good', str(serialized_q))
         self.assertIn('extra_info_text', str(serialized_q))
-
-    def test_choice_extra_info_not_serialized(self):
-        pass
+        self.assertIn('cats are good', str(serialized_q))
+        from pprint import pprint; print(); pprint(serialized_q)
 
     def test_choice_extra_dropdown_serialized(self):
-        pass
-
-    def test_choice_extra_dropdown_not_serialized(self):
-        pass
+        choice = self.question.choices[0]
+        ChoiceOption.objects.create(
+            text='lizards are cool',
+            choice=choice,
+        )
+        ChoiceOption.objects.create(
+            text='birds can skateboard',
+            choice=choice,
+        )
+        serialized_q = self.question.serialize_for_report()
+        self.assertIn('options', str(serialized_q))
+        self.assertIn('lizards are cool', str(serialized_q))
+        self.assertIn('birds can skateboard', str(serialized_q))
+        from pprint import pprint; print(); pprint(serialized_q)
 
 
 class CheckboxTestCase(ItemTestCase):
@@ -205,30 +214,6 @@ class CheckboxTestCase(ItemTestCase):
         self.assertIsInstance(
             self.question.make_field().widget,
             forms.CheckboxSelectMultiple)
-
-    def test_serializes_correctly(self):
-        self.maxDiff = None
-        object_ids = [choice.pk for choice in self.question.choice_set.all()]
-        selected_id_1 = object_ids[3]
-        selected_id_2 = object_ids[1]
-        serialized_q = self.question.serialize_for_report(
-            [selected_id_1, selected_id_2])
-        object_ids.insert(0, self.question.pk)
-        object_ids.insert(0, selected_id_2)
-        object_ids.insert(0, selected_id_1)
-        json_report = json.loads("""
-    { "answer": [%i, %i],
-      "id": %i,
-      "question_text": "this is a checkbox question",
-      "section": 1,
-      "choices": [{"id": %i, "choice_text": "This is choice 0"},
-                  {"id": %i, "choice_text": "This is choice 1"},
-                  {"id": %i, "choice_text": "This is choice 2"},
-                  {"id": %i, "choice_text": "This is choice 3"},
-                  {"id": %i, "choice_text": "This is choice 4"}],
-      "type": "Checkbox"
-    }""" % tuple(object_ids))
-        self.assertEqual(serialized_q, json_report)
 
 
 class PageTest2(TestCase):

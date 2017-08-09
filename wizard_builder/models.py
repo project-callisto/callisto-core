@@ -202,10 +202,7 @@ class MultipleChoice(FormQuestion):
 
     @property
     def serialized_choices_for_report(self):
-        return [
-            {"id": choice.pk, "choice_text": choice.text}
-            for choice in self.choices
-        ]
+        return [choice.data for choice in self.choices]
 
     @property
     def widget(self):
@@ -249,6 +246,20 @@ class Choice(models.Model):
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
     extra_info_text = models.TextField(blank=True)
+
+    @property
+    def data(self):
+        return {
+            'pk': self.pk,
+            'text': self.text,
+            'options': self.text_options,
+            'position': self.position,
+            'extra_info_text': self.extra_info_text,
+        }
+
+    @property
+    def text_options(self):
+        return list(self.options.values('text'))
 
     @property
     def options(self):

@@ -66,55 +66,9 @@ class ConfigurableFormWizard(NamedUrlWizardView):
                 return self.render_next_step(form)
         return self.render(form)
 
-    def process_form(self, cleaned_data, output_location):
-        # order by position on page (python & json lists both preserve
-        # order)
-        questions = []
-        for field_name, answer in cleaned_data.items():
-            if "extra" not in field_name:
-                questions.append(
-                    (field_name, answer, self.items[field_name]),
-                )
-        questions.sort(key=lambda x: x[2].position)
-        for field_name, answer, question in questions:
-            # TODO: include extra info
-            output_location.append(
-                question.serialize_for_report(answer),
-            )
-
-    def process_answers(self, form_list, form_dict):
-        answered_questions = []
-        for idx, form in form_dict.items():
-            if isinstance(form, PageForm):
-                try:
-                    clean_data = form.cleaned_data
-                # process unbound form with initial data
-                except BaseException:
-                    initial_data = self.get_form_initial(str(idx))
-                    clean_data = dict([
-                        (field, initial_data.get(field, ''))
-                        for field in form.fields.keys()
-                    ])
-                self.process_form(clean_data, answered_questions)
-            elif isinstance(form, BaseFormSet):
-                try:
-                    clean_data = form.cleaned_data
-                # process unbound formset with initial data
-                except BaseException:
-                    clean_data = self.get_form_initial(str(idx))
-                formset_answers = []
-                for entry in clean_data:
-                    entry_answers = []
-                    self.process_form(entry, entry_answers)
-                    formset_answers.append(entry_answers)
-                answered_questions.append({
-                    'type': 'FormSet',
-                    'page_id': form.page_id,
-                    'prompt': form.name_for_multiple,
-                    'section': form.page_section,
-                    'answers': formset_answers,
-                })
-        return answered_questions
+    def process_answers(self, form_list):
+        for form in form_list:
+            self.processed_answers.append(form.processed)
 
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
@@ -234,10 +188,7 @@ class ConfigurableFormWizard(NamedUrlWizardView):
             final_forms[form_key] = form_obj
 
         # hook to allow processing of answers before done
-        self.processed_answers = self.process_answers(
-            final_forms.values(),
-            form_dict=final_forms,
-        )
+        self.process_answers(final_forms.values())
 
         # render the done view and reset the wizard before returning the
         # response. This is needed to prevent from rendering done with the

@@ -17,6 +17,15 @@ User = get_user_model()
 class PageForm(forms.Form):
     sections = dict(Page.SECTION_CHOICES)
 
+    @property
+    def processed(self):
+        output = []
+        for field_name, answer in cleaned_data.items():
+            question = self.items[field_name]
+            output.append(
+                question.serialize_for_report(answer),
+            )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.has_tooltip = False
