@@ -95,7 +95,7 @@ class ConfigurableFormWizard(NamedUrlWizardView):
                         (field, initial_data.get(field, ''))
                         for field in form.fields.keys()
                     ])
-                self.process_form(form.cleaned_data, answered_questions)
+                self.process_form(cleaned_data, answered_questions)
             elif isinstance(form, BaseFormSet):
                 try:
                     clean_data = form.cleaned_data
