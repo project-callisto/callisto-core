@@ -163,9 +163,20 @@ class RadioButtonTestCase(ItemTestCase):
         self.assertTrue(len(serialized_q['choices']))
 
     def test_choice_extra_info_serialized(self):
+        choice = self.question.choices[0]
+        choice.extra_info_text = 'cats are good'
+        choice.save()
+        serialized_q = self.question.serialize_for_report()
+        self.assertIn('cats are good', str(serialized_q))
+        self.assertIn('extra_info_text', str(serialized_q))
+
+    def test_choice_extra_info_not_serialized(self):
         pass
 
     def test_choice_extra_dropdown_serialized(self):
+        pass
+
+    def test_choice_extra_dropdown_not_serialized(self):
         pass
 
 
