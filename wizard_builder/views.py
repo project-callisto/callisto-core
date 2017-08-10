@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
+from django.http import JsonResponse
 
 from .forms import PageFormManager
 from .storage import SessionStorage
@@ -12,40 +13,29 @@ from .storage import SessionStorage
 
 
 class StepsHelper(object):
+    current_step = None
 
     def __init__(self, wizard):
         self._wizard = wizard
-
-    def __dir__(self):
-        return self.all
-
-    def __len__(self):
-        return self.count
 
     @property
     def all(self):
         return self._wizard.forms
 
     @property
-    def count(self):
-        return len(self.all)
-
-    @property
     def current(self):
-        return self._wizard.storage.current_step or self.first
+        return self.current_step or self.first
 
     @property
     def first(self):
-        "Returns the name of the first step."
         return self.all[0].page_index
 
     @property
     def last(self):
-        "Returns the name of the last step."
         return self.all[-1].page_index
 
     def step_key(self, adjustment):
-        key = self.step + adjustment
+        key = self.current + adjustment
         if len(self._wizard.forms) > key:
             return self._wizard.forms[key]
         else:
@@ -60,12 +50,8 @@ class StepsHelper(object):
         return self.step_key(-1)
 
     @property
-    def step(self):
-        return self._wizard.steps.current
-
-    @property
     def index(self):
-        return list(self._wizard.forms.keys()).index(self.step)
+        return list(self._wizard.forms.keys()).index(self.current)
 
     @property
     def step0(self):
@@ -97,12 +83,7 @@ class RenderMixin(object):
         return redirect(self.get_step_url(step))
 
     def render_done(self, **kwargs):
-        final_forms = [
-            self.storage.get_step_data(form_key)
-            for form_key in self.forms
-        ]
-        self.process_answers(final_forms.values())
-        return self.done(final_forms, **kwargs)
+        return JsonResponse(self.processed_answers)
 
 
 class RoutingMixin(object):
@@ -149,7 +130,6 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.processed_answers = []
         self.object_to_edit = kwargs.get('object_to_edit')
         self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
         self.forms, self.items = PageFormManager.setup(kwargs['site_id'])
@@ -172,14 +152,18 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
     def get_form_to_edit(self, object_to_edit):
         return []
 
-    def process_answers(self, forms):
-        for form in forms:
-            self.processed_answers.append(form.processed)
+    @property
+    def processed_answers(self):
+        return [
+            self.storage.get_step_data(form)
+            for form in self.forms
+        ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.storage.extra_data)
         context.update({
+            'form': self.form,
             'page_count': len(self.forms),
             'current_page': self.form.page_index,
             'editing': self.object_to_edit,

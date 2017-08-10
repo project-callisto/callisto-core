@@ -15,13 +15,14 @@ class TestWizardView(WizardView):
         else:
             return super().get_form_to_edit(object_to_edit)
 
-    def done(self, form_list, **kwargs):
-        report = Report()
+    def render_done(self, **kwargs):
         if self.object_to_edit:
             report = self.object_to_edit
+        else:
+            report = Report()
         report.text = self.processed_answers
         report.save()
-        return HttpResponse(json.dumps(self.processed_answers))
+        super().render_done(**kwargs)
 
 
 def new_test_wizard_view(request, step=None):

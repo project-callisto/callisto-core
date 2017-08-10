@@ -93,17 +93,9 @@ class WizardIntegratedTest(FormBaseTest):
         wizard = WizardView.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 3)
 
-    def test_displays_first_page(self):
+    def test_form_displayed_on_first_page(self):
         response = self.client.get(self.form_url)
         self.assertIsInstance(response.context['form'], PageForm)
-        self.assertContains(
-            response,
-            'name="0-question_%i"' %
-            self.question1.pk)
-        self.assertNotContains(
-            response,
-            'name="0-question_%i"' %
-            self.question2.pk)
 
     def test_form_advances_to_second_page(self):
         response = self.client.post(
