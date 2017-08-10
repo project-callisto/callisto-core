@@ -37,12 +37,12 @@ class StepsHelper(object):
     @property
     def first(self):
         "Returns the name of the first step."
-        return self.all[0]
+        return self.all[0].page_index
 
     @property
     def last(self):
         "Returns the name of the last step."
-        return self.all[-1]
+        return self.all[-1].page_index
 
     def step_key(self, adjustment):
         keys = list(self._wizard.form_list.keys())
@@ -161,7 +161,8 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.processed_answers = []
-        self.form_to_edit = self.get_form_to_edit(kwargs.get('object_to_edit'))
+        self.object_to_edit = kwargs.get('object_to_edit')
+        self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
         self.form_list, self.items = PageFormManager.setup(kwargs['site_id'])
 
     @property
