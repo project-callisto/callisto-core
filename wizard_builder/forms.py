@@ -30,23 +30,19 @@ class PageForm(forms.Form):
         cls.page = page
         cls.page_index = page_index
         cls.section_map = section_map
-        self = cls()
-        for question in self.page.questions:
-            self.fields[question.field_id] = question.make_field()
-            self.fields[question.field_id].help_text = mark_safe(
-                question.descriptive_text + self.fields[question.field_id].help_text
-            )
-        return self
+        cls.base_fields = {
+            question.field_id: question.make_field()
+            for question in cls.page.questions
+        }
+        return cls()
 
 
 class PageFormManager(object):
 
-    def __init__(self, site_id):
-        self.pages = Page.objects.on_site(site_id).all()
-
     @classmethod
     def setup(cls, site_id):
-        self = cls(site_id)
+        cls.pages = Page.objects.on_site(site_id).all()
+        self = cls()
         return self.forms, self.items
 
     @property

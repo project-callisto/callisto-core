@@ -70,17 +70,13 @@ class RenderMixin(object):
         else:
             return super().render(**kwargs)
 
-    def render_next_step(self, form, **kwargs):
+    def render_next_step(self, **kwargs):
         self.storage.current_step = self.steps.next
         return redirect(self.get_step_url(self.steps.next))
 
     def render_goto_step(self, goto_step, **kwargs):
         self.storage.current_step = goto_step
         return redirect(self.get_step_url(goto_step))
-
-    def render_revalidation_failure(self, step, form, **kwargs):
-        self.storage.current_step = step
-        return redirect(self.get_step_url(step))
 
     def render_done(self, **kwargs):
         return JsonResponse(self.processed_answers)
@@ -112,10 +108,10 @@ class RoutingMixin(object):
         if self.steps.current == self.steps.last or step == "end":
             return self.render_done(**kwargs)
         else:
-            return self.render_next_step(form)
+            return self.render_next_step(**kwargs)
 
     def form_invalid(self, form):
-        return self.render(form)
+        return self.render(**kwargs)
 
 
 class WizardView(RenderMixin, RoutingMixin, TemplateView):
@@ -145,18 +141,18 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
     def form(self):
         return self.forms[self.steps.current]
 
-    def get_form_instance(self, step):
-        return self.instance_dict.get(step, None)
-
-    def get_form_to_edit(self, object_to_edit):
-        return []
-
     @property
     def processed_answers(self):
         return [
             self.storage.get_step_data(form)
             for form in self.forms
         ]
+
+    def get_form_instance(self, step):
+        return self.instance_dict.get(step, None)
+
+    def get_form_to_edit(self, object_to_edit):
+        return []
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -209,15 +205,4 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
                     if extra_answer:
                         answers['question_%i_extra-%s' %
                                 (question_id, answer)] = extra_answer
-        return answers
-
-    def _process_formset_answers_for_edit(self, json_questions, page_id):
-        answers = []
-        # TODO: smell this next
-        formset = next(
-            (i for i in json_questions if i.get('page_id') == page_id), None)
-        if formset:
-            for form in formset.get('answers'):
-                answers.append(
-                    self._process_non_formset_answers_for_edit(form))
         return answers
