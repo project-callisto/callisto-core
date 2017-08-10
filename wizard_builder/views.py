@@ -174,6 +174,7 @@ class WizardView(FormView):
 
     def render_done(self, **kwargs):
         if self.steps.current_is_done:
+            # TODO: a review screen template
             return JsonResponse(self.storage.get_form_data)
         else:
             return HttpResponseRedirect(self.steps.done_url)

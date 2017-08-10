@@ -7,15 +7,22 @@
     {% csrf_token %}
     <input type="hidden" name="wizard_current_step" value="{{ view.steps.current }}"/>
 
-    {% include "wizard_builder/wizard_form_fields.html" %}
+    <div class="container-fluid">
+        {% include "wizard_builder/wizard_form_fields.html" %}
+    </div>
 
-    {% if view.steps.prev %}
-        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="Back" />
-    {% endif %}
+    <div class="col-xs-4">
+        {% if view.steps.prev %}
+            <input class='btn btn-default btn-block' type="submit" name="wizard_goto_step" value="Back" />
+        {% endif %}
+    </div>
 
-    {% if view.steps.next_is_done %}
-        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="Submit" />
-    {% else %}
-        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="Next" />
-    {% endif %}
+    <div class="col-xs-4 col-xs-offset-4">
+        {% if view.steps.next_is_done %}
+            <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="Submit" />
+        {% else %}
+            <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="Next" />
+        {% endif %}
+    </div>
+
 </form>

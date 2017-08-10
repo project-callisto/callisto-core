@@ -44,3 +44,10 @@ class FrontendTest(FunctionalTest):
         self.browser.find_element_by_css_selector(
             '[value="Back"]').click()
         self.assertSelectorContains('body', 'the first page')
+
+    def test_choices_persist_after_forwards_and_back(self):
+        self.browser.find_element_by_css_selector(
+            '[value="Next"]').click()
+        self.browser.find_element_by_css_selector(
+            '[value="Back"]').click()
+        self.assertSelectorContains('body', 'the first page')
