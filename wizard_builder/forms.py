@@ -41,6 +41,14 @@ class PageForm(forms.Form):
 
 class PageFormManager(object):
 
+    def __init__(self, site_id):
+        self.pages = Page.objects.on_site(site_id).all()
+
+    @classmethod
+    def setup(cls, site_id):
+        self = cls(site_id)
+        return self.forms, self.items
+
     @property
     def section_map(self):
         return {
@@ -64,11 +72,3 @@ class PageFormManager(object):
             PageForm.setup(page, idx, self.section_map)
             for idx, page in enumerate(self.pages)
         ]
-
-    def __init__(self, site_id):
-        self.pages = Page.objects.on_site(site_id).all()
-
-    @classmethod
-    def setup(cls, site_id):
-        self = cls(site_id)
-        return self.forms, self.items
