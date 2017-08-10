@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from ..forms import PageForm
 from ..models import Checkbox, Choice, Page, RadioButton, SingleLineText
-from ..views import ConfigurableFormWizard
+from ..views import WizardView
 from .test_app.models import Report
 
 User = get_user_model()
@@ -91,7 +91,7 @@ class WizardIntegratedTest(FormBaseTest):
             position=2)
         SingleLineText.objects.create(
             text="another first page question", page=page3, position=1)
-        wizard = ConfigurableFormWizard.wizard_factory(site_id=self.site.id)()
+        wizard = WizardView.wizard_factory(site_id=self.site.id)()
         self.assertEqual(len(wizard.form_list), 3)
 
     def test_displays_first_page(self):

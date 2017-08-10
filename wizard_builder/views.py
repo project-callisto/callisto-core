@@ -24,7 +24,7 @@ class StepsHelper(object):
 
     @property
     def all(self):
-        return list(self._wizard.form_list)
+        return self._wizard.form_list
 
     @property
     def count(self):
@@ -45,8 +45,7 @@ class StepsHelper(object):
         return self.all[-1]
 
     def step_key(self, adjustment):
-        form_list = self._wizard.form_list
-        keys = list(form_list.keys())
+        keys = list(self._wizard.form_list.keys())
         key = self.step_key + adjustment
         if len(keys) > key:
             return keys[key]
@@ -149,7 +148,7 @@ class RoutingMixin(object):
         return self.render(form)
 
 
-class Wizard(RenderMixin, RoutingMixin, TemplateView):
+class WizardView(RenderMixin, RoutingMixin, TemplateView):
     form_list = None
     initial_dict = None
     instance_dict = None
@@ -157,11 +156,12 @@ class Wizard(RenderMixin, RoutingMixin, TemplateView):
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
     done_step_name = 'done'
+    site_id = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.processed_answers = []
-        self.form_to_edit = self.get_form_to_edit(kwargs['object_to_edit'])
+        self.form_to_edit = self.get_form_to_edit(kwargs.get('object_to_edit'))
         self.form_list, self.items = PageFormManager.setup(kwargs['site_id'])
 
     @property

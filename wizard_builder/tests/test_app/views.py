@@ -3,11 +3,11 @@ import json
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
 
-from ...views import Wizard
+from ...views import WizardView
 from .models import Report
 
 
-class TestWizard(Wizard):
+class TestWizardView(WizardView):
 
     def get_form_to_edit(self, object_to_edit):
         if object_to_edit:
@@ -26,7 +26,7 @@ class TestWizard(Wizard):
 
 def new_test_wizard_view(request, step=None):
     site = get_current_site(request)
-    return TestWizard.as_view(
+    return TestWizardView.as_view(
         site_id=site.id,
         url_name=request.resolver_match.url_name,
     )(
@@ -38,7 +38,7 @@ def new_test_wizard_view(request, step=None):
 def edit_test_wizard_view(request, edit_id, step=None):
     report = Report.objects.get(id=edit_id)
     site = get_current_site(request)
-    return TestWizard.as_view(
+    return TestWizardView.as_view(
         site_id=site.id,
         url_name=request.resolver_match.url_name,
         object_to_edit=report,

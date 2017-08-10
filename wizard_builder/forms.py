@@ -40,34 +40,35 @@ class PageForm(forms.Form):
 
 
 class PageFormManager(object):
-    form_class = PageForm
 
-    @classmethod
-    def section_map(cls):
-        # TODO: smell section_map
-        _section_map = {}
-        for (section, _) in Page.SECTION_CHOICES:
-            start = next((idx for idx, page in enumerate(
-                cls.pages) if page.section == section), None)
-            _section_map[section] = start
-        return _section_map
-
-    @classmethod
-    def items(cls):
+    @property
+    def section_map(self):
         return {
-            question.field_id: question
-            for question in page.questions
-            for page in cls.pages
+            section: idx + 1
+            for idx, page in enumerate(self.pages)
+            for section, _ in Page.SECTION_CHOICES
+            if page.section == section
         }
 
-    @classmethod
-    def forms(cls):
+    @property
+    def items(self):
+        return {
+            question.field_id: question
+            for page in self.pages
+            for question in page.questions
+        }
+
+    @property
+    def forms(self):
         return [
-            cls.form_class.setup(page, idx, cls.section_map)
-            for idx, page in enumerate(cls.pages)
+            PageForm.setup(page, idx, self.section_map)
+            for idx, page in enumerate(self.pages)
         ]
+
+    def __init__(self, site_id):
+        self.pages = Page.objects.on_site(site_id).all()
 
     @classmethod
     def setup(cls, site_id):
-        cls.pages = Page.objects.on_site(site_id).all()
-        return cls.forms, cls.items
+        self = cls(site_id)
+        return self.forms, self.items
