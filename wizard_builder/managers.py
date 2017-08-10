@@ -13,10 +13,6 @@ class FormManager(object):
     def __init__(self, site_id, **kwargs):
         self.get_pages(site_id, **kwargs)
 
-    def get_pages(self, site_id, **kwargs):
-        from .models import Page
-        self.pages = Page.objects.on_site(site_id).all()
-
     @property
     def section_map(self):
         from .models import Page
@@ -29,11 +25,29 @@ class FormManager(object):
 
     @property
     def forms(self):
-        from .forms import PageForm
         return [
-            PageForm.setup(page, idx, self.section_map)
-            for idx, page in enumerate(self.pages)
+            self._generate_form(index, page)
+            for index, page in enumerate(self.pages)
         ]
+
+    def get_pages(self, site_id, **kwargs):
+        from .models import Page
+        self.pages = Page.objects.on_site(site_id).all()
+
+    def _generate_form(self, index, page):
+        from .forms import PageForm
+        FormClass = PageForm.setup(page)
+        return self._generate_form_instance(index, FormClass)
+
+    def _generate_form_instance(self, index, FormClass):
+        form = FormClass(self._get_form_data(index))
+        form.page = page
+        form.page_index = index
+        form.section_map = section_map
+        return form
+
+    def _get_form_data(self, index):
+        return {}
 
 
 class PageQuerySet(QuerySet):

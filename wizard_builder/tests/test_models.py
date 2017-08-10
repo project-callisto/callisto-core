@@ -53,18 +53,10 @@ class FormQuestionModelTest(ItemTestCase):
         question = FormQuestion.objects.create(
             text='This is a question to be answered',
         )
-        serialized_q = question.serialize_for_report()
+        serialized_q = question.serialized
         self.assertEqual(
             serialized_q['question_text'],
             question.text,
-        )
-
-    def test_answer_serializes_correctly(self):
-        question = FormQuestion.objects.create()
-        serialized_q = question.serialize_for_report('words')
-        self.assertEqual(
-            serialized_q['answer'],
-            'words',
         )
 
     def test_questions_get_added_to_end_by_default(self):
@@ -92,18 +84,10 @@ class SingleLineTextModelTestCase(ItemTestCase):
         question = FormQuestion.objects.create(
             text='This is a question to be answered',
         )
-        serialized_q = question.serialize_for_report()
+        serialized_q = question.serialized
         self.assertEqual(
             serialized_q['question_text'],
             question.text,
-        )
-
-    def test_answer_serializes_correctly(self):
-        question = FormQuestion.objects.create()
-        serialized_q = question.serialize_for_report('words')
-        self.assertEqual(
-            serialized_q['answer'],
-            'words',
         )
 
 
@@ -148,7 +132,7 @@ class RadioButtonTestCase(ItemTestCase):
 
     def test_choices_serialized(self):
         object_ids = [choice.pk for choice in self.question.choice_set.all()]
-        serialized_q = self.question.serialize_for_report(object_ids[3])
+        serialized_q = self.question.serialized
         self.assertEqual(type(serialized_q['choices']), list)
         self.assertTrue(len(serialized_q['choices']))
 
@@ -156,7 +140,7 @@ class RadioButtonTestCase(ItemTestCase):
         choice = self.question.choices[0]
         choice.extra_info_text = 'cats are good'
         choice.save()
-        serialized_q = self.question.serialize_for_report()
+        serialized_q = self.question.serialized
         self.assertIn('extra_info_text', str(serialized_q))
         self.assertIn('cats are good', str(serialized_q))
 
@@ -170,7 +154,7 @@ class RadioButtonTestCase(ItemTestCase):
             text='birds can skateboard',
             choice=choice,
         )
-        serialized_q = self.question.serialize_for_report()
+        serialized_q = self.question.serialized
         self.assertIn('options', str(serialized_q))
         self.assertIn('lizards are cool', str(serialized_q))
         self.assertIn('birds can skateboard', str(serialized_q))

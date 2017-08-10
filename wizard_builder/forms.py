@@ -19,13 +19,9 @@ class PageForm(forms.Form):
         ]
 
     @classmethod
-    def setup(cls, page, page_index, section_map):
+    def setup(cls, page):
         cls.base_fields = {
             question.field_id: question.make_field()
             for question in page.questions
         }
-        self = cls({})
-        self.page = page
-        self.page_index = page_index
-        self.section_map = section_map
-        return self
+        return cls
