@@ -122,7 +122,6 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
     forms = None
     initial_dict = None
     instance_dict = None
-    condition_dict = None
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
     done_step_name = 'done'
