@@ -1,13 +1,16 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from .models import Page
-
 User = get_user_model()
 
 
 class PageForm(forms.Form):
     sections = dict(Page.SECTION_CHOICES)
+
+    @property
+    def sections(self):
+        from .models import Page
+        return dict(Page.SECTION_CHOICES)
 
     @property
     def serialized(self):

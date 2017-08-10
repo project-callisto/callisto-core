@@ -7,33 +7,32 @@ from django.contrib.sites.models import Site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
-from .forms import PageForm
-from .models import Page
 
 
 class FormManager(object):
-    model_class = Page
-    form_class = PageForm
 
     def __init__(self, site_id, **kwargs):
         self.get_pages(site_id, **kwargs)
 
     def get_pages(self, site_id, **kwargs):
-        self.pages = self.model_class.objects.on_site(site_id).all()
+        from .models import Page
+        self.pages = Page.objects.on_site(site_id).all()
 
     @property
     def section_map(self):
+        from .models import Page
         return {
             section: idx + 1
             for idx, page in enumerate(self.pages)
-            for section, _ in self.model_class.SECTION_CHOICES
+            for section, _ in Page.SECTION_CHOICES
             if page.section == section
         }
 
     @property
     def forms(self):
+        from .forms import PageForm
         return [
-            self.form_class.setup(page, idx, self.section_map)
+            PageForm.setup(page, idx, self.section_map)
             for idx, page in enumerate(self.pages)
         ]
 
