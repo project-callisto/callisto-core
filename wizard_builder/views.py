@@ -63,13 +63,10 @@ class StepsHelper(object):
 
     @property
     def next_url(self):
-        _url = reverse(
+        return reverse(
             self.view.request.resolver_match.view_name,
             kwargs={'step': self.current},
         )
-        print('steps.next_url')
-        print(_url)
-        return _url
 
     def finished(self, step):
         return self._goto_step_submit or step == self.done_name
@@ -77,19 +74,13 @@ class StepsHelper(object):
     def set_from_get(self, step_url_param):
         step = step_url_param or self.current
         self.view.request.session['current_step'] = step
-        print('steps.set_from_get')
-        print(step)
 
     def set_from_post(self):
         step = self.view.request.POST.get('wizard_current_step', self.current)
         self.view.request.session['current_step'] = step
-        print('steps.set_from_post')
-        print(step)
 
     def advance(self):
         self.view.request.session['current_step'] = self.next
-        print('steps.advance')
-        print(self.current)
 
     def step_key(self, adjustment):
         key = self.current + adjustment
@@ -147,8 +138,6 @@ class WizardView(FormView):
         return self.form_manager.forms
 
     def get_form(self):
-        print('view.get_form')
-        print(self.steps.current)
         return self.forms[self.steps.current]
 
     def dispatch(self, request, step=None, *args, **kwargs):
@@ -163,15 +152,12 @@ class WizardView(FormView):
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form, **kwargs):
-        print('view.form_valid')
         self.steps.advance()
         self.storage.set_form_data(form)
-        self.render_step(**kwargs)
+        return self.render_step(**kwargs)
 
     def render_step(self, **kwargs):
-        print('view.render_step')
         return HttpResponseRedirect(self.steps.next_url)
 
     def render_done(self, **kwargs):
-        print('view.render_done')
         return JsonResponse(self.storage.get_form_data)
