@@ -24,7 +24,7 @@ class StepsHelper(object):
 
     @property
     def all(self):
-        return self._wizard.form_list
+        return self._wizard.forms
 
     @property
     def count(self):
@@ -45,10 +45,9 @@ class StepsHelper(object):
         return self.all[-1].page_index
 
     def step_key(self, adjustment):
-        keys = list(self._wizard.form_list.keys())
-        key = self.step_key + adjustment
-        if len(keys) > key:
-            return keys[key]
+        key = self.step + adjustment
+        if len(self._wizard.forms) > key:
+            return self._wizard.forms[key]
         else:
             return None
 
@@ -66,7 +65,7 @@ class StepsHelper(object):
 
     @property
     def index(self):
-        return list(self._wizard.form_list.keys()).index(self.step)
+        return list(self._wizard.forms.keys()).index(self.step)
 
     @property
     def step0(self):
@@ -79,10 +78,11 @@ class StepsHelper(object):
 
 class RenderMixin(object):
 
-    def render(self, form=None, **kwargs):
-        form = form or self.form
-        context = self.get_context_data(form=form, **kwargs)
-        return self.render_to_response(context)
+    def render(self, **kwargs):
+        if kwargs.get('step', None) == self.done_step_name:
+            return self.render_done(**kwargs)
+        else:
+            return super().render(**kwargs)
 
     def render_next_step(self, form, **kwargs):
         self.storage.current_step = self.steps.next
@@ -99,7 +99,7 @@ class RenderMixin(object):
     def render_done(self, **kwargs):
         final_forms = [
             self.storage.get_step_data(form_key)
-            for form_key in self.form_list
+            for form_key in self.forms
         ]
         self.process_answers(final_forms.values())
         return self.done(final_forms, **kwargs)
@@ -108,20 +108,9 @@ class RenderMixin(object):
 class RoutingMixin(object):
 
     def get(self, request, *args, **kwargs):
-        step_url = kwargs.get('step', None)
-        if step_url is None or 'reset' in self.request.GET:
+        if kwargs.get('step', None) or 'reset' in self.request.GET:
             self.storage.init_data()
-            return redirect(self.get_step_url(self.steps.current))
-        elif step_url == self.done_step_name:
-            return self.render_done(**kwargs)
-        elif (
-            step_url == self.steps.current or
-            step_url in self.form_list
-        ):
-            return self.render(self.form, **kwargs)
-        else:
-            self.storage.current_step = self.steps.first
-            return redirect(self.get_step_url(self.steps.first))
+        return super().get(request, *args, **kwargs)
 
     def post(self, *args, **kwargs):
         step = self.request.POST.get('current_step')
@@ -137,7 +126,7 @@ class RoutingMixin(object):
             self.steps.current,
             form.data,
         )
-        if step in self.form_list:
+        if step in self.forms:
             return self.render_goto_step(step)
         if self.steps.current == self.steps.last or step == "end":
             return self.render_done(**kwargs)
@@ -149,7 +138,7 @@ class RoutingMixin(object):
 
 
 class WizardView(RenderMixin, RoutingMixin, TemplateView):
-    form_list = None
+    forms = None
     initial_dict = None
     instance_dict = None
     condition_dict = None
@@ -163,7 +152,7 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
         self.processed_answers = []
         self.object_to_edit = kwargs.get('object_to_edit')
         self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
-        self.form_list, self.items = PageFormManager.setup(kwargs['site_id'])
+        self.forms, self.items = PageFormManager.setup(kwargs['site_id'])
 
     @property
     def steps(self):
@@ -175,7 +164,7 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
 
     @property
     def form(self):
-        return self.form_list[self.steps.current]
+        return self.forms[self.steps.current]
 
     def get_form_instance(self, step):
         return self.instance_dict.get(step, None)
@@ -183,19 +172,19 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
     def get_form_to_edit(self, object_to_edit):
         return []
 
-    def process_answers(self, form_list):
-        for form in form_list:
+    def process_answers(self, forms):
+        for form in forms:
             self.processed_answers.append(form.processed)
 
-    def get_context_data(self, form, **kwargs):
-        context = super().get_context_data(form, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context.update(self.storage.extra_data)
         context.update({
-            'page_count': self.page_count,
-            'current_page': form.page_index,
+            'page_count': len(self.forms),
+            'current_page': self.form.page_index,
             'editing': self.object_to_edit,
             'wizard': {
-                'form': form,
+                'form': self.form,
                 'steps': self.steps,
                 'current_step': self.steps.current,
                 'url_name': self.url_name,
@@ -217,7 +206,7 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
             kwargs['edit_id'] = self.object_to_edit.id
         return reverse(self.url_name, kwargs=kwargs)
 
-    def done(self, form_list, **kwargs):
+    def done(self, forms, **kwargs):
         if kwargs.get('step', None) != self.done_step_name:
             return redirect(self.get_step_url(self.done_step_name))
         else:

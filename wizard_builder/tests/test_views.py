@@ -124,6 +124,7 @@ class WizardIntegratedTest(FormBaseTest):
             'name="1-question_%i"' %
             self.question1.pk)
 
+
 class EditRecordFormTest(FormBaseTest):
     form_url = '/wizard/edit/%s/0/'
 
