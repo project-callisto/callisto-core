@@ -141,16 +141,24 @@ class StorageHelper(object):
     @property
     def get_form_data(self):
         return {'data': [
-            self.view.request.session[self.session_key(form.page_index)]
+            self.view.request.session[self.key(form.page_index)]
             for form in self.view.form_manager.forms
         ]}
 
-    def session_key(self, step):
-        return 'wizard_page_index_{}'.format(step)
+    def key(self, step):
+        return 'wizard_{}'.format(step)
+
+    def compile_data(self, form):
+        return {
+            'page': form.page_index,
+            'form': form.serialized,
+            'post': self.view.request.POST,
+        }
 
     def set_form_data(self, form):
-        key = self.session_key(form.page_index)
-        self.view.request.session[key] = form.processed
+        key = self.key(form.page_index)
+        data = self.compile_data(form)
+        self.view.request.session[key] = data
 
 
 class WizardView(FormView):

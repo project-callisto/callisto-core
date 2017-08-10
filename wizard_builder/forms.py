@@ -16,11 +16,9 @@ class PageForm(forms.Form):
     sections = dict(Page.SECTION_CHOICES)
 
     @property
-    def processed(self):
+    def serialized(self):
         return [
-            question.serialize_for_report(
-                self.cleaned_data[question.field_id],
-            )
+            question.serialized
             for question in self.page.questions
         ]
 

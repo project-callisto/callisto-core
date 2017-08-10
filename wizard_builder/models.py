@@ -139,11 +139,11 @@ class FormQuestion(TimekeepingBase, models.Model):
         if not self.page:
             self.page = Page.objects.latest('position')
 
-    def serialize_for_report(self, answer=''):
+    @property
+    def serialized(self):
         return {
             'id': self.pk,
             'question_text': self.text,
-            'answer': answer,
             'type': self._meta.model_name.capitalize(),
             'section': self.section,
         }
@@ -181,13 +181,14 @@ class MultipleChoice(FormQuestion):
             for choice in self.choices
         ]
 
-    def serialize_for_report(self, answer=''):
-        data = super().serialize_for_report(answer)
-        data.update({'choices': self.serialized_choices_for_report})
+    @property
+    def serialized(self):
+        data = super().serialized
+        data.update({'choices': self.serialized_choices})
         return data
 
     @property
-    def serialized_choices_for_report(self):
+    def serialized_choices(self):
         return [choice.data for choice in self.choices]
 
     @property
