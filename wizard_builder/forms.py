@@ -5,7 +5,6 @@ User = get_user_model()
 
 
 class PageForm(forms.Form):
-    sections = dict(Page.SECTION_CHOICES)
 
     @property
     def sections(self):

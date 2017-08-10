@@ -8,7 +8,6 @@ from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
 
-
 class FormManager(object):
 
     def __init__(self, site_id, **kwargs):
