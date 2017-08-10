@@ -179,7 +179,7 @@ class WizardView(FormView):
         return self.render_step(**kwargs)
 
     def render_last(self, **kwargs):
-        return HttpResponseRedirect(self.steps.current_url)
+        return HttpResponseRedirect(self.steps.last_url)
 
     def render_step(self, **kwargs):
         return HttpResponseRedirect(self.steps.current_url)
