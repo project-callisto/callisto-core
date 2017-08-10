@@ -5,12 +5,12 @@
     {% include "wizard_builder/wizard_fields.html" %}
 
     {% if wizard.steps.prev %}
-        <input type="submit" name="wizard_goto_step" value="prev" />
+        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="prev" />
     {% endif %}
 
     {% if wizard.steps.next %}
-        <input type="submit" name="wizard_goto_step" value="next" />
+        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="next" />
     {% else %}
-        <input type="submit" name="submit" value="submit" />
+        <input class='btn btn-primary' type="submit" name="submit" value="submit" />
     {% endif %}
 </form>
