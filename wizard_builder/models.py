@@ -90,7 +90,7 @@ class Page(TimekeepingBase, models.Model):
 
 # TODO: rename to Question when downcasting is removed
 class FormQuestion(TimekeepingBase, models.Model):
-    text = HTMLField(blank=False)
+    text = HTMLField(blank=True)
     descriptive_text = HTMLField(blank=True)
     page = models.ForeignKey(
         Page,
@@ -160,7 +160,7 @@ class FormQuestion(TimekeepingBase, models.Model):
 class SingleLineText(FormQuestion):
 
     def make_field(self):
-        # TODO: use the django field creation hook instead
+        # TODO: sync up with django default field creation more effectively
         return forms.CharField(
             label=self.get_label(),
             required=False,
