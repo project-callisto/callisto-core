@@ -9,9 +9,6 @@ class PageAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('position', 'section', 'infobox', 'sites')
         }),
-        ('Advanced options', {
-            'fields': (('multiple', 'name_for_multiple'),)
-        }),
     )
     inlines = [
         QuestionInline,

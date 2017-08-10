@@ -4,7 +4,8 @@ from django import forms
 from django.test import TestCase
 
 from ..models import (
-    Checkbox, Choice, Date, MultiLineText, Page, RadioButton, SingleLineText,
+    Checkbox, Choice, ChoiceOption, FormQuestion, Page, RadioButton,
+    SingleLineText,
 )
 
 
@@ -28,17 +29,6 @@ class PageTest1(TestCase):
         self.assertEqual(Page.objects.get(pk=who_page.pk).section, Page.WHO)
         self.assertEqual(Page.objects.get(pk=when_page.pk).section, Page.WHEN)
 
-    def test_page_can_have_multiple(self):
-        single_page = Page.objects.create()
-        multiple_page = Page.objects.create(
-            multiple=True, name_for_multiple="random field")
-        self.assertFalse(Page.objects.get(pk=single_page.pk).multiple)
-        self.assertTrue(Page.objects.get(pk=multiple_page.pk).multiple)
-        self.assertTrue(
-            Page.objects.get(
-                pk=multiple_page.pk).name_for_multiple,
-            "random field")
-
     def test_page_infobox_can_be_specified(self):
         Page.objects.create(infobox="More information")
         self.assertEqual(Page.objects.last().infobox, "More information")
@@ -59,26 +49,23 @@ class ItemTestCase(TestCase):
 
 class FormQuestionModelTest(ItemTestCase):
 
-    def test_questions_have_text(self):
-        SingleLineText.objects.create(text="This is a question")
-        self.assertEqual(SingleLineText.objects.count(), 1)
+    def test_question_text_serializes_correctly(self):
+        question = FormQuestion.objects.create(
+            text='This is a question to be answered',
+        )
+        serialized_q = question.serialize_for_report()
         self.assertEqual(
-            SingleLineText.objects.first().text,
-            "This is a question")
+            serialized_q['question_text'],
+            question.text,
+        )
 
-    def test_string_representation(self):
-        question = SingleLineText.objects.create(text="What's up?")
-        self.assertEqual(str(question), "What's up? (Type: SingleLineText)")
-
-    def test_questions_can_have_pages(self):
-        page = Page.objects.create()
-        SingleLineText.objects.create(
-            text="This is a question on page 4", page=page)
-        self.assertEqual(SingleLineText.objects.first().page, page)
-
-    def test_questions_have_pages_by_default(self):
-        SingleLineText.objects.create(text="This is a question with no page")
-        self.assertEqual(SingleLineText.objects.first().page.position, 1)
+    def test_answer_serializes_correctly(self):
+        question = FormQuestion.objects.create()
+        serialized_q = question.serialize_for_report('words')
+        self.assertEqual(
+            serialized_q['answer'],
+            'words',
+        )
 
     def test_questions_get_added_to_end_by_default(self):
         # setup creates one page
@@ -86,16 +73,9 @@ class FormQuestionModelTest(ItemTestCase):
         for i in range(pages):
             Page.objects.create()
         question = SingleLineText.objects.create(
-            text="This is a question with no page")
+            text="This is a question with no page",
+        )
         self.assertEqual(question.page.position, pages + 1)
-
-    def test_questions_can_have_descriptive_text(self):
-        SingleLineText.objects.create(
-            text="This is a question",
-            descriptive_text="You might answer it so")
-        self.assertEqual(
-            SingleLineText.objects.first().descriptive_text,
-            "You might answer it so")
 
     def test_questions_have_position(self):
         SingleLineText.objects.create(text="some question")
@@ -108,70 +88,23 @@ class FormQuestionModelTest(ItemTestCase):
 
 class SingleLineTextModelTestCase(ItemTestCase):
 
-    def test_make_field_applies_css(self):
-        question = SingleLineText.objects.create(
-            text="This is a question with css").make_field()
-        self.assertIn('form-control input-lg', question.widget.attrs['class'])
-
-    def test_make_field_works_without_placeholder(self):
-        question = SingleLineText.objects.create(
-            text="This is a question without placeholder").make_field()
-        self.assertEqual(None, question.widget.attrs.get('placeholder'))
-
-    def test_serializes_correctly(self):
-        question = SingleLineText.objects.create(
-            text="This is a question to be answered")
-        serialized_q = question.serialize_for_report("my answer")
-        json_report = json.loads("""
-    { "answer": "my answer",
-      "id": %i,
-      "section": 1,
-      "question_text": "This is a question to be answered",
-      "type": "SingleLineText"
-    }""" % question.pk)
-        self.assertEqual(serialized_q, json_report)
-
-    def test_serializes_no_answer_correctly(self):
-        question = SingleLineText.objects.create(
-            text="This is a question to be answered")
+    def test_question_text_serializes_correctly(self):
+        question = FormQuestion.objects.create(
+            text='This is a question to be answered',
+        )
         serialized_q = question.serialize_for_report()
-        json_report = json.loads("""
-    { "answer": "",
-      "id": %i,
-      "section": 1,
-      "question_text": "This is a question to be answered",
-      "type": "SingleLineText"
-    }""" % question.pk)
-        self.assertEqual(serialized_q, json_report)
+        self.assertEqual(
+            serialized_q['question_text'],
+            question.text,
+        )
 
-
-class MultiLineTextTestCase(ItemTestCase):
-
-    def test_make_field_is_textarea(self):
-        question = MultiLineText.objects.create(
-            text="This is a big question with css").make_field()
-        self.assertIsInstance(question.widget, forms.Textarea)
-
-    def test_make_field_applies_css(self):
-        question = MultiLineText.objects.create(
-            text="This is a big question with css").make_field()
-        self.assertIn('form-control', question.widget.attrs['class'])
-
-    def test_serializes_correctly(self):
-        self.maxDiff = None
-        question = MultiLineText.objects.create(
-            text="This is a big question to be answered")
-        serialized_q = question.serialize_for_report("""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""")  # noqa
-        json_report = json.loads("""
-        {"id": %i,
-         "answer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\\nquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\\n\\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-         "question_text": "This is a big question to be answered",
-         "section": 1,
-         "type": "MultiLineText"}""" % question.pk)  # noqa
-        self.assertEqual(serialized_q, json_report)
+    def test_answer_serializes_correctly(self):
+        question = FormQuestion.objects.create()
+        serialized_q = question.serialize_for_report('words')
+        self.assertEqual(
+            serialized_q['answer'],
+            'words',
+        )
 
 
 class RadioButtonTestCase(ItemTestCase):
@@ -213,25 +146,34 @@ class RadioButtonTestCase(ItemTestCase):
             "This is choice 3")
         self.assertIsInstance(dropdown.make_field().widget, forms.Select)
 
-    def test_serializes_correctly(self):
+    def test_choices_serialized(self):
         object_ids = [choice.pk for choice in self.question.choice_set.all()]
         serialized_q = self.question.serialize_for_report(object_ids[3])
-        selected_id = object_ids[3]
-        object_ids.insert(0, self.question.pk)
-        object_ids.insert(0, selected_id)
-        json_report = json.loads("""
-    { "answer": %i,
-      "id": %i,
-      "question_text": "this is a radio button question",
-      "section": 1,
-      "choices": [{"id": %i, "choice_text": "This is choice 0"},
-                  {"id": %i, "choice_text": "This is choice 1"},
-                  {"id": %i, "choice_text": "This is choice 2"},
-                  {"id": %i, "choice_text": "This is choice 3"},
-                  {"id": %i, "choice_text": "This is choice 4"}],
-      "type": "RadioButton"
-    }""" % tuple(object_ids))
-        self.assertEqual(serialized_q, json_report)
+        self.assertEqual(type(serialized_q['choices']), list)
+        self.assertTrue(len(serialized_q['choices']))
+
+    def test_choice_extra_info_serialized(self):
+        choice = self.question.choices[0]
+        choice.extra_info_text = 'cats are good'
+        choice.save()
+        serialized_q = self.question.serialize_for_report()
+        self.assertIn('extra_info_text', str(serialized_q))
+        self.assertIn('cats are good', str(serialized_q))
+
+    def test_choice_extra_dropdown_serialized(self):
+        choice = self.question.choices[0]
+        ChoiceOption.objects.create(
+            text='lizards are cool',
+            choice=choice,
+        )
+        ChoiceOption.objects.create(
+            text='birds can skateboard',
+            choice=choice,
+        )
+        serialized_q = self.question.serialize_for_report()
+        self.assertIn('options', str(serialized_q))
+        self.assertIn('lizards are cool', str(serialized_q))
+        self.assertIn('birds can skateboard', str(serialized_q))
 
 
 class CheckboxTestCase(ItemTestCase):
@@ -259,57 +201,3 @@ class CheckboxTestCase(ItemTestCase):
         self.assertIsInstance(
             self.question.make_field().widget,
             forms.CheckboxSelectMultiple)
-
-    def test_serializes_correctly(self):
-        self.maxDiff = None
-        object_ids = [choice.pk for choice in self.question.choice_set.all()]
-        selected_id_1 = object_ids[3]
-        selected_id_2 = object_ids[1]
-        serialized_q = self.question.serialize_for_report(
-            [selected_id_1, selected_id_2])
-        object_ids.insert(0, self.question.pk)
-        object_ids.insert(0, selected_id_2)
-        object_ids.insert(0, selected_id_1)
-        json_report = json.loads("""
-    { "answer": [%i, %i],
-      "id": %i,
-      "question_text": "this is a checkbox question",
-      "section": 1,
-      "choices": [{"id": %i, "choice_text": "This is choice 0"},
-                  {"id": %i, "choice_text": "This is choice 1"},
-                  {"id": %i, "choice_text": "This is choice 2"},
-                  {"id": %i, "choice_text": "This is choice 3"},
-                  {"id": %i, "choice_text": "This is choice 4"}],
-      "type": "Checkbox"
-    }""" % tuple(object_ids))
-        self.assertEqual(serialized_q, json_report)
-
-
-class DateTestCase(ItemTestCase):
-
-    def test_make_field_is_text_input(self):
-        question = Date.objects.create(text="When did it happen?").make_field()
-        self.assertIsInstance(question.widget, forms.TextInput)
-
-    def test_serializes_correctly(self):
-        self.maxDiff = None
-        question = Date.objects.create(text="When did it happen?")
-        serialized_q = question.serialize_for_report('08/05/2015')
-        json_report = json.loads("""
-    {  "id": %i,
-        "answer": "08/05/2015",
-        "question_text": "When did it happen?",
-        "section": 1,
-      "type": "Date"
-    }""" % question.pk)
-        self.assertEqual(serialized_q, json_report)
-
-
-class PageTest2(TestCase):
-
-    def test_can_save_infobox(self):
-        page_id = Page.objects.create(infobox="you'll be asked later").pk
-        self.assertEqual(
-            Page.objects.get(
-                pk=page_id).infobox,
-            "you'll be asked later")

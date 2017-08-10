@@ -36,6 +36,20 @@ django-wizard-builder
 | |climate|    | |python36| |django111|   |
 +--------------+--------------------------+
 
+Installation
+-------------
+
+django settings
+
+::
+
+    INSTALLED_APPS = [
+      'django.contrib.sites',
+      'tinymce',
+      'widget_tweaks',
+      'wizard_builder',
+    ]
+
 Developement
 -------------
 

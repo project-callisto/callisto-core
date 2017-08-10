@@ -1,0 +1,28 @@
+{% load wizard_builder %}
+
+{% for field in form %}
+    <div class="form-group
+        {% if field.errors %}has-error{% endif %}
+        {% if forloop.counter != 1 %}more_questions{% endif %}
+    ">
+
+        {% if not field|is_multiple_choice %}
+            <label id='help-{{ field.auto_id }}' class="help-block">
+                {% include "wizard_builder/wizard_form_field_info.html" %}
+                {% include "wizard_builder/wizard_form_field.html" %}
+            </label>
+        {% else %}
+            <fieldset>
+                <legend>
+                    {% include "wizard_builder/wizard_form_field_info.html" %}
+                </legend>
+                {% include "wizard_builder/wizard_form_field.html" %}
+            </fieldset>
+        {% endif %}
+
+        {% if field.errors %}
+            <span class="help-block" role="alert">{{ field.errors }}</span>
+        {% endif %}
+
+    </div>
+{% endfor %}

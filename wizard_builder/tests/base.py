@@ -16,7 +16,29 @@ SCREEN_DUMP_LOCATION = os.path.join(
 logger = logging.getLogger(__name__)
 
 
-class FunctionalTest(StaticLiveServerTestCase):
+class Assertions(object):
+
+    def assertCss(self, css):
+        self.assertTrue(
+            self.browser.find_elements_by_css_selector(css),
+        )
+
+    def assertSelectorContains(self, css, text):
+        assertion_valid = False
+        elements = list(self.browser.find_elements_by_css_selector(css)),
+        elements = elements[0]
+        element_text = ''
+        for element in elements:
+            element_text += element.text
+            if text in element.text:
+                assertion_valid = True
+        if not assertion_valid:
+            raise AssertionError('''
+                '{}' not found in '{}'
+            '''.format(text, element_text))
+
+
+class FunctionalTest(Assertions, StaticLiveServerTestCase):
 
     fixtures = [
         'data',
@@ -63,11 +85,6 @@ class FunctionalTest(StaticLiveServerTestCase):
             lambda driver: driver.find_element_by_tag_name('body'),
         )
 
-    def assertCss(self, css):
-        self.assertTrue(
-            self.browser.find_elements_by_css_selector(css),
-        )
-
     def _test_has_failed(self):
         try:
             for method, error in self._outcome.errors:
@@ -79,12 +96,12 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def _take_screenshot(self):
         filename = self._get_filename() + '.png'
-        logger.info('screenshotting to', filename)
+        logger.info('screenshotting to {}'.format(filename))
         self.browser.get_screenshot_as_file(filename)
 
     def _dump_html(self):
         filename = self._get_filename() + '.html'
-        logger.info('dumping page HTML to', filename)
+        logger.info('dumping page HTML to {}'.format(filename))
         with open(filename, 'w') as f:
             f.write(self.browser.page_source)
 

@@ -1,21 +1,28 @@
-{% load i18n %}
+
+{% if form.page.infobox %}
+    <div><p>{{ form.page.infobox }}</p></div>
+{% endif %}
+
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ wizard.form.media }}
-    <input type="hidden" name="current_step" value="{{ wizard.current_step }}"/>
+    <input type="hidden" name="wizard_current_step" value="{{ view.steps.current }}"/>
 
-    {% if wizard.form.forms %}
-        <input type="hidden" name="current_step" value="{{ wizard.current_step }}"/>
-        {% for form in wizard.form.forms %}
-            {{ form.as_p }}
-        {% endfor %}
-    {% else %}
-        {{ wizard.form.as_p }}
-    {% endif %}
+    <div class="container-fluid">
+        {% include "wizard_builder/wizard_form_fields.html" %}
+    </div>
 
-    {% if wizard.steps.prev %}
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
-    {% endif %}
-    <input type="submit" name="submit" value="{% trans "submit" %}" />
+    <div class="col-xs-4">
+        {% if view.steps.prev %}
+            <input class='btn btn-default btn-block' type="submit" name="wizard_goto_step" value="Back" />
+        {% endif %}
+    </div>
+
+    <div class="col-xs-4 col-xs-offset-4">
+        {% if view.steps.next_is_done %}
+            <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="Submit" />
+        {% else %}
+            <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="Next" />
+        {% endif %}
+    </div>
+
 </form>

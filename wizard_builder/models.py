@@ -1,13 +1,18 @@
-import copy
+import logging
 
 from tinymce import HTMLField
 
 from django import forms
 from django.contrib.sites.models import Site
 from django.db import models
+from django.forms.fields import ChoiceField, MultipleChoiceField
+from django.forms.widgets import Select
 from django.utils.safestring import mark_safe
 
 from .managers import FormQuestionManager, PageManager
+from .widgets import CheckboxExtraSelectMultiple, RadioExtraSelect
+
+logger = logging.getLogger(__name__)
 
 
 class TimekeepingBase(models.Model):
@@ -33,15 +38,6 @@ class Page(TimekeepingBase, models.Model):
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
     infobox = HTMLField(blank=True)
-    multiple = models.BooleanField(
-        blank=False,
-        default=False,
-        verbose_name='User can add multiple',
-    )
-    name_for_multiple = models.TextField(
-        blank=True,
-        verbose_name='name of field for "add another" prompt',
-    )
 
     objects = PageManager()
 
@@ -94,13 +90,14 @@ class Page(TimekeepingBase, models.Model):
 
 # TODO: rename to Question when downcasting is removed
 class FormQuestion(TimekeepingBase, models.Model):
-    text = HTMLField(blank=False)
+    text = HTMLField(blank=True)
     descriptive_text = HTMLField(blank=True)
     page = models.ForeignKey(
         Page,
         editable=True,
         null=True,
-        on_delete=models.SET_NULL)
+        on_delete=models.SET_NULL,
+    )
     position = models.PositiveSmallIntegerField("position", default=0)
     objects = FormQuestionManager()
 
@@ -112,6 +109,7 @@ class FormQuestion(TimekeepingBase, models.Model):
         else:
             return "{} {}".format(self.short_str, type_str)
 
+    # TODO: I feel like there is a django model option for this
     @property
     def field_id(self):
         return "question_{}".format(self.pk)
@@ -134,18 +132,21 @@ class FormQuestion(TimekeepingBase, models.Model):
         else:
             return None
 
-    def clone(self):
-        return copy.deepcopy(self)
-
-    def get_extras(self):
-        return None
-
     def get_label(self):
         return mark_safe(self.text)
 
     def set_question_page(self):
         if not self.page:
             self.page = Page.objects.latest('position')
+
+    def serialize_for_report(self, answer=''):
+        return {
+            'id': self.pk,
+            'question_text': self.text,
+            'answer': answer,
+            'type': self._meta.model_name.capitalize(),
+            'section': self.section,
+        }
 
     def save(self, *args, **kwargs):
         self.set_question_page()
@@ -159,110 +160,65 @@ class FormQuestion(TimekeepingBase, models.Model):
 class SingleLineText(FormQuestion):
 
     def make_field(self):
+        # TODO: sync up with django default field creation more effectively
         return forms.CharField(
             label=self.get_label(),
             required=False,
-            widget=forms.TextInput(
-                attrs={
-                    'class': "form-control input-lg",
-                },
-            ),
         )
-
-    def serialize_for_report(self, answer="", *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
-                'type': 'SingleLineText', 'section': self.section}
-
-
-class SingleLineTextWithMap(FormQuestion):
-    map_link = models.CharField(blank=False, max_length=500)
-
-    def make_field(self):
-        link_to_map = """<a href='{0}' target='_blank' class="map_link">
-                          <img alt="Map of campus" src="/static/images/map_icon.png" />
-                      </a>""".format(self.map_link)
-        return forms.CharField(
-            label=self.get_label(),
-            help_text=mark_safe(link_to_map),
-            required=False,
-            widget=forms.TextInput(
-                attrs={
-                    'class': "form-control input-lg map-field",
-                },
-            ),
-        )
-
-    def serialize_for_report(self, answer="", *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
-                'type': 'SingleLineText', 'section': self.section}
-
-
-class MultiLineText(FormQuestion):
-
-    def make_field(self):
-        return forms.CharField(
-            label=self.get_label(),
-            required=False,
-            widget=forms.Textarea(
-                attrs={
-                    'class': "form-control",
-                    'max_length': 30000,
-                },
-            ),
-        )
-
-    def serialize_for_report(self, answer="", *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
-                'type': 'MultiLineText', 'section': self.section}
 
 
 class MultipleChoice(FormQuestion):
-    cached_choices = None
     objects = FormQuestionManager()
 
-    def clone(self):
-        question_copy = copy.deepcopy(self)
-        # copy choices
-        choices = [copy.deepcopy(choice) for choice in self.choice_set.all()]
-        question_copy.cached_choices = choices
-        return question_copy
+    @property
+    def choices(self):
+        return self.choice_set.all()
 
-    def get_choices(self):
-        if self.cached_choices:
-            return self.cached_choices
-        else:
-            choices = [copy.deepcopy(choice)
-                       for choice in self.choice_set.all()]
-            self.cached_choices = choices
-            return choices
+    @property
+    def choices_field_display(self):
+        return [
+            (choice.pk, choice.text)
+            for choice in self.choices
+        ]
 
-    def serialize_choices(self):
-        return [{"id": choice.pk, "choice_text": choice.text}
-                for choice in self.get_choices()]
+    def serialize_for_report(self, answer=''):
+        data = super().serialize_for_report(answer)
+        data.update({'choices': self.serialized_choices_for_report})
+        return data
+
+    @property
+    def serialized_choices_for_report(self):
+        return [choice.data for choice in self.choices]
+
+    @property
+    def widget(self):
+        # TODO: merge into a more versatile feild creation function that
+            # works entirely off of checking variables on the instance
+            # (instead of self._meta.model)
+            # and move this function to FormQuestion
+        if getattr(self, 'is_dropdown', False):
+            return Select
+        elif self._meta.model == RadioButton:
+            return RadioExtraSelect
+        elif self._meta.model == Checkbox:
+            return CheckboxExtraSelectMultiple
+
+    def make_field(self):
+        # TODO: sync up with django default field creation more effectively
+        if self._meta.model == RadioButton:
+            _Field = ChoiceField
+        elif self._meta.model == Checkbox:
+            _Field = MultipleChoiceField
+        return _Field(
+            choices=self.choices_field_display,
+            label=self.text,
+            help_text=self.descriptive_text,
+            required=False,
+            widget=self.widget,
+        )
 
 
 class Checkbox(MultipleChoice):
-
-    def make_field(self):
-        choices = self.get_choices()
-        choice_tuples = [(choice.pk, choice.make_choice())
-                         for choice in choices]
-        return forms.MultipleChoiceField(choices=choice_tuples,
-                                         label=self.text,
-                                         required=False,
-                                         widget=forms.CheckboxSelectMultiple)
-
-    def serialize_for_report(self, answer, *args):
-        result = {
-            'id': self.pk,
-            'question_text': self.text,
-            'choices': self.serialize_choices(),
-            'answer': answer,
-            'type': 'Checkbox',
-            'section': self.section}
-        if len(args) > 0 and args[0]:
-            result['extra'] = args[0]
-        return result
 
     class Meta:
         verbose_name_plural = "checkboxes"
@@ -271,66 +227,35 @@ class Checkbox(MultipleChoice):
 class RadioButton(MultipleChoice):
     is_dropdown = models.BooleanField(default=False)
 
-    def make_field(self):
-        choices = self.get_choices()
-        choice_tuples = [(choice.pk, choice.make_choice())
-                         for choice in choices]
-        return forms.ChoiceField(
-            choices=choice_tuples,
-            label=self.text,
-            required=False,
-            widget=forms.Select(
-                attrs={
-                    'class': "form-control input-lg"}) if self.is_dropdown else forms.RadioSelect)
-
-    def serialize_for_report(self, answer, *args):
-        result = {
-            'id': self.pk,
-            'question_text': self.text,
-            'choices': self.serialize_choices(),
-            'answer': answer,
-            'type': 'RadioButton',
-            'section': self.section}
-        if len(args) > 0 and args[0]:
-            result['extra'] = args[0]
-        return result
-
-    def get_extras(self):
-        choices = self.cached_choices or self.choice_set.all()
-        return [("question_%s_extra-%s" % (self.pk, choice.pk), choice.extra_info_placeholder)
-                for choice in choices if choice.extra_info_placeholder]
-
 
 class Choice(models.Model):
-    question = models.ForeignKey('MultipleChoice', on_delete=models.CASCADE)
+    question = models.ForeignKey(MultipleChoice, on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
-    extra_info_placeholder = models.CharField(
-        blank=True,
-        max_length=500,
-        verbose_name='Placeholder for extra info field (leave blank for no '
-        'field)')
+    extra_info_text = models.TextField(blank=True)
 
-    def make_choice(self):
-        return self.text
+    @property
+    def data(self):
+        return {
+            'pk': self.pk,
+            'text': self.text,
+            'options': self.text_options,
+            'position': self.position,
+            'extra_info_text': self.extra_info_text,
+        }
+
+    @property
+    def text_options(self):
+        return list(self.options.values('text'))
+
+    @property
+    def options(self):
+        return self.choiceoption_set.all()
 
     class Meta:
         ordering = ['position', 'pk']
 
 
-class Date(FormQuestion):
-
-    def make_field(self):
-        return forms.CharField(
-            label=self.get_label(),
-            required=False,
-            widget=forms.TextInput(
-                attrs={
-                    'class': "form-control input-lg date-field",
-                },
-            ),
-        )
-
-    def serialize_for_report(self, answer, *args):
-        return {'id': self.pk, 'question_text': self.text, 'answer': answer,
-                'type': 'Date', 'section': self.section}
+class ChoiceOption(models.Model):
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    text = models.TextField(blank=False)
