@@ -26,14 +26,15 @@ class PageForm(forms.Form):
 
     @classmethod
     def setup(cls, page, page_index, section_map):
-        cls.page = page
-        cls.page_index = page_index
-        cls.section_map = section_map
         cls.base_fields = {
             question.field_id: question.make_field()
-            for question in cls.page.questions
+            for question in page.questions
         }
-        return cls({})
+        self = cls({})
+        self.page = page
+        self.page_index = page_index
+        self.section_map = section_map
+        return self
 
 
 class PageFormManager(object):

@@ -35,12 +35,12 @@ class FrontendTest(FunctionalTest):
 
     def test_can_navigate_to_second_page(self):
         self.browser.find_element_by_css_selector(
-            '[type="submit"]').click()
+            '[value="Next"]').click()
         self.assertSelectorContains('body', 'the second page')
 
     def test_can_navigate_forwards_and_back(self):
         self.browser.find_element_by_css_selector(
-            '[name="Next"]').click()
+            '[value="Next"]').click()
         self.browser.find_element_by_css_selector(
-            '[name="Back"]').click()
+            '[value="Back"]').click()
         self.assertSelectorContains('body', 'the first page')
