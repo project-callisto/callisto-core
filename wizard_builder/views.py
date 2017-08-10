@@ -51,18 +51,18 @@ class StepsHelper(object):
 
     @property
     def next(self):
-        return self.step_key(1)
+        return self.adjust_step(1)
 
     @property
     def prev(self):
-        return self.step_key(-1)
+        return self.adjust_step(0)
 
     @property
     def next_is_done(self):
         return self.next == self.done_name
 
     @property
-    def next_url(self):
+    def current_url(self):
         return reverse(
             self.view.request.resolver_match.view_name,
             kwargs={'step': self.current},
@@ -77,17 +77,20 @@ class StepsHelper(object):
 
     def set_from_post(self):
         step = self.view.request.POST.get('wizard_current_step', self.current)
+        if self.view.request.POST.get('wizard_goto_step', None) == 'Back':
+            step = self.adjust_step(-1)
+        if self.view.request.POST.get('wizard_goto_step', None) == 'Next':
+            step = self.adjust_step(1)
         self.view.request.session['current_step'] = step
 
-    def advance(self):
-        self.view.request.session['current_step'] = self.next
-
-    def step_key(self, adjustment):
+    def adjust_step(self, adjustment):
         key = self.current + adjustment
-        if key <= 0:
+        if key < self.first:
             return None
+        if key == self.first:
+            return self.first
         elif self.step_count > key:
-            return self.view.forms[key].page_index
+            return self.view.form_manager.forms[key].page_index
         elif self.step_count == key:
             return self.done_name
         else:
@@ -101,15 +104,17 @@ class StorageHelper(object):
 
     @property
     def get_form_data(self):
-        self.init_form_data()
-        return self.view.request.session['wizard']
+        return {'data': [
+            self.view.request.session[self.session_key(form.page_index)]
+            for form in self.view.form_manager.forms
+        ]}
 
-    def init_form_data(self):
-        self.view.request.session.setdefault('wizard', {})
+    def session_key(self, step):
+        return 'wizard_page_index_{}'.format(step)
 
     def set_form_data(self, form):
-        self.init_form_data()
-        self.view.request.session['wizard'][self.view.steps.current] = form.data
+        key = self.session_key(form.page_index)
+        self.view.request.session[key] = form.processed
 
 
 class WizardView(FormView):
@@ -129,16 +134,8 @@ class WizardView(FormView):
     def form_manager(self):
         return PageFormManager(get_current_site(self.request).id)
 
-    @property
-    def form(self):
-        return self.get_form()
-
-    @property
-    def forms(self):
-        return self.form_manager.forms
-
     def get_form(self):
-        return self.forms[self.steps.current]
+        return self.form_manager.forms[self.steps.current]
 
     def dispatch(self, request, step=None, *args, **kwargs):
         self.steps.set_from_get(step)
@@ -152,12 +149,11 @@ class WizardView(FormView):
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form, **kwargs):
-        self.steps.advance()
         self.storage.set_form_data(form)
         return self.render_step(**kwargs)
 
     def render_step(self, **kwargs):
-        return HttpResponseRedirect(self.steps.next_url)
+        return HttpResponseRedirect(self.steps.current_url)
 
     def render_done(self, **kwargs):
         return JsonResponse(self.storage.get_form_data)

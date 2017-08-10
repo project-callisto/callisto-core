@@ -6,16 +6,19 @@ from .base import FunctionalTest
 @override_settings(DEBUG=True)
 class FrontendTest(FunctionalTest):
 
+    def test_first_page_text(self):
+        self.assertSelectorContains('body', 'the first page')
+
     def test_submit_presence(self):
         self.assertCss('[type="submit"]')
 
     def test_step_0_presence(self):
-        self.assertCss('[name="current_step"]')
+        self.assertCss('[name="wizard_current_step"]')
         self.assertCss('[value="0"]')
 
     def test_question_fields(self):
-        self.assertSelectorContains('h2', 'text!!!')
-        self.assertSelectorContains('.help-block', '~descriptive text~')
+        self.assertSelectorContains('h2', 'main text')
+        self.assertSelectorContains('.help-block', 'descriptive text')
 
     def test_choice_text(self):
         self.assertSelectorContains('li', 'choice 1')
@@ -34,3 +37,10 @@ class FrontendTest(FunctionalTest):
         self.browser.find_element_by_css_selector(
             '[type="submit"]').click()
         self.assertSelectorContains('body', 'the second page')
+
+    def test_can_navigate_forwards_and_back(self):
+        self.browser.find_element_by_css_selector(
+            '[name="Next"]').click()
+        self.browser.find_element_by_css_selector(
+            '[name="Back"]').click()
+        self.assertSelectorContains('body', 'the first page')
