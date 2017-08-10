@@ -80,19 +80,6 @@ class WizardIntegratedTest(FormBaseTest):
                 'form_wizard-current_step': 1},
             follow=True)
 
-    def test_wizard_generates_correct_number_of_pages(self):
-        page3 = Page.objects.create()
-        page3.sites.add(self.site.id)
-        SingleLineText.objects.create(text="first page question", page=page3)
-        SingleLineText.objects.create(
-            text="one more first page question",
-            page=page3,
-            position=2)
-        SingleLineText.objects.create(
-            text="another first page question", page=page3, position=1)
-        wizard = WizardView.wizard_factory(site_id=self.site.id)()
-        self.assertEqual(len(wizard.form_list), 3)
-
     def test_form_displayed_on_first_page(self):
         response = self.client.get(self.form_url)
         self.assertIsInstance(response.context['form'], PageForm)
