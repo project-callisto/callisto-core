@@ -33,7 +33,7 @@ class PageForm(forms.Form):
             question.field_id: question.make_field()
             for question in cls.page.questions
         }
-        return cls()
+        return cls({})
 
 
 class PageFormManager(object):

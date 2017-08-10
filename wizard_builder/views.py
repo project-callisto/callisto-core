@@ -1,5 +1,6 @@
 from django.contrib.sites.shortcuts import get_current_site
-from django.http import JsonResponse
+from django.core.urlresolvers import reverse
+from django.http.response import HttpResponseRedirect, JsonResponse
 from django.views.generic.edit import FormView
 
 from .forms import PageFormManager
@@ -26,14 +27,18 @@ class StepsHelper(object):
 
     @property
     def current(self):
-        return self._current or self.first
+        _current = self._current or self.first
+        if _current <= self.last:
+            return _current
+        else:
+            return self.last
 
     @property
     def _current(self):
         return int(self.view.request.session.get('current_step', 0))
 
     @property
-    def finished(self):
+    def _goto_step_submit(self):
         return self.view.request.POST.get('wizard_goto_step', None) == 'Submit'
 
     @property
@@ -56,22 +61,41 @@ class StepsHelper(object):
     def next_is_done(self):
         return self.next == self.done_name
 
-    def set_from_get(self):
-        step = self.view.request.GET.get('step', None)
-        if step:
-            self.view.request.session['current_step'] = step
+    @property
+    def next_url(self):
+        _url = reverse(
+            self.view.request.resolver_match.view_name,
+            kwargs={'step': self.current},
+        )
+        print('steps.next_url')
+        print(_url)
+        return _url
+
+    def finished(self, step):
+        return self._goto_step_submit or step == self.done_name
+
+    def set_from_get(self, step_url_param):
+        step = step_url_param or self.current
+        self.view.request.session['current_step'] = step
+        print('steps.set_from_get')
+        print(step)
 
     def set_from_post(self):
-        step = self.view.request.POST.get('wizard_current_step', None)
-        if step:
-            self.view.request.session['current_step'] = step
+        step = self.view.request.POST.get('wizard_current_step', self.current)
+        self.view.request.session['current_step'] = step
+        print('steps.set_from_post')
+        print(step)
 
     def advance(self):
-        self.request.session['current_step'] = self.steps.next
+        self.view.request.session['current_step'] = self.next
+        print('steps.advance')
+        print(self.current)
 
     def step_key(self, adjustment):
         key = self.current + adjustment
-        if self.step_count > key:
+        if key <= 0:
+            return None
+        elif self.step_count > key:
             return self.view.forms[key].page_index
         elif self.step_count == key:
             return self.done_name
@@ -79,17 +103,25 @@ class StepsHelper(object):
             return None
 
 
-class StorageMixin(object):
+class StorageHelper(object):
 
-    def set_form_data(self, form):
-        self.request.session['wizard'][self.steps.current] = form.data
+    def __init__(self, view):
+        self.view = view
 
     @property
     def get_form_data(self):
-        return self.request.session['wizard']
+        self.init_form_data()
+        return self.view.request.session['wizard']
+
+    def init_form_data(self):
+        self.view.request.session.setdefault('wizard', {})
+
+    def set_form_data(self, form):
+        self.init_form_data()
+        self.view.request.session['wizard'][self.view.steps.current] = form.data
 
 
-class WizardView(StorageMixin, FormView):
+class WizardView(FormView):
     site_id = None
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
@@ -97,6 +129,10 @@ class WizardView(StorageMixin, FormView):
     @property
     def steps(self):
         return StepsHelper(self)
+
+    @property
+    def storage(self):
+        return StorageHelper(self)
 
     @property
     def form_manager(self):
@@ -111,26 +147,31 @@ class WizardView(StorageMixin, FormView):
         return self.form_manager.forms
 
     def get_form(self):
+        print('view.get_form')
+        print(self.steps.current)
         return self.forms[self.steps.current]
 
-    def get(self, request, *args, **kwargs):
-        self.steps.set_from_get()
-        return super().get(request, *args, **kwargs)
+    def dispatch(self, request, step=None, *args, **kwargs):
+        self.steps.set_from_get(step)
+        if self.steps.finished(step):
+            return self.render_done(**kwargs)
+        else:
+            return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.steps.set_from_post()
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form, **kwargs):
+        print('view.form_valid')
         self.steps.advance()
-        self.set_form_data(form)
-        self.render()
+        self.storage.set_form_data(form)
+        self.render_step(**kwargs)
 
-    def render(self, **kwargs):
-        if self.steps.finished:
-            return self.render_done(**kwargs)
-        else:
-            return super().render(**kwargs)
+    def render_step(self, **kwargs):
+        print('view.render_step')
+        return HttpResponseRedirect(self.steps.next_url)
 
     def render_done(self, **kwargs):
-        return JsonResponse(self.get_form_data)
+        print('view.render_done')
+        return JsonResponse(self.storage.get_form_data)
