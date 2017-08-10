@@ -76,6 +76,10 @@ class StepsHelper(object):
         return self.url(self.current)
 
     @property
+    def last_url(self):
+        return self.url(self.last)
+
+    @property
     def done_url(self):
         return self.url(self.done_name)
 
@@ -84,6 +88,9 @@ class StepsHelper(object):
             self.view.request.resolver_match.view_name,
             kwargs={'step': step},
         )
+
+    def overflowed(self, step):
+        return int(step) > int(self.last)
 
     def finished(self, step):
         return self._goto_step_submit or step == self.done_name
@@ -158,6 +165,8 @@ class WizardView(FormView):
         self.steps.set_from_get(step)
         if self.steps.finished(step):
             return self.render_done(**kwargs)
+        elif self.steps.overflowed(step):
+            return self.render_last(**kwargs)
         else:
             return super().dispatch(request, *args, **kwargs)
 
@@ -168,6 +177,9 @@ class WizardView(FormView):
     def form_valid(self, form, **kwargs):
         self.storage.set_form_data(form)
         return self.render_step(**kwargs)
+
+    def render_last(self, **kwargs):
+        return HttpResponseRedirect(self.steps.current_url)
 
     def render_step(self, **kwargs):
         return HttpResponseRedirect(self.steps.current_url)
