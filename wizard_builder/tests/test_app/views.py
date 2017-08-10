@@ -30,7 +30,7 @@ def new_test_wizard_view(request, step=None):
     return TestWizardView.as_view(
         site_id=site.id,
         url_name=request.resolver_match.url_name,
-        template_name='wizard_builder/index.html',
+        template_name='index.html',
     )(
         request,
         step=step,
@@ -44,7 +44,7 @@ def edit_test_wizard_view(request, edit_id, step=None):
         site_id=site.id,
         url_name=request.resolver_match.url_name,
         object_to_edit=report,
-        template_name='wizard_builder/index.html',
+        template_name='index.html',
     )(
         request,
         step=step,
