@@ -1,10 +1,12 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
 from django.http import JsonResponse
+from django.contrib.sites.shortcuts import get_current_site
 
-from .forms import PageFormManager
+from .forms import PageFormManager, PageForm
 from .storage import SessionStorage
+from .models import Page
 
 # from django-formtools
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
@@ -13,33 +15,38 @@ from .storage import SessionStorage
 
 
 class StepsHelper(object):
-    current_step = None
+    done_name = 'done'
 
-    def __init__(self, wizard):
-        self._wizard = wizard
+    def __init__(self, view):
+        self.view = view
 
     @property
     def all(self):
-        return self._wizard.forms
+        return self.view.form_manager.forms
+
+    @property
+    def step_count(self):
+        return len(self.all)
 
     @property
     def current(self):
-        return self.current_step or self.first
+        return self._current_step or self.first
+
+    @property
+    def _current_step(self):
+        return self.view.request.POST.get('wizard_current_step', None)
+
+    @property
+    def finished(self):
+        return self.view.request.POST.get('wizard_goto_step', None) == 'Submit'
 
     @property
     def first(self):
-        return self.all[0].page_index
+        return 0
 
     @property
     def last(self):
         return self.all[-1].page_index
-
-    def step_key(self, adjustment):
-        key = self.current + adjustment
-        if len(self._wizard.forms) > key:
-            return self._wizard.forms[key]
-        else:
-            return None
 
     @property
     def next(self):
@@ -50,29 +57,36 @@ class StepsHelper(object):
         return self.step_key(-1)
 
     @property
-    def index(self):
-        return list(self._wizard.forms.keys()).index(self.current)
+    def next_is_done(self):
+        return self.next == self.done_name
 
-    @property
-    def step0(self):
-        return int(self.index)
+    def step_key(self, adjustment):
+        key = self.current + adjustment
+        if self.step_count > key:
+            return self.view.forms[key].page_index
+        elif self.step_count == key:
+            return self.done_name
+        else:
+            return None
 
-    @property
-    def step1(self):
-        return int(self.index) + 1
+    def url(self, step):
+        kwargs = {'step': step}
+        if self.object_to_edit:
+            kwargs['edit_id'] = self.object_to_edit.id
+        return reverse(self.url_name, kwargs=kwargs)
 
 
 class RenderMixin(object):
 
     def render(self, **kwargs):
-        if kwargs.get('step', None) == self.done_step_name:
+        if self.steps.finished:
             return self.render_done(**kwargs)
         else:
             return super().render(**kwargs)
 
     def render_next_step(self, **kwargs):
         self.storage.current_step = self.steps.next
-        return redirect(self.get_step_url(self.steps.next))
+        return redirect(self.steps.url(self.steps.next))
 
     def render_goto_step(self, goto_step, **kwargs):
         self.storage.current_step = goto_step
@@ -114,20 +128,15 @@ class RoutingMixin(object):
         return self.render(**kwargs)
 
 
-class WizardView(RenderMixin, RoutingMixin, TemplateView):
-    forms = None
-    initial_dict = None
-    instance_dict = None
+class WizardView(RenderMixin, RoutingMixin, FormView):
+    site_id = None
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
-    done_step_name = 'done'
-    site_id = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.object_to_edit = kwargs.get('object_to_edit')
         self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
-        self.forms, self.items = PageFormManager.setup(kwargs['site_id'])
 
     @property
     def steps(self):
@@ -138,7 +147,18 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
         return SessionStorage(self.request)
 
     @property
+    def form_manager(self):
+        return PageFormManager(get_current_site(self.request).id)
+
+    @property
     def form(self):
+        return self.get_form()
+
+    @property
+    def forms(self):
+        return self.form_manager.forms
+
+    def get_form(self):
         return self.forms[self.steps.current]
 
     @property
@@ -148,46 +168,12 @@ class WizardView(RenderMixin, RoutingMixin, TemplateView):
             for form in self.forms
         ]
 
-    def get_form_instance(self, step):
-        return self.instance_dict.get(step, None)
-
     def get_form_to_edit(self, object_to_edit):
         return []
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(self.storage.extra_data)
-        context.update({
-            'form': self.form,
-            'page_count': len(self.forms),
-            'current_page': self.form.page_index,
-            'editing': self.object_to_edit,
-            'wizard': {
-                'form': self.form,
-                'steps': self.steps,
-                'current_step': self.steps.current,
-                'url_name': self.url_name,
-            }
-        })
-        return context
-
-    def get_form_initial(self, step):
-        if self.form_to_edit:
-            return self._process_non_formset_answers_for_edit(
-                self.form_to_edit,
-            )
-        else:
-            return self.initial_dict.get(step, {})
-
-    def get_step_url(self, step):
-        kwargs = {'step': step}
-        if self.object_to_edit:
-            kwargs['edit_id'] = self.object_to_edit.id
-        return reverse(self.url_name, kwargs=kwargs)
-
     def done(self, forms, **kwargs):
-        if kwargs.get('step', None) != self.done_step_name:
-            return redirect(self.get_step_url(self.done_step_name))
+        if kwargs.get('step', None) != self.steps.done_name:
+            return redirect(self.get_step_url(self.steps.done_name))
         else:
             return self.render_done(**kwargs)
 

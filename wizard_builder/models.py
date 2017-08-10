@@ -164,11 +164,6 @@ class SingleLineText(FormQuestion):
         return forms.CharField(
             label=self.get_label(),
             required=False,
-            widget=forms.TextInput(
-                attrs={
-                    'class': "form-control input-lg",
-                },
-            ),
         )
 
 
@@ -209,7 +204,7 @@ class MultipleChoice(FormQuestion):
             return CheckboxExtraSelectMultiple
 
     def make_field(self):
-        # TODO: use the django field creation hook instead
+        # TODO: sync up with django default field creation more effectively
         if self._meta.model == RadioButton:
             _Field = ChoiceField
         elif self._meta.model == Checkbox:
@@ -217,6 +212,7 @@ class MultipleChoice(FormQuestion):
         return _Field(
             choices=self.choices_field_display,
             label=self.text,
+            help_text=self.descriptive_text,
             required=False,
             widget=self.widget,
         )

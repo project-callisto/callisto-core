@@ -39,11 +39,8 @@ class PageForm(forms.Form):
 
 class PageFormManager(object):
 
-    @classmethod
-    def setup(cls, site_id):
-        cls.pages = Page.objects.on_site(site_id).all()
-        self = cls()
-        return self.forms, self.items
+    def __init__(self, site_id):
+        self.pages = Page.objects.on_site(site_id).all()
 
     @property
     def section_map(self):
@@ -52,14 +49,6 @@ class PageFormManager(object):
             for idx, page in enumerate(self.pages)
             for section, _ in Page.SECTION_CHOICES
             if page.section == section
-        }
-
-    @property
-    def items(self):
-        return {
-            question.field_id: question
-            for page in self.pages
-            for question in page.questions
         }
 
     @property

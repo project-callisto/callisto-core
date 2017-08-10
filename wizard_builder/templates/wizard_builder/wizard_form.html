@@ -1,16 +1,16 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <input type="hidden" name="current_step" value="{{ wizard.current_step }}"/>
+    <input type="hidden" name="wizard_current_step" value="{{ view.steps.current_step }}"/>
 
-    {% include "wizard_builder/wizard_fields.html" %}
+    {% include "wizard_builder/wizard_form_fields.html" %}
 
-    {% if wizard.steps.prev %}
-        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="prev" />
+    {% if view.steps.prev %}
+        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="Back" />
     {% endif %}
 
-    {% if wizard.steps.next %}
-        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="next" />
+    {% if view.steps.next_is_done %}
+        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="Submit" />
     {% else %}
-        <input class='btn btn-primary' type="submit" name="submit" value="submit" />
+        <input class='btn btn-primary' type="submit" name="wizard_goto_step" value="Next" />
     {% endif %}
 </form>

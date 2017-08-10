@@ -4,6 +4,7 @@ from django import template
 from django.forms import (
     CheckboxInput, CheckboxSelectMultiple, RadioSelect, Textarea,
 )
+from django.forms.widgets import ChoiceWidget
 
 register = template.Library()
 
@@ -41,10 +42,7 @@ def add_aria_tags_to_field(field):
 # TODO: remove, replace with widget template
 @register.filter(name='is_multiple_choice')
 def is_multiple_choice(field):
-    widget_name = field.field.widget.__class__.__name__
-    return (widget_name == CheckboxInput().__class__.__name__ or
-            widget_name == CheckboxSelectMultiple().__class__.__name__ or
-            widget_name == RadioSelect().__class__.__name__)
+    return issubclass(field.field.widget.__class__, ChoiceWidget)
 
 
 # TODO: remove, replace with widget template
