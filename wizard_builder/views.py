@@ -1,12 +1,8 @@
-from django.core.urlresolvers import reverse
-from django.shortcuts import redirect
-from django.views.generic.edit import FormView
-from django.http import JsonResponse
 from django.contrib.sites.shortcuts import get_current_site
+from django.http import JsonResponse
+from django.views.generic.edit import FormView
 
-from .forms import PageFormManager, PageForm
-from .storage import SessionStorage
-from .models import Page
+from .forms import PageFormManager
 
 # from django-formtools
 # Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
