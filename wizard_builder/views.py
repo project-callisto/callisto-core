@@ -30,11 +30,11 @@ class StepsHelper(object):
 
     @property
     def current(self):
-        return self._current_step or self.first
+        return self._current or self.first
 
     @property
-    def _current_step(self):
-        return self.view.request.POST.get('wizard_current_step', None)
+    def _current(self):
+        return int(self.view.request.session.get('current_step', 0))
 
     @property
     def finished(self):
@@ -60,6 +60,19 @@ class StepsHelper(object):
     def next_is_done(self):
         return self.next == self.done_name
 
+    def set_from_get(self):
+        step = self.view.request.GET.get('step', None)
+        if step:
+            self.view.request.session['current_step'] = step
+
+    def set_from_post(self):
+        step = self.view.request.POST.get('wizard_current_step', None)
+        if step:
+            self.view.request.session['current_step'] = step
+
+    def advance(self):
+        self.request.session['current_step'] = self.steps.next
+
     def step_key(self, adjustment):
         key = self.current + adjustment
         if self.step_count > key:
@@ -69,82 +82,25 @@ class StepsHelper(object):
         else:
             return None
 
-    def url(self, step):
-        kwargs = {'step': step}
-        if self.object_to_edit:
-            kwargs['edit_id'] = self.object_to_edit.id
-        return reverse(self.url_name, kwargs=kwargs)
+
+class StorageMixin(object):
+
+    def set_form_data(self, form):
+        self.request.session['wizard'][self.steps.current] = form.data
+
+    @property
+    def get_form_data(self):
+        return self.request.session['wizard']
 
 
-class RenderMixin(object):
-
-    def render(self, **kwargs):
-        if self.steps.finished:
-            return self.render_done(**kwargs)
-        else:
-            return super().render(**kwargs)
-
-    def render_next_step(self, **kwargs):
-        self.storage.current_step = self.steps.next
-        return redirect(self.steps.url(self.steps.next))
-
-    def render_goto_step(self, goto_step, **kwargs):
-        self.storage.current_step = goto_step
-        return redirect(self.get_step_url(goto_step))
-
-    def render_done(self, **kwargs):
-        return JsonResponse(self.processed_answers)
-
-
-class RoutingMixin(object):
-
-    def get(self, request, *args, **kwargs):
-        if kwargs.get('step', None) or 'reset' in self.request.GET:
-            self.storage.init_data()
-        return super().get(request, *args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        step = self.request.POST.get('current_step')
-        if (
-            step != self.steps.current and
-            self.storage.current_step is not None
-        ):
-            self.storage.current_step = step
-
-    def form_valid(self, form, **kwargs):
-        step = self.request.POST.get('wizard_goto_step', None)
-        self.storage.set_step_data(
-            self.steps.current,
-            form.data,
-        )
-        if step in self.forms:
-            return self.render_goto_step(step)
-        if self.steps.current == self.steps.last or step == "end":
-            return self.render_done(**kwargs)
-        else:
-            return self.render_next_step(**kwargs)
-
-    def form_invalid(self, form):
-        return self.render(**kwargs)
-
-
-class WizardView(RenderMixin, RoutingMixin, FormView):
+class WizardView(StorageMixin, FormView):
     site_id = None
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.object_to_edit = kwargs.get('object_to_edit')
-        self.form_to_edit = self.get_form_to_edit(self.object_to_edit)
-
     @property
     def steps(self):
         return StepsHelper(self)
-
-    @property
-    def storage(self):
-        return SessionStorage(self.request)
 
     @property
     def form_manager(self):
@@ -161,34 +117,24 @@ class WizardView(RenderMixin, RoutingMixin, FormView):
     def get_form(self):
         return self.forms[self.steps.current]
 
-    @property
-    def processed_answers(self):
-        return [
-            self.storage.get_step_data(form)
-            for form in self.forms
-        ]
+    def get(self, request, *args, **kwargs):
+        self.steps.set_from_get()
+        return super().get(request, *args, **kwargs)
 
-    def get_form_to_edit(self, object_to_edit):
-        return []
+    def post(self, request, *args, **kwargs):
+        self.steps.set_from_post()
+        return super().post(request, *args, **kwargs)
 
-    def done(self, forms, **kwargs):
-        if kwargs.get('step', None) != self.steps.done_name:
-            return redirect(self.get_step_url(self.steps.done_name))
-        else:
+    def form_valid(self, form, **kwargs):
+        self.steps.advance()
+        self.set_form_data(form)
+        self.render()
+
+    def render(self, **kwargs):
+        if self.steps.finished:
             return self.render_done(**kwargs)
+        else:
+            return super().render(**kwargs)
 
-    def _process_non_formset_answers_for_edit(self, json_questions):
-        answers = {}
-        for question in json_questions:
-            answer = question.get('answer')
-            question_id = question.get('id')
-            if answer and question_id:
-                # TODO: smell this string interpolation
-                answers["question_%i" % question_id] = answer
-                extra = question.get('extra')
-                if extra:
-                    extra_answer = extra.get('answer')
-                    if extra_answer:
-                        answers['question_%i_extra-%s' %
-                                (question_id, answer)] = extra_answer
-        return answers
+    def render_done(self, **kwargs):
+        return JsonResponse(self.get_form_data)

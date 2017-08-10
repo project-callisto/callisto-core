@@ -1,6 +1,6 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <input type="hidden" name="wizard_current_step" value="{{ view.steps.current_step }}"/>
+    <input type="hidden" name="wizard_current_step" value="{{ view.steps.current }}"/>
 
     {% include "wizard_builder/wizard_form_fields.html" %}
 
