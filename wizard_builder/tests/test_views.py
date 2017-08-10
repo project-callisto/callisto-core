@@ -97,25 +97,6 @@ class WizardIntegratedTest(FormBaseTest):
         response = self.client.get(self.form_url)
         self.assertIsInstance(response.context['form'], PageForm)
 
-    def test_form_advances_to_second_page(self):
-        response = self.client.post(
-            self.form_url,
-            data={'0-question_%i"' % self.question1.pk: 'A new report',
-                  'wizard_goto_step': 1,
-                  'form_wizard-current_step': 0},
-            follow=True)
-
-        self.assertTrue(
-            response.redirect_chain[0][0].endswith("/wizard/new/1/"))
-        self.assertContains(
-            response,
-            'name="1-question_%i"' %
-            self.question2.pk)
-        self.assertNotContains(
-            response,
-            'name="1-question_%i"' %
-            self.question1.pk)
-
 
 class EditRecordFormTest(FormBaseTest):
     form_url = '/wizard/edit/%s/0/'
