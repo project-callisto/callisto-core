@@ -191,13 +191,7 @@ class WizardView(FormView):
 
     def form_valid(self, form, **kwargs):
         self.storage.set_form_data(form)
-        return self.render_step(**kwargs)
-
-    def render_last(self, **kwargs):
-        return HttpResponseRedirect(self.steps.last_url)
-
-    def render_step(self, **kwargs):
-        return HttpResponseRedirect(self.steps.current_url)
+        return self.render_current(**kwargs)
 
     def render_done(self, **kwargs):
         if self.steps.current_is_done:
@@ -205,3 +199,9 @@ class WizardView(FormView):
             return JsonResponse(self.storage.get_form_data)
         else:
             return HttpResponseRedirect(self.steps.done_url)
+
+    def render_last(self, **kwargs):
+        return HttpResponseRedirect(self.steps.last_url)
+
+    def render_current(self, **kwargs):
+        return HttpResponseRedirect(self.steps.current_url)
