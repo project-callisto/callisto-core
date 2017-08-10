@@ -44,8 +44,16 @@ class StepsHelper(object):
             return int(_step)
 
     @property
+    def _goto_step_back(self):
+        return self._goto_step('Back')
+
+    @property
+    def _goto_step_next(self):
+        return self._goto_step('Next')
+
+    @property
     def _goto_step_submit(self):
-        return self.view.request.POST.get('wizard_goto_step', None) == 'Submit'
+        return self._goto_step('Submit')
 
     @property
     def first(self):
@@ -83,6 +91,10 @@ class StepsHelper(object):
     def done_url(self):
         return self.url(self.done_name)
 
+    def _goto_step(self, step_type):
+        post = self.view.request.POST
+        return post.get('wizard_goto_step', None) == step_type
+
     def url(self, step):
         return reverse(
             self.view.request.resolver_match.view_name,
@@ -101,9 +113,9 @@ class StepsHelper(object):
 
     def set_from_post(self):
         step = self.view.request.POST.get('wizard_current_step', self.current)
-        if self.view.request.POST.get('wizard_goto_step', None) == 'Back':
+        if self._goto_step_back:
             step = self.adjust_step(-1)
-        if self.view.request.POST.get('wizard_goto_step', None) == 'Next':
+        if self._goto_step_next:
             step = self.adjust_step(1)
         self.view.request.session['current_step'] = step
 
