@@ -12,6 +12,12 @@ urlpatterns = [
         ),
         name='wizard_view',
         ),
+    url(r'^wizard/$',
+        RedirectView.as_view(
+            url=reverse_lazy('wizard_view', kwargs={'step': 0})
+        ),
+        name='wizard_view',
+        ),
     url(r'^wizard/new/$',
         RedirectView.as_view(
             url=reverse_lazy('wizard_view', kwargs={'step': 0})
