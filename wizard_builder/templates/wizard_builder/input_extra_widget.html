@@ -12,16 +12,22 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script type="text/javascript">
-        $('#{{ widget.attrs.id }}').each(function(index, el) {
-            $(el).change(function() {
-                var extra_widget = $(el).next('.extra-widget');
-                if(el.checked) {
-                    extra_widget.show();
-                } else {
-                    extra_widget.hide();
-                }
+        function extra_display(el) {
+            var extra_widget = $(el).next('.extra-widget');
+            if(el.checked) {
+                extra_widget.show();
+            } else {
+                extra_widget.hide();
+            }
+        }
+        $(document).ready(function() {
+            $('#{{ widget.attrs.id }}').each(function(index, el) {
+                extra_display(el);
+                $(el).change(function() {
+                    extra_display(el);
+                });
             });
-        })
+        });
     </script>
 
 {% endif %}
