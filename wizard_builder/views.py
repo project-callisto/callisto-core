@@ -3,12 +3,7 @@ from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect, JsonResponse
 from django.views.generic.edit import FormView
 
-from .forms import PageFormManager
-
-# from django-formtools
-# Portions of the below implementation are copyright theDjango Software Foundation and individual contributors, and
-# are under the BSD-3 Clause License:
-# https://github.com/django/django-formtools/blob/master/LICENSE
+from .managers import FormManager
 
 
 class StepsHelper(object):
@@ -176,7 +171,7 @@ class WizardView(FormView):
 
     @property
     def form_manager(self):
-        return PageFormManager(get_current_site(self.request).id)
+        return FormManager(get_current_site(self.request).id)
 
     def get_form(self):
         return self.form_manager.forms[self.steps.current]

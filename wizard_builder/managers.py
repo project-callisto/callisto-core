@@ -7,14 +7,35 @@ from django.contrib.sites.models import Site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
-# in addition to explicitly depending on django-model-utils,
-# this code borrows in large part from django-polymorphic
+from .forms import PageForm
+from .models import Page
 
-# Portions of the below implementation are copyright django-polymorphic [Authors] contributors,
-# and are under the BSD-3 Clause [License]
-# Authors: https://github.com/django-polymorphic/django-polymorphic/blob/master/AUTHORS.rst
-# License:
-# https://github.com/django-polymorphic/django-polymorphic/blob/master/LICENSE
+
+class FormManager(object):
+    model_class = Page
+    form_class = PageForm
+
+    def __init__(self, site_id, **kwargs):
+        self.get_pages(site_id, **kwargs)
+
+    def get_pages(self, site_id, **kwargs):
+        self.pages = self.model_class.objects.on_site(site_id).all()
+
+    @property
+    def section_map(self):
+        return {
+            section: idx + 1
+            for idx, page in enumerate(self.pages)
+            for section, _ in self.model_class.SECTION_CHOICES
+            if page.section == section
+        }
+
+    @property
+    def forms(self):
+        return [
+            self.form_class.setup(page, idx, self.section_map)
+            for idx, page in enumerate(self.pages)
+        ]
 
 
 class PageQuerySet(QuerySet):
