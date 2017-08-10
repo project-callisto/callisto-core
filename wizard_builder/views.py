@@ -27,15 +27,21 @@ class StepsHelper(object):
 
     @property
     def current(self):
-        _current = self._current or self.first
-        if _current <= self.last:
-            return _current
+        _step = self._current or self.first
+        if _step == self.done_name:
+            return _step
+        elif _step <= self.last:
+            return _step
         else:
             return self.last
 
     @property
     def _current(self):
-        return int(self.view.request.session.get('current_step', 0))
+        _step = self.view.request.session.get('current_step', self.first)
+        if _step == self.done_name:
+            return _step
+        else:
+            return int(_step)
 
     @property
     def _goto_step_submit(self):
@@ -62,10 +68,21 @@ class StepsHelper(object):
         return self.next == self.done_name
 
     @property
+    def current_is_done(self):
+        return self.current == self.done_name
+
+    @property
     def current_url(self):
+        return self.url(self.current)
+
+    @property
+    def done_url(self):
+        return self.url(self.done_name)
+
+    def url(self, step):
         return reverse(
             self.view.request.resolver_match.view_name,
-            kwargs={'step': self.current},
+            kwargs={'step': step},
         )
 
     def finished(self, step):
@@ -156,4 +173,7 @@ class WizardView(FormView):
         return HttpResponseRedirect(self.steps.current_url)
 
     def render_done(self, **kwargs):
-        return JsonResponse(self.storage.get_form_data)
+        if self.steps.current_is_done:
+            return JsonResponse(self.storage.get_form_data)
+        else:
+            return HttpResponseRedirect(self.steps.done_url)
