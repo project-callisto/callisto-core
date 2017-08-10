@@ -1,4 +1,4 @@
-selenium==3.4.3
+selenium==3.5.0
 psycopg2==2.7.3
 mock==2.0.0
 flake8==3.4.1
