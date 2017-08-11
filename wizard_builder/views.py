@@ -149,7 +149,6 @@ class StorageHelper(object):
     def post_data(self):
         data = self._data_from_key(self.post_form_pk)
         data.update(self.view.request.POST)
-        data = self._clean_data(data)
         return data
 
     def set_form_data(self):
@@ -161,16 +160,6 @@ class StorageHelper(object):
 
     def _data_from_key(self, key):
         return self.view.request.session.get(key, {})
-
-    def _clean_data(self, data):
-        # TODO: remove in favor of form.clean_* functions
-        _data = {}
-        for key, value in data.items():
-            if len(value) == 1:
-                _data[key] = value[0]
-            else:
-                _data[key] = value
-        return _data
 
 
 class WizardView(FormView):

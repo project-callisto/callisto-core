@@ -57,7 +57,13 @@ class FormManager(object):
         return form
 
     def _create_form_data(self, page):
-        data = self.view.storage.data_from_pk(page.pk)
+        _data = self.view.storage.data_from_pk(page.pk)
+        data = {}
+        for key, value in _data.items():
+            if len(value) == 1:
+                data[key] = value[0]
+            else:
+                data[key] = value
         return {
             'data': data,
             'initial': data,
