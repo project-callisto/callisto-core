@@ -29,6 +29,11 @@ class ElementHelper(object):
             '.extra-widget-dropdown input')
 
     @property
+    def choice_3(self):
+        return self.browser.find_elements_by_css_selector(
+            '[type="checkbox"]')[2]
+
+    @property
     def text_input(self):
         return self.browser.find_element_by_css_selector(
             '[type="text"]')
@@ -87,6 +92,13 @@ class FrontendTest(FunctionalTest):
         self.element.next.click()
         self.element.back.click()
         self.assertTrue(self.element.extra_input.is_selected())
+
+    def test_ghost_choices_not_populated(self):
+        self.element.next.click()
+        self.element.back.click()
+        self.assertFalse(self.element.extra_input.is_selected())
+        self.assertFalse(self.element.extra_dropdown.is_selected())
+        self.assertFalse(self.element.choice_3.is_selected())
 
     def test_choice_2_persists_after_changing_page(self):
         self.element.extra_dropdown.click()

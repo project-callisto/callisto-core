@@ -104,6 +104,16 @@
     }
   },
   {
+    "model": "wizard_builder.choice",
+    "pk": 3,
+    "fields": {
+      "question": 1,
+      "text": "choice 3",
+      "position": 0,
+      "extra_info_text": ""
+    }
+  },
+  {
     "model": "wizard_builder.choiceoption",
     "pk": 1,
     "fields": {
