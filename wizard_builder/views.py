@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect, JsonResponse
@@ -140,20 +142,29 @@ class StorageHelper(object):
             for form in self.view.manager.forms
         ]}
 
-    def key(self, step):
-        return 'wizard_{}'.format(step)
+    @property
+    def key(self):
+        return 'form_{}'.format(self.view.request.POST['form_pk'])
 
-    def compile_data(self, form):
-        return {
-            'page': form.manager_index,
-            'form': form.serialized,
-            'post': self.view.request.POST,
-        }
+    @property
+    def data(self):
+        data = self.view.request.session.get(self.key, {})
+        data.update(self.view.request.POST)
+        data = self._clean_data(data)
+        print(data)
+        return data
 
-    def set_form_data(self, form):
-        key = self.key(form.pk)
-        data = self.compile_data(form)
-        self.view.request.session[key] = form.data
+    def _clean_data(self, data):
+        _data = deepcopy(data)
+        _data.pop('form_pk', '')
+        _data.pop('csrfmiddlewaretoken', '')
+        for key in data.keys():
+            if key.startswith('wizard_'):
+                _data.pop(key, '')
+        return _data
+
+    def set_form_data(self):
+        self.view.request.session[self.key] = self.data
 
 
 class WizardView(FormView):
@@ -187,10 +198,13 @@ class WizardView(FormView):
 
     def post(self, request, *args, **kwargs):
         self.steps.set_from_post()
+        self.storage.set_form_data()
         return super().post(request, *args, **kwargs)
 
+    def form_invalid(self, form):
+        return super().form_valid(form)
+
     def form_valid(self, form, **kwargs):
-        self.storage.set_form_data(form)
         return self.render_current(**kwargs)
 
     def render_done(self, **kwargs):
