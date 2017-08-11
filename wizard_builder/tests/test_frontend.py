@@ -58,8 +58,8 @@ class FrontendTest(FunctionalTest):
         self.assertCss('[name="form_pk"]')
 
     def test_question_fields(self):
-        self.assertSelectorContains('h2', 'main text')
-        self.assertSelectorContains('.help-block', 'descriptive text')
+        self.assertSelectorContains('.form-group', 'main text')
+        self.assertSelectorContains('.form-group', 'descriptive text')
 
     def test_choice_text(self):
         self.assertSelectorContains('li', 'choice 1')
