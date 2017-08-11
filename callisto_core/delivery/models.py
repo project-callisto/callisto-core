@@ -152,6 +152,7 @@ class Report(models.Model):
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
 
         self.encrypted = _encrypt_report(stretched_key=stretched_key, report_text=report_text)
+        self.save()
 
     def decrypted_report(self, key):
         """Decrypts the report text. Uses the salt from the encode prefix stored on the Report object.

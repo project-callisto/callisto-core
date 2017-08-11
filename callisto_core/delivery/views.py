@@ -3,14 +3,12 @@ import logging
 from functools import wraps
 
 from ratelimit.decorators import ratelimit
-from wizard_builder.models import Page
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import (
     HttpResponse, HttpResponseForbidden, HttpResponseNotFound,
-    HttpResponseServerError,
 )
 from django.shortcuts import render
 from django.utils.decorators import available_attrs

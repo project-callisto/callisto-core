@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView
 
 from callisto_core.delivery.views import (
-    delete_report, export_as_pdf, new_record_form_view,
+    delete_report, export_as_pdf,
     submit_report_to_authority, submit_to_matching, withdraw_from_matching,
 )
 
