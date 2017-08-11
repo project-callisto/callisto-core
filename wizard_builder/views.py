@@ -164,6 +164,7 @@ class StorageHelper(object):
 
     def _clean_data(self, data):
         # TODO: tests as spec
+        # TODO: reduce complexity
         _data = {}
         for key, value in data.items():
             if key.startswith('wizard_'):
