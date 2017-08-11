@@ -41,9 +41,6 @@ class EncryptedWizardView(WizardView):
         self._save_report()
         return JsonResponse(self.report)
 
-    def render_done(self, **kwargs):
-        return self.render_finished(**kwargs)
-
     def dispatch(self, request, step=None, *args, **kwargs):
         if self.storage.secret_key:
             self._save_report()
