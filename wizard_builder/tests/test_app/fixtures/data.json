@@ -52,8 +52,25 @@
     }
   },
   {
+    "model": "wizard_builder.formquestion",
+    "pk": 3,
+    "fields": {
+      "created": "2017-08-11T07:59:13.439",
+      "modified": "2017-08-11T07:59:13.439",
+      "text": "text, on a single line",
+      "descriptive_text": "",
+      "page": 1,
+      "position": 0
+    }
+  },
+  {
     "model": "wizard_builder.singlelinetext",
     "pk": 2,
+    "fields": {}
+  },
+  {
+    "model": "wizard_builder.singlelinetext",
+    "pk": 3,
     "fields": {}
   },
   {
