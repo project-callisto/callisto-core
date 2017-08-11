@@ -11,7 +11,6 @@ class InputOptionExtraMixin(object):
         adds extra_options_field and extra_info_field inline with a Choice
         instance
     '''
-    # TODO: add a hook into this template in django, instead of overwritting it
     option_template_name = 'wizard_builder/input_option_extra.html'
     _dropdown_var = 'extra_dropdown_widget_context'
     _text_var = 'extra_text_widget_context'
@@ -72,11 +71,19 @@ class InputOptionExtraMixin(object):
         else:
             return {}
 
+    def value_from_datadict(self, *args, **kwargs):
+        print('value_from_datadict')
+        print(args)
+        print(kwargs)
+        return super().value_from_datadict(*args, **kwargs)
+
     def create_option(self, *args, **kwargs):
-        from .models import Choice  # TODO: grab this class without an import
+        from .models import Choice
         options = super().create_option(*args, **kwargs)
         self._choice = Choice.objects.get(id=options['value'])
         options.update(self._get_context)
+        print(options)
+        print(vars(self))
         return options
 
 
