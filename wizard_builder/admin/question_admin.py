@@ -1,7 +1,5 @@
 import nested_admin
 
-from django.contrib import admin
-
 from .base import ChoiceInline, DowncastedAdmin
 
 
@@ -10,11 +8,17 @@ class FormQuestionAdminMixin(object):
     list_filter = ['page__sites']
 
 
-class FormQuestionParentAdmin(FormQuestionAdminMixin, DowncastedAdmin):
+class FormQuestionParentAdmin(
+    FormQuestionAdminMixin,
+    DowncastedAdmin
+):
     list_display = ['short_str', 'model_type', 'page']
 
 
-class FormQuestionChildAdmin(FormQuestionAdminMixin, nested_admin.NestedModelAdmin):
+class FormQuestionChildAdmin(
+    FormQuestionAdminMixin,
+    nested_admin.NestedModelAdmin
+):
     list_display = ['short_str', 'page']
 
 

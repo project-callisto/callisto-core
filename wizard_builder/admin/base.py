@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import models
 from django.utils.html import format_html
 
-from ..models import Choice, FormQuestion, ChoiceOption
+from ..models import Choice, ChoiceOption, FormQuestion
 
 
 class DowncastedAdmin(nested_admin.NestedModelAdmin):
