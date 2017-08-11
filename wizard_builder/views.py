@@ -1,6 +1,3 @@
-from copy import deepcopy
-
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect, JsonResponse
 from django.views.generic.edit import FormView
@@ -143,34 +140,53 @@ class StorageHelper(object):
         ]}
 
     @property
-    def key(self):
-        return 'form_{}'.format(self.view.request.POST['form_pk'])
+    def post_form_pk(self):
+        return self.view.form_pk(self.view.request.POST[
+            self.view.form_pk_field])
 
     @property
-    def data(self):
-        data = self.view.request.session.get(self.key, {})
+    def post_data(self):
+        data = self._data_from_key(self.post_form_pk)
         data.update(self.view.request.POST)
         data = self._clean_data(data)
-        print(data)
         return data
 
-    def _clean_data(self, data):
-        _data = deepcopy(data)
-        _data.pop('form_pk', '')
-        _data.pop('csrfmiddlewaretoken', '')
-        for key in data.keys():
-            if key.startswith('wizard_'):
-                _data.pop(key, '')
-        return _data
-
     def set_form_data(self):
-        self.view.request.session[self.key] = self.data
+        self.view.request.session[self.post_form_pk] = self.post_data
+
+    def data_from_pk(self, pk):
+        key = self.view.form_pk(pk)
+        return self._data_from_key(key)
+
+    def _data_from_key(self, key):
+        return self.view.request.session.get(key, {})
+
+    def _clean_data(self, data):
+        # TODO: tests as spec
+        _data = {}
+        for key, value in data.items():
+            if key.startswith('wizard_'):
+                continue
+            elif key == 'csrfmiddlewaretoken':
+                continue
+            elif key == self.view.form_pk_field:
+                continue
+            elif not value:
+                continue
+            elif isinstance(value, list) and not value[0]:
+                continue
+            elif isinstance(value, list) and value[0]:
+                _data[key] = value[0]
+            else:
+                _data[key] = value
+        return _data
 
 
 class WizardView(FormView):
     site_id = None
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
+    form_pk_field = 'form_pk'
 
     @property
     def steps(self):
@@ -183,6 +199,9 @@ class WizardView(FormView):
     @property
     def manager(self):
         return FormManager(self)
+
+    def form_pk(self, pk):
+        return '{}_{}'.format(self.form_pk_field, pk)
 
     def get_form(self):
         return self.manager.forms[self.steps.current]
@@ -199,13 +218,7 @@ class WizardView(FormView):
     def post(self, request, *args, **kwargs):
         self.steps.set_from_post()
         self.storage.set_form_data()
-        return super().post(request, *args, **kwargs)
-
-    def form_invalid(self, form):
-        return super().form_valid(form)
-
-    def form_valid(self, form, **kwargs):
-        return self.render_current(**kwargs)
+        return self.render_current()
 
     def render_done(self, **kwargs):
         if self.steps.current_is_done:

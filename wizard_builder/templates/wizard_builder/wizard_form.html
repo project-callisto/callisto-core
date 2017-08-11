@@ -6,7 +6,7 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <input type="hidden" name="wizard_current_step" value="{{ view.steps.current }}"/>
-    <input type="hidden" name="form_pk" value="{{ form.pk }}"/>
+    <input type="hidden" name="{{ view.form_pk_field }}" value="{{ form.pk }}"/>
 
     <div class="container-fluid">
         {% include "wizard_builder/wizard_form_fields.html" %}

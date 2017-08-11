@@ -4,9 +4,9 @@ from model_utils.managers import InheritanceManager, InheritanceQuerySet
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
-from django.contrib.sites.shortcuts import get_current_site
 
 
 class FormManager(object):
@@ -48,15 +48,15 @@ class FormManager(object):
             FormClass, index, page)
 
     def _create_form_instance(self, FormClass, index, page):
-        form = FormClass(self._create_form_data(index))
+        form = FormClass(**self._create_form_data(page))
         form.page = page
         form.manager_index = index
         form.pk = page.pk
         form.section_map = self.section_map
         return form
 
-    def _create_form_data(self, pk):
-        return {}
+    def _create_form_data(self, page):
+        return {'data': self.view.storage.data_from_pk(page.pk)}
 
 
 class PageQuerySet(QuerySet):
