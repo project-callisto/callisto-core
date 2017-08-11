@@ -50,42 +50,6 @@ def check_owner(action_name, report_id_arg='report_id'):
     return decorator
 
 
-def new_record_form_view(request, wizard, step=None, url_name="record_form"):
-    site = get_current_site(request)
-    if Page.objects.on_site(site.id).count() > 0:
-        return wizard.wizard_factory(
-            site_id=site.id,
-        ).as_view(
-            url_name=url_name,
-        )(
-            request,
-            step=step,
-        )
-    else:
-        logger.error("no pages in record form")
-        return HttpResponseServerError()
-
-
-@check_owner('edit', 'edit_id')
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def edit_record_form_view(request, edit_id, wizard, step=None, url_name="edit_report"):
-    site = get_current_site(request)
-    report = Report.objects.get(id=edit_id)
-    if Page.objects.on_site(site.id).count() > 0:
-        return wizard.wizard_factory(
-            site_id=site.id,
-            object_to_edit=report,
-        ).as_view(
-            url_name=url_name,
-        )(
-            request,
-            step=step,
-        )
-    else:
-        logger.error("no pages in record form")
-        return HttpResponseServerError()
-
-
 @check_owner('submit')
 @ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
 def submit_report_to_authority(request, report_id, form_template_name="submit_report_to_authority.html",

@@ -4,7 +4,9 @@ import logging
 from wizard_builder.views import WizardView
 
 from django.conf import settings
-from django.http import HttpResponseForbidden, HttpResponseServerError
+from django.http import (
+    HttpResponse, HttpResponseForbidden, HttpResponseServerError,
+)
 
 from ..evaluation.models import EvalRow
 from .forms import NewSecretKeyForm, SecretKeyForm
@@ -13,7 +15,7 @@ from .models import Report
 logger = logging.getLogger(__name__)
 
 
-class EncryptedFormBaseWizard(WizardView):
+class EncryptedWizardView(WizardView):
 
     def get_form_initial(self, step):
         # TODO: store decrypted record with other intermediate form data
@@ -24,7 +26,7 @@ class EncryptedFormBaseWizard(WizardView):
             if cleaned_data:
                 key = cleaned_data.get('key')
                 self.form_to_edit = json.loads(self.object_to_edit.decrypted_report(key))
-        return super(EncryptedFormBaseWizard, self).get_form_initial(step)
+        return super().get_form_initial(step)
 
     @classmethod
     def get_key_form(cls, record_to_edit):
@@ -39,7 +41,8 @@ class EncryptedFormBaseWizard(WizardView):
         form_list.insert(0, cls.get_key_form(object_to_edit))
         return form_list
 
-    def wizard_complete(self, report, **kwargs):
+    def render_finished(self, report, **kwargs):
+        return HttpResponse(report.id)
         """
         This method must be overridden by a subclass
         to redirect wizard after the report has been processed.
@@ -78,7 +81,7 @@ class EncryptedFormBaseWizard(WizardView):
         else:
             EvalRow.store_eval_row(action=EvalRow.CREATE, report=report, decrypted_text=report_text)
 
-        return self.wizard_complete(report, **kwargs)
+        return self.render_finished(report, **kwargs)
 
     def get_template_names(self):
         # render key page with separate template
@@ -127,7 +130,7 @@ class EncryptedFormBaseWizard(WizardView):
 
     def render(self, form=None, **kwargs):
         self.auto_save()
-        return super(EncryptedFormBaseWizard, self).render(form, **kwargs)
+        return super().render(form, **kwargs)
 
     def get(self, *args, **kwargs):
         """
@@ -137,4 +140,4 @@ class EncryptedFormBaseWizard(WizardView):
         if step_url is None or step_url == '0':
             self.storage.reset()
             self.storage.current_step = self.steps.first
-        return super(EncryptedFormBaseWizard, self).get(*args, **kwargs)
+        return super().get(*args, **kwargs)

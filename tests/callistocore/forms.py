@@ -5,14 +5,7 @@ from django.contrib.sites.models import Site
 from django.http import HttpResponse
 
 from callisto_core.delivery.api import CallistoCoreMatchingApi
-from callisto_core.delivery.wizard import EncryptedFormBaseWizard
 from callisto_core.notification.api import CallistoCoreNotificationApi
-
-
-class EncryptedFormWizard(EncryptedFormBaseWizard):
-
-    def wizard_complete(self, report, **kwargs):
-        return HttpResponse(report.id)
 
 
 class SiteAwareNotificationApi(CallistoCoreNotificationApi):
