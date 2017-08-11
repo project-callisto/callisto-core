@@ -167,18 +167,21 @@ class WizardView(FormView):
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
     form_pk_field = 'form_pk'
+    steps_helper = StepsHelper
+    storage_helper = StorageHelper
+    form_manager = FormManager
 
     @property
     def steps(self):
-        return StepsHelper(self)
+        return self.steps_helper(self)
 
     @property
     def storage(self):
-        return StorageHelper(self)
+        return self.storage_helper(self)
 
     @property
     def manager(self):
-        return FormManager(self)
+        return self.form_manager(self)
 
     def form_pk(self, pk):
         return '{}_{}'.format(self.form_pk_field, pk)
