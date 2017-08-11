@@ -28,6 +28,7 @@ urlpatterns = [
         views.TestWizardView.as_view(),
         name='wizard_view',
         ),
-    url(r'^admin/', admin.site.urls),
+    url(r'^nested_admin/', include('nested_admin.urls')),
     url(r'^tinymce/', include('tinymce.urls')),
+    url(r'^admin/', admin.site.urls),
 ]

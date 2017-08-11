@@ -21,7 +21,17 @@ class ElementHelper(object):
     @property
     def extra_input(self):
         return self.browser.find_element_by_css_selector(
-            '.extra_options input')
+            '.extra-widget-text input')
+
+    @property
+    def extra_dropdown(self):
+        return self.browser.find_element_by_css_selector(
+            '.extra-widget-dropdown input')
+
+    @property
+    def choice_3(self):
+        return self.browser.find_elements_by_css_selector(
+            '[type="checkbox"]')[2]
 
     @property
     def text_input(self):
@@ -48,8 +58,8 @@ class FrontendTest(FunctionalTest):
         self.assertCss('[name="form_pk"]')
 
     def test_question_fields(self):
-        self.assertSelectorContains('h2', 'main text')
-        self.assertSelectorContains('.help-block', 'descriptive text')
+        self.assertSelectorContains('.form-group', 'main text')
+        self.assertSelectorContains('.form-group', 'descriptive text')
 
     def test_choice_text(self):
         self.assertSelectorContains('li', 'choice 1')
@@ -59,7 +69,7 @@ class FrontendTest(FunctionalTest):
         self.assertCss('[placeholder="extra information here"]')
 
     def test_extra_dropdown(self):
-        self.element.extra_input.click()
+        self.element.extra_dropdown.click()
         self.assertSelectorContains('option', 'option 1')
         self.assertSelectorContains('option', 'option 2')
 
@@ -77,11 +87,32 @@ class FrontendTest(FunctionalTest):
         self.element.extra_input.click()
         self.assertTrue(self.element.extra_input.is_selected())
 
-    def test_choices_persist_after_changing_page(self):
+    def test_choice_1_persists_after_changing_page(self):
         self.element.extra_input.click()
         self.element.next.click()
         self.element.back.click()
         self.assertTrue(self.element.extra_input.is_selected())
+
+    def test_ghost_choices_not_populated(self):
+        self.element.next.click()
+        self.element.back.click()
+        self.assertFalse(self.element.extra_input.is_selected())
+        self.assertFalse(self.element.extra_dropdown.is_selected())
+        self.assertFalse(self.element.choice_3.is_selected())
+
+    def test_choice_2_persists_after_changing_page(self):
+        self.element.extra_dropdown.click()
+        self.element.next.click()
+        self.element.back.click()
+        self.assertTrue(self.element.extra_dropdown.is_selected())
+
+    def test_all_choices_persist_after_changing_page(self):
+        self.element.extra_input.click()
+        self.element.extra_dropdown.click()
+        self.element.next.click()
+        self.element.back.click()
+        self.assertTrue(self.element.extra_input.is_selected())
+        self.assertTrue(self.element.extra_dropdown.is_selected())
 
     def test_text_persists_after_changing_page(self):
         self.element.next.click()
