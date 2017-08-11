@@ -167,17 +167,11 @@ class StorageHelper(object):
         # TODO: reduce complexity
         _data = {}
         for key, value in data.items():
-            if key.startswith('wizard_'):
+            print('_clean_data')
+            print((key, value))
+            if value == ['']:
                 continue
-            elif key == 'csrfmiddlewaretoken':
-                continue
-            elif key == self.view.form_pk_field:
-                continue
-            elif not value:
-                continue
-            elif isinstance(value, list) and not value[0]:
-                continue
-            elif isinstance(value, list) and value[0]:
+            elif len(value) == 1:
                 _data[key] = value[0]
             else:
                 _data[key] = value
