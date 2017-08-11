@@ -9,11 +9,26 @@ from .models import Report
 class EncryptedStorageHelper(StorageHelper):
 
     @property
+    def form_data(self):
+        return self.decrypt(super().form_data)
+
+    @property
+    def post_data(self):
+        return self.encrypt(super().post_data)
+
+    @property
     def secret_key(self):
         return ''
 
+    def encrypt(self, data):
+        return data
+
+    def decrypt(self, data):
+        return data
+
 
 class EncryptedWizardView(WizardView):
+    storage_helper = EncryptedStorageHelper
 
     @property
     def report(self):
@@ -38,6 +53,6 @@ class EncryptedWizardView(WizardView):
 
     def _save_report(self):
         self.report.encrypt_report(
-            self.storage.get_form_data,
+            self.storage.form_data,
             self.storage.secret_key,
         )
