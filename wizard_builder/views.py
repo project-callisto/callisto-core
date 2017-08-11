@@ -14,7 +14,7 @@ class StepsHelper(object):
 
     @property
     def all(self):
-        return self.view.form_manager.forms
+        return self.view.manager.forms
 
     @property
     def step_count(self):
@@ -56,7 +56,7 @@ class StepsHelper(object):
 
     @property
     def last(self):
-        return self.all[-1].page_index
+        return self.all[-1].manager_index
 
     @property
     def next(self):
@@ -121,7 +121,7 @@ class StepsHelper(object):
         if key == self.first:
             return self.first
         elif self.step_count > key:
-            return self.view.form_manager.forms[key].page_index
+            return self.view.manager.forms[key].manager_index
         elif self.step_count == key:
             return self.done_name
         else:
@@ -136,8 +136,8 @@ class StorageHelper(object):
     @property
     def get_form_data(self):
         return {'data': [
-            self.view.request.session[self.key(form.page_index)]
-            for form in self.view.form_manager.forms
+            self.view.request.session[self.key(form.pk)]
+            for form in self.view.manager.forms
         ]}
 
     def key(self, step):
@@ -145,15 +145,15 @@ class StorageHelper(object):
 
     def compile_data(self, form):
         return {
-            'page': form.page_index,
+            'page': form.manager_index,
             'form': form.serialized,
             'post': self.view.request.POST,
         }
 
     def set_form_data(self, form):
-        key = self.key(form.page_index)
+        key = self.key(form.pk)
         data = self.compile_data(form)
-        self.view.request.session[key] = data
+        self.view.request.session[key] = form.data
 
 
 class WizardView(FormView):
@@ -170,11 +170,11 @@ class WizardView(FormView):
         return StorageHelper(self)
 
     @property
-    def form_manager(self):
-        return FormManager(get_current_site(self.request).id)
+    def manager(self):
+        return FormManager(self)
 
     def get_form(self):
-        return self.form_manager.forms[self.steps.current]
+        return self.manager.forms[self.steps.current]
 
     def dispatch(self, request, step=None, *args, **kwargs):
         self.steps.set_from_get(step)

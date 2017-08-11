@@ -6,15 +6,21 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
+from django.contrib.sites.shortcuts import get_current_site
 
 
 class FormManager(object):
 
-    def __init__(self, site_id, **kwargs):
-        self.get_pages(site_id, **kwargs)
+    def __init__(self, view):
+        self.view = view
+
+    @property
+    def site_id(self):
+        return get_current_site(self.view.request).id
 
     @property
     def section_map(self):
+        # NOTE: function outdated
         from .models import Page
         return {
             section: idx + 1
@@ -26,27 +32,30 @@ class FormManager(object):
     @property
     def forms(self):
         return [
-            self._generate_form(index, page)
+            self._create_form(index, page)
             for index, page in enumerate(self.pages)
         ]
 
-    def get_pages(self, site_id, **kwargs):
+    @property
+    def pages(self):
         from .models import Page
-        self.pages = Page.objects.on_site(site_id).all()
+        return Page.objects.wizard_set(self.site_id)
 
-    def _generate_form(self, index, page):
+    def _create_form(self, index, page):
         from .forms import PageForm
         FormClass = PageForm.setup(page)
-        return self._generate_form_instance(index, FormClass)
+        return self._create_form_instance(
+            FormClass, index, page)
 
-    def _generate_form_instance(self, index, FormClass):
-        form = FormClass(self._get_form_data(index))
+    def _create_form_instance(self, FormClass, index, page):
+        form = FormClass(self._create_form_data(index))
         form.page = page
-        form.page_index = index
-        form.section_map = section_map
+        form.manager_index = index
+        form.pk = page.pk
+        form.section_map = self.section_map
         return form
 
-    def _get_form_data(self, index):
+    def _create_form_data(self, pk):
         return {}
 
 
@@ -78,6 +87,9 @@ class AutoDowncastingManager(InheritanceManager):
 
 class PageManager(Manager):
     _queryset_class = PageQuerySet
+
+    def wizard_set(self, site_id=None):
+        return self.on_site(site_id).order_by('position')
 
     def on_site(self, site_id=None):
         return self.get_queryset().on_site(site_id)

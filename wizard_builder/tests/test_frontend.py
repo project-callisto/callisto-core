@@ -12,9 +12,10 @@ class FrontendTest(FunctionalTest):
     def test_submit_presence(self):
         self.assertCss('[type="submit"]')
 
-    def test_step_0_presence(self):
+    def test_wizard_attrs_presence(self):
         self.assertCss('[name="wizard_current_step"]')
-        self.assertCss('[value="0"]')
+        self.assertCss('[name="wizard_form_pk"]')
+        self.assertCss('[name="wizard_goto_step"]')
 
     def test_question_fields(self):
         self.assertSelectorContains('h2', 'main text')
