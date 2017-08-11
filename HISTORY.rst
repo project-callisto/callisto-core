@@ -1,6 +1,16 @@
 History
 -------
 
+0.4.0 (2017-08-11)
+++++++++++++++++++
+
+* Refactor wizard views into a FormView
+* increase code quality to 4.0
+* remove all django-formtools legacy code
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/118
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/120
+
 0.3.2 (2017-08-07)
 ++++++++++++++++++
 
