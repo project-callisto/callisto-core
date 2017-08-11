@@ -126,32 +126,21 @@ class Report(models.Model):
     class Meta:
         ordering = ('-added',)
 
-    def encrypt_report(self, report_text, key, edit=False, autosave=False):
-        """Encrypts and attaches report text. Generates a random salt and stores it in the Report object's encode
-        prefix.
+    def encrypt_report(self, report_text, secret_key):
+        """Encrypts and attaches report text. Generates a random salt
+        and stores it in the Report object's encode prefix.
 
         Args:
           report_text (str): the full text of the report
-          key (str): the secret key
-          edit (obj): the object to edit
-          autosave (bool): whether or not this encryption is part of an automatic save
-
+          secret_key (str): the secret key
         """
-        # start removing salt fields when updating old entries
-        if self.salt:
-            self.salt = None
-
         hasher = get_hasher()
-        salt = get_random_string()
-
-        if edit:
-            self.last_edited = timezone.now()
-        self.autosaved = autosave
-
-        encoded = hasher.encode(key, salt)
+        encoded = hasher.encode(secret_key, get_random_string())
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
-
-        self.encrypted = _encrypt_report(stretched_key=stretched_key, report_text=report_text)
+        self.encrypted = _encrypt_report(
+            stretched_key=stretched_key,
+            report_text=report_text,
+        )
         self.save()
 
     def decrypted_report(self, key):
