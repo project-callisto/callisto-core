@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
 
 from callisto_core.delivery.views import (
     delete_report, edit_record_form_view, export_as_pdf, new_record_form_view,
