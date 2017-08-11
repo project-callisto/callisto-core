@@ -1,6 +1,8 @@
 import nacl.secret
 import nacl.utils
 
+from django.conf import settings
+
 
 def encrypt_text(secret_key, sensitive_text):
     """

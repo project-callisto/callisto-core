@@ -1,12 +1,10 @@
 import uuid
 
-import six
 from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
 
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 from . import security
@@ -137,21 +135,31 @@ class MatchReport(models.Model):
         self.encrypted = security.pepper(security.encrypt_text(stretched_key=stretched_key, report_text=report_text))
 
     def get_match(self, identifier):
-        """Checks if the given identifier triggers a match on this report. Returns report text if so.
+        """
+        Checks if the given identifier triggers a match on this report.
+        Returns report text if so.
 
         Args:
-          identifier (str): the identifier provided by the user when entering matching.
+          identifier (str): the identifier provided by the user
+            when entering matching.
 
         Returns:
-            str or None: returns the decrypted report as a string if the identifier matches, or None otherwise.
+            str or None: returns the decrypted report as a string
+                if the identifier matches, or None otherwise.
         """
         decrypted_report = None
 
-        prefix, stretched_identifier = make_key(self.encode_prefix, identifier, self.salt)
+        prefix, stretched_identifier = make_key(
+            self.encode_prefix,
+            identifier,
+            self.salt,
+        )
 
         try:
-            decrypted_report = _decrypt_report(stretched_key=stretched_identifier,
-                                               encrypted=_unpepper(self.encrypted))
+            decrypted_report = security.decrypt_report(
+                stretched_identifier,
+                security.unpepper(self.encrypted),
+            )
         except CryptoError:
             pass
         return decrypted_report
