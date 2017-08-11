@@ -1,6 +1,7 @@
 import nacl.secret
 import nacl.utils
 
+
 def encrypt_text(secret_key, sensitive_text):
     """
     Encrypts a report using the given secret key.
@@ -77,4 +78,3 @@ def _unpepper(peppered_report):
     # need to force to bytes bc BinaryField can return as memoryview
     decrypted = box.decrypt(bytes(peppered_report))
     return decrypted
-

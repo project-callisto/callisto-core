@@ -9,8 +9,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
-from .hashers import get_hasher, make_key
 from . import security
+from .hashers import get_hasher, make_key
 
 
 class Report(models.Model):
@@ -35,6 +35,7 @@ class Report(models.Model):
     contact_email = models.EmailField(blank=True, null=True, max_length=256)
     contact_notes = models.TextField(blank=True, null=True)
     contact_name = models.TextField(blank=True, null=True)
+    match_found = models.BooleanField(default=False)
 
     @property
     def entered_into_matching(self):
@@ -44,10 +45,15 @@ class Report(models.Model):
         else:
             return None
 
-    match_found = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ('-added',)
+    @property
+    def get_submitted_report_id(self):
+        """Return the ID of the first time a FullReport was submitted."""
+        if self.submitted_to_school:
+            sent_report = self.sentfullreport_set.first()
+            report_id = sent_report.get_report_id() if sent_report else None
+            return report_id
+        else:
+            return None
 
     def encrypt_report(self, report_text, secret_key):
         """Encrypts and attaches report text. Generates a random salt
@@ -84,18 +90,10 @@ class Report(models.Model):
         self.matchreport_set.all().delete()
         self.match_found = False
 
-    @property
-    def get_submitted_report_id(self):
-        """Return the ID of the first time a FullReport was submitted."""
-        if self.submitted_to_school:
-            sent_report = self.sentfullreport_set.first()
-            report_id = sent_report.get_report_id() if sent_report else None
-            return report_id
-        else:
-            return None
+    class Meta:
+        ordering = ('-added',)
 
 
-@six.python_2_unicode_compatible
 class MatchReport(models.Model):
     """A report that indicates the user wants to submit if a match is found. A single report can have multiple
     MatchReports--one per perpetrator.
