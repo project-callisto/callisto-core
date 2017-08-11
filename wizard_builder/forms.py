@@ -25,3 +25,14 @@ class PageForm(forms.Form):
             for question in page.questions
         }
         return cls
+
+    def _clean_data(self):
+        for key, value in self.data.items():
+            if (isinstance(value, list)) and (len(value) == 1):
+                self.data[key] = value[0]
+
+    def _clean_fields(self):
+        for name, field in self.fields.items():
+            self._clean_data()
+            self.cleaned_data[name] = field.widget.value_from_datadict(
+                self.data, self.files, self.add_prefix(name))

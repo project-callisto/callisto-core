@@ -72,6 +72,9 @@ class InputOptionExtraMixin(object):
             return {}
 
     def value_from_datadict(self, *args, **kwargs):
+        # print('value_from_datadict')
+        # print(args)
+        # print(kwargs)
         return super().value_from_datadict(*args, **kwargs)
 
     def create_option(self, *args, **kwargs):
