@@ -1,4 +1,5 @@
 from django.conf.urls import include, url
+from django.contrib import admin
 
 from callisto_core.delivery.views import (
     delete_report, edit_record_form_view, export_as_pdf, new_record_form_view,
