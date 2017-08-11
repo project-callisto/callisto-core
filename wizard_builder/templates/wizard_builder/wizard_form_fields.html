@@ -2,7 +2,6 @@
 
 {% for field in form %}
     <div class="form-group
-        {% if field.errors %}has-error{% endif %}
         {% if forloop.counter != 1 %}more_questions{% endif %}
     ">
 
@@ -18,10 +17,6 @@
                 </legend>
                 {% include "wizard_builder/wizard_form_field.html" %}
             </fieldset>
-        {% endif %}
-
-        {% if field.errors %}
-            <span class="help-block" role="alert">{{ field.errors }}</span>
         {% endif %}
 
     </div>
