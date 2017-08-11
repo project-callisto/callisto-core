@@ -45,10 +45,22 @@ django settings
 
     INSTALLED_APPS = [
       'django.contrib.sites',
+      'nested_admin',
       'tinymce',
       'widget_tweaks',
       'wizard_builder',
     ]
+
+urls.py
+
+::
+
+    urlpatterns = [
+      url(r'^nested_admin/', include('nested_admin.urls')),
+      url(r'^tinymce/', include('tinymce.urls')),
+      url(r'^admin/', admin.site.urls),
+    ]
+
 
 Developement
 -------------
@@ -58,7 +70,8 @@ setup
 ::
 
     $ source $VENV/bin/activate
-    $ pip install -r requirements/dev.txt
+    $ pip install -r requirements/dev.txt --upgrade
+    $ make app-setup
 
 
 cleanup / linting / tests
@@ -66,5 +79,4 @@ cleanup / linting / tests
 ::
 
     $ make clean-lint
-    $ make test
-    $ make test-all
+    $ make test-fast

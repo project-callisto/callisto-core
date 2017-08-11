@@ -1,13 +1,15 @@
+import nested_admin
+
 from django import forms
 from django.contrib import admin
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import models
 from django.utils.html import format_html
 
-from ..models import Choice, FormQuestion
+from ..models import Choice, ChoiceOption, FormQuestion
 
 
-class DowncastedAdmin(admin.ModelAdmin):
+class DowncastedAdmin(nested_admin.NestedModelAdmin):
 
     list_display = ['object_display', 'model_type']
 
@@ -38,14 +40,24 @@ class DowncastedAdmin(admin.ModelAdmin):
     model_type.short_description = 'Type'
 
 
-class ChoiceInline(admin.TabularInline):
-    fields = ['text', 'extra_info_text', 'position', 'id']
+class ChoiceOptionInline(nested_admin.NestedStackedInline):
+    extra = 0
+    model = ChoiceOption
+    formfield_overrides = {
+        models.TextField: {'widget': forms.TextInput},
+    }
+
+
+class ChoiceInline(nested_admin.NestedStackedInline):
     model = Choice
     sortable_field_name = "position"
     extra = 1
     formfield_overrides = {
         models.TextField: {'widget': forms.TextInput},
     }
+    inlines = [
+        ChoiceOptionInline,
+    ]
 
 
 class QuestionInline(admin.TabularInline):

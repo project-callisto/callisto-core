@@ -149,7 +149,6 @@ class StorageHelper(object):
     def post_data(self):
         data = self._data_from_key(self.post_form_pk)
         data.update(self.view.request.POST)
-        data = self._clean_data(data)
         return data
 
     def set_form_data(self):
@@ -161,27 +160,6 @@ class StorageHelper(object):
 
     def _data_from_key(self, key):
         return self.view.request.session.get(key, {})
-
-    def _clean_data(self, data):
-        # TODO: tests as spec
-        # TODO: reduce complexity
-        _data = {}
-        for key, value in data.items():
-            if key.startswith('wizard_'):
-                continue
-            elif key == 'csrfmiddlewaretoken':
-                continue
-            elif key == self.view.form_pk_field:
-                continue
-            elif not value:
-                continue
-            elif isinstance(value, list) and not value[0]:
-                continue
-            elif isinstance(value, list) and value[0]:
-                _data[key] = value[0]
-            else:
-                _data[key] = value
-        return _data
 
 
 class WizardView(FormView):
@@ -225,9 +203,12 @@ class WizardView(FormView):
     def render_done(self, **kwargs):
         if self.steps.current_is_done:
             # TODO: a review screen template
-            return JsonResponse(self.storage.get_form_data)
+            return self.render_finished(**kwargs)
         else:
             return HttpResponseRedirect(self.steps.done_url)
+
+    def render_finished(self, **kwargs):
+        return JsonResponse(self.storage.get_form_data)
 
     def render_last(self, **kwargs):
         return HttpResponseRedirect(self.steps.last_url)

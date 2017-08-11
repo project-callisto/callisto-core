@@ -49,6 +49,7 @@ class FormManager(object):
 
     def _create_form_instance(self, FormClass, index, page):
         form = FormClass(**self._create_form_data(page))
+        form.full_clean()
         form.page = page
         form.manager_index = index
         form.pk = page.pk
@@ -56,7 +57,11 @@ class FormManager(object):
         return form
 
     def _create_form_data(self, page):
-        return {'data': self.view.storage.data_from_pk(page.pk)}
+        data = self.view.storage.data_from_pk(page.pk)
+        return {
+            'data': data,
+            'initial': data,
+        }
 
 
 class PageQuerySet(QuerySet):
