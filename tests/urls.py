@@ -32,5 +32,8 @@ urlpatterns = [
     url(r'^test_reports/export_custom/(?P<report_id>\d+)/$', export_as_pdf,
         {'extra_context': {'test': 'custom context'}}, name="test_export_custom"),
     url(r'^test_reports/delete/(?P<report_id>\d+)/$', delete_report,
-        {'extra_context': {'test': 'custom context'}}, name="delete_report")
+        {'extra_context': {'test': 'custom context'}}, name="delete_report"),
+    url(r'^nested_admin/', include('nested_admin.urls')),
+    url(r'^tinymce/', include('tinymce.urls')),
+    url(r'^admin/', admin.site.urls),
 ]
