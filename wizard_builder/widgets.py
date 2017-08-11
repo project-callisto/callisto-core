@@ -35,7 +35,8 @@ class InputOptionExtraMixin(object):
                 'style': "display: none;",
             }),
         )
-        return field.widget.get_context('extra_options', '', {})
+        return field.widget.get_context(
+            'extra_options', self.extra_options_data, {})
 
     @property
     def _get_context_text(self):
@@ -52,7 +53,8 @@ class InputOptionExtraMixin(object):
                 },
             ),
         )
-        return field.widget.get_context('extra_info', '', {})
+        return field.widget.get_context(
+            'extra_info', self.extra_info_data, {})
 
     @property
     def _get_context(self):
@@ -72,9 +74,8 @@ class InputOptionExtraMixin(object):
             return {}
 
     def value_from_datadict(self, *args, **kwargs):
-        # print('value_from_datadict')
-        # print(args)
-        # print(kwargs)
+        self.extra_info_data = args[0].get('extra_info', '')
+        self.extra_options_data = args[0].get('extra_options', '')
         return super().value_from_datadict(*args, **kwargs)
 
     def create_option(self, *args, **kwargs):
