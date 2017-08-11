@@ -1,7 +1,7 @@
 import json
 import logging
 
-from wizard_builder.views import ConfigurableFormWizard
+from wizard_builder.views import WizardView
 
 from django.conf import settings
 from django.http import HttpResponseForbidden, HttpResponseServerError
@@ -13,7 +13,7 @@ from .models import Report
 logger = logging.getLogger(__name__)
 
 
-class EncryptedFormBaseWizard(ConfigurableFormWizard):
+class EncryptedFormBaseWizard(WizardView):
 
     def get_form_initial(self, step):
         # TODO: store decrypted record with other intermediate form data
