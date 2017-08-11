@@ -4,17 +4,59 @@ from model_utils.managers import InheritanceManager, InheritanceQuerySet
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
-# in addition to explicitly depending on django-model-utils,
-# this code borrows in large part from django-polymorphic
 
-# Portions of the below implementation are copyright django-polymorphic [Authors] contributors,
-# and are under the BSD-3 Clause [License]
-# Authors: https://github.com/django-polymorphic/django-polymorphic/blob/master/AUTHORS.rst
-# License:
-# https://github.com/django-polymorphic/django-polymorphic/blob/master/LICENSE
+class FormManager(object):
+
+    def __init__(self, view):
+        self.view = view
+
+    @property
+    def site_id(self):
+        return get_current_site(self.view.request).id
+
+    @property
+    def section_map(self):
+        # NOTE: function outdated
+        from .models import Page
+        return {
+            section: idx + 1
+            for idx, page in enumerate(self.pages)
+            for section, _ in Page.SECTION_CHOICES
+            if page.section == section
+        }
+
+    @property
+    def forms(self):
+        return [
+            self._create_form(index, page)
+            for index, page in enumerate(self.pages)
+        ]
+
+    @property
+    def pages(self):
+        from .models import Page
+        return Page.objects.wizard_set(self.site_id)
+
+    def _create_form(self, index, page):
+        from .forms import PageForm
+        FormClass = PageForm.setup(page)
+        return self._create_form_instance(
+            FormClass, index, page)
+
+    def _create_form_instance(self, FormClass, index, page):
+        form = FormClass(**self._create_form_data(page))
+        form.page = page
+        form.manager_index = index
+        form.pk = page.pk
+        form.section_map = self.section_map
+        return form
+
+    def _create_form_data(self, page):
+        return {'data': self.view.storage.data_from_pk(page.pk)}
 
 
 class PageQuerySet(QuerySet):
@@ -45,6 +87,9 @@ class AutoDowncastingManager(InheritanceManager):
 
 class PageManager(Manager):
     _queryset_class = PageQuerySet
+
+    def wizard_set(self, site_id=None):
+        return self.on_site(site_id).order_by('position')
 
     def on_site(self, site_id=None):
         return self.get_queryset().on_site(site_id)
