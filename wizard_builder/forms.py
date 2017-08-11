@@ -27,6 +27,17 @@ class PageForm(forms.Form):
         return cls
 
     def _clean_data(self):
+        '''
+            this function exists because request.POST gives attributes as lists
+
+            so we get ex.
+                self.data['text'] = ['my text input']
+
+            this function resolves cases like that down to
+                self.data['text'] = ['my text input'][0]
+
+            there is likely a django method that handles these cases, though
+        '''
         for key, value in self.data.items():
             if (isinstance(value, list)) and (len(value) == 1):
                 self.data[key] = value[0]
