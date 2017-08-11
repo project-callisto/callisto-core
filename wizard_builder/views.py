@@ -114,6 +114,7 @@ class StepsHelper(object):
         self.view.request.session['current_step'] = step
 
     def adjust_step(self, adjustment):
+        # TODO: tests as spec
         key = self.current + adjustment
         if key < self.first:
             return None
