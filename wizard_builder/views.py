@@ -163,15 +163,10 @@ class StorageHelper(object):
         return self.view.request.session.get(key, {})
 
     def _clean_data(self, data):
-        # TODO: tests as spec
-        # TODO: reduce complexity
+        # TODO: remove in favor of form.clean_* functions
         _data = {}
         for key, value in data.items():
-            print('_clean_data')
-            print((key, value))
-            if value == ['']:
-                continue
-            elif len(value) == 1:
+            if len(value) == 1:
                 _data[key] = value[0]
             else:
                 _data[key] = value

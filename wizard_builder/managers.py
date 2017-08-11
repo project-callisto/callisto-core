@@ -57,8 +57,6 @@ class FormManager(object):
         return form
 
     def _create_form_data(self, page):
-        print('_create_form_data')
-        print(self.view.storage.data_from_pk(page.pk))
         data = self.view.storage.data_from_pk(page.pk)
         return {
             'data': data,

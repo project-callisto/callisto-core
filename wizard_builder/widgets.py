@@ -72,19 +72,13 @@ class InputOptionExtraMixin(object):
             return {}
 
     def value_from_datadict(self, *args, **kwargs):
-        print('value_from_datadict')
-        print(args)
-        print(kwargs)
         return super().value_from_datadict(*args, **kwargs)
 
     def create_option(self, *args, **kwargs):
-        print('create_option')
         from .models import Choice
         options = super().create_option(*args, **kwargs)
         self._choice = Choice.objects.get(id=options['value'])
         options.update(self._get_context)
-        print(options)
-        print(vars(self))
         return options
 
 
