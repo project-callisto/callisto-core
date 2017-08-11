@@ -2,6 +2,10 @@ import os
 
 DEBUG = True
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+SECRET_KEY = os.getenv("SECRET_KEY", default='secret key')
+
 USE_TZ = True
 REPORT_TIME_ZONE = 'Europe/Paris'
 
@@ -15,6 +19,12 @@ DATABASES = {
     },
 }
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'staticfiles'))
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 ROOT_URLCONF = "tests.urls"
 
@@ -66,8 +76,6 @@ SCHOOL_LONGNAME = "test"
 APP_URL = "test"
 
 PASSWORD_MINIMUM_ENTROPY = 35
-
-SECRET_KEY = "not needed"
 
 CALLISTO_EVAL_PUBLIC_KEY = get_test_key()
 
