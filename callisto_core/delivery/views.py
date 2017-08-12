@@ -54,7 +54,9 @@ def submit_report_to_authority(
     extra_context=None,
 ):
     report = Report.objects.get(id=report_id)
-
+    owner = report.owner
+    site = get_current_site(request)
+    context = {'owner': owner, 'report': report, **extra_context}
 
     if request.method == 'POST':
         form = SubmitReportToAuthorityForm(report.owner, report, request.POST)
