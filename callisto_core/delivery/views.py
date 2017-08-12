@@ -17,7 +17,8 @@ from django.utils.html import conditional_escape
 from ..evaluation.models import EvalRow
 from ..utils.api import MatchingApi, NotificationApi
 from .forms import (
-    SecretKeyForm, SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
+    SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
+    SecretKeyWithConfirmationForm,
 )
 from .models import MatchReport, Report, SentFullReport
 from .report_delivery import MatchReportContent, PDFFullReport
@@ -26,41 +27,37 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
-def check_owner(action_name, report_id_arg='report_id'):
-    def decorator(view_func):
-        @wraps(view_func, assigned=available_attrs(view_func))
-        def _wrapped_view(request, *args, **kwargs):
-            owner = request.user
-            # kludgy assumption that report_id will be first arg after request
-            id_to_fetch = kwargs.get(report_id_arg) or args[0]
-            try:
-                report = Report.objects.get(id=id_to_fetch)
-                if owner == report.owner:
-                    return view_func(request, *args, **kwargs)
-                else:
-                    logger.warning("illegal {} attempt on record {} by user {}".format(action_name,
-                                                                                       id_to_fetch, owner.id))
-                    return HttpResponseForbidden() if settings.DEBUG else HttpResponseNotFound()
-            except Report.DoesNotExist:
-                logger.info('Got request for nonexistant report Report(id={})'.format(id_to_fetch))
-                return HttpResponseNotFound()
-        return _wrapped_view
-    return decorator
+class SecretKeyView(FormView):
+    form_class = SecretKeyWithConfirmationForm
 
 
-@check_owner('submit')
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
-def submit_report_to_authority(request, report_id, form_template_name="submit_report_to_authority.html",
-                               confirmation_template_name="submit_report_to_authority_confirmation.html",
-                               extra_context=None):
-    owner = request.user
+class SecretKeyViewMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        if not self.storage.secret_key:
+            return self.render_key_creation(**kwargs)
+        else:
+            return super().dispatch(request, *args, **kwargs)
+
+
+@ratelimit(
+    group='decrypt',
+    key='user',
+    method=ratelimit.UNSAFE,
+    rate=settings.DECRYPT_THROTTLE_RATE,
+    block=True,
+)
+def submit_report_to_authority(
+    request,
+    report_id,
+    form_template_name="submit_report_to_authority.html",
+    confirmation_template_name="submit_report_to_authority_confirmation.html",
+    extra_context=None,
+):
     report = Report.objects.get(id=report_id)
-    site = get_current_site(request)
-    context = {'owner': owner, 'report': report}
-    context.update(extra_context or {})
+
 
     if request.method == 'POST':
-        form = SubmitReportToAuthorityForm(owner, report, request.POST)
+        form = SubmitReportToAuthorityForm(report.owner, report, request.POST)
         form.report = report
         if form.is_valid():
             try:
@@ -90,24 +87,25 @@ def submit_report_to_authority(request, report_id, form_template_name="submit_re
             context.update({'form': form})
             return render(request, confirmation_template_name, context)
     else:
-        form = SubmitReportToAuthorityForm(owner, report)
+        form = SubmitReportToAuthorityForm(report.owner, report)
     context.update({'form': form})
     return render(request, form_template_name, context)
 
 
-@check_owner('matching')
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
+@ratelimit(
+    group='decrypt',
+    key='user',
+    method=ratelimit.UNSAFE,
+    rate=settings.DECRYPT_THROTTLE_RATE,
+    block=True,
+)
 def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
                        confirmation_template_name="submit_to_matching_confirmation.html",
                        extra_context=None):
-    owner = request.user
     report = Report.objects.get(id=report_id)
-    site = get_current_site(request)
-    context = {'owner': owner, 'report': report}
-    context.update(extra_context or {})
 
     if request.method == 'POST':
-        form = SubmitReportToAuthorityForm(owner, report, request.POST)
+        form = SubmitReportToAuthorityForm(report.owner, report, request.POST)
         formset = SubmitToMatchingFormSet(request.POST)
         form.report = report
         if form.is_valid() and formset.is_valid():
@@ -161,17 +159,14 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
             return render(request, confirmation_template_name, context)
 
     else:
-        form = SubmitReportToAuthorityForm(owner, report)
+        form = SubmitReportToAuthorityForm(report.owner, report)
         formset = SubmitToMatchingFormSet()
     context.update({'form': form, 'formset': formset})
     return render(request, form_template_name, context)
 
 
-@check_owner('matching withdrawal')
 def withdraw_from_matching(request, report_id, template_name, extra_context=None):
     report = Report.objects.get(id=report_id)
-    context = {'owner': request.user}
-    context.update(extra_context or {})
 
     report.withdraw_from_matching()
     report.save()
@@ -182,13 +177,17 @@ def withdraw_from_matching(request, report_id, template_name, extra_context=None
     return render(request, template_name, context)
 
 
-@check_owner('export')
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
+@ratelimit(
+    group='decrypt',
+    key='user',
+    method=ratelimit.UNSAFE,
+    rate=settings.DECRYPT_THROTTLE_RATE,
+    block=True,
+)
 def export_as_pdf(request, report_id, force_download=True, filename='report.pdf',
                   template_name='export_report.html', extra_context=None):
     report = Report.objects.get(id=report_id)
-    context = {'owner': request.user, 'report': report}
-    context.update(extra_context or {})
+
     if request.method == 'POST':
         form = SecretKeyForm(request.POST)
         form.report = report
@@ -212,13 +211,17 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
     return render(request, template_name, context)
 
 
-@check_owner('delete')
-@ratelimit(group='decrypt', key='user', method=ratelimit.UNSAFE, rate=settings.DECRYPT_THROTTLE_RATE, block=True)
+@ratelimit(
+    group='decrypt',
+    key='user',
+    method=ratelimit.UNSAFE,
+    rate=settings.DECRYPT_THROTTLE_RATE,
+    block=True,
+)
 def delete_report(request, report_id, form_template_name='delete_report.html',
                   confirmation_template='delete_report.html', extra_context=None):
     report = Report.objects.get(id=report_id)
-    context = {'owner': request.user}
-    context.update(extra_context or {})
+
     if request.method == 'POST':
         form = SecretKeyForm(request.POST)
         form.report = report

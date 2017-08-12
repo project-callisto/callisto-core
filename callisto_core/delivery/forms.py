@@ -6,92 +6,44 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
+from django.views.generic.edit import FormView
 
 from . import validators
 from ..evaluation.models import EvalRow
 
-REQUIRED_ERROR = "The {0} field is required."
-
 logger = logging.getLogger(__name__)
 
 
-def make_key(confirmation=False):
-    """Create key with optional boolean argument for confirmation form."""
-    if confirmation:
-        key = forms.CharField(max_length=64,
-                              label="Repeat your passphrase",
-                              widget=forms.PasswordInput(attrs={'placeholder':
-                                                                'Repeat your passphrase',
-                                                                'autocomplete': 'off'}),
-                              error_messages={'required':
-                                              REQUIRED_ERROR.format("passphrase confirmation")})
-    else:
-        key = forms.CharField(max_length=64,
-                              label="Your passphrase",
-                              widget=forms.PasswordInput(attrs={'placeholder':
-                                                                'Your passphrase',
-                                                                'autocomplete': 'off'}),
-                              error_messages={'required': REQUIRED_ERROR.format("passphrase")})
-    return key
-
-
-class NewSecretKeyForm(forms.Form):
-    error_messages = {
-        'key_mismatch': "The two passphrase fields didn't match.",
-    }
-
-    key = make_key()
-    key2 = make_key(confirmation=True)
-
-    # Portions of the below implementation are copyright cca.edu, and are under the Educational Community License:
-    # https://opensource.org/licenses/ECL-2.0
-
-    def clean_key(self):
-        return self.cleaned_data.get('key')
-
-    def clean_key2(self):
-        key1 = self.cleaned_data.get("key")
-        key2 = self.cleaned_data.get("key2")
-        if key1 and key2 and key1 != key2:
-            raise forms.ValidationError(
-                self.error_messages['key_mismatch'],
-                code='key_mismatch',
-            )
-        return key2
-
-
 class SecretKeyForm(forms.Form):
-    error_messages = {
-        'wrong_key': "The passphrase didn't match.",
-    }
 
-    key = make_key()
+    key = forms.CharField(
+        max_length=64,
+        label="Your passphrase",
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Your passphrase',
+            'autocomplete': 'off'
+        }),
+    )
 
-    def clean_key(self):
-        key = self.cleaned_data.get('key')
-        report = self.report
-        try:
-            decrypted_report = report.decrypted_report(key)
-            self.decrypted_report = decrypted_report
-            # save anonymous row if one wasn't saved on creation
-            try:
-                row = EvalRow()
-                row.set_identifiers(report)
-                if EvalRow.objects.filter(record_identifier=row.record_identifier).count() == 0:
-                    row.action = EvalRow.FIRST
-                    row.add_report_data(decrypted_report)
-                    row.save()
-            except Exception:
-                logger.exception("couldn't save anonymous row on catch-up save")
 
-        except CryptoError:
-            self.decrypted_report = None
-            logger.info("decryption failure on report {}".format(report.id))
+class SecretKeyWithConfirmationForm(SecretKeyForm):
+
+    key_confirmation = forms.CharField(
+        max_length=64,
+        label="Repeat your passphrase",
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Repeat your passphrase',
+            'autocomplete': 'off',
+        }),
+    )
+
+    def clean(self):
+        key = self.cleaned_data.get("key")
+        key_confirmation = self.cleaned_data.get("key_confirmation")
+        if key != key_confirmation:
             raise forms.ValidationError(
-                self.error_messages['wrong_key'],
-                code='wrong_key',
+                "key and key confirmation must match"
             )
-        return key
 
 
 class SubmitReportToAuthorityForm(SecretKeyForm):

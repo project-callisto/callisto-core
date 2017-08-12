@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect, JsonResponse
 
 from .models import Report
+from .views import SecretKeyMixin
 
 
 class EncryptedStorageHelper(StorageHelper):
@@ -27,7 +28,7 @@ class EncryptedStorageHelper(StorageHelper):
         return data  # TODO
 
 
-class EncryptedWizardView(WizardView):
+class EncryptedWizardView(SecretKeyViewMixin, WizardView):
     storage_helper = EncryptedStorageHelper
 
     @property
