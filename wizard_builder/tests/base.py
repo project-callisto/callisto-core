@@ -41,7 +41,7 @@ class Assertions(object):
 class FunctionalTest(Assertions, StaticLiveServerTestCase):
 
     fixtures = [
-        'data',
+        'wizard_builder_data',
     ]
 
     def setUp(self):
