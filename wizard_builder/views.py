@@ -1,8 +1,15 @@
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http.response import HttpResponseRedirect, JsonResponse
-from django.views.generic.edit import FormView
+from django.views import generic as views
 
 from .managers import FormManager
+
+
+class RedirectWizardView(views.base.RedirectView):
+    url = reverse_lazy(
+        'wizard_view',
+        kwargs={'step': 0, 'report_id': 0},
+    )
 
 
 class StepsHelper(object):
@@ -162,10 +169,10 @@ class StorageHelper(object):
         return self.view.request.session.get(key, {})
 
 
-class WizardView(FormView):
+class WizardView(views.edit.FormView):
     site_id = None
     url_name = None
-    template_name = 'wizard_builder/wizard_form.html'
+    template_name = 'wizard_builder/index.html'
     form_pk_field = 'form_pk'
     steps_helper = StepsHelper
     storage_helper = StorageHelper
