@@ -134,7 +134,7 @@ class StorageHelper(object):
         self.view = view
 
     @property
-    def get_form_data(self):
+    def form_data(self):
         return {'data': [
             self.view.request.session[self.key(form.pk)]
             for form in self.view.manager.forms
@@ -211,7 +211,7 @@ class WizardView(FormView):
             return HttpResponseRedirect(self.steps.done_url)
 
     def render_finished(self, **kwargs):
-        return JsonResponse(self.storage.get_form_data)
+        return JsonResponse(self.storage.form_data)
 
     def render_last(self, **kwargs):
         return HttpResponseRedirect(self.steps.last_url)
