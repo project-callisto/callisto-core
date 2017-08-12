@@ -2,10 +2,7 @@ from wizard_builder.views import StorageHelper, WizardView
 
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect, JsonResponse
-from django.utils.crypto import get_random_string
 
-from . import security
-from .hashers import get_hasher, make_key
 from .models import Report
 
 
@@ -23,23 +20,11 @@ class EncryptedStorageHelper(StorageHelper):
     def secret_key(self):
         return ''
 
-    @property
-    def encode_prefix(self):
-        return self.view.request.session['encode_prefix']
-
-    def set_encode_prefix(self, prefix):
-        self.view.request.session['encode_prefix'] = prefix
-
     def encrypt(self, data):
-        hasher = get_hasher()
-        encoded = hasher.encode(self.secret_key, get_random_string())
-        encode_prefix, stretched_key = hasher.split_encoded(encoded)
-        self.set_encode_prefix(encode_prefix)
-        return security.encrypt_text(stretched_key, data)
+        return data  # TODO
 
     def decrypt(self, data):
-        _, stretched_key = make_key(self.encode_prefix, self.secret_key, '')
-        return security.decrypt_text(stretched_key, data)
+        return data  # TODO
 
 
 class EncryptedWizardView(WizardView):

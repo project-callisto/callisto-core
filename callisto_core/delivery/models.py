@@ -132,7 +132,9 @@ class MatchReport(models.Model):
         encoded = hasher.encode(key, salt)
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
 
-        self.encrypted = security.pepper(security.encrypt_text(stretched_key=stretched_key, report_text=report_text))
+        self.encrypted = security.pepper(
+            security.encrypt_text(stretched_key, report_text),
+        )
 
     def get_match(self, identifier):
         """
@@ -156,7 +158,7 @@ class MatchReport(models.Model):
         )
 
         try:
-            decrypted_report = security.decrypt_report(
+            decrypted_report = security.decrypt_text(
                 stretched_identifier,
                 security.unpepper(self.encrypted),
             )

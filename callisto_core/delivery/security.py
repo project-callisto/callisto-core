@@ -59,7 +59,7 @@ def pepper(encrypted_report):
     return box.encrypt(encrypted_report, nonce)
 
 
-def _unpepper(peppered_report):
+def unpepper(peppered_report):
     """
     Decrypts a report that has been peppered with the _pepper method.
     Requires settings.PEPPER to be set to a 32 byte value.

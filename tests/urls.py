@@ -1,35 +1,23 @@
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic.base import RedirectView
+from django.core.urlresolvers import reverse_lazy
 
 from callisto_core.delivery.views import (
     delete_report, export_as_pdf,
     submit_report_to_authority, submit_to_matching, withdraw_from_matching,
 )
+from callisto_core.delivery import wizard
 
-from .callistocore.forms import EncryptedWizardView
+_redirect_to_wizard = RedirectView.as_view(
+    url=reverse_lazy('wizard_view', kwargs={'step': 0}))
 
 urlpatterns = [
-    url(r'^$',
-        RedirectView.as_view(
-            url=reverse_lazy('wizard_view', kwargs={'step': 0})
-        ),
-        name='wizard_view',
-        ),
-    url(r'^wizard/$',
-        RedirectView.as_view(
-            url=reverse_lazy('wizard_view', kwargs={'step': 0})
-        ),
-        name='wizard_view',
-        ),
-    url(r'^wizard/new/$',
-        RedirectView.as_view(
-            url=reverse_lazy('wizard_view', kwargs={'step': 0})
-        ),
-        name='wizard_view',
-        ),
+    url(r'^$', _redirect_to_wizard),
+    url(r'^wizard/$', _redirect_to_wizard),
+    url(r'^wizard/new/$', _redirect_to_wizard),
     url(r'^wizard/new/(?P<step>.+)/$',
-        views.EncryptedWizardView.as_view(),
+        wizard.EncryptedWizardView.as_view(),
         name='wizard_view',
         ),
     url(r'^submission/submit/(?P<report_id>\d+)/$', submit_report_to_authority, name="test_submit_report"),

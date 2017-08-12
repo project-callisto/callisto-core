@@ -47,17 +47,21 @@ class ReportModelTest(TestCase):
 
     def test_can_encrypt_report(self):
         report = Report(owner=self.user)
-        report.encrypt_report("this text should be encrypted", key='this is my key')
-        report.save()
-        saved_report = Report.objects.first()
-        self.assertIsNotNone(saved_report.encode_prefix)
-        self.assertNotEqual(saved_report.encode_prefix, '')
-        self.assertIsNotNone(saved_report.encrypted)
-        self.assertTrue(len(saved_report.encrypted) > 0)
+        report.encrypt_report(
+            "this text should be encrypted",
+            'this is my key',
+        )
+        self.assertIsNotNone(report.encode_prefix)
+        self.assertNotEqual(report.encode_prefix, '')
+        self.assertIsNotNone(report.encrypted)
+        self.assertTrue(len(report.encrypted) > 0)
 
     def test_can_decrypt_report(self):
         report = Report(owner=self.user)
-        report.encrypt_report("this text should be encrypted, yes it should by golly!", key='this is my key')
+        report.encrypt_report(
+            "this text should be encrypted, yes it should by golly!",
+            'this is my key',
+        )
         report.save()
         saved_report = Report.objects.first()
         self.assertEqual(saved_report.decrypted_report('this is my key'),
@@ -79,14 +83,6 @@ class ReportModelTest(TestCase):
         self.assertIsNone(Report.objects.first().last_edited)
         self.assertIsNone(Report.objects.first().submitted_to_school)
         self.assertIsNone(Report.objects.first().entered_into_matching)
-
-    def test_edit_sets_edited_time(self):
-        report = Report(owner=self.user)
-        report.encrypt_report("test report", "key", edit=False)
-        report.save()
-        report.encrypt_report("a different report", "key", edit=True)
-        report.save()
-        self.assertIsNotNone(Report.objects.first().last_edited)
 
     def test_can_withdraw_from_matching(self):
         report = Report(owner=self.user)
