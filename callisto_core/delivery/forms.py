@@ -1,15 +1,11 @@
 import logging
 
-from nacl.exceptions import CryptoError
-
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
-from django.views.generic.edit import FormView
 
 from . import validators
-from ..evaluation.models import EvalRow
 
 logger = logging.getLogger(__name__)
 

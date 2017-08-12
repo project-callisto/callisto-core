@@ -9,14 +9,12 @@ from callisto_core.delivery.views import (
 )
 from callisto_core.delivery import wizard
 
-_redirect_to_wizard = RedirectView.as_view(
-    url=reverse_lazy('wizard_view', kwargs={'step': 0}))
-
 urlpatterns = [
-    url(r'^$', _redirect_to_wizard),
-    url(r'^wizard/$', _redirect_to_wizard),
-    url(r'^wizard/new/$', _redirect_to_wizard),
-    url(r'^wizard/new/(?P<step>.+)/$',
+    url(r'^wizard/new/$',
+        wizard.RedirectWizardView.as_view(),
+        name='new_wizard_view',
+        ),
+    url(r'^wizard/report/(?P<report_id>.+)/step/(?P<step>.+)/$',
         wizard.EncryptedWizardView.as_view(),
         name='wizard_view',
         ),

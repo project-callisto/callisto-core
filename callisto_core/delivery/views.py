@@ -1,24 +1,21 @@
 import json
 import logging
-from functools import wraps
 
 from ratelimit.decorators import ratelimit
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
-from django.http import (
-    HttpResponse, HttpResponseForbidden, HttpResponseNotFound,
-)
+from django.http import HttpResponse
 from django.shortcuts import render
-from django.utils.decorators import available_attrs
 from django.utils.html import conditional_escape
+from django.views.generic.edit import FormView
 
 from ..evaluation.models import EvalRow
 from ..utils.api import MatchingApi, NotificationApi
 from .forms import (
-    SubmitReportToAuthorityForm, SubmitToMatchingFormSet,
-    SecretKeyWithConfirmationForm,
+    SecretKeyForm, SecretKeyWithConfirmationForm, SubmitReportToAuthorityForm,
+    SubmitToMatchingFormSet,
 )
 from .models import MatchReport, Report, SentFullReport
 from .report_delivery import MatchReportContent, PDFFullReport
@@ -28,15 +25,27 @@ logger = logging.getLogger(__name__)
 
 
 class SecretKeyView(FormView):
-    form_class = SecretKeyWithConfirmationForm
+    form_class_create = SecretKeyWithConfirmationForm
+    form_class_input = SecretKeyForm
 
+    @property
+    def no_secret_key(self):
+        return False
 
-class SecretKeyViewMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if not self.storage.secret_key:
-            return self.render_key_creation(**kwargs)
+            return self.render_secret_key_view(**kwargs)
         else:
             return super().dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+        if self.no_secret_key:
+            return self.form_class_create
+        else:
+            return form_class_input
+
+    def render_secret_key_view(self, **kwargs):
+        pass
 
 
 @ratelimit(
@@ -101,10 +110,17 @@ def submit_report_to_authority(
     rate=settings.DECRYPT_THROTTLE_RATE,
     block=True,
 )
-def submit_to_matching(request, report_id, form_template_name="submit_to_matching.html",
-                       confirmation_template_name="submit_to_matching_confirmation.html",
-                       extra_context=None):
+def submit_to_matching(
+    request,
+    report_id,
+    form_template_name="submit_to_matching.html",
+    confirmation_template_name="submit_to_matching_confirmation.html",
+    extra_context=None,
+):
     report = Report.objects.get(id=report_id)
+    owner = report.owner
+    site = get_current_site(request)
+    context = {'owner': owner, 'report': report, **extra_context}
 
     if request.method == 'POST':
         form = SubmitReportToAuthorityForm(report.owner, report, request.POST)
@@ -169,6 +185,8 @@ def submit_to_matching(request, report_id, form_template_name="submit_to_matchin
 
 def withdraw_from_matching(request, report_id, template_name, extra_context=None):
     report = Report.objects.get(id=report_id)
+    owner = report.owner
+    context = {'owner': owner, 'report': report, **extra_context}
 
     report.withdraw_from_matching()
     report.save()
@@ -186,9 +204,17 @@ def withdraw_from_matching(request, report_id, template_name, extra_context=None
     rate=settings.DECRYPT_THROTTLE_RATE,
     block=True,
 )
-def export_as_pdf(request, report_id, force_download=True, filename='report.pdf',
-                  template_name='export_report.html', extra_context=None):
+def export_as_pdf(
+    request,
+    report_id,
+    force_download=True,
+    filename='report.pdf',
+    template_name='export_report.html',
+    extra_context=None
+):
     report = Report.objects.get(id=report_id)
+    owner = report.owner
+    context = {'owner': owner, 'report': report, **extra_context}
 
     if request.method == 'POST':
         form = SecretKeyForm(request.POST)
@@ -220,9 +246,16 @@ def export_as_pdf(request, report_id, force_download=True, filename='report.pdf'
     rate=settings.DECRYPT_THROTTLE_RATE,
     block=True,
 )
-def delete_report(request, report_id, form_template_name='delete_report.html',
-                  confirmation_template='delete_report.html', extra_context=None):
+def delete_report(
+    request,
+    report_id,
+    form_template_name='delete_report.html',
+    confirmation_template='delete_report.html',
+    extra_context=None
+):
     report = Report.objects.get(id=report_id)
+    owner = report.owner
+    context = {'owner': owner, 'report': report, **extra_context}
 
     if request.method == 'POST':
         form = SecretKeyForm(request.POST)
