@@ -7,17 +7,19 @@ DEBUG = True
 ROOT_URLCONF = "callisto_core.utils.urls"
 APP_URL = os.environ.get('APP_URL', 'localhost')
 
+
 def load_file(path):
     path = os.path.join(BASE_DIR, path)
     with open(path, 'r') as file_data:
         data = file_data.read()
     return data
 
-REPORT_TIME_ZONE='Europe/Paris'
-COORDINATOR_NAME="COORDINATOR_NAME"
+
+REPORT_TIME_ZONE = 'Europe/Paris'
+COORDINATOR_NAME = "COORDINATOR_NAME"
 SCHOOL_SHORTNAME = "SCHOOL_SHORTNAME"
 SCHOOL_LONGNAME = "SCHOOL_LONGNAME"
-CALLISTO_EVAL_PUBLIC_KEY=""
+CALLISTO_EVAL_PUBLIC_KEY = ""
 MATCH_IMMEDIATELY = True
 COORDINATOR_PUBLIC_KEY = load_file('callisto_publickey.gpg')
 CALLISTO_EVAL_PUBLIC_KEY = load_file('callisto_publickey.gpg')
@@ -59,11 +61,11 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
 ]
 
-KEY_ITERATIONS=100
-ORIGINAL_KEY_ITERATIONS=100000
-ARGON2_TIME_COST=2
-ARGON2_MEM_COST=512
-ARGON2_PARALLELISM=2
+KEY_ITERATIONS = 100
+ORIGINAL_KEY_ITERATIONS = 100000
+ARGON2_TIME_COST = 2
+ARGON2_MEM_COST = 512
+ARGON2_PARALLELISM = 2
 PEPPER = os.urandom(32)
 DECRYPT_THROTTLE_RATE = '100/m'
 PASSWORD_MINIMUM_ENTROPY = 35
