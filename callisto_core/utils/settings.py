@@ -7,13 +7,11 @@ DEBUG = True
 ROOT_URLCONF = "callisto_core.utils.urls"
 APP_URL = os.environ.get('APP_URL', 'localhost')
 
-
 def load_file(path):
     path = os.path.join(BASE_DIR, path)
     with open(path, 'r') as file_data:
         data = file_data.read()
     return data
-
 
 REPORT_TIME_ZONE = 'Europe/Paris'
 COORDINATOR_NAME = "COORDINATOR_NAME"
@@ -23,6 +21,11 @@ CALLISTO_EVAL_PUBLIC_KEY = ""
 MATCH_IMMEDIATELY = True
 COORDINATOR_PUBLIC_KEY = load_file('callisto_publickey.gpg')
 CALLISTO_EVAL_PUBLIC_KEY = load_file('callisto_publickey.gpg')
+
+KEY_HASHERS = [
+    "callisto_core.delivery.hashers.Argon2KeyHasher",
+    "callisto_core.delivery.hashers.PBKDF2KeyHasher"
+]
 
 DATABASES = {
     "default": {

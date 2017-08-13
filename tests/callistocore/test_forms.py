@@ -179,7 +179,6 @@ class CreateKeyFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
 
-@patch('callisto_core.delivery.forms.EvalRow.add_report_data')
 class DecryptKeyFormTest(TestCase):
 
     def setUp(self):
@@ -189,7 +188,7 @@ class DecryptKeyFormTest(TestCase):
         self.report.encrypt_report('this is a report', self.key)
         self.report.save()
 
-    def test_wrong_key_rejected(self, mock_add_report_data):
+    def test_wrong_key_rejected(self):
         bad_request = {'key': 'not my key'}
         form = SecretKeyForm(bad_request)
         form.report = self.report
@@ -199,7 +198,7 @@ class DecryptKeyFormTest(TestCase):
             ["The passphrase didn't match."]
         )
 
-    def test_right_key_accepted(self, mock_add_report_data):
+    def test_right_key_accepted(self):
         good_request = {'key': self.key}
         form = SecretKeyForm(good_request)
         form.report = self.report
