@@ -1,11 +1,6 @@
-import os
-
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
-
-User = get_user_model()
 
 
 class Command(BaseCommand):
