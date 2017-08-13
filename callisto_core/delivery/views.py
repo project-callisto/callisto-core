@@ -30,7 +30,7 @@ class SecretKeyView(FormView):
 
     @property
     def no_secret_key(self):
-        return False
+        return True
 
     def dispatch(self, request, *args, **kwargs):
         if not self.storage.secret_key:

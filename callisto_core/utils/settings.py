@@ -1,9 +1,15 @@
+import os
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = os.getenv("SECRET_KEY", default='secret key')
 DEBUG = True
 
 ROOT_URLCONF = "callisto_core.delivery.urls"
 APP_URL = os.environ.get('APP_URL', 'localhost')
+
+REPORT_TIME_ZONE='Europe/Paris'
+COORDINATOR_NAME="callisto bot"
+CALLISTO_EVAL_PUBLIC_KEY=""
 
 DATABASES = {
     "default": {
@@ -22,8 +28,10 @@ INSTALLED_APPS = [
     'nested_admin',
     'tinymce',
     'widget_tweaks',
-    "wizard_builder",
+    'wizard_builder',
     'callisto_core.delivery',
+    'callisto_core.evaluation',
+    'callisto_core.notification',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -36,6 +44,12 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 ]
+
+KEY_ITERATIONS=100
+ORIGINAL_KEY_ITERATIONS=100000
+ARGON2_TIME_COST=2
+ARGON2_MEM_COST=512
+ARGON2_PARALLELISM=2
 
 TEMPLATES = [
     {
