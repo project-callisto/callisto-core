@@ -227,7 +227,7 @@ def export_as_pdf(
                 logger.exception("could not export report {}".format(report_id))
                 form.add_error(None, "There was an error exporting your report.")
     else:
-        form = SecretKeyForm()
+        form = forms.ReportAccessForm()
         form.report = report
     context.update({'form': form})
     return render(request, template_name, context)
@@ -252,7 +252,7 @@ def delete_report(
     context = {'owner': owner, 'report': report, **extra_context}
 
     if request.method == 'POST':
-        form = SecretKeyForm(request.POST)
+        form = forms.ReportAccessForm(request.POST)
         form.report = report
         if form.is_valid():
             EvalRow.store_eval_row(action=EvalRow.DELETE, report=report)
@@ -264,7 +264,7 @@ def delete_report(
                 logger.exception("could not delete report {}".format(report_id))
                 form.add_error(None, "There was an error deleting your report.")
     else:
-        form = SecretKeyForm()
+        form = forms.ReportAccessForm()
         form.report = report
     context.update({'form': form})
     return render(request, form_template_name, context)

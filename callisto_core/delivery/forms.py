@@ -13,15 +13,23 @@ from .models import Report
 logger = logging.getLogger(__name__)
 
 
-class ReportBaseForm(forms.models.ModelForm):
-    key = forms.CharField(
+def passphrase_field(label):
+    return forms.CharField(
         max_length=64,
-        label="Your passphrase",
+        label=label,
         widget=forms.PasswordInput(attrs={
-            'placeholder': 'Your passphrase',
+            'placeholder': label,
             'autocomplete': 'off'
         }),
     )
+
+
+class ReportBaseForm(forms.models.ModelForm):
+    key = passphrase_field('Your passphrase')
+
+    class Meta:
+        model = Report
+        fields = []
 
 
 class ReportAccessForm(ReportBaseForm):
@@ -32,10 +40,6 @@ class ReportAccessForm(ReportBaseForm):
     def report(self):
         return self.instance
 
-    @property
-    def key(self):
-        return self.cleaned_data.get("key")
-
     def clean_key(self):
         try:
             self._decrypt_report()
@@ -43,37 +47,23 @@ class ReportAccessForm(ReportBaseForm):
             self._decryption_failed()
 
     def _decrypt_report(self):
-        self.decrypted_report = self.report.decrypted_report(self.key)
+        self.decrypted_report = self.report.decrypted_report(
+            self.data['key'])
 
     def _decryption_failed(self):
         logger.info(self.message_key_error_log.format(self.report))
         raise forms.ValidationError(self.message_key_error)
 
-    class Meta:
-        model = Report
-        fields = []
-
 
 class ReportCreateForm(ReportBaseForm):
     message_confirmation_error = "key and key confirmation must match"
-    key_confirmation = forms.CharField(
-        max_length=64,
-        label="Repeat your passphrase",
-        widget=forms.PasswordInput(attrs={
-            'placeholder': 'Repeat your passphrase',
-            'autocomplete': 'off',
-        }),
-    )
+    key_confirmation = passphrase_field('Repeat your passphrase')
 
     def clean_key_confirmation(self):
         key = self.cleaned_data.get("key")
         key_confirmation = self.cleaned_data.get("key_confirmation")
         if key != key_confirmation:
             raise forms.ValidationError(self.message_confirmation_error)
-
-    class Meta:
-        model = Report
-        fields = []
 
 
 class SubmitReportToAuthorityForm(forms.Form):
