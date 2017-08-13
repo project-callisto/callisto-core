@@ -42,7 +42,7 @@ class SecretKeyView(FormView):
         if self.no_secret_key:
             return self.form_class_create
         else:
-            return form_class_input
+            return self.form_class_input
 
     def render_secret_key_view(self, **kwargs):
         pass

@@ -12,11 +12,11 @@ from callisto_core.delivery import wizard
 urlpatterns = [
     url(r'^wizard/new/$',
         wizard.RedirectWizardView.as_view(),
-        name='new_wizard_view',
+        name='wizard_new',
         ),
     url(r'^wizard/report/(?P<report_id>.+)/step/(?P<step>.+)/$',
         wizard.EncryptedWizardView.as_view(),
-        name='wizard_view',
+        name='wizard_update',
         ),
     url(r'^submission/submit/(?P<report_id>\d+)/$', submit_report_to_authority, name="test_submit_report"),
     url(r'^submission/submit_custom/(?P<report_id>\d+)/$', submit_report_to_authority,

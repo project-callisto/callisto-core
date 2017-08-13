@@ -19,7 +19,7 @@ from django.test.utils import override_settings
 
 from callisto_core.delivery import validators
 from callisto_core.utils.api import NotificationApi
-from callisto_core.delivery.forms import NewSecretKeyForm, SecretKeyForm
+from callisto_core.delivery.forms import SecretKeyWithConfirmationForm, SecretKeyForm
 from callisto_core.delivery.models import MatchReport, Report, SentFullReport
 from callisto_core.evaluation.models import EvalRow
 from callisto_core.notification.models import EmailNotification

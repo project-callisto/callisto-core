@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 
 from callisto_core.delivery import validators
 from callisto_core.delivery.forms import (
-    NewSecretKeyForm, SecretKeyForm, SubmitToMatchingForm,
+    SecretKeyWithConfirmationForm, SecretKeyForm, SubmitToMatchingForm,
 )
 from callisto_core.delivery.models import Report
 
@@ -163,19 +163,19 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
 class CreateKeyFormTest(TestCase):
 
     def test_nonmatching_keys_rejected(self):
-        bad_request = {'key': 'this is a key',
-                       'key2': 'this is also a key'}
-        form = NewSecretKeyForm(bad_request)
+        bad_request = {
+            'key': 'this is a key',
+            'key_confirmation': 'this is also a key',
+        }
+        form = SecretKeyWithConfirmationForm(bad_request)
         self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors['key2'],
-            ["The two passphrase fields didn't match."]
-        )
 
     def test_matching_keys_accepted(self):
-        good_request = {'key': 'this is my good secret key',
-                        'key2': 'this is my good secret key'}
-        form = NewSecretKeyForm(good_request)
+        good_request = {
+            'key': 'this is my good secret key',
+            'key_confirmation': 'this is my good secret key',
+        }
+        form = SecretKeyWithConfirmationForm(good_request)
         self.assertTrue(form.is_valid())
 
 
