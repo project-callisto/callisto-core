@@ -7,6 +7,7 @@ from django.test import TestCase, override_settings
 from ..models import Page, SingleLineText
 from ..views import NewWizardView
 
+
 class TempSiteID():
     '''
         with TempSiteID(1):
