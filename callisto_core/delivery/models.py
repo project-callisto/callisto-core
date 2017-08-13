@@ -35,6 +35,9 @@ class Report(models.Model):
     contact_name = models.TextField(blank=True, null=True)
     match_found = models.BooleanField(default=False)
 
+    def __str__(self):
+        return 'Report(uuid={})'.format(self.uuid)
+
     @property
     def entered_into_matching(self):
         first_match_report = self.matchreport_set.first()

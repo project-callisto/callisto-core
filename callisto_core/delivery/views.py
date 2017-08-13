@@ -9,14 +9,11 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.html import conditional_escape
-from django.views.generic.edit import FormView
+from django.views import generic as views
 
+from . import forms, models
 from ..evaluation.models import EvalRow
 from ..utils.api import MatchingApi, NotificationApi
-from .forms import (
-    SecretKeyForm, SecretKeyWithConfirmationForm, SubmitReportToAuthorityForm,
-    SubmitToMatchingFormSet,
-)
 from .models import MatchReport, Report, SentFullReport
 from .report_delivery import MatchReportContent, PDFFullReport
 
@@ -24,28 +21,25 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
-class SecretKeyView(FormView):
-    form_class_create = SecretKeyWithConfirmationForm
-    form_class_input = SecretKeyForm
+class ReportBaseView(views.edit.ModelFormMixin):
+    model = models.Report
+    context_object_name = 'report'
+    slug_field = 'uuid'
+    slug_url_kwarg = 'uuid'
 
-    @property
-    def no_secret_key(self):
-        return True
 
-    def dispatch(self, request, *args, **kwargs):
-        if not self.storage.secret_key:
-            return self.render_secret_key_view(**kwargs)
-        else:
-            return super().dispatch(request, *args, **kwargs)
+class ReportAccessView(
+    ReportBaseView,
+    views.edit.UpdateView,
+):
+    form_class = forms.ReportAccessForm
 
-    def get_form_class(self):
-        if self.no_secret_key:
-            return self.form_class_create
-        else:
-            return self.form_class_input
 
-    def render_secret_key_view(self, **kwargs):
-        pass
+class ReportCreateView(
+    ReportBaseView,
+    views.edit.CreateView,
+):
+    form_class = forms.ReportCreateForm
 
 
 @ratelimit(
@@ -68,7 +62,7 @@ def submit_report_to_authority(
     context = {'owner': owner, 'report': report, **extra_context}
 
     if request.method == 'POST':
-        form = SubmitReportToAuthorityForm(report.owner, report, request.POST)
+        form = forms.SubmitReportToAuthorityForm(report.owner, report, request.POST)
         form.report = report
         if form.is_valid():
             try:
@@ -98,7 +92,7 @@ def submit_report_to_authority(
             context.update({'form': form})
             return render(request, confirmation_template_name, context)
     else:
-        form = SubmitReportToAuthorityForm(report.owner, report)
+        form = forms.SubmitReportToAuthorityForm(report.owner, report)
     context.update({'form': form})
     return render(request, form_template_name, context)
 
@@ -123,8 +117,8 @@ def submit_to_matching(
     context = {'owner': owner, 'report': report, **extra_context}
 
     if request.method == 'POST':
-        form = SubmitReportToAuthorityForm(report.owner, report, request.POST)
-        formset = SubmitToMatchingFormSet(request.POST)
+        form = forms.SubmitReportToAuthorityForm(report.owner, report, request.POST)
+        formset = forms.SubmitToMatchingFormSet(request.POST)
         form.report = report
         if form.is_valid() and formset.is_valid():
             try:
@@ -177,8 +171,8 @@ def submit_to_matching(
             return render(request, confirmation_template_name, context)
 
     else:
-        form = SubmitReportToAuthorityForm(report.owner, report)
-        formset = SubmitToMatchingFormSet()
+        form = forms.SubmitReportToAuthorityForm(report.owner, report)
+        formset = forms.SubmitToMatchingFormSet()
     context.update({'form': form, 'formset': formset})
     return render(request, form_template_name, context)
 
@@ -217,7 +211,7 @@ def export_as_pdf(
     context = {'owner': owner, 'report': report, **extra_context}
 
     if request.method == 'POST':
-        form = SecretKeyForm(request.POST)
+        form = forms.ReportAccessForm(request.POST)
         form.report = report
         if form.is_valid():
             EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)

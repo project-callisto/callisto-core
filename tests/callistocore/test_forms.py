@@ -189,9 +189,11 @@ class DecryptKeyFormTest(TestCase):
         self.report.save()
 
     def test_wrong_key_rejected(self):
-        bad_request = {'key': 'not my key'}
+        bad_request = {
+            'key': 'not my key',
+            'uuid': self.report.uuid,
+        }
         form = SecretKeyForm(bad_request)
-        form.report = self.report
         self.assertFalse(form.is_valid())
         self.assertEqual(
             form.errors['key'],
@@ -199,7 +201,10 @@ class DecryptKeyFormTest(TestCase):
         )
 
     def test_right_key_accepted(self):
-        good_request = {'key': self.key}
+        good_request = {
+            'key': self.key,
+            'uuid': self.report.uuid,
+        }
         form = SecretKeyForm(good_request)
         form.report = self.report
         self.assertTrue(form.is_valid())

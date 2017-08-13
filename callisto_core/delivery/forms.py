@@ -1,17 +1,19 @@
 import logging
 
+from nacl.exceptions import CryptoError
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
 
 from . import validators
+from .models import Report
 
 logger = logging.getLogger(__name__)
 
 
-class SecretKeyForm(forms.Form):
-
+class ReportBaseForm(forms.models.ModelForm):
     key = forms.CharField(
         max_length=64,
         label="Your passphrase",
@@ -22,8 +24,34 @@ class SecretKeyForm(forms.Form):
     )
 
 
-class SecretKeyWithConfirmationForm(SecretKeyForm):
+class ReportAccessForm(ReportBaseForm):
+    message_key_error = 'invalid secret key'
+    message_key_error_log = 'decryption failure on {}'
 
+    @property
+    def report(self):
+        return self.instance
+
+    @property
+    def key(self):
+        return self.cleaned_data.get("key")
+
+    def clean_key(self):
+        try:
+            self._decrypt_report()
+        except CryptoError:
+            self._decryption_failed()
+
+    def _decrypt_report(self):
+        self.decrypted_report = self.report.decrypted_report(self.key)
+
+    def _decryption_failed(self):
+        logger.info(self.message_key_error_log.format(self.report))
+        raise forms.ValidationError(self.message_key_error)
+
+
+class ReportCreateForm(ReportBaseForm):
+    message_confirmation_error = "key and key confirmation must match"
     key_confirmation = forms.CharField(
         max_length=64,
         label="Repeat your passphrase",
@@ -33,16 +61,14 @@ class SecretKeyWithConfirmationForm(SecretKeyForm):
         }),
     )
 
-    def clean(self):
+    def clean_key_confirmation(self):
         key = self.cleaned_data.get("key")
         key_confirmation = self.cleaned_data.get("key_confirmation")
         if key != key_confirmation:
-            raise forms.ValidationError(
-                "key and key confirmation must match"
-            )
+            raise forms.ValidationError(self.message_confirmation_error)
 
 
-class SubmitReportToAuthorityForm(SecretKeyForm):
+class SubmitReportToAuthorityForm(forms.Form):
     name = forms.CharField(label="Your preferred first name:",
                            required=False,
                            max_length=500,

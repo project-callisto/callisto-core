@@ -1,17 +1,28 @@
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.core.urlresolvers import reverse_lazy
+from django.views.generic.base import RedirectView
 
 from ..delivery import views, wizard
 
 urlpatterns = [
     url(r'^$',
-        wizard.RedirectWizardView.as_view(),
+        RedirectView.as_view(url=reverse_lazy('report_new')),
+        name='index',
         ),
-    url(r'^new/$',
+    url(r'^report/new/$',
+        views.ReportCreateView.as_view(),
+        name='report_new',
+        ),
+    url(r'^report/uuid/(?P<uuid>.+)/$',
+        views.ReportAccessView.as_view(),
+        name='report_update',
+        ),
+    url(r'^report/uuid/(?P<uuid>.+)/wizard/new/$',
         wizard.RedirectWizardView.as_view(),
         name='wizard_new',
         ),
-    url(r'^wizard/report/(?P<report_id>.+)/step/(?P<step>.+)/$',
+    url(r'^report/uuid/(?P<uuid>.+)/wizard/step/(?P<step>.+)/$',
         wizard.EncryptedWizardView.as_view(),
         name='wizard_update',
         ),

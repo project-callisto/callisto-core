@@ -1,21 +1,12 @@
 from wizard_builder.views import StorageHelper, WizardView
 
-from django.core.urlresolvers import reverse_lazy
 from django.http.response import JsonResponse
-from django.views import generic as views
 
 from .models import Report
-from .views import SecretKeyView
+from .views import ReportAccessView
 
 
-class RedirectWizardView(views.base.RedirectView):
-    url = reverse_lazy(
-        'wizard_view',
-        kwargs={'step': 0, 'report_id': 0},
-    )
-
-
-class _EncryptedStorageHelper(StorageHelper):
+class EncryptedStorageHelper(StorageHelper):
 
     @property
     def form_data(self):
@@ -36,12 +27,8 @@ class _EncryptedStorageHelper(StorageHelper):
         return data  # TODO
 
 
-class _ReportUpdateView(SecretKeyView, views.edit.BaseUpdateView):
-    pass
-
-
-class EncryptedWizardView(_ReportUpdateView, WizardView):
-    storage_helper = _EncryptedStorageHelper
+class EncryptedWizardView(ReportAccessView, WizardView):
+    storage_helper = EncryptedStorageHelper
 
     @property
     def report(self):
