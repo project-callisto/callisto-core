@@ -10,7 +10,7 @@ except:
 webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
 endef
 export BROWSER_PYSCRIPT
-DATA_FILE = 'wizard_builder/tests/test_app/fixtures/data.json'
+DATA_FILE = 'wizard_builder/fixtures/wizard_builder_data.json'
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 VERSION := $(shell cat wizard_builder/version.txt)
 

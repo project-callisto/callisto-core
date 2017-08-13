@@ -5,15 +5,14 @@ from django.views.generic.base import RedirectView
 from .. import views
 
 urlpatterns = [
-    url(r'^/',
+    url(r'^$',
+        views.RedirectWizardView.as_view(),
+        ),
+    url(r'^new/$',
         views.RedirectWizardView.as_view(),
         name='wizard_new',
         ),
-    url(r'^new/',
-        views.RedirectWizardView.as_view(),
-        name='wizard_new',
-        ),
-    url(r'^step/(?P<step>.+)/',
+    url(r'^step/(?P<step>.+)/$',
         views.WizardView.as_view(),
         name='wizard_update',
         ),

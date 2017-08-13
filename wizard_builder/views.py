@@ -7,8 +7,8 @@ from .managers import FormManager
 
 class RedirectWizardView(views.base.RedirectView):
     url = reverse_lazy(
-        'wizard_view',
-        kwargs={'step': 0, 'report_id': 0},
+        'wizard_update',
+        kwargs={'step': 0},
     )
 
 
