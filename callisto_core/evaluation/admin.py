@@ -3,8 +3,7 @@ from wizard_builder.admin import (
     MultipleChoiceParentAdmin,
 )
 from wizard_builder.models import (
-    Checkbox, Date, FormQuestion, MultiLineText, MultipleChoice, RadioButton,
-    SingleLineText, SingleLineTextWithMap,
+    Checkbox, FormQuestion, MultipleChoice, RadioButton, SingleLineText,
 )
 
 from django.contrib import admin
@@ -41,15 +40,9 @@ class MultipleChoiceChildWithEvalAdmin(WithEval, MultipleChoiceChildAdmin):
 
 admin.site.unregister(FormQuestion)
 admin.site.unregister(SingleLineText)
-admin.site.unregister(SingleLineTextWithMap)
-admin.site.unregister(MultiLineText)
-admin.site.unregister(Date)
 
 admin.site.register(FormQuestion, FormQuestionParentWithEvalAdmin)
 admin.site.register(SingleLineText, FormQuestionChildWithEvalAdmin)
-admin.site.register(SingleLineTextWithMap, FormQuestionChildWithEvalAdmin)
-admin.site.register(MultiLineText, FormQuestionChildWithEvalAdmin)
-admin.site.register(Date, FormQuestionChildWithEvalAdmin)
 
 admin.site.unregister(MultipleChoice)
 admin.site.unregister(Checkbox)
