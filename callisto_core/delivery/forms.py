@@ -49,6 +49,10 @@ class ReportAccessForm(ReportBaseForm):
         logger.info(self.message_key_error_log.format(self.report))
         raise forms.ValidationError(self.message_key_error)
 
+    class Meta:
+        model = Report
+        fields = []
+
 
 class ReportCreateForm(ReportBaseForm):
     message_confirmation_error = "key and key confirmation must match"
@@ -66,6 +70,10 @@ class ReportCreateForm(ReportBaseForm):
         key_confirmation = self.cleaned_data.get("key_confirmation")
         if key != key_confirmation:
             raise forms.ValidationError(self.message_confirmation_error)
+
+    class Meta:
+        model = Report
+        fields = []
 
 
 class SubmitReportToAuthorityForm(forms.Form):

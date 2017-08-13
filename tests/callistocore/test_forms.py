@@ -4,9 +4,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 
 from callisto_core.delivery import validators
-from callisto_core.delivery.forms import (
-    SecretKeyWithConfirmationForm, SecretKeyForm, SubmitToMatchingForm,
-)
+from callisto_core.delivery.forms import SubmitToMatchingForm
+from callisto_core.delivery import forms
 from callisto_core.delivery.models import Report
 
 User = get_user_model()
@@ -160,51 +159,45 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
         )
 
 
-class CreateKeyFormTest(TestCase):
+class ReportCreateFormTest(TestCase):
 
     def test_nonmatching_keys_rejected(self):
-        bad_request = {
+        form = forms.ReportCreateForm({
             'key': 'this is a key',
             'key_confirmation': 'this is also a key',
-        }
-        form = SecretKeyWithConfirmationForm(bad_request)
+        })
         self.assertFalse(form.is_valid())
 
     def test_matching_keys_accepted(self):
-        good_request = {
+        form = forms.ReportCreateForm({
             'key': 'this is my good secret key',
             'key_confirmation': 'this is my good secret key',
-        }
-        form = SecretKeyWithConfirmationForm(good_request)
+        })
         self.assertTrue(form.is_valid())
 
 
-class DecryptKeyFormTest(TestCase):
+class ReportAccessFormTest(TestCase):
 
     def setUp(self):
         user = User.objects.create(username="dummy", password="dummy")
         self.report = Report(owner=user)
         self.key = '~*~*~*~my key~*~*~*~'
         self.report.encrypt_report('this is a report', self.key)
-        self.report.save()
 
     def test_wrong_key_rejected(self):
-        bad_request = {
-            'key': 'not my key',
-            'uuid': self.report.uuid,
-        }
-        form = SecretKeyForm(bad_request)
-        self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors['key'],
-            ["The passphrase didn't match."]
+        form = forms.ReportAccessForm(
+            data={'key': 'not my key'},
+            instance=self.report,
         )
+        form.full_clean()
+        self.assertFalse(form.is_valid())
+        self.assertFalse(getattr(form, 'decrypted_report', None))
 
     def test_right_key_accepted(self):
-        good_request = {
-            'key': self.key,
-            'uuid': self.report.uuid,
-        }
-        form = SecretKeyForm(good_request)
-        form.report = self.report
+        form = forms.ReportAccessForm(
+            data={'key': self.key},
+            instance=self.report,
+        )
+        form.full_clean()
         self.assertTrue(form.is_valid())
+        self.assertTrue(getattr(form, 'decrypted_report', None))
