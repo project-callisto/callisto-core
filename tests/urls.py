@@ -10,7 +10,10 @@ from callisto_core.delivery.views import (
 from callisto_core.delivery import wizard
 
 urlpatterns = [
-    url(r'^wizard/new/$',
+    url(r'^$',
+        wizard.RedirectWizardView.as_view(),
+        ),
+    url(r'^new/$',
         wizard.RedirectWizardView.as_view(),
         name='wizard_new',
         ),
