@@ -60,9 +60,6 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'test_app/static'),
-]
 
 LOGGING = {
     'version': 1,
