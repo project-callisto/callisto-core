@@ -48,3 +48,9 @@ sdist: ## package
 	make clean
 	python setup.py sdist
 	ls -l dist
+
+app-setup: ## setup the test application environment
+	python manage.py flush --noinput
+	python manage.py migrate --noinput --database default
+	python manage.py create_admins
+	python manage.py setup_sites
