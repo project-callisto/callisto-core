@@ -19,7 +19,10 @@ urlpatterns = [
         name='report_update',
         ),
     url(r'^report/uuid/(?P<uuid>.+)/wizard/new/$',
-        wizard.RedirectWizardView.as_view(),
+        RedirectView.as_view(url=reverse_lazy(
+            'wizard_update',
+            kwargs={'step': 0},
+        )),
         name='wizard_new',
         ),
     url(r'^report/uuid/(?P<uuid>.+)/wizard/step/(?P<step>.+)/$',

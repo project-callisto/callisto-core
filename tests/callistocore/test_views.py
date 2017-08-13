@@ -19,7 +19,7 @@ from django.test.utils import override_settings
 
 from callisto_core.delivery import validators
 from callisto_core.utils.api import NotificationApi
-from callisto_core.delivery.forms import SecretKeyWithConfirmationForm, SecretKeyForm
+from callisto_core.delivery import forms
 from callisto_core.delivery.models import MatchReport, Report, SentFullReport
 from callisto_core.evaluation.models import EvalRow
 from callisto_core.notification.models import EmailNotification
@@ -744,7 +744,7 @@ class ExportRecordViewTest(ExistingRecordTest):
         response = self.client.get(self.export_url % self.report.id)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'export_report.html')
-        self.assertIsInstance(response.context['form'], SecretKeyForm)
+        self.assertIsInstance(response.context['form'], forms.ReportAccessForm)
 
     def test_export_passes_custom_context(self):
         response = self.client.get("/test_reports/export_custom/%i/" % self.report.id)
@@ -759,7 +759,7 @@ class ExportRecordViewTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'export_report.html')
         form = response.context['form']
-        self.assertIsInstance(form, SecretKeyForm)
+        self.assertIsInstance(form, forms.ReportAccessForm)
         self.assertContains(response, "The passphrase didn&#39;t match.")
 
     def test_export_returns_pdf(self):
@@ -830,7 +830,7 @@ class DeleteRecordTest(ExistingRecordTest):
         response = self.client.get(self.delete_url % self.report.id)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'delete_report.html')
-        self.assertIsInstance(response.context['form'], SecretKeyForm)
+        self.assertIsInstance(response.context['form'], forms.ReportAccessForm)
 
     def test_delete_requires_correct_key(self):
         response = self.client.post(
@@ -840,7 +840,7 @@ class DeleteRecordTest(ExistingRecordTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'delete_report.html')
         form = response.context['form']
-        self.assertIsInstance(form, SecretKeyForm)
+        self.assertIsInstance(form, forms.ReportAccessForm)
         self.assertContains(response, "The passphrase didn&#39;t match.")
 
     def test_deletes_report(self):
