@@ -4,10 +4,10 @@ from . import views
 
 urlpatterns = [
     url(r'^$',
-        views.RedirectWizardView.as_view(),
+        views.NewWizardView.as_view(),
         ),
     url(r'^new/$',
-        views.RedirectWizardView.as_view(),
+        views.NewWizardView.as_view(),
         name='wizard_new',
         ),
     url(r'^step/(?P<step>.+)/$',

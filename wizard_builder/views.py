@@ -5,7 +5,7 @@ from django.views import generic as views
 from .managers import FormManager
 
 
-class RedirectWizardView(views.base.RedirectView):
+class NewWizardView(views.base.RedirectView):
     url = reverse_lazy(
         'wizard_update',
         kwargs={'step': 0},
