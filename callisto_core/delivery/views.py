@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 class ReportBaseView(views.edit.ModelFormMixin):
     model = models.Report
+    template_name = 'callisto_core/delivery/form.html'
     context_object_name = 'report'
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
@@ -40,7 +41,6 @@ class ReportCreateView(
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
-    template_name = 'callisto_core/delivery/new_report.html'
 
 
 @ratelimit(
