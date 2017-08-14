@@ -27,7 +27,7 @@ class SecretKeyStorageHelper(object):
     def __init__(self, view):
         self.view = view
 
-    def set_key(self, key):
+    def set_secret_key(self, key):
         self.view.request.session['secret_key'] = key
 
     @property
@@ -44,15 +44,11 @@ class ReportBaseView(views.edit.ModelFormMixin):
     slug_url_kwarg = 'uuid'
 
     @property
-    def report(self):
-        return self.object
-
-    @property
     def storage(self):
         return self.storage_helper(self)
 
     def form_valid(self, form):
-        self.storage.set_key(form.data['key'])
+        self.storage.set_secret_key(form.data['key'])
         return super().form_valid(form)
 
 
@@ -61,6 +57,10 @@ class ReportCreateView(
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
+
+    @property
+    def report(self):
+        return self.object
 
     def get_success_url(self):
         return reverse_lazy(
@@ -79,9 +79,9 @@ class ReportAccessView(
     access_form_class = forms.ReportAccessForm
     invalid_access_message = 'Invalid access request at url {}'
 
-    def _log_invalid_access(self):
-        logger.info(self.invalid_access_message.format(
-            self.request.get_full_path()))
+    @property
+    def report(self):
+        return self.get_object()
 
     def get_context_data(self, **kwargs):
         if self.storage.secret_key:
@@ -90,6 +90,10 @@ class ReportAccessView(
             self._log_invalid_access()
             kwargs['form'] = self.access_form_class
             return super().get_context_data(**kwargs)
+
+    def _log_invalid_access(self):
+        logger.info(self.invalid_access_message.format(
+            self.request.get_full_path()))
 
 
 @ratelimit(

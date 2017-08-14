@@ -29,6 +29,15 @@ class NewReportFlowTest(TestCase):
             follow=True,
         )
 
+    def client_post_report_access(self, url):
+        return self.client.post(
+            url,
+            data={
+                'key': self.report_key,
+            },
+            follow=True,
+        )
+
     def clear_secret_key(self):
         session = self.client.session
         session['secret_key'] = None
@@ -77,3 +86,14 @@ class NewReportFlowTest(TestCase):
         form = response.context['form']
 
         self.assertEqual(form, ReportAccessForm)
+
+    def test_can_reenter_secret_key(self):
+        response = self.client_post_report_creation()
+        uuid = response.context['report'].uuid
+        self.clear_secret_key()
+
+        response = self.client_post_report_access(
+            response.redirect_chain[0][0])
+        form = response.context['form']
+
+        self.assertEqual(form, PageForm)

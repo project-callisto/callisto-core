@@ -1,9 +1,22 @@
-from wizard_builder.views import StorageHelper, WizardView
+from wizard_builder.views import StepsHelper, StorageHelper, WizardView
+from django.core.urlresolvers import reverse
 
 from django.http.response import JsonResponse
 
 from .models import Report
 from .views import ReportAccessView, SecretKeyStorageHelper
+
+
+class ReportStepsHelper(StepsHelper):
+
+    def url(self, step):
+        return reverse(
+            self.view.request.resolver_match.view_name,
+            kwargs={
+                'step': step,
+                'uuid': self.view.report.uuid,
+            },
+        )
 
 
 class EncryptedStorageHelper(
@@ -28,9 +41,7 @@ class EncryptedStorageHelper(
 
 class EncryptedWizardView(ReportAccessView, WizardView):
     storage_helper = EncryptedStorageHelper
-
-    def render_finished(self, **kwargs):
-        return JsonResponse(self.report)
+    steps_helper = ReportStepsHelper
 
     def post(self, request, *args, **kwargs):
         self._save_report()
