@@ -32,6 +32,17 @@ class ReportBaseForm(forms.models.ModelForm):
         fields = []
 
 
+class ReportCreateForm(ReportBaseForm):
+    message_confirmation_error = "key and key confirmation must match"
+    key_confirmation = passphrase_field('Confirm Passphrase')
+
+    def clean_key_confirmation(self):
+        key = self.cleaned_data.get("key")
+        key_confirmation = self.cleaned_data.get("key_confirmation")
+        if key != key_confirmation:
+            raise forms.ValidationError(self.message_confirmation_error)
+
+
 class ReportAccessForm(ReportBaseForm):
     message_key_error = 'invalid secret key'
     message_key_error_log = 'decryption failure on {}'
@@ -53,17 +64,6 @@ class ReportAccessForm(ReportBaseForm):
     def _decryption_failed(self):
         logger.info(self.message_key_error_log.format(self.report))
         raise forms.ValidationError(self.message_key_error)
-
-
-class ReportCreateForm(ReportBaseForm):
-    message_confirmation_error = "key and key confirmation must match"
-    key_confirmation = passphrase_field('Confirm Passphrase')
-
-    def clean_key_confirmation(self):
-        key = self.cleaned_data.get("key")
-        key_confirmation = self.cleaned_data.get("key_confirmation")
-        if key != key_confirmation:
-            raise forms.ValidationError(self.message_confirmation_error)
 
 
 class SubmitReportToAuthorityForm(forms.Form):

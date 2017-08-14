@@ -29,18 +29,18 @@ class ReportBaseView(views.edit.ModelFormMixin):
     slug_url_kwarg = 'uuid'
 
 
-class ReportAccessView(
-    ReportBaseView,
-    views.edit.UpdateView,
-):
-    form_class = forms.ReportAccessForm
-
-
 class ReportCreateView(
     ReportBaseView,
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
+
+
+class ReportAccessView(
+    ReportBaseView,
+    views.edit.UpdateView,
+):
+    form_class = forms.ReportAccessForm
 
 
 @ratelimit(
