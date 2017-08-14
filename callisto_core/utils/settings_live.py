@@ -1,4 +1,5 @@
 import dj_database_url
+
 from .settings import *  # NOQA
 
 INSTALLED_APPS = INSTALLED_APPS + [
