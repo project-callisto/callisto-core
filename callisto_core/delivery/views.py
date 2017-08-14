@@ -6,11 +6,11 @@ from ratelimit.decorators import ratelimit
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.html import conditional_escape
 from django.views import generic as views
-from django.core.urlresolvers import reverse_lazy
 
 from . import forms, models
 from ..evaluation.models import EvalRow

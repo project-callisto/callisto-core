@@ -7,11 +7,13 @@ DEBUG = True
 ROOT_URLCONF = "callisto_core.utils.urls"
 APP_URL = os.environ.get('APP_URL', 'localhost')
 
+
 def load_file(path):
     path = os.path.join(BASE_DIR, path)
     with open(path, 'r') as file_data:
         data = file_data.read()
     return data
+
 
 REPORT_TIME_ZONE = 'Europe/Paris'
 COORDINATOR_NAME = "COORDINATOR_NAME"
