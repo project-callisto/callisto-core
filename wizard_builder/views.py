@@ -143,7 +143,7 @@ class StorageHelper(object):
     @property
     def form_data(self):
         return {'data': [
-            self.view.request.session[self.key(form.pk)]
+            self.data_from_pk(form.pk)
             for form in self.view.manager.forms
         ]}
 
