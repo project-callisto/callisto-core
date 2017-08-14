@@ -77,13 +77,19 @@ class ReportAccessView(
     views.edit.UpdateView,
 ):
     access_form_class = forms.ReportAccessForm
+    invalid_access_message = 'Invalid access request at url {}'
 
-    def dispatch(self, request, *args, **kwargs):
+    def _log_invalid_access(self):
+        logger.info(self.invalid_access_message.format(
+            self.request.get_full_path()))
+
+    def get_context_data(self, **kwargs):
         if self.storage.secret_key:
-            return super().dispatch(request, *args, **kwargs)
+            return super().get_context_data(**kwargs)
         else:
-            self.form_class = self.access_form_class
-            return super().dispatch(request, *args, **kwargs)
+            self._log_invalid_access()
+            kwargs['form'] = self.access_form_class
+            return super().get_context_data(**kwargs)
 
 
 @ratelimit(

@@ -76,4 +76,4 @@ class NewReportFlowTest(TestCase):
             reverse('wizard_update', kwargs={'step':0,'uuid':uuid}))
         form = response.context['form']
 
-        self.assertIsInstance(form, ReportAccessForm)
+        self.assertEqual(form, ReportAccessForm)
