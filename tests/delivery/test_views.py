@@ -25,6 +25,11 @@ class NewReportFlowTest(TestCase):
             },
             follow=True,
         )
+        uuid = response.context['report'].uuid
+        self.assertEqual(
+            response.redirect_chain[0][0],
+            reverse('wizard_update', kwargs={'step':0,'uuid':uuid}),
+        )
 
     def test_report_creation_access_key_to_session(self):
         pass
