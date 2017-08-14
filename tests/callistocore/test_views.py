@@ -64,12 +64,12 @@ class RecordFormIntegratedTest(RecordFormBaseTest):
 
     def setUp(self):
         super(RecordFormIntegratedTest, self).setUp()
-        User.objects.create_user(username='dummy', password='dummy')
-        self.client.login(username='dummy', password='dummy')
+        User.objects.create_user(username='testing_12', password='testing_12')
+        self.client.login(username='testing_12', password='testing_12')
         self.request = HttpRequest()
         self.request.GET = {}
         self.request.method = 'GET'
-        self.request.user = User.objects.get(username='dummy')
+        self.request.user = User.objects.get(username='testing_12')
 
     record_form_url = '/test_reports/new/0/'
     report_key = 'solidasarock1234rock'
@@ -144,12 +144,12 @@ class ExistingRecordTest(RecordFormBaseTest):
     def setUp(self):
         super(ExistingRecordTest, self).setUp()
 
-        User.objects.create_user(username='dummy', password='dummy')
-        self.client.login(username='dummy', password='dummy')
+        User.objects.create_user(username='testing_12', password='testing_12')
+        self.client.login(username='testing_12', password='testing_12')
         self.request = HttpRequest()
         self.request.GET = {}
         self.request.method = 'GET'
-        self.request.user = User.objects.get(username='dummy')
+        self.request.user = User.objects.get(username='testing_12')
 
         self.report_text = """[
     { "answer": "test answer",
@@ -445,8 +445,8 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                'form-TOTAL_FORMS': '1',
                                'form-INITIAL_FORMS': '1',
                                'form-MAX_NUM_FORMS': '', })
-        user2 = User.objects.create_user(username='dummy2', password='dummy')
-        self.client.login(username='dummy2', password='dummy')
+        user2 = User.objects.create_user(username='testing_122', password='testing_12')
+        self.client.login(username='testing_122', password='testing_12')
         report2_text = """[
     { "answer": "test answer",
       "id": %i,
@@ -507,8 +507,8 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                'form-TOTAL_FORMS': '1',
                                'form-INITIAL_FORMS': '1',
                                'form-MAX_NUM_FORMS': '', })
-        user2 = User.objects.create_user(username='dummy2', password='dummy')
-        self.client.login(username='dummy2', password='dummy')
+        user2 = User.objects.create_user(username='testing_122', password='testing_12')
+        self.client.login(username='testing_122', password='testing_12')
         report2_text = """[
     { "answer": "test answer",
       "id": %i,
@@ -559,8 +559,8 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                'form-TOTAL_FORMS': '1',
                                'form-INITIAL_FORMS': '1',
                                'form-MAX_NUM_FORMS': '', })
-        user2 = User.objects.create_user(username='dummy2', password='dummy')
-        self.client.login(username='dummy2', password='dummy')
+        user2 = User.objects.create_user(username='testing_122', password='testing_12')
+        self.client.login(username='testing_122', password='testing_12')
         report2_text = """[
     { "answer": "test answer",
       "id": %i,
@@ -622,8 +622,8 @@ class SubmitMatchIntegrationTest(ExistingRecordTest):
                                'form-TOTAL_FORMS': '1',
                                'form-INITIAL_FORMS': '1',
                                'form-MAX_NUM_FORMS': '', })
-        user2 = User.objects.create_user(username='dummy2', password='dummy')
-        self.client.login(username='dummy2', password='dummy')
+        user2 = User.objects.create_user(username='testing_122', password='testing_12')
+        self.client.login(username='testing_122', password='testing_12')
         report2_text = """[
     { "answer": "test answer",
       "id": %i,
@@ -782,7 +782,7 @@ class ExportRecordViewTest(ExistingRecordTest):
         exported_report = BytesIO(response.content)
         pdf_reader = PyPDF2.PdfFileReader(exported_report)
         self.assertNotIn("Tatiana Nine", pdf_reader.getPage(0).extractText())
-        self.assertIn("Reported by: dummy", pdf_reader.getPage(0).extractText())
+        self.assertIn("Reported by: testing_12", pdf_reader.getPage(0).extractText())
         self.assertIn("test answer", pdf_reader.getPage(1).extractText())
         self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())
 
@@ -800,7 +800,7 @@ class ExportRecordViewTest(ExistingRecordTest):
 
     @override_settings(DEBUG=True)
     def test_record_cannot_be_exported_by_non_owning_user(self):
-        other_user = User.objects.create_user(username='other_user', password='dummy')
+        other_user = User.objects.create_user(username='other_user', password='testing_12')
         report = Report.objects.create(owner=other_user, encrypted=b'first report')
         response = self.client.get(self.export_url % report.id)
         self.assertEqual(response.status_code, 403)
@@ -821,7 +821,7 @@ class DeleteRecordTest(ExistingRecordTest):
 
     @override_settings(DEBUG=True)
     def test_record_cannot_be_deleted_by_non_owning_user(self):
-        other_user = User.objects.create_user(username='other_user', password='dummy')
+        other_user = User.objects.create_user(username='other_user', password='testing_12')
         report = Report.objects.create(owner=other_user, encrypted=b'first report')
         response = self.client.get(self.delete_url % report.id)
         self.assertEqual(response.status_code, 403)
