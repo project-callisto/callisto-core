@@ -12,6 +12,7 @@ clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
+	rm -rf *.sqlite3
 
 clean-pyc: ## remove Python file artifacts
 	find callisto_core -name '*.pyc' -exec rm -f {} +

@@ -30,11 +30,11 @@ KEY_HASHERS = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        'NAME': os.path.join(BASE_DIR, 'db-default.sqlite3'),
+        'NAME': 'db-default.sqlite3',
     },
     "alternate": {
         "ENGINE": "django.db.backends.sqlite3",
-        'NAME': os.path.join(BASE_DIR, 'db-alternate.sqlite3'),
+        'NAME': 'db-alternate.sqlite3',
     },
 }
 
