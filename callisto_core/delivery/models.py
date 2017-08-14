@@ -56,6 +56,9 @@ class Report(models.Model):
         else:
             return None
 
+    def setup(self, secret_key):
+        self.encrypt_report('', secret_key)
+
     def encrypt_report(self, report_text, secret_key):
         """Encrypts and attaches report text. Generates a random salt
         and stores it in the Report object's encode prefix.
@@ -69,6 +72,10 @@ class Report(models.Model):
         hasher = get_hasher()
         encoded = hasher.encode(secret_key, get_random_string())
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
+        print('self.encode_prefix')
+        print(self.encode_prefix)
+        print('pk')
+        print(self.pk)
         self.encrypted = security.encrypt_text(stretched_key, report_text)
         self.save()
 
@@ -83,6 +90,10 @@ class Report(models.Model):
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
+        print('self.encode_prefix')
+        print(self.encode_prefix)
+        print('pk')
+        print(self.pk)
         prefix, stretched_key = make_key(self.encode_prefix, key, self.salt)
         return security.decrypt_text(stretched_key, self.encrypted)
 

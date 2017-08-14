@@ -58,6 +58,8 @@ class ReportAccessForm(ReportBaseForm):
             self._decryption_failed()
 
     def _decrypt_report(self):
+        print(self.report)
+        print(self.report.pk)
         self.decrypted_report = self.report.decrypted_report(
             self.data['key'])
 
