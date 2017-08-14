@@ -18,14 +18,14 @@ def passphrase_field(label):
         max_length=64,
         label=label,
         widget=forms.PasswordInput(attrs={
-            'placeholder': label,
-            'autocomplete': 'off'
+            'autocomplete': 'off',
+            'class': 'form-control',
         }),
     )
 
 
 class ReportBaseForm(forms.models.ModelForm):
-    key = passphrase_field('Your passphrase')
+    key = passphrase_field('Passphrase')
 
     class Meta:
         model = Report
@@ -57,7 +57,7 @@ class ReportAccessForm(ReportBaseForm):
 
 class ReportCreateForm(ReportBaseForm):
     message_confirmation_error = "key and key confirmation must match"
-    key_confirmation = passphrase_field('Repeat your passphrase')
+    key_confirmation = passphrase_field('Confirm Passphrase')
 
     def clean_key_confirmation(self):
         key = self.cleaned_data.get("key")

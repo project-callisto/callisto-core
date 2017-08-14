@@ -1,0 +1,42 @@
+{% extends 'callisto_core/delivery/base.html' %}
+
+{% load wizard_builder %}
+
+{% block content %}
+<div>
+    <form method="POST" action="#" novalidate>
+        <div class="container-fluid">
+            <div class="col-md-8 col-md-offset-2">
+                {% csrf_token %}
+                {% if form.non_field_errors|length > 1 %}
+                    <div class="has-error">
+                        <ul class="help-block field-error" role="alert">
+                            <span>Errors:</span>
+                            {% for error in form.non_field_errors %}{{ error|escape }}{% endfor %} 
+                        </ul>
+                    </div>
+                {% endif %}
+                {% for field in form %}
+                    <div class="form-group {% if field.errors %}has-error{% endif %}">
+                        {{ field.label_tag }}{% if field.field.required %}*{% endif %}
+                        {% if field.help_text %}
+                            <div class="help-block" id="help-{{ field.id_for_label }}">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors|length > 1 %}
+                            <ul class="help-block field-error" id="error-{{ field.id_for_label }}"  role="alert">
+                                <span>Errors:</span>
+                                {% for error in form.non_field_errors %}{{ error|escape }}{% endfor %} 
+                            </ul>
+                        {% endif %}
+                        {{ field|add_aria_tags_to_field }}
+                    </div>
+                {% endfor %}
+
+                <p class="help-block">* Indicates required field</p>
+
+                <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="Submit" />
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

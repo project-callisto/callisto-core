@@ -40,6 +40,7 @@ class ReportCreateView(
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
+    template_name = 'callisto_core/delivery/new_report.html'
 
 
 @ratelimit(
