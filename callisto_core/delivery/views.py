@@ -87,13 +87,26 @@ class ReportAccessView(
     def report(self):
         return self.get_object()
 
-    def get_context_data(self, **kwargs):
+    def form_valid(self, form):
+        super().form_valid(form)
+        return HttpResponseRedirect(self.request.path)
+
+    def post(self, request, *args, **kwargs):
         if self.storage.secret_key:
-            return super().get_context_data(**kwargs)
+            return super().post(request, *args, **kwargs)
+        else:
+            return views.edit.ProcessFormView.post(
+                self, request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        """
+        Returns an instance of the form to be used in this view.
+        """
+        if self.storage.secret_key:
+            return super().get_form()
         else:
             self._log_invalid_access()
-            kwargs['form'] = self.access_form_class
-            return super().get_context_data(**kwargs)
+            return self.access_form_class(**self.get_form_kwargs())
 
     def _log_invalid_access(self):
         logger.info(self.invalid_access_message.format(

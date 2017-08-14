@@ -43,9 +43,9 @@ class EncryptedWizardView(ReportAccessView, WizardView):
     storage_helper = EncryptedStorageHelper
     steps_helper = ReportStepsHelper
 
-    def post(self, request, *args, **kwargs):
+    def form_valid(self, form):
         self._save_report()
-        return super().post(request, *args, **kwargs)
+        return super().form_valid(form)
 
     def _save_report(self):
         self.report.encrypt_report(
