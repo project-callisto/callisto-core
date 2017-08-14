@@ -2,6 +2,8 @@ import dj_database_url
 
 from .settings import *  # NOQA
 
+DEBUG = False
+
 INSTALLED_APPS = INSTALLED_APPS + [
     'django_extensions',
 ]
