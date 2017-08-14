@@ -37,7 +37,7 @@ class SecretKeyStorage(object):
 
 class ReportBaseView(views.edit.ModelFormMixin):
     model = models.Report
-    key_storage = SecretKeyStorage
+    storage_helper = SecretKeyStorage
     template_name = 'callisto_core/delivery/form.html'
     context_object_name = 'report'
     slug_field = 'uuid'
@@ -49,7 +49,7 @@ class ReportBaseView(views.edit.ModelFormMixin):
 
     @property
     def storage(self):
-        return self.key_storage(self)
+        return self.storage_helper(self)
 
     def form_valid(self, form):
         self.storage.set_key(form.data['key'])
