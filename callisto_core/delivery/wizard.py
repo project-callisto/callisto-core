@@ -3,10 +3,13 @@ from wizard_builder.views import StorageHelper, WizardView
 from django.http.response import JsonResponse
 
 from .models import Report
-from .views import ReportAccessView
+from .views import ReportAccessView, SecretKeyStorage
 
 
-class EncryptedStorageHelper(StorageHelper):
+class EncryptedStorageHelper(
+    SecretKeyStorage,
+    StorageHelper,
+):
 
     @property
     def form_data(self):
@@ -38,12 +41,9 @@ class EncryptedWizardView(ReportAccessView, WizardView):
         self._save_report()
         return JsonResponse(self.report)
 
-    def dispatch(self, request, step=None, *args, **kwargs):
-        if self.storage.secret_key:
-            self._save_report()
-            return super().dispatch(request, *args, **kwargs)
-        else:
-            return self.render_key_creation(**kwargs)
+    def post(self, request, *args, **kwargs):
+        self._save_report()
+        return super().post(request, *args, **kwargs)
 
     def _save_report(self):
         self.report.encrypt_report(

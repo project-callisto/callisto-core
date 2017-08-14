@@ -22,12 +22,38 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
+class SecretKeyStorage(object):
+
+    def __init__(self, view):
+        self.view = view
+
+    def set_key(self, key):
+        self.view.request.session['secret_key'] = key
+
+    @property
+    def key(self):
+        return self.view.request.session.get('secret_key')
+
+
 class ReportBaseView(views.edit.ModelFormMixin):
     model = models.Report
+    key_storage = SecretKeyStorage
     template_name = 'callisto_core/delivery/form.html'
     context_object_name = 'report'
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
+
+    @property
+    def report(self):
+        return self.object
+
+    @property
+    def storage(self):
+        return self.key_storage(self)
+
+    def form_valid(self, form):
+        self.storage.set_key(form.data['key'])
+        return super().form_valid(form)
 
 
 class ReportCreateView(
@@ -35,10 +61,6 @@ class ReportCreateView(
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
-
-    @property
-    def report(self):
-        return self.object
 
     def get_success_url(self):
         return reverse_lazy(
@@ -54,7 +76,14 @@ class ReportAccessView(
     ReportBaseView,
     views.edit.UpdateView,
 ):
-    form_class = forms.ReportAccessForm
+    access_form_class = forms.ReportAccessForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.storage.key:
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            self.form_class = self.access_form_class
+            return super().dispatch(request, *args, **kwargs)
 
 
 @ratelimit(

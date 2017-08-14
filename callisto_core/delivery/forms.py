@@ -27,6 +27,10 @@ def passphrase_field(label):
 class ReportBaseForm(forms.models.ModelForm):
     key = passphrase_field('Passphrase')
 
+    @property
+    def report(self):
+        return self.instance
+
     class Meta:
         model = Report
         fields = []
@@ -46,10 +50,6 @@ class ReportCreateForm(ReportBaseForm):
 class ReportAccessForm(ReportBaseForm):
     message_key_error = 'invalid secret key'
     message_key_error_log = 'decryption failure on {}'
-
-    @property
-    def report(self):
-        return self.instance
 
     def clean_key(self):
         try:
