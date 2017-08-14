@@ -15,7 +15,7 @@ class Report(models.Model):
     """The full text of a reported incident."""
     uuid = models.UUIDField(default=uuid.uuid4)
     encrypted = models.BinaryField(blank=False)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     added = models.DateTimeField(auto_now_add=True)
     autosaved = models.BooleanField(null=False, default=False)
     last_edited = models.DateTimeField(blank=True, null=True)

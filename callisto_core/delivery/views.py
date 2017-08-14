@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.html import conditional_escape
 from django.views import generic as views
+from django.core.urlresolvers import reverse_lazy
 
 from . import forms, models
 from ..evaluation.models import EvalRow
@@ -34,6 +35,19 @@ class ReportCreateView(
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
+
+    @property
+    def report(self):
+        return self.object
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'wizard_update',
+            kwargs={
+                'step': 0,
+                'uuid': self.report.uuid,
+            },
+        )
 
 
 class ReportAccessView(
