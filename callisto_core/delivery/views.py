@@ -22,7 +22,7 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
-class SecretKeyStorage(object):
+class SecretKeyStorageHelper(object):
 
     def __init__(self, view):
         self.view = view
@@ -31,13 +31,13 @@ class SecretKeyStorage(object):
         self.view.request.session['secret_key'] = key
 
     @property
-    def key(self):
+    def secret_key(self):
         return self.view.request.session.get('secret_key')
 
 
 class ReportBaseView(views.edit.ModelFormMixin):
     model = models.Report
-    storage_helper = SecretKeyStorage
+    storage_helper = SecretKeyStorageHelper
     template_name = 'callisto_core/delivery/form.html'
     context_object_name = 'report'
     slug_field = 'uuid'
@@ -79,7 +79,7 @@ class ReportAccessView(
     access_form_class = forms.ReportAccessForm
 
     def dispatch(self, request, *args, **kwargs):
-        if self.storage.key:
+        if self.storage.secret_key:
             return super().dispatch(request, *args, **kwargs)
         else:
             self.form_class = self.access_form_class

@@ -29,6 +29,15 @@ class NewReportFlowTest(TestCase):
             follow=True,
         )
 
+    def clear_secret_key(self):
+        session = self.client.session
+        session['secret_key'] = None
+        session.save()
+        self.assertEqual(
+            self.client.session.get('secret_key'),
+            None,
+        )
+
     def test_report_creation_renders_create_form(self):
         response = self.client.get(reverse('report_new'))
         form = response.context['form']
@@ -61,7 +70,7 @@ class NewReportFlowTest(TestCase):
     def test_access_form_rendered_when_no_key_in_session(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
-        self.client.session.pop('secret_key')
+        self.clear_secret_key()
 
         response = self.client.get(
             reverse('wizard_update', kwargs={'step':0,'uuid':uuid}))
