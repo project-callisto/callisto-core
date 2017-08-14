@@ -47,8 +47,12 @@ class ReportBaseView(views.edit.ModelFormMixin):
     def storage(self):
         return self.storage_helper(self)
 
+    def _set_key_from_form(self, form):
+        if form.data.get('key'):
+            self.storage.set_secret_key(form.data['key'])
+
     def form_valid(self, form):
-        self.storage.set_secret_key(form.data['key'])
+        self._set_key_from_form(form)
         return super().form_valid(form)
 
 
