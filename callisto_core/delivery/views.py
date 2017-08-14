@@ -45,9 +45,6 @@ class ReportBaseView(views.edit.ModelFormMixin):
 
     @property
     def report(self):
-        print('ReportBaseView.report')
-        print(self.object)
-        print(self.object.pk)
         return self.object
 
     @property
@@ -90,7 +87,7 @@ class ReportAccessView(
         if self.storage.secret_key:
             return super().post(request, *args, **kwargs)
         else:
-            return views.edit.ProcessFormView.post(
+            return views.edit.UpdateView.post(
                 self, request, *args, **kwargs)
 
     def get_form(self, form_class=None):

@@ -6,7 +6,6 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
-from django import forms
 
 from . import validators
 from .models import Report
@@ -45,10 +44,15 @@ class ReportCreateForm(
     key_confirmation = passphrase_field('Confirm Passphrase')
 
     def clean_key_confirmation(self):
-        key = self.cleaned_data.get("key")
-        key_confirmation = self.cleaned_data.get("key_confirmation")
+        key = self.data.get("key")
+        key_confirmation = self.data.get("key_confirmation")
         if key != key_confirmation:
             raise forms.ValidationError(self.message_confirmation_error)
+
+    def save(self, commit=True):
+        output = super().save(commit=commit)
+        self.report.encryption_setup(self.data.get("key"))
+        return output
 
 
 class ReportAccessForm(ReportBaseForm):
@@ -62,9 +66,6 @@ class ReportAccessForm(ReportBaseForm):
             self._decryption_failed()
 
     def _decrypt_report(self):
-        print('ReportAccessForm._decrypt_report')
-        print(self.report)
-        print(self.report.pk)
         self.decrypted_report = self.report.decrypted_report(
             self.data['key'])
 

@@ -1,6 +1,6 @@
 from wizard_builder.views import StepsHelper, StorageHelper, WizardView
-from django.core.urlresolvers import reverse
 
+from django.core.urlresolvers import reverse
 from django.http.response import JsonResponse
 
 from .models import Report
@@ -42,18 +42,6 @@ class EncryptedStorageHelper(
 class EncryptedWizardView(ReportAccessView, WizardView):
     storage_helper = EncryptedStorageHelper
     steps_helper = ReportStepsHelper
-
-    def get_object(self, queryset=None):
-        print('EncryptedWizardView.get_object')
-        obj = super().get_object(queryset=queryset)
-        print(obj)
-        return obj
-
-    def get_form_kwargs(self):
-        print('EncryptedWizardView.get_form_kwargs')
-        kwargs = super().get_form_kwargs()
-        print(kwargs)
-        return kwargs
 
     def form_valid(self, form):
         self._save_report()
