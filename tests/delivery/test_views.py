@@ -97,3 +97,14 @@ class NewReportFlowTest(TestCase):
         form = response.context['form']
 
         self.assertEqual(form, PageForm)
+
+    def test_access_form_returns_correct_report(self):
+        response = self.client_post_report_creation()
+        uuid = response.context['report'].uuid
+        self.clear_secret_key()
+
+        response = self.client_post_report_access(
+            response.redirect_chain[0][0])
+        form = response.context['form']
+
+        self.assertEqual(form.report.uuid, uuid)

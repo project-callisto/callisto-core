@@ -6,6 +6,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
+from django import forms
 
 from . import validators
 from .models import Report
@@ -36,7 +37,10 @@ class ReportBaseForm(forms.models.ModelForm):
         fields = []
 
 
-class ReportCreateForm(ReportBaseForm):
+class ReportCreateForm(
+    ReportBaseForm,
+    forms.models.ModelForm,
+):
     message_confirmation_error = "key and key confirmation must match"
     key_confirmation = passphrase_field('Confirm Passphrase')
 
@@ -58,6 +62,7 @@ class ReportAccessForm(ReportBaseForm):
             self._decryption_failed()
 
     def _decrypt_report(self):
+        print('ReportAccessForm._decrypt_report')
         print(self.report)
         print(self.report.pk)
         self.decrypted_report = self.report.decrypted_report(
