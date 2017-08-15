@@ -7,7 +7,7 @@
       "modified": "2017-08-05T18:49:02.040",
       "position": 1,
       "section": 1,
-      "infobox": "the first page",
+      "infobox": "a breakfast",
       "sites": [
         1
       ]
@@ -21,7 +21,7 @@
       "modified": "2017-08-09T17:54:27.828",
       "position": 2,
       "section": 1,
-      "infobox": "the second page",
+      "infobox": "the big one",
       "sites": [
         1
       ]
@@ -35,7 +35,7 @@
       "modified": "2017-08-15T03:59:59.362",
       "position": 3,
       "section": 1,
-      "infobox": "last page >>>",
+      "infobox": "evening playlist",
       "sites": [
         1
       ]
@@ -59,8 +59,8 @@
     "fields": {
       "created": "2017-08-09T17:54:45.286",
       "modified": "2017-08-09T17:54:45.286",
-      "text": "a basic question",
-      "descriptive_text": "",
+      "text": "do androids dream of electric sheep?",
+      "descriptive_text": "answer wisely",
       "page": 2,
       "position": 0
     }
@@ -71,7 +71,7 @@
     "fields": {
       "created": "2017-08-11T07:59:13.439",
       "modified": "2017-08-11T07:59:13.439",
-      "text": "text, on a single line",
+      "text": "eat it now???",
       "descriptive_text": "",
       "page": 1,
       "position": 0
@@ -83,8 +83,8 @@
     "fields": {
       "created": "2017-08-15T04:00:59.395",
       "modified": "2017-08-15T04:00:59.395",
-      "text": "a button, radios",
-      "descriptive_text": "pick a music",
+      "text": "whats on the radios?",
+      "descriptive_text": "pick a type",
       "page": 3,
       "position": 0
     }
