@@ -1,4 +1,6 @@
+{% extends 'wizard_builder/base.html' %}
 
+{% block content %}
 {% if form.page.infobox %}
     <div><p>{{ form.page.infobox }}</p></div>
 {% endif %}
@@ -27,3 +29,4 @@
     </div>
 
 </form>
+{% endblock %}

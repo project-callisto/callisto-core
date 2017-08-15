@@ -172,7 +172,7 @@ class StorageHelper(object):
 class WizardView(views.edit.FormView):
     site_id = None
     url_name = None
-    template_name = 'wizard_builder/index.html'
+    template_name = 'wizard_builder/wizard_form.html'
     form_pk_field = 'form_pk'
     steps_helper = StepsHelper
     storage_helper = StorageHelper
