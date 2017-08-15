@@ -199,7 +199,7 @@ class WizardView(views.edit.FormView):
     def dispatch(self, request, step=None, *args, **kwargs):
         self.steps.set_from_get(step)
         if self.steps.finished(step):
-            return self.render_done(**kwargs)
+            return self.dispatch_done(request, step, **kwargs)
         elif self.steps.overflowed(step):
             return self.render_last(**kwargs)
         else:
@@ -210,9 +210,8 @@ class WizardView(views.edit.FormView):
         self.storage.set_form_data()
         return self.render_current()
 
-    def render_done(self, **kwargs):
+    def dispatch_done(self, request, step=None, *args, **kwargs):
         if self.steps.current_is_done:
-            # TODO: a review screen template
             return self.render_finished(**kwargs)
         else:
             return self.render_done(**kwargs)
