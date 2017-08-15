@@ -241,13 +241,17 @@ class Choice(models.Model):
         return {
             'pk': self.pk,
             'text': self.text,
-            'options': self.text_options,
+            'options': self.options_data,
             'position': self.position,
             'extra_info_text': self.extra_info_text,
         }
 
     @property
-    def text_options(self):
+    def options_data(self):
+        return [
+            {'pk': option.pk, 'text': option.text}
+            for option in self.options
+        ]
         return list(self.options.values('text'))
 
     @property

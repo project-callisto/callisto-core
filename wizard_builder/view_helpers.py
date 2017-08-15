@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 class SerializedDataHelper(object):
+    # TODO: move the zip functionality to PageForm or FormManager
     metadata_fields = [
         'csrfmiddlewaretoken',
         'wizard_current_step',
@@ -17,7 +18,8 @@ class SerializedDataHelper(object):
         'extra_options',
     ]
     question_id_error_message = 'field_id={} not found in {}'
-    choice_id_error_message = 'choices(pk={}) not found in {}'
+    choice_id_error_message = 'Choice(pk={}) not found in {}'
+    choice_option_id_error_message = 'ChoiceOption(pk={}) not found in {}'
 
     def __init__(self, data, forms):
         self.forms = forms
@@ -96,7 +98,7 @@ class SerializedDataHelper(object):
             id_field='pk',
             message=self.choice_id_error_message,
         )
-        choice_text = choice['text']
+        choice_text = choice.get('text')
         if choice.get('extra_info_text') and answer_dict.get('extra_info'):
             choice_text += ': ' + answer_dict['extra_info']
         if choice.get('options') and answer_dict.get('extra_options'):
@@ -105,14 +107,12 @@ class SerializedDataHelper(object):
         return choice_text
 
     def _get_choice_option_text(self, choice, answer_dict):
-        try:
-            index = int(answer_dict['extra_options'])
-            return choice['options'][index]['text']
-        except Exception as e:
-        # Catch exceptions raised from choice options being edited
-        # after the user originally answered them
-            logger.exception(e)
-            return ''
+        return self._get_from_serialized_id(
+            stored_id=answer_dict['extra_options'],
+            current_objects=choice['options'],
+            id_field='pk',
+            message=self.choice_option_id_error_message,
+        ).get('text')
 
     def _get_from_serialized_id(
         self,
@@ -131,9 +131,10 @@ class SerializedDataHelper(object):
             else:
                 raise ValueError(message.format(stored_id, current_objects))
         except Exception as e:
-            # Catch exceptions raised from questions being edited
+            # Catch exceptions raised from data being edited
             # after the user originally answered them
             logger.exception(e)
+            return {}
 
 
 class StepsHelper(object):
