@@ -53,8 +53,7 @@ class ReportCreateForm(
 
     def save(self, commit=True):
         output = super().save(commit=commit)
-        # self.report.encryption_setup(self.data.get("key"))
-        self.report.encrypt_report('', self.data.get("key"))
+        self.report.setup(self.data.get("key"))
         return output
 
 

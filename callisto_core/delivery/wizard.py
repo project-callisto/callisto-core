@@ -1,9 +1,7 @@
 from wizard_builder.views import StepsHelper, StorageHelper, WizardView
 
 from django.core.urlresolvers import reverse
-from django.http.response import JsonResponse
 
-from .models import Report
 from .views import ReportAccessView, SecretKeyStorageHelper
 
 

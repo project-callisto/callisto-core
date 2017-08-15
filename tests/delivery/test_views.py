@@ -85,7 +85,7 @@ class NewReportFlowTest(TestCase):
             reverse('wizard_update', kwargs={'step':0,'uuid':uuid}))
         form = response.context['form']
 
-        self.assertEqual(form, ReportAccessForm)
+        self.assertIsInstance(form, ReportAccessForm)
 
     def test_can_reenter_secret_key(self):
         response = self.client_post_report_creation()
@@ -105,9 +105,8 @@ class NewReportFlowTest(TestCase):
 
         response = self.client_post_report_access(
             response.redirect_chain[0][0])
-        form = response.context['form']
 
-        self.assertEqual(form.report.uuid, uuid)
+        self.assertEqual(response.context['report'].uuid, uuid)
 
     def test_report_not_accessible_with_incorrect_key(self):
         response = self.client_post_report_creation()
@@ -118,5 +117,5 @@ class NewReportFlowTest(TestCase):
             response.redirect_chain[0][0])
         form = response.context['form']
 
-        self.assertFalse(getattr(form, 'report'))
-        self.assertEqual(form, ReportAccessForm)
+        self.assertFalse(getattr(form, 'report', False))
+        self.assertIsInstance(form, ReportAccessForm)

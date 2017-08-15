@@ -56,14 +56,8 @@ class Report(models.Model):
         else:
             return None
 
-    def encryption_setup(self, secret_key):
-        if self.salt:
-            self.salt = None
-        hasher = get_hasher()
-        encoded = hasher.encode(secret_key, get_random_string())
-        self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
-        self.save()
-        return stretched_key
+    def setup(self, secret_key):
+        self.encrypt_report('', secret_key)
 
     def encrypt_report(self, report_text, secret_key):
         """Encrypts and attaches report text. Generates a random salt
@@ -73,9 +67,7 @@ class Report(models.Model):
           report_text (str): the full text of the report
           secret_key (str): the secret key
         """
-        print('Report.encrypt_report')
-        print(report_text, secret_key)
-        stretched_key = self.encryption_setup(secret_key)
+        stretched_key = self._encryption_setup(secret_key)
         self.encrypted = security.encrypt_text(stretched_key, report_text)
         self.save()
 
@@ -93,8 +85,6 @@ class Report(models.Model):
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
-        print('Report.decrypted_report')
-        print(key)
         prefix, stretched_key = make_key(self.encode_prefix, key, self.salt)
         return security.decrypt_text(stretched_key, self.encrypted)
 
@@ -102,6 +92,15 @@ class Report(models.Model):
         """ Deletes all associated MatchReports """
         self.matchreport_set.all().delete()
         self.match_found = False
+
+    def _encryption_setup(self, secret_key):
+        if self.salt:
+            self.salt = None
+        hasher = get_hasher()
+        encoded = hasher.encode(secret_key, get_random_string())
+        self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
+        self.save()
+        return stretched_key
 
     class Meta:
         ordering = ('-added',)
