@@ -148,6 +148,24 @@ class StorageHelper(object):
         ]}
 
     @property
+    def cleaned_form_data(self):
+        return [
+            self._remove_non_question_data(page_data)
+            for page_data in self.form_data['data']
+        ]
+
+    def _remove_non_question_data(self, data):
+        return {
+            key: value
+            for key, value in data.items()
+            if key not in [
+                'csrfmiddlewaretoken',
+                'wizard_current_step',
+                'wizard_goto_step',
+            ]
+        }
+
+    @property
     def post_form_pk(self):
         return self.view.form_pk(self.view.request.POST[
             self.view.form_pk_field])
@@ -173,6 +191,7 @@ class WizardView(views.edit.FormView):
     site_id = None
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
+    done_template_name = 'wizard_builder/review.html'
     form_pk_field = 'form_pk'
     steps_helper = StepsHelper
     storage_helper = StorageHelper
@@ -205,22 +224,31 @@ class WizardView(views.edit.FormView):
         else:
             return super().dispatch(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        self.steps.set_from_post()
-        self.storage.set_form_data()
-        return self.render_current()
-
     def dispatch_done(self, request, step=None, *args, **kwargs):
         if self.steps.current_is_done:
             return self.render_finished(**kwargs)
         else:
             return self.render_done(**kwargs)
 
+    def post(self, request, *args, **kwargs):
+        self.steps.set_from_post()
+        self.storage.set_form_data()
+        return self.render_current()
+
+    def get_context_data(self, **kwargs):
+        if self.steps.current_is_done:
+            self.template_name = self.done_template_name
+            kwargs['form'] = None
+            kwargs['data'] = self.storage.cleaned_form_data
+            return super().get_context_data(**kwargs)
+        else:
+            return super().get_context_data(**kwargs)
+
     def render_done(self, **kwargs):
         return HttpResponseRedirect(self.steps.done_url)
 
     def render_finished(self, **kwargs):
-        return JsonResponse(self.storage.form_data)
+        return self.render_to_response(self.get_context_data())
 
     def render_last(self, **kwargs):
         return HttpResponseRedirect(self.steps.last_url)
