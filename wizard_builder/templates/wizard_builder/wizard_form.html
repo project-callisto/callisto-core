@@ -16,15 +16,15 @@
 
     <div class="col-xs-4">
         {% if view.steps.prev %}
-            <input class='btn btn-default btn-block' type="submit" name="wizard_goto_step" value="Back" />
+            <input class='btn btn-default btn-block' type="submit" name="wizard_goto_step" value="{{ view.steps.back_name }}" />
         {% endif %}
     </div>
 
     <div class="col-xs-4 col-xs-offset-4">
         {% if view.steps.next_is_done %}
-            <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="Submit" />
+            <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="{{ view.steps.review_name }}" />
         {% else %}
-            <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="Next" />
+            <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="{{ view.steps.next_name }}" />
         {% endif %}
     </div>
 

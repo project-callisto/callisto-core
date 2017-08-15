@@ -146,6 +146,7 @@ class FormQuestion(TimekeepingBase, models.Model):
             'question_text': self.text,
             'type': self._meta.model_name.capitalize(),
             'section': self.section,
+            'field_id': self.field_id,
         }
 
     def save(self, *args, **kwargs):

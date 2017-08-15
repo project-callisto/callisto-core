@@ -1,8 +1,13 @@
+import logging
+import traceback
+
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http.response import HttpResponseRedirect, JsonResponse
 from django.views import generic as views
 
 from .managers import FormManager
+
+logger = logging.getLogger(__name__)
 
 
 class NewWizardView(views.base.RedirectView):
@@ -14,6 +19,9 @@ class NewWizardView(views.base.RedirectView):
 
 class StepsHelper(object):
     done_name = 'done'
+    review_name = 'Review'
+    next_name = 'Next'
+    back_name = 'Back'
 
     def __init__(self, view):
         self.view = view
@@ -46,15 +54,15 @@ class StepsHelper(object):
 
     @property
     def _goto_step_back(self):
-        return self._goto_step('Back')
+        return self._goto_step(self.back_name)
 
     @property
     def _goto_step_next(self):
-        return self._goto_step('Next')
+        return self._goto_step(self.next_name)
 
     @property
-    def _goto_step_submit(self):
-        return self._goto_step('Submit')
+    def _goto_step_review(self):
+        return self._goto_step(self.review_name)
 
     @property
     def first(self):
@@ -106,7 +114,7 @@ class StepsHelper(object):
         return int(step) > int(self.last)
 
     def finished(self, step):
-        return self._goto_step_submit or step == self.done_name
+        return self._goto_step_review or step == self.done_name
 
     def set_from_get(self, step_url_param):
         step = step_url_param or self.current
@@ -135,7 +143,95 @@ class StepsHelper(object):
             return None
 
 
+class SerializedDataHelper(object):
+
+    def __init__(self, data, forms):
+        self.forms = forms
+        self.data = data
+        self.zipped_data = []
+        self._format_data()
+
+    @property
+    def cleaned_data(self):
+        print('cleaned_data')
+        print(self.zipped_data)
+        return self.zipped_data
+
+    def _format_data(self):
+        for index, page_data in enumerate(self.data):
+            self._cleaned_form_data(page_data, index)
+
+    def _cleaned_form_data(self, page_data, index):
+        self._zip_questions_and_answers(
+            self._form_data_questions_only(page_data),
+            self._form_questions_serialized(index),
+        )
+
+    def _form_data_questions_only(self, data):
+        return {
+            key: value
+            for key, value in data.items()
+            if key not in [
+                'csrfmiddlewaretoken',
+                'wizard_current_step',
+                'wizard_goto_step',
+                'form_pk',
+            ]
+        }
+
+    def _form_questions_serialized(self, index):
+        return self.forms[index].serialized
+
+    def _zip_questions_and_answers(self, answers, questions):
+        try:
+            from pprint import pprint
+            print('questions')
+            pprint(questions)
+            print('answers')
+            pprint(answers)
+            for answer_key, answer_value in answers.items():
+                if answer_key not in [
+                    'extra_info',
+                    'extra_options',
+                ]:
+                    question = self._get_question(answer_key, questions)
+                    self._parse_answer(answer_value, question)
+        except Exception as e:
+            # Questions that have changed since
+            # the user last filled out the form
+            # will likely raise an Exception
+            logger.exception(e)
+
+    def _get_question(self, answer_key, questions):
+        related_question = None
+        for question in questions:
+            if answer_key == question['field_id']:
+                related_question = question
+        if related_question != None:
+            return related_question
+        else:
+            raise ValueError('field_id={} not found in {}'.format(
+                answer_key, questions))
+
+    def _parse_answer(self, answer, question):
+        from pprint import pprint
+        print('question')
+        pprint(question)
+        print('answer')
+        pprint(answer)
+        if isinstance(answer, str):
+            self._parse_text_answer(answer, question)
+        else:
+            pass
+
+    def _parse_text_answer(self, answer, question):
+        self.zipped_data.append({
+            question['question_text']: [answer],
+        })
+
+
 class StorageHelper(object):
+    data_manager = SerializedDataHelper
 
     def __init__(self, view):
         self.view = view
@@ -149,21 +245,10 @@ class StorageHelper(object):
 
     @property
     def cleaned_form_data(self):
-        return [
-            self._remove_non_question_data(page_data)
-            for page_data in self.form_data['data']
-        ]
-
-    def _remove_non_question_data(self, data):
-        return {
-            key: value
-            for key, value in data.items()
-            if key not in [
-                'csrfmiddlewaretoken',
-                'wizard_current_step',
-                'wizard_goto_step',
-            ]
-        }
+        return self.data_manager(
+            self.form_data['data'],
+            self.view.manager.forms,
+        ).cleaned_data
 
     @property
     def post_form_pk(self):
@@ -239,7 +324,7 @@ class WizardView(views.edit.FormView):
         if self.steps.current_is_done:
             self.template_name = self.done_template_name
             kwargs['form'] = None
-            kwargs['data'] = self.storage.cleaned_form_data
+            kwargs['form_data'] = self.storage.cleaned_form_data
             return super().get_context_data(**kwargs)
         else:
             return super().get_context_data(**kwargs)
