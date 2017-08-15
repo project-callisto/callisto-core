@@ -173,7 +173,7 @@ class MultipleChoice(FormQuestion):
 
     @property
     def choices(self):
-        return self.choice_set.all()
+        return list(self.choice_set.all().order_by('position'))
 
     @property
     def choices_field_display(self):
@@ -252,11 +252,10 @@ class Choice(models.Model):
             {'pk': option.pk, 'text': option.text}
             for option in self.options
         ]
-        return list(self.options.values('text'))
 
     @property
     def options(self):
-        return self.choiceoption_set.all()
+        return list(self.choiceoption_set.all())
 
     class Meta:
         ordering = ['position', 'pk']

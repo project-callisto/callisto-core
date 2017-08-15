@@ -1,6 +1,53 @@
 from django.test import override_settings
 
+from .. import models, view_helpers
 from .base import FunctionalTest
+
+
+class Model(object):
+
+    @property
+    def page_1(self):
+        return models.Page.objects.all()[0]
+
+    @property
+    def page_2(self):
+        return models.Page.objects.all()[1]
+
+    @property
+    def page_3(self):
+        return models.Page.objects.all()[2]
+
+    @property
+    def page_1_question_1(self):
+        return self.page_1.questions[0]
+
+    @property
+    def page_1_question_2(self):
+        return self.page_1.questions[1]
+
+    @property
+    def page_1_question_1_choice_1(self):
+        return self.page_1_question_1.choices[0]
+
+    @property
+    def page_1_question_1_choice_2(self):
+        return self.page_1_question_1.choices[1]
+
+    @property
+    def page_1_question_1_choice_3(self):
+        return self.page_1_question_1.choices[2]
+
+    @property
+    def dropdown_1(self):
+        return self.page_1_question_1_choice_2.options[0]
+
+    @property
+    def dropdown_2(self):
+        return self.page_1_question_1_choice_2.options[1]
+
+
+model = Model()
 
 
 class ElementHelper(object):
@@ -11,12 +58,12 @@ class ElementHelper(object):
     @property
     def next(self):
         return self.browser.find_element_by_css_selector(
-            '[value="Next"]')
+            '[value="{}"]'.format(view_helpers.StepsHelper.next_name))
 
     @property
     def back(self):
         return self.browser.find_element_by_css_selector(
-            '[value="Back"]')
+            '[value="{}"]'.format(view_helpers.StepsHelper.back_name))
 
     @property
     def extra_input(self):
@@ -47,40 +94,56 @@ class FrontendTest(FunctionalTest):
         return ElementHelper(self.browser)
 
     def test_first_page_text(self):
-        self.assertSelectorContains('body', 'the first page')
+        self.assertSelectorContains('form', model.page_1.infobox)
 
-    def test_submit_presence(self):
+    def test_second_page_text(self):
+        self.element.next.click()
+        self.assertSelectorContains('form', model.page_2.infobox)
+
+    def test_third_page_text(self):
+        self.element.next.click()
+        self.element.next.click()
+        self.assertSelectorContains('form', model.page_3.infobox)
+        self._assert_page_contents()
+
+    def _assert_page_contents(self):
         self.assertCss('[type="submit"]')
-
-    def test_wizard_attrs_presence(self):
         self.assertCss('[name="wizard_current_step"]')
         self.assertCss('[name="wizard_goto_step"]')
         self.assertCss('[name="form_pk"]')
 
-    def test_question_fields(self):
-        self.assertSelectorContains('.form-group', 'main text')
-        self.assertSelectorContains('.form-group', 'descriptive text')
+    def test_forwards_and_backwards_navigation(self):
+        self.element.next.click()
+        self.element.back.click()
+        self.assertSelectorContains('form', model.page_1.infobox)
+        self.element.next.click()
+        self.element.next.click()
+        self.element.back.click()
+        self.assertSelectorContains('form', model.page_2.infobox)
 
-    def test_choice_text(self):
-        self.assertSelectorContains('li', 'choice 1')
-        self.assertSelectorContains('li', 'choice 2')
+    def test_first_page_questions(self):
+        self.assertSelectorContains('form', model.page_1_question_1.text)
+        self.assertSelectorContains(
+            'form', model.page_1_question_1.descriptive_text)
+        self.assertSelectorContains('form', model.page_1_question_2.text)
+        self.assertSelectorContains(
+            'form', model.page_1_question_2.descriptive_text)
+
+    def test_first_page_choices(self):
+        self.assertSelectorContains(
+            'form', model.page_1_question_1_choice_1.text)
+        self.assertSelectorContains(
+            'form', model.page_1_question_1_choice_2.text)
+        self.assertSelectorContains(
+            'form', model.page_1_question_1_choice_3.text)
 
     def test_extra_info(self):
         self.assertCss('[placeholder="extra information here"]')
 
     def test_extra_dropdown(self):
         self.element.extra_dropdown.click()
-        self.assertSelectorContains('option', 'option 1')
-        self.assertSelectorContains('option', 'option 2')
-
-    def test_can_navigate_to_second_page(self):
-        self.element.next.click()
-        self.assertSelectorContains('body', 'the second page')
-
-    def test_can_navigate_forwards_and_back(self):
-        self.element.next.click()
-        self.element.back.click()
-        self.assertSelectorContains('body', 'the first page')
+        self.assertSelectorContains('option', model.dropdown_1.text)
+        self.assertSelectorContains('option', model.dropdown_2.text)
 
     def test_can_select_choice(self):
         self.assertFalse(self.element.extra_input.is_selected())
