@@ -6,10 +6,9 @@ from callisto_core.delivery.forms import ReportAccessForm, ReportCreateForm
 from wizard_builder.forms import PageForm
 
 
-class NewReportFlowTest(TestCase):
+class ReportFlowHelper(TestCase):
 
-    report_key = 'super secret'
-
+    secret_key = 'super secret'
     fixtures = [
         'wizard_builder_data',
     ]
@@ -23,8 +22,8 @@ class NewReportFlowTest(TestCase):
         return self.client.post(
             reverse('report_new'),
             data={
-                'key': self.report_key,
-                'key_confirmation': self.report_key,
+                'key': self.secret_key,
+                'key_confirmation': self.secret_key,
             },
             follow=True,
         )
@@ -33,12 +32,12 @@ class NewReportFlowTest(TestCase):
         return self.client.post(
             url,
             data={
-                'key': self.report_key,
+                'key': self.secret_key,
             },
             follow=True,
         )
 
-    def clear_secret_key(self):
+    def client_clear_secret_key(self):
         session = self.client.session
         session['secret_key'] = None
         session.save()
@@ -46,6 +45,9 @@ class NewReportFlowTest(TestCase):
             self.client.session.get('secret_key'),
             None,
         )
+
+
+class NewReportFlowTest(ReportFlowHelper):
 
     def test_report_creation_renders_create_form(self):
         response = self.client.get(reverse('report_new'))
@@ -73,13 +75,13 @@ class NewReportFlowTest(TestCase):
         response = self.client_post_report_creation()
         self.assertEqual(
             self.client.session.get('secret_key'),
-            self.report_key,
+            self.secret_key,
         )
 
     def test_access_form_rendered_when_no_key_in_session(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
-        self.clear_secret_key()
+        self.client_clear_secret_key()
 
         response = self.client.get(
             reverse('wizard_update', kwargs={'step':0,'uuid':uuid}))
@@ -90,7 +92,7 @@ class NewReportFlowTest(TestCase):
     def test_can_reenter_secret_key(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
-        self.clear_secret_key()
+        self.client_clear_secret_key()
 
         response = self.client_post_report_access(
             response.redirect_chain[0][0])
@@ -101,7 +103,7 @@ class NewReportFlowTest(TestCase):
     def test_access_form_returns_correct_report(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
-        self.clear_secret_key()
+        self.client_clear_secret_key()
 
         response = self.client_post_report_access(
             response.redirect_chain[0][0])
@@ -111,11 +113,12 @@ class NewReportFlowTest(TestCase):
     def test_report_not_accessible_with_incorrect_key(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
-        self.clear_secret_key()
+        self.client_clear_secret_key()
 
+        self.secret_key = 'wrong key'
         response = self.client_post_report_access(
             response.redirect_chain[0][0])
         form = response.context['form']
 
-        self.assertFalse(getattr(form, 'report', False))
+        self.assertFalse(getattr(form, 'decrypted_report', False))
         self.assertIsInstance(form, ReportAccessForm)
