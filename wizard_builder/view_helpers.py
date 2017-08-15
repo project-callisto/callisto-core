@@ -105,8 +105,14 @@ class SerializedDataHelper(object):
         return choice_text
 
     def _get_choice_option_text(self, choice, answer_dict):
-        index = int(answer_dict['extra_options'])
-        return choice['options'][index]['text']
+        try:
+            index = int(answer_dict['extra_options'])
+            return choice['options'][index]['text']
+        except Exception as e:
+        # Catch exceptions raised from choice options being edited
+        # after the user originally answered them
+            logger.exception(e)
+            return ''
 
     def _get_from_serialized_id(
         self,
