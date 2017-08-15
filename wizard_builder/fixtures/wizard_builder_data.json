@@ -47,8 +47,8 @@
     "fields": {
       "created": "2017-08-05T18:49:33.607",
       "modified": "2017-08-07T17:10:22.854",
-      "text": "main text",
-      "descriptive_text": "descriptive text",
+      "text": "food options",
+      "descriptive_text": "choose some!",
       "page": 1,
       "position": 0
     }
@@ -126,7 +126,7 @@
     "pk": 1,
     "fields": {
       "question": 1,
-      "text": "choice 1",
+      "text": "vegetables",
       "position": 0,
       "extra_info_text": "extra information here"
     }
@@ -136,7 +136,7 @@
     "pk": 2,
     "fields": {
       "question": 1,
-      "text": "choice 2",
+      "text": "apples",
       "position": 0,
       "extra_info_text": ""
     }
@@ -146,7 +146,7 @@
     "pk": 3,
     "fields": {
       "question": 1,
-      "text": "choice 3",
+      "text": "sugar",
       "position": 0,
       "extra_info_text": ""
     }
@@ -176,7 +176,7 @@
     "pk": 1,
     "fields": {
       "choice": 2,
-      "text": "option 1"
+      "text": "green"
     }
   },
   {
@@ -184,7 +184,7 @@
     "pk": 2,
     "fields": {
       "choice": 2,
-      "text": "option 2"
+      "text": "red"
     }
   }
 ]
