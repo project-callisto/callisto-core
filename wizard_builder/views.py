@@ -42,23 +42,20 @@ class WizardView(views.edit.FormView):
 
     def dispatch(self, request, step=None, *args, **kwargs):
         self.steps.set_from_get(step)
-        if self.steps.finished(step):
-            return self.dispatch_done(request, step, **kwargs)
-        elif self.steps.overflowed(step):
-            return self.render_last(**kwargs)
-        else:
-            return super().dispatch(request, *args, **kwargs)
-
-    def dispatch_done(self, request, step=None, *args, **kwargs):
-        if self.steps.current_is_done:
-            return self.render_finished(**kwargs)
-        else:
-            return self.render_done(**kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.steps.set_from_post()
-        self.storage.set_form_data()
-        return self.render_current()
+        self.storage.update()
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        if self.steps.finished(self.steps.current):
+            return self.render_form_done()
+        elif self.steps.overflowed(self.steps.current):
+            return self.render_last()
+        else:
+            return self.render_current()
 
     def get_context_data(self, **kwargs):
         if self.steps.current_is_done:
@@ -69,14 +66,20 @@ class WizardView(views.edit.FormView):
         else:
             return super().get_context_data(**kwargs)
 
-    def render_done(self, **kwargs):
+    def render_form_done(self):
+        if self.steps.current_is_done:
+            return self.render_finished()
+        else:
+            return self.render_done()
+
+    def render_done(self):
         return HttpResponseRedirect(self.steps.done_url)
 
-    def render_finished(self, **kwargs):
+    def render_finished(self):
         return self.render_to_response(self.get_context_data())
 
-    def render_last(self, **kwargs):
+    def render_last(self):
         return HttpResponseRedirect(self.steps.last_url)
 
-    def render_current(self, **kwargs):
+    def render_current(self):
         return HttpResponseRedirect(self.steps.current_url)

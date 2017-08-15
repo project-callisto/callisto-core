@@ -89,6 +89,8 @@ class ElementHelper(object):
 @override_settings(DEBUG=True)
 class FrontendTest(FunctionalTest):
 
+    # TODO: review screen tests
+
     @property
     def element(self):
         return ElementHelper(self.browser)

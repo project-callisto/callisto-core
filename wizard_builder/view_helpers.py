@@ -294,7 +294,7 @@ class StorageHelper(object):
         data.update(self.view.request.POST)
         return data
 
-    def set_form_data(self):
+    def update(self):
         self.view.request.session[self.post_form_pk] = self.post_data
 
     def data_from_pk(self, pk):
