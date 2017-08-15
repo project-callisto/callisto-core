@@ -44,7 +44,8 @@ class EncryptedWizardView(ReportAccessView, WizardView):
     steps_helper = ReportStepsHelper
 
     def form_valid(self, form):
-        self._save_report()
+        if self.storage.secret_key:
+            self._save_report()
         return super().form_valid(form)
 
     def _save_report(self):

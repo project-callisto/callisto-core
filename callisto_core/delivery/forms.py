@@ -48,10 +48,13 @@ class ReportCreateForm(
         key_confirmation = self.data.get("key_confirmation")
         if key != key_confirmation:
             raise forms.ValidationError(self.message_confirmation_error)
+        else:
+            return key_confirmation
 
     def save(self, commit=True):
         output = super().save(commit=commit)
-        self.report.encryption_setup(self.data.get("key"))
+        # self.report.encryption_setup(self.data.get("key"))
+        self.report.encrypt_report('', self.data.get("key"))
         return output
 
 
@@ -61,13 +64,14 @@ class ReportAccessForm(ReportBaseForm):
 
     def clean_key(self):
         try:
-            self._decrypt_report()
+            return self._decrypt_report()
         except CryptoError:
-            self._decryption_failed()
+            return self._decryption_failed()
 
     def _decrypt_report(self):
         self.decrypted_report = self.report.decrypted_report(
             self.data['key'])
+        return self.data['key']
 
     def _decryption_failed(self):
         logger.info(self.message_key_error_log.format(self.report))

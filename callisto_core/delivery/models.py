@@ -73,12 +73,17 @@ class Report(models.Model):
           report_text (str): the full text of the report
           secret_key (str): the secret key
         """
+        print('Report.encrypt_report')
+        print(report_text, secret_key)
         stretched_key = self.encryption_setup(secret_key)
         self.encrypted = security.encrypt_text(stretched_key, report_text)
         self.save()
 
     def decrypted_report(self, key):
-        """Decrypts the report text. Uses the salt from the encode prefix stored on the Report object.
+        """
+        Decrypts the report text.
+        Uses the salt from the encode prefix stored on the Report object.
+
         Args:
           key (str): the secret key
 
@@ -88,6 +93,8 @@ class Report(models.Model):
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
+        print('Report.decrypted_report')
+        print(key)
         prefix, stretched_key = make_key(self.encode_prefix, key, self.salt)
         return security.decrypt_text(stretched_key, self.encrypted)
 

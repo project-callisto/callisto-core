@@ -96,7 +96,7 @@ class NewReportFlowTest(TestCase):
             response.redirect_chain[0][0])
         form = response.context['form']
 
-        self.assertEqual(form, PageForm)
+        self.assertIsInstance(form, PageForm)
 
     def test_access_form_returns_correct_report(self):
         response = self.client_post_report_creation()
@@ -108,3 +108,15 @@ class NewReportFlowTest(TestCase):
         form = response.context['form']
 
         self.assertEqual(form.report.uuid, uuid)
+
+    def test_report_not_accessible_with_incorrect_key(self):
+        response = self.client_post_report_creation()
+        uuid = response.context['report'].uuid
+        self.clear_secret_key()
+
+        response = self.client_post_report_access(
+            response.redirect_chain[0][0])
+        form = response.context['form']
+
+        self.assertFalse(getattr(form, 'report'))
+        self.assertEqual(form, ReportAccessForm)
