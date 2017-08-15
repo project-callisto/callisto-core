@@ -61,15 +61,7 @@ class SerializedDataHelper(object):
             self._append_text_answer(answer, question)
         else:
             answer_list = answer if isinstance(answer, list) else [answer]
-            print('_parse_list_answers')
-            from pprint import pprint
-            print('question_dict')
-            pprint(question_dict)
-            print('answer_dict')
-            pprint(answer_dict)
-            print('answer_list')
-            pprint(answer_list)
-            self._append_list_answers(answer_list, question)
+            self._append_list_answers(answer_dict, answer_list, question)
 
     def _question_answer(self, answers, question):
         return answers[question['field_id']]
@@ -80,10 +72,11 @@ class SerializedDataHelper(object):
                 question['question_text']: [answer],
             })
 
-    def _append_list_answers(self, answer_list, question):
+    def _append_list_answers(self, answer_dict, answer_list, question):
         choice_list = []
         for answer in answer_list:
-            choice_list.append(self._get_choice_text(answer, question))
+            choice_list.append(self._get_choice_text(
+                answer_dict, answer, question))
         self.zipped_data.append({
             question['question_text']: choice_list,
         })
@@ -96,15 +89,24 @@ class SerializedDataHelper(object):
             message=self.question_id_error_message,
         )
 
-    def _get_choice_text(self, answer, question):
+    def _get_choice_text(self, answer_dict, answer, question):
         choice = self._get_from_serialized_id(
             stored_id=answer,
             current_objects=question['choices'],
             id_field='pk',
             message=self.choice_id_error_message,
         )
-        print(choice)
-        return choice['text']
+        choice_text = choice['text']
+        if choice.get('extra_info_text') and answer_dict.get('extra_info'):
+            choice_text += ': ' + answer_dict['extra_info']
+        if choice.get('options') and answer_dict.get('extra_options'):
+            choice_text += ': ' + self._get_choice_option_text(
+                choice, answer_dict)
+        return choice_text
+
+    def _get_choice_option_text(self, choice, answer_dict):
+        index = int(answer_dict['extra_options'])
+        return choice['options'][index]['text']
 
     def _get_from_serialized_id(
         self,
