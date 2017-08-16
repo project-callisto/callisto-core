@@ -4,6 +4,7 @@ from wizard_builder.view_helpers import StorageHelper, StepsHelper
 from django.core.urlresolvers import reverse
 
 from .views import ReportAccessView, SecretKeyStorageHelper
+from . import security, hashers
 
 
 class ReportStepsHelper(StepsHelper):
@@ -24,18 +25,17 @@ class EncryptedStorageHelper(
 ):
 
     @property
-    def form_data(self):
-        return self.decrypt(super().form_data)
+    def report(self):
+        return self.view.report
 
-    @property
-    def post_data(self):
-        return self.encrypt(super().post_data)
+    def data_from_key(self, form_key):
+        return self.report.decrypted_report(self.secret_key).get(form_key, {})
 
-    def encrypt(self, data):
-        return data  # TODO
-
-    def decrypt(self, data):
-        return data  # TODO
+    def update(self):
+        self.report.encrypt_report(
+            self.form_data,
+            self.secret_key,
+        )
 
 
 class EncryptedWizardView(
@@ -45,14 +45,3 @@ class EncryptedWizardView(
     template_name = WizardView.template_name
     storage_helper = EncryptedStorageHelper
     steps_helper = ReportStepsHelper
-
-    def form_valid(self, form):
-        if self.storage.secret_key:
-            self._save_report()
-        return super().form_valid(form)
-
-    def _save_report(self):
-        self.report.encrypt_report(
-            str(self.storage.form_data),
-            self.storage.secret_key,
-        )

@@ -1,4 +1,5 @@
 import uuid
+import json
 
 from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
@@ -7,8 +8,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.crypto import get_random_string
 
-from . import security
-from .hashers import get_hasher, make_key
+from . import security, hashers
 
 
 class Report(models.Model):
@@ -57,7 +57,7 @@ class Report(models.Model):
             return None
 
     def setup(self, secret_key):
-        self.encrypt_report('', secret_key)
+        self.encrypt_report({}, secret_key)
 
     def encrypt_report(self, report_text, secret_key):
         """Encrypts and attaches report text. Generates a random salt
@@ -67,8 +67,9 @@ class Report(models.Model):
           report_text (str): the full text of the report
           secret_key (str): the secret key
         """
-        stretched_key = self._encryption_setup(secret_key)
-        self.encrypted = security.encrypt_text(stretched_key, report_text)
+        stretched_key = self.encryption_setup(secret_key)
+        json_report_text = json.dumps(report_text)
+        self.encrypted = security.encrypt_text(stretched_key, json_report_text)
         self.save()
 
     def decrypted_report(self, key):
@@ -85,18 +86,21 @@ class Report(models.Model):
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
-        prefix, stretched_key = make_key(self.encode_prefix, key, self.salt)
-        return security.decrypt_text(stretched_key, self.encrypted)
+        _, stretched_key = hashers.make_key(self.encode_prefix, key, self.salt)
+        json_report_text = security.decrypt_text(stretched_key, self.encrypted)
+        print('decrypted_report.json_report_text', json_report_text, type(json_report_text))
+        print('decrypted_report.report_text', json.loads(json_report_text), type(json.loads(json_report_text)))
+        return json.loads(json_report_text)
 
     def withdraw_from_matching(self):
         """ Deletes all associated MatchReports """
         self.matchreport_set.all().delete()
         self.match_found = False
 
-    def _encryption_setup(self, secret_key):
+    def encryption_setup(self, secret_key):
         if self.salt:
             self.salt = None
-        hasher = get_hasher()
+        hasher = hashers.get_hasher()
         encoded = hasher.encode(secret_key, get_random_string())
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
         self.save()
@@ -140,7 +144,7 @@ class MatchReport(models.Model):
         """
         if self.salt:
             self.salt = None
-        hasher = get_hasher()
+        hasher = hashers.get_hasher()
         salt = get_random_string()
 
         encoded = hasher.encode(key, salt)
@@ -165,7 +169,7 @@ class MatchReport(models.Model):
         """
         decrypted_report = None
 
-        prefix, stretched_identifier = make_key(
+        prefix, stretched_identifier = hashers.make_key(
             self.encode_prefix,
             identifier,
             self.salt,

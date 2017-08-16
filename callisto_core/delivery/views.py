@@ -31,6 +31,10 @@ class SecretKeyStorageHelper(object):
         self.view.request.session['secret_key'] = key
 
     @property
+    def report(self):
+        return self.view.report
+
+    @property
     def secret_key(self):
         return self.view.request.session.get('secret_key')
 
