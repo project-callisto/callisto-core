@@ -1,4 +1,5 @@
-from wizard_builder.views import StepsHelper, StorageHelper, WizardView
+from wizard_builder.views import WizardView
+from wizard_builder.view_helpers import StorageHelper, StepsHelper
 
 from django.core.urlresolvers import reverse
 
@@ -37,7 +38,10 @@ class EncryptedStorageHelper(
         return data  # TODO
 
 
-class EncryptedWizardView(ReportAccessView, WizardView):
+class EncryptedWizardView(
+    ReportAccessView,
+    WizardView
+):
     storage_helper = EncryptedStorageHelper
     steps_helper = ReportStepsHelper
 
