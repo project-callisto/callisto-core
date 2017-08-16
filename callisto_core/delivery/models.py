@@ -1,5 +1,5 @@
-import uuid
 import json
+import uuid
 
 from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
@@ -8,7 +8,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.crypto import get_random_string
 
-from . import security, hashers
+from . import hashers, security
 
 
 class Report(models.Model):

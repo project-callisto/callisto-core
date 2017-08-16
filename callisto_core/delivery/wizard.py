@@ -1,10 +1,9 @@
+from wizard_builder.view_helpers import StepsHelper, StorageHelper
 from wizard_builder.views import WizardView
-from wizard_builder.view_helpers import StorageHelper, StepsHelper
 
 from django.core.urlresolvers import reverse
 
 from .views import ReportAccessView, SecretKeyStorageHelper
-from . import security, hashers
 
 
 class ReportStepsHelper(StepsHelper):
@@ -32,10 +31,7 @@ class EncryptedStorageHelper(
         return self.report.decrypted_report(self.secret_key).get(form_key, {})
 
     def update(self):
-        self.report.encrypt_report(
-            self.form_data,
-            self.secret_key,
-        )
+        self.report.encrypt_report(self.form_data, self.secret_key)
 
 
 class EncryptedWizardView(

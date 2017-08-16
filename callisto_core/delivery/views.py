@@ -48,10 +48,6 @@ class ReportBaseView(views.edit.ModelFormMixin):
     slug_url_kwarg = 'uuid'
 
     @property
-    def report(self):
-        return self.object
-
-    @property
     def storage(self):
         return self.storage_helper(self)
 
@@ -70,6 +66,11 @@ class ReportCreateView(
 ):
     form_class = forms.ReportCreateForm
 
+    @property
+    def report(self):
+        # can only be accessed after form_valid()
+        return self.object
+
     def get_success_url(self):
         return reverse_lazy(
             'wizard_update',
@@ -86,6 +87,11 @@ class ReportAccessView(
 ):
     access_form_class = forms.ReportAccessForm
     invalid_access_message = 'Invalid access request at url {}'
+
+    @property
+    def report(self):
+        # can be accessed at any point
+        return self.get_object()
 
     def post(self, request, *args, **kwargs):
         if self.storage.secret_key:
