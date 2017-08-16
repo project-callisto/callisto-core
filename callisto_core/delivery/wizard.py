@@ -53,6 +53,6 @@ class EncryptedWizardView(
 
     def _save_report(self):
         self.report.encrypt_report(
-            self.storage.form_data,
+            str(self.storage.form_data),
             self.storage.secret_key,
         )
