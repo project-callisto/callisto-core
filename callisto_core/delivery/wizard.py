@@ -42,6 +42,6 @@ class EncryptedWizardView(
     ReportAccessView,
     WizardView
 ):
-    template_name = WizardView.template_name
+    template_name = 'callisto_core/delivery/wizard_form.html'
     storage_helper = EncryptedStorageHelper
     steps_helper = ReportStepsHelper
