@@ -45,8 +45,8 @@ class WizardView(views.edit.FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.steps.set_from_post()
         output = super().post(request, *args, **kwargs)
+        self.steps.set_from_post()
         self.storage.update()
         return output
 
