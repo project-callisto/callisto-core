@@ -42,6 +42,7 @@ class EncryptedWizardView(
     ReportAccessView,
     WizardView
 ):
+    template_name = WizardView.template_name
     storage_helper = EncryptedStorageHelper
     steps_helper = ReportStepsHelper
 
