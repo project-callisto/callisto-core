@@ -46,8 +46,9 @@ class WizardView(views.edit.FormView):
 
     def post(self, request, *args, **kwargs):
         self.steps.set_from_post()
+        output = super().post(request, *args, **kwargs)
         self.storage.update()
-        return super().post(request, *args, **kwargs)
+        return output
 
     def form_valid(self, form):
         if self.steps.finished(self.steps.current):
