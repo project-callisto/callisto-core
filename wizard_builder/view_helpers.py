@@ -290,7 +290,7 @@ class StorageHelper(object):
 
     @property
     def post_data(self):
-        data = self._data_from_key(self.post_form_pk)
+        data = self.data_from_key(self.post_form_pk)
         data.update(self.view.request.POST)
         return data
 
@@ -299,7 +299,7 @@ class StorageHelper(object):
 
     def data_from_pk(self, pk):
         key = self.view.form_pk(pk)
-        return self._data_from_key(key)
+        return self.data_from_key(key)
 
-    def _data_from_key(self, key):
-        return self.view.request.session.get(key, {})
+    def data_from_key(self, form_key):
+        return self.view.request.session.get(form_key, {})
