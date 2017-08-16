@@ -25,6 +25,8 @@ clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
+	rm -rf wizard_builder/tests/screendumps/
+	rm -rf wizard_builder/tests/staticfiles/
 
 clean-pyc: ## remove Python file artifacts
 	find wizard_builder -name '*.pyc' -exec rm -f {} +
