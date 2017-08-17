@@ -2,6 +2,9 @@ import json
 
 import gnupg
 import six
+from callisto_core.delivery.models import Report
+from callisto_core.evaluation.models import EvalRow, EvaluationField
+from callisto_core.utils.api import MatchingApi
 from mock import ANY, call, patch
 from wizard_builder.models import (
     Checkbox, Choice, Page, RadioButton, SingleLineText,
@@ -11,10 +14,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
-
-from callisto_core.utils.api import MatchingApi
-from callisto_core.delivery.models import Report
-from callisto_core.evaluation.models import EvalRow, EvaluationField
 
 from ..callistocore.test_matching import MatchTest
 from .test_keypair import private_test_key, public_test_key
@@ -582,10 +581,10 @@ class EvalActionTest(MatchTest):
     @patch('callisto_core.delivery.views.MatchingApi')
     @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
     def test_submission_to_matching_creates_eval_row(
-            self,
-            mock_anonymise_record,
-            mock_matching_api
-        ):
+        self,
+        mock_anonymise_record,
+        mock_matching_api
+    ):
         response = self.client.post(
             ('/test_reports/match/%s/' % self.report.pk),
             data={

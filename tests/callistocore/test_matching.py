@@ -1,5 +1,8 @@
 import json
 
+from callisto_core.delivery.models import MatchReport, Report
+from callisto_core.delivery.report_delivery import MatchReportContent
+from callisto_core.utils.api import MatchingApi
 from mock import call, patch
 
 from django.contrib.auth import get_user_model
@@ -7,10 +10,6 @@ from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
-
-from callisto_core.utils.api import MatchingApi
-from callisto_core.delivery.models import MatchReport, Report
-from callisto_core.delivery.report_delivery import MatchReportContent
 
 User = get_user_model()
 
@@ -186,7 +185,7 @@ class MatchDiscoveryTest(MatchTest):
         mock_process.side_effect = [Exception('Boom!'), ()]
         try:
             MatchingApi.run_matching()
-        except:
+        except BaseException:
             pass
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()

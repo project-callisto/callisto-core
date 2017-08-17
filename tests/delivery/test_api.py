@@ -1,8 +1,7 @@
+from callisto_core.utils.api import MatchingApi, NotificationApi
 from mock import patch
 
 from django.test import TestCase, override_settings
-
-from callisto_core.utils.api import MatchingApi, NotificationApi
 
 
 class ApiTest(TestCase):

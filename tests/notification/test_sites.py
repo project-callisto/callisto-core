@@ -1,3 +1,5 @@
+from callisto_core.delivery.models import Report
+from callisto_core.notification.models import EmailNotification
 from mock import patch
 
 from django.conf import settings
@@ -5,9 +7,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings
-
-from callisto_core.delivery.models import Report
-from callisto_core.notification.models import EmailNotification
 
 User = get_user_model()
 

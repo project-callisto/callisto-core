@@ -2,11 +2,10 @@ import hashlib
 
 import nacl.secret
 import nacl.utils
+from callisto_core.delivery import security
 
 from django.conf import settings
 from django.utils.crypto import get_random_string, pbkdf2
-
-from callisto_core.delivery import security
 
 
 def _legacy_encrypt_report(salt, key, report_text):

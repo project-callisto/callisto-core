@@ -1,12 +1,10 @@
+from callisto_core.delivery import forms, validators
+from callisto_core.delivery.forms import SubmitToMatchingForm
+from callisto_core.delivery.models import Report
 from mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
-
-from callisto_core.delivery import validators
-from callisto_core.delivery.forms import SubmitToMatchingForm
-from callisto_core.delivery import forms
-from callisto_core.delivery.models import Report
 
 User = get_user_model()
 
@@ -81,7 +79,7 @@ class SubmitToMatchingFormFacebookTest(SubmitToMatchingFormTest):
 
     def test_case_insensitive(self):
         self.assertEqual(self.get_cleaned_identifier('facebook.com/Callisto_Org'),
-                            self.get_cleaned_identifier('https://www.facebook.com/callisto_org'))
+                         self.get_cleaned_identifier('https://www.facebook.com/callisto_org'))
 
 
 @override_settings(CALLISTO_IDENTIFIER_DOMAINS=validators.facebook_or_twitter)
@@ -138,7 +136,7 @@ class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
 
     def test_case_insensitive(self):
         self.assertEqual(self.get_cleaned_identifier('twitter.com/cAlLiStOoRg'),
-                            self.get_cleaned_identifier('https://www.twitter.com/CallistoOrg'))
+                         self.get_cleaned_identifier('https://www.twitter.com/CallistoOrg'))
 
     def test_can_use_at_name(self):
         self.verify_url_works('@callistoorg', 'twitter:callistoorg')

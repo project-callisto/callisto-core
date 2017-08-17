@@ -1,9 +1,9 @@
-from django.test import TestCase
-from django.core.urlresolvers import reverse
-from django.contrib.sites.models import Site
-
 from callisto_core.delivery.forms import ReportAccessForm, ReportCreateForm
 from wizard_builder.forms import PageForm
+
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 
 class ReportFlowHelper(TestCase):
@@ -59,7 +59,7 @@ class NewReportFlowTest(ReportFlowHelper):
         uuid = response.context['report'].uuid
         self.assertEqual(
             response.redirect_chain[0][0],
-            reverse('wizard_update', kwargs={'step':0,'uuid':uuid}),
+            reverse('wizard_update', kwargs={'step': 0, 'uuid': uuid}),
         )
 
     def test_report_creation_renders_wizard_form(self):
@@ -84,7 +84,7 @@ class NewReportFlowTest(ReportFlowHelper):
         self.client_clear_secret_key()
 
         response = self.client.get(
-            reverse('wizard_update', kwargs={'step':0,'uuid':uuid}))
+            reverse('wizard_update', kwargs={'step': 0, 'uuid': uuid}))
         form = response.context['form']
 
         self.assertIsInstance(form, ReportAccessForm)
@@ -165,7 +165,6 @@ class ReportMetaFlowTest(ReportFlowHelper):
         response = self.client.get(self.withdrawal_url % self.report.pk)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(MatchReport.objects.filter(report=self.report).count(), 0)
-
 
     def test_submit_creates_match(self):
         response = self.client.post((self.submission_url % self.report.pk),

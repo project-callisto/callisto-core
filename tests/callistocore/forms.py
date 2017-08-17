@@ -1,11 +1,11 @@
 # TODO: rename this file to api.py
 
+from callisto_core.delivery.api import CallistoCoreMatchingApi
+from callisto_core.notification.api import CallistoCoreNotificationApi
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.http import HttpResponse
-
-from callisto_core.delivery.api import CallistoCoreMatchingApi
-from callisto_core.notification.api import CallistoCoreNotificationApi
 
 
 class SiteAwareNotificationApi(CallistoCoreNotificationApi):
