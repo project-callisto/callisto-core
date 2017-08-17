@@ -112,6 +112,7 @@ class ReportAccessView(
 
     def dispatch(self, request, *args, **kwargs):
         if self.storage.secret_key:
+            EvalRow.store_eval_row(action=EvalRow.VIEW, report=self.report)
             return super().dispatch(request, *args, **kwargs)
         else:
             return views.edit.UpdateView.dispatch(
@@ -135,21 +136,32 @@ class ReportAccessView(
 class ReportPDFView(ReportAccessView):
 
     def __temp(self):
-        EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = '{}; filename="{}"'\
-            .format('attachment' if force_download else 'inline', filename)
-        pdf = PDFFullReport(report=report, decrypted_report=form.decrypted_report)\
-            .generate_pdf_report(recipient=None, report_id=None)
+        response.update({
+            'Content-Disposition': 'inline; filename="{}"'.format(filename),
+        })
+        pdf = PDFFullReport(
+            report=self.report,
+            decrypted_report=form.decrypted_report
+        ).generate_pdf_report(
+            recipient=None,
+            report_id=None,
+        )
         response.write(pdf)
         return response
 
 
 class BaseReportingView(ReportAccessView):
 
-    def _send_confirmation_email(self, form):
+    def form_valid(self, form):
+        output = super().form_valid(form)
         if form.cleaned_data.get('email_confirmation') == "True":
-            NotificationApi.send_user_notification(form, self.email_confirmation_name, self.site_id)
+            NotificationApi.send_user_notification(
+                form,
+                self.email_confirmation_name,
+                self.site_id,
+            )
+        return output
 
 
 class ReportingView(BaseReportingView):
@@ -158,11 +170,16 @@ class ReportingView(BaseReportingView):
 
     def form_valid(self, form):
         output = super().form_valid(form)
-        sent_full_report = SentFullReport.objects.create(
-            report=self.report, to_address=settings.COORDINATOR_EMAIL)
-        NotificationApi.send_report_to_authority(
-            sent_full_report, form.decrypted_report, self.site_id)
         EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=self.report)
+        sent_full_report = SentFullReport.objects.create(
+            report=self.report,
+            to_address=settings.COORDINATOR_EMAIL,
+        )
+        NotificationApi.send_report_to_authority(
+            sent_full_report,
+            form.decrypted_report,
+            self.site_id,
+        )
         self._send_confirmation_email(form)
         return output
 
