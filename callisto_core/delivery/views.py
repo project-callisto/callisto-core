@@ -1,8 +1,8 @@
 import json
 import logging
 
-from ratelimit.decorators import ratelimit
-
+import ratelimit
+from ratelimit.mixins import RatelimitMixin
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
@@ -84,9 +84,14 @@ class ReportCreateView(
 class ReportAccessView(
     ReportBaseView,
     views.edit.UpdateView,
+    ratelimit.mixins.RatelimitMixin,
 ):
     access_form_class = forms.ReportAccessForm
     invalid_access_message = 'Invalid access request at url {}'
+    ratelimit_key = 'user'
+    ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
+    ratelimit_block = True
+    ratelimit_method = 'POST'
 
     @property
     def report(self):
@@ -115,139 +120,74 @@ class ReportAccessView(
             self.request.get_full_path()))
 
 
-@ratelimit(
-    group='decrypt',
-    key='user',
-    method=ratelimit.UNSAFE,
-    rate=settings.DECRYPT_THROTTLE_RATE,
-    block=True,
-)
-def submit_report_to_authority(
-    request,
-    report_id,
-    form_template_name="submit_report_to_authority.html",
-    confirmation_template_name="submit_report_to_authority_confirmation.html",
-    extra_context=None,
-):
-    report = Report.objects.get(id=report_id)
-    owner = report.owner
-    site = get_current_site(request)
-    context = {'owner': owner, 'report': report, **extra_context}
+class BaseReportingView(ReportAccessView):
 
-    if request.method == 'POST':
-        form = forms.SubmitReportToAuthorityForm(report.owner, report, request.POST)
-        form.report = report
-        if form.is_valid():
-            try:
-                report.contact_name = conditional_escape(form.cleaned_data.get('name'))
-                report.contact_email = form.cleaned_data.get('email')
-                report.contact_phone = conditional_escape(form.cleaned_data.get('phone_number'))
-                report.contact_voicemail = conditional_escape(form.cleaned_data.get('voicemail'))
-                report.contact_notes = conditional_escape(form.cleaned_data.get('contact_notes'))
-                sent_full_report = SentFullReport.objects.create(report=report, to_address=settings.COORDINATOR_EMAIL)
-                NotificationApi.send_report_to_authority(sent_full_report, form.decrypted_report, site.id)
-                report.save()
-            except Exception:
-                logger.exception("couldn't submit report for report {}".format(report_id))
-                context.update({'form': form, 'submit_error': True})
-                return render(request, form_template_name, context)
+    def _send_confirmation_email(self, form):
+        if form.cleaned_data.get('email_confirmation') == "True":
+            NotificationApi.send_user_notification(
+                form, self.email_confirmation_name, site.id)
 
-            # record submission in anonymous evaluation data
-            EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
+# submit_report_to_authority
+class ReportingView(BaseReportingView):
+    form_class = forms.SubmitReportToAuthorityForm
+    email_confirmation_name = 'submit_confirmation'
 
-            if form.cleaned_data.get('email_confirmation') == "True":
-                try:
-                    NotificationApi.send_user_notification(form, 'submit_confirmation', site.id)
-                except Exception:
-                    # report was sent even if confirmation email fails, so don't show an error if so
-                    logger.exception("couldn't send confirmation to user on submission")
-
-            context.update({'form': form})
-            return render(request, confirmation_template_name, context)
-    else:
-        form = forms.SubmitReportToAuthorityForm(report.owner, report)
-    context.update({'form': form})
-    return render(request, form_template_name, context)
+    def form_valid(self, form):
+        output = super().form_valid(form)
+        sent_full_report = SentFullReport.objects.create(
+            report=report, to_address=settings.COORDINATOR_EMAIL)
+        NotificationApi.send_report_to_authority(
+            sent_full_report, form.decrypted_report, site.id)
+        EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
+        self._send_confirmation_email(form)
+        return output
 
 
-@ratelimit(
-    group='decrypt',
-    key='user',
-    method=ratelimit.UNSAFE,
-    rate=settings.DECRYPT_THROTTLE_RATE,
-    block=True,
-)
-def submit_to_matching(
-    request,
-    report_id,
-    form_template_name="submit_to_matching.html",
-    confirmation_template_name="submit_to_matching_confirmation.html",
-    extra_context=None,
-):
-    report = Report.objects.get(id=report_id)
-    owner = report.owner
-    site = get_current_site(request)
-    context = {'owner': owner, 'report': report, **extra_context}
+# submit_to_matching
+class MatchingView(BaseReportingView):
+    form_class = forms.SubmitToMatchingForm
+    email_confirmation_name = 'match_confirmation'
 
-    if request.method == 'POST':
-        form = forms.SubmitReportToAuthorityForm(report.owner, report, request.POST)
-        formset = forms.SubmitToMatchingFormSet(request.POST)
-        form.report = report
-        if form.is_valid() and formset.is_valid():
-            try:
-                matches_for_immediate_processing = []
-                for perp_form in formset:
-                    # enter into matching
-                    match_report = MatchReport(report=report)
+    def form_valid(self, form):
+        output = super().form_valid(form)
 
-                    perp_identifier = perp_form.cleaned_data.get('perp')
-                    match_report.contact_email = form.cleaned_data.get('email')
-                    match_report_content = \
-                        MatchReportContent(identifier=perp_identifier,
-                                           perp_name=conditional_escape(perp_form.cleaned_data.get('perp_name')),
-                                           contact_name=conditional_escape(form.cleaned_data.get('name')),
-                                           email=match_report.contact_email,
-                                           phone=conditional_escape(form.cleaned_data.get('phone_number')),
-                                           voicemail=conditional_escape(form.cleaned_data.get('voicemail')),
-                                           notes=conditional_escape(form.cleaned_data.get('contact_notes')))
-                    match_report.encrypt_match_report(report_text=json.dumps(match_report_content.__dict__),
-                                                      key=perp_identifier)
+        matches_for_immediate_processing = []
+        for perp_form in formset:
+            # enter into matching
+            match_report = MatchReport(report=report)
 
-                    if settings.MATCH_IMMEDIATELY:
-                        # save in DB without identifier
-                        match_report.save()
-                        match_report.identifier = perp_identifier
-                        matches_for_immediate_processing.append(match_report)
-                    else:
-                        # temporarily save identifier in DB until matching is run
-                        match_report.identifier = perp_identifier
-                        match_report.save()
+            perp_identifier = perp_form.cleaned_data.get('perp')
+            match_report.contact_email = form.cleaned_data.get('email')
+            match_report_content = \
+                MatchReportContent(identifier=perp_identifier,
+                                   perp_name=conditional_escape(perp_form.cleaned_data.get('perp_name')),
+                                   contact_name=conditional_escape(form.cleaned_data.get('name')),
+                                   email=match_report.contact_email,
+                                   phone=conditional_escape(form.cleaned_data.get('phone_number')),
+                                   voicemail=conditional_escape(form.cleaned_data.get('voicemail')),
+                                   notes=conditional_escape(form.cleaned_data.get('contact_notes')))
+            match_report.encrypt_match_report(report_text=json.dumps(match_report_content.__dict__),
+                                              key=perp_identifier)
 
-                    # record matching submission in anonymous evaluation data
-                    EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
+            if settings.MATCH_IMMEDIATELY:
+                # save in DB without identifier
+                match_report.save()
+                match_report.identifier = perp_identifier
+                matches_for_immediate_processing.append(match_report)
+            else:
+                # temporarily save identifier in DB until matching is run
+                match_report.identifier = perp_identifier
+                match_report.save()
 
-                if settings.MATCH_IMMEDIATELY:
-                    MatchingApi.run_matching(match_reports_to_check=matches_for_immediate_processing)
+            # record matching submission in anonymous evaluation data
+            EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
 
-            except Exception:
-                logger.exception("couldn't submit match report for report {}".format(report_id))
-                context.update({'form': form, 'formset': formset, 'submit_error': True})
-                return render(request, form_template_name, context)
+        self._send_confirmation_email(form)
 
-            if form.cleaned_data.get('email_confirmation') == "True":
-                try:
-                    NotificationApi.send_user_notification(form, 'match_confirmation', site.id)
-                except Exception:
-                    # matching was entered even if confirmation email fails, so don't show an error if so
-                    logger.exception("couldn't send confirmation to user on match submission")
+        if settings.MATCH_IMMEDIATELY:
+            MatchingApi.run_matching(match_reports_to_check=matches_for_immediate_processing)
 
-            return render(request, confirmation_template_name, context)
-
-    else:
-        form = forms.SubmitReportToAuthorityForm(report.owner, report)
-        formset = forms.SubmitToMatchingFormSet()
-    context.update({'form': form, 'formset': formset})
-    return render(request, form_template_name, context)
+        return output
 
 
 def withdraw_from_matching(request, report_id, template_name, extra_context=None):
@@ -264,13 +204,6 @@ def withdraw_from_matching(request, report_id, template_name, extra_context=None
     return render(request, template_name, context)
 
 
-@ratelimit(
-    group='decrypt',
-    key='user',
-    method=ratelimit.UNSAFE,
-    rate=settings.DECRYPT_THROTTLE_RATE,
-    block=True,
-)
 def export_as_pdf(
     request,
     report_id,
@@ -306,13 +239,6 @@ def export_as_pdf(
     return render(request, template_name, context)
 
 
-@ratelimit(
-    group='decrypt',
-    key='user',
-    method=ratelimit.UNSAFE,
-    rate=settings.DECRYPT_THROTTLE_RATE,
-    block=True,
-)
 def delete_report(
     request,
     report_id,

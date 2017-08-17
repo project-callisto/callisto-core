@@ -77,61 +77,69 @@ class ReportAccessForm(ReportBaseForm):
         raise forms.ValidationError(self.message_key_error)
 
 
-class SubmitReportToAuthorityForm(forms.Form):
-    name = forms.CharField(label="Your preferred first name:",
-                           required=False,
-                           max_length=500,
-                           widget=forms.TextInput(attrs={'placeholder': 'ex. Chris'}),)
-
-    phone_number = forms.CharField(label="Preferred phone number to call:",
-                                   required=True,
-                                   max_length=50,
-                                   widget=forms.TextInput(attrs={'placeholder': 'ex. (555) 555-5555'}),)
-
+class SubmitReportToAuthorityForm(forms.models.ModelForm):
+    name = forms.CharField(
+        label="Your preferred first name:",
+        required=False,
+        max_length=500,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'ex. Chris'},
+        ),
+    )
+    phone_number = forms.CharField(
+        label="Preferred phone number to call:",
+        required=True,
+        max_length=50,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'ex. (555) 555-5555'}
+        ),
+    )
     voicemail = forms.CharField(
         label="Is it ok to leave a voicemail? If so, what would you like the message to refer to?",
         required=False,
         max_length=256,
         widget=forms.TextInput(
-            attrs={
-                'placeholder': "ex. Yes, please just say you're following up from Callisto."}),
+            attrs={'placeholder': "ex. Yes, please just say you're following up from Callisto."},
+        ),
     )
-
-    email = forms.EmailField(label="If you can't be reached by phone, what's the best email address to reach you?",
-                             required=True,
-                             max_length=256,
-                             widget=forms.TextInput(attrs={'placeholder': 'ex. myname@gmail.com'}),)
-
+    email = forms.EmailField(
+        label="If you can't be reached by phone, what's the best email address to reach you?",
+        required=True,
+        max_length=256,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'ex. myname@gmail.com'},
+        ),
+    )
     contact_notes = forms.CharField(
-        label="Any notes on what time of day is best to reach you? A {0} staff member will "
-        "try their best to accommodate your needs.".format(
-            settings.SCHOOL_SHORTNAME), required=False, widget=forms.Textarea(
+        label='''
+            Any notes on what time of day is best to reach you?
+            A {0} staff member will try their best to accommodate
+            your needs.
+        '''.format(settings.SCHOOL_SHORTNAME),
+        required=False,
+        widget=forms.Textarea(
             attrs={
-                'placeholder': "ex. I have class from 9-2 most weekdays and work in the evenings,"
-                               " so mid afternoon is best (around 2:30-5pm)."
-                " Wednesdays and Thursdays I have class the entire day, so those days don't work at all.",
-                'max_length': 5000}),)
-
+                'placeholder': '''
+                    ex. I have class from 9-2 most weekdays and work in
+                    the evenings, so mid afternoon is best (around 2:30-5pm).
+                    Wednesdays and Thursdays I have class the entire day,
+                    so those days don't work at all.
+                ''',
+            },
+        ),
+    )
     email_confirmation = forms.ChoiceField(
-        choices=[(True, "Yes"),
-                 (False, "No, thanks")],
-        label="Would you like us to send you a confirmation email with information about your rights in the reporting "
-              "process, and where to get support and find resources on campus?",
+        choices=[
+            (True, "Yes"),
+            (False, "No, thanks"),
+        ],
+        label='''
+            Would you like us to send you a confirmation email
+            with information about your rights in the reporting
+            process, and where to get support and find resources on campus?
+        '''
         required=True,
         widget=forms.RadioSelect)
-
-    def __init__(self, user, report, *args, **kwargs):
-        super(SubmitReportToAuthorityForm, self).__init__(*args, **kwargs)
-        self.user = user
-        self.report = report
-        self.fields['key'].widget.attrs['placeholder'] = 'ex. I am a muffin baking ninja'
-
-        # TODO: populate these intelligently if we have the data elsewhere (in match reports, other reports)
-        self.fields['name'].initial = report.contact_name
-        self.fields['phone_number'].initial = report.contact_phone
-        self.fields['voicemail'].initial = report.contact_voicemail
-        self.fields['email'].initial = report.contact_email or user.email
-        self.fields['contact_notes'].initial = report.contact_notes
 
 
 def join_list_with_or(lst):
