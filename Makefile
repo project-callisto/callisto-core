@@ -22,7 +22,9 @@ clean-pyc: ## remove Python file artifacts
 
 clean-lint: ## cleanup / display issues with isort and pep8
 	isort -rc callisto_core/
+	isort -rc tests/
 	autopep8 --in-place --recursive --aggressive --aggressive callisto_core/ --max-line-length 119 --exclude="*/migrations/*"
+	autopep8 --in-place --recursive --aggressive --aggressive tests/ --max-line-length 119 --exclude="*/migrations/*"
 	make test-lint
 
 test-lint: ## check style with pep8 and isort
