@@ -9,6 +9,7 @@ from django.db import models
 from django.utils.crypto import get_random_string
 
 from . import hashers, security
+from ..evaluation.models import EvalRow
 
 
 class Report(models.Model):
@@ -94,6 +95,8 @@ class Report(models.Model):
         """ Deletes all associated MatchReports """
         self.matchreport_set.all().delete()
         self.match_found = False
+        self.save()
+        EvalRow.store_eval_row(action=EvalRow.WITHDRAW, report=self)
 
     def encryption_setup(self, secret_key):
         if self.salt:
@@ -103,6 +106,10 @@ class Report(models.Model):
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
         self.save()
         return stretched_key
+
+    def delete(self, *args, **kwargs):
+        EvalRow.store_eval_row(action=EvalRow.DELETE, report=self)
+        return super().delete(*args, **kwargs)
 
     class Meta:
         ordering = ('-added',)

@@ -2,20 +2,20 @@ import json
 import logging
 
 import ratelimit
-from ratelimit.mixins import RatelimitMixin
+from nacl.exceptions import CryptoError
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
-from django.shortcuts import render
 from django.utils.html import conditional_escape
 from django.views import generic as views
 
 from . import forms, models
 from ..evaluation.models import EvalRow
 from ..utils.api import MatchingApi, NotificationApi
-from .models import MatchReport, Report, SentFullReport
+from .models import MatchReport, SentFullReport
 from .report_delivery import MatchReportContent, PDFFullReport
 
 User = get_user_model()
@@ -46,6 +46,10 @@ class ReportBaseView(views.edit.ModelFormMixin):
     context_object_name = 'report'
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
+
+    @property
+    def site_id(self):
+        return get_current_site(self.request).id
 
     @property
     def storage(self):
@@ -98,11 +102,19 @@ class ReportAccessView(
         # can be accessed at any point
         return self.get_object()
 
-    def post(self, request, *args, **kwargs):
+    @property
+    def access_granted(self):
+        try:
+            self.report.decrypted_report(self.storage.secret_key)
+            return True
+        except CryptoError:
+            return False
+
+    def dispatch(self, request, *args, **kwargs):
         if self.storage.secret_key:
-            return super().post(request, *args, **kwargs)
+            return super().dispatch(request, *args, **kwargs)
         else:
-            return views.edit.UpdateView.post(
+            return views.edit.UpdateView.dispatch(
                 self, request, *args, **kwargs)
 
     def get_success_url(self):
@@ -120,41 +132,53 @@ class ReportAccessView(
             self.request.get_full_path()))
 
 
+class ReportPDFView(ReportAccessView):
+
+    def __temp(self):
+        EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = '{}; filename="{}"'\
+            .format('attachment' if force_download else 'inline', filename)
+        pdf = PDFFullReport(report=report, decrypted_report=form.decrypted_report)\
+            .generate_pdf_report(recipient=None, report_id=None)
+        response.write(pdf)
+        return response
+
+
 class BaseReportingView(ReportAccessView):
 
     def _send_confirmation_email(self, form):
         if form.cleaned_data.get('email_confirmation') == "True":
-            NotificationApi.send_user_notification(
-                form, self.email_confirmation_name, site.id)
+            NotificationApi.send_user_notification(form, self.email_confirmation_name, self.site_id)
 
-# submit_report_to_authority
+
 class ReportingView(BaseReportingView):
+    # was submit_report_to_authority
     form_class = forms.SubmitReportToAuthorityForm
-    email_confirmation_name = 'submit_confirmation'
 
     def form_valid(self, form):
         output = super().form_valid(form)
         sent_full_report = SentFullReport.objects.create(
-            report=report, to_address=settings.COORDINATOR_EMAIL)
+            report=self.report, to_address=settings.COORDINATOR_EMAIL)
         NotificationApi.send_report_to_authority(
-            sent_full_report, form.decrypted_report, site.id)
-        EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=report)
+            sent_full_report, form.decrypted_report, self.site_id)
+        EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=self.report)
         self._send_confirmation_email(form)
         return output
 
 
-# submit_to_matching
 class MatchingView(BaseReportingView):
-    form_class = forms.SubmitToMatchingForm
+    # was submit_to_matching
+    form_class = forms.SubmitToMatchingFormSet
     email_confirmation_name = 'match_confirmation'
 
     def form_valid(self, form):
         output = super().form_valid(form)
 
         matches_for_immediate_processing = []
-        for perp_form in formset:
+        for perp_form in form:
             # enter into matching
-            match_report = MatchReport(report=report)
+            match_report = MatchReport(report=self.report)
 
             perp_identifier = perp_form.cleaned_data.get('perp')
             match_report.contact_email = form.cleaned_data.get('email')
@@ -180,7 +204,7 @@ class MatchingView(BaseReportingView):
                 match_report.save()
 
             # record matching submission in anonymous evaluation data
-            EvalRow.store_eval_row(action=EvalRow.MATCH, report=report, match_identifier=perp_identifier)
+            EvalRow.store_eval_row(action=EvalRow.MATCH, report=self.report, match_identifier=perp_identifier)
 
         self._send_confirmation_email(form)
 
@@ -190,80 +214,23 @@ class MatchingView(BaseReportingView):
         return output
 
 
-def withdraw_from_matching(request, report_id, template_name, extra_context=None):
-    report = Report.objects.get(id=report_id)
-    owner = report.owner
-    context = {'owner': owner, 'report': report, **extra_context}
+class ReportActionView(ReportAccessView):
 
-    report.withdraw_from_matching()
-    report.save()
-    # record match withdrawal in anonymous evaluation data
-    EvalRow.store_eval_row(action=EvalRow.WITHDRAW, report=report)
-
-    context.update({'match_report_withdrawn': True})
-    return render(request, template_name, context)
+    def get(self, request, *args, **kwargs):
+        if self.access_granted:
+            self.report_action()
+        return super().post(request, *args, **kwargs)
 
 
-def export_as_pdf(
-    request,
-    report_id,
-    force_download=True,
-    filename='report.pdf',
-    template_name='export_report.html',
-    extra_context=None
-):
-    report = Report.objects.get(id=report_id)
-    owner = report.owner
-    context = {'owner': owner, 'report': report, **extra_context}
+class MatchingWithdrawView(ReportActionView):
+    # was withdraw_from_matching
 
-    if request.method == 'POST':
-        form = forms.ReportAccessForm(request.POST)
-        form.report = report
-        if form.is_valid():
-            EvalRow.store_eval_row(action=EvalRow.VIEW, report=report)
-            try:
-                response = HttpResponse(content_type='application/pdf')
-                response['Content-Disposition'] = '{}; filename="{}"'\
-                    .format('attachment' if force_download else 'inline', filename)
-                pdf = PDFFullReport(report=report, decrypted_report=form.decrypted_report)\
-                    .generate_pdf_report(recipient=None, report_id=None)
-                response.write(pdf)
-                return response
-            except Exception:
-                logger.exception("could not export report {}".format(report_id))
-                form.add_error(None, "There was an error exporting your report.")
-    else:
-        form = forms.ReportAccessForm()
-        form.report = report
-    context.update({'form': form})
-    return render(request, template_name, context)
+    def report_action(self):
+        self.report.withdraw_from_matching()
 
 
-def delete_report(
-    request,
-    report_id,
-    form_template_name='delete_report.html',
-    confirmation_template='delete_report.html',
-    extra_context=None
-):
-    report = Report.objects.get(id=report_id)
-    owner = report.owner
-    context = {'owner': owner, 'report': report, **extra_context}
+class ReportDeleteView(ReportActionView):
+    # was delete_report
 
-    if request.method == 'POST':
-        form = forms.ReportAccessForm(request.POST)
-        form.report = report
-        if form.is_valid():
-            EvalRow.store_eval_row(action=EvalRow.DELETE, report=report)
-            try:
-                report.delete()
-                context.update({'report_deleted': True})
-                return render(request, confirmation_template, context)
-            except Exception:
-                logger.exception("could not delete report {}".format(report_id))
-                form.add_error(None, "There was an error deleting your report.")
-    else:
-        form = forms.ReportAccessForm()
-        form.report = report
-    context.update({'form': form})
-    return render(request, form_template_name, context)
+    def report_action(self):
+        self.report.delete()

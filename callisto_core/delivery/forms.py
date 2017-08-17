@@ -1,4 +1,5 @@
 import logging
+from distutils.util import strtobool
 
 from nacl.exceptions import CryptoError
 
@@ -7,8 +8,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
 
-from . import validators
-from .models import Report
+from . import models, validators
+from ..utils import api
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class ReportBaseForm(forms.models.ModelForm):
         return self.instance
 
     class Meta:
-        model = Report
+        model = models.Report
         fields = []
 
 
@@ -78,34 +79,26 @@ class ReportAccessForm(ReportBaseForm):
 
 
 class SubmitReportToAuthorityForm(forms.models.ModelForm):
-    name = forms.CharField(
+    contact_name = forms.CharField(
         label="Your preferred first name:",
-        required=False,
-        max_length=500,
         widget=forms.TextInput(
             attrs={'placeholder': 'ex. Chris'},
         ),
     )
-    phone_number = forms.CharField(
+    contact_phone = forms.CharField(
         label="Preferred phone number to call:",
-        required=True,
-        max_length=50,
         widget=forms.TextInput(
             attrs={'placeholder': 'ex. (555) 555-5555'}
         ),
     )
-    voicemail = forms.CharField(
+    contact_voicemail = forms.CharField(
         label="Is it ok to leave a voicemail? If so, what would you like the message to refer to?",
-        required=False,
-        max_length=256,
         widget=forms.TextInput(
             attrs={'placeholder': "ex. Yes, please just say you're following up from Callisto."},
         ),
     )
-    email = forms.EmailField(
+    contact_email = forms.EmailField(
         label="If you can't be reached by phone, what's the best email address to reach you?",
-        required=True,
-        max_length=256,
         widget=forms.TextInput(
             attrs={'placeholder': 'ex. myname@gmail.com'},
         ),
@@ -116,7 +109,6 @@ class SubmitReportToAuthorityForm(forms.models.ModelForm):
             A {0} staff member will try their best to accommodate
             your needs.
         '''.format(settings.SCHOOL_SHORTNAME),
-        required=False,
         widget=forms.Textarea(
             attrs={
                 'placeholder': '''
@@ -137,9 +129,19 @@ class SubmitReportToAuthorityForm(forms.models.ModelForm):
             Would you like us to send you a confirmation email
             with information about your rights in the reporting
             process, and where to get support and find resources on campus?
-        '''
-        required=True,
-        widget=forms.RadioSelect)
+        ''',
+        widget=forms.RadioSelect,
+    )
+
+    def clean_email_confirmation(self):
+        if strtobool(self.data.get('email_confirmation')):
+            api.NotificationApi.send_user_notification(
+                self, 'submit_confirmation', self.site_id)
+
+    class Meta:
+        model = models.Report
+        fields = ['contact_name', 'contact_phone', 'contact_voicemail',
+                  'contact_email', 'contact_notes']
 
 
 def join_list_with_or(lst):
@@ -153,7 +155,8 @@ def join_list_with_or(lst):
 class SubmitToMatchingForm(forms.Form):
 
     '''
-        designed to be overridden if more complicated assignment of matching validators is needed
+        designed to be overridden if more complicated
+        assignment of matching validators is needed
     '''
 
     def get_validators(self):
