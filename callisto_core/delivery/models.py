@@ -88,8 +88,6 @@ class Report(models.Model):
         """
         _, stretched_key = hashers.make_key(self.encode_prefix, key, self.salt)
         json_report_text = security.decrypt_text(stretched_key, self.encrypted)
-        print('decrypted_report.json_report_text', json_report_text, type(json_report_text))
-        print('decrypted_report.report_text', json.loads(json_report_text), type(json.loads(json_report_text)))
         return json.loads(json_report_text)
 
     def withdraw_from_matching(self):

@@ -31,6 +31,7 @@ class EncryptedStorageHelper(
         return self.report.decrypted_report(self.secret_key).get(form_key, {})
 
     def update(self):
+        print('self.form_data', self.form_data)
         self.report.encrypt_report(self.form_data, self.secret_key)
 
 
