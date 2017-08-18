@@ -1,9 +1,10 @@
-from callisto_core.delivery.forms import ReportAccessForm, ReportCreateForm
+from callisto_core.delivery import forms, validators
 from wizard_builder.forms import PageForm
 
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.utils import override_settings
 
 
 class ReportFlowHelper(TestCase):
@@ -52,14 +53,14 @@ class NewReportFlowTest(ReportFlowHelper):
     def test_report_creation_renders_create_form(self):
         response = self.client.get(reverse('report_new'))
         form = response.context['form']
-        self.assertIsInstance(form, ReportCreateForm)
+        self.assertIsInstance(form, forms.ReportCreateForm)
 
     def test_report_creation_redirects_to_wizard_view(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
         self.assertEqual(
             response.redirect_chain[0][0],
-            reverse('wizard_update', kwargs={'step': 0, 'uuid': uuid}),
+            reverse('report_update', kwargs={'step': 0, 'uuid': uuid}),
         )
 
     def test_report_creation_renders_wizard_form(self):
@@ -84,10 +85,10 @@ class NewReportFlowTest(ReportFlowHelper):
         self.client_clear_secret_key()
 
         response = self.client.get(
-            reverse('wizard_update', kwargs={'step': 0, 'uuid': uuid}))
+            reverse('report_update', kwargs={'step': 0, 'uuid': uuid}))
         form = response.context['form']
 
-        self.assertIsInstance(form, ReportAccessForm)
+        self.assertIsInstance(form, forms.ReportAccessForm)
 
     def test_can_reenter_secret_key(self):
         response = self.client_post_report_creation()
@@ -121,7 +122,7 @@ class NewReportFlowTest(ReportFlowHelper):
         form = response.context['form']
 
         self.assertFalse(getattr(form, 'decrypted_report', False))
-        self.assertIsInstance(form, ReportAccessForm)
+        self.assertIsInstance(form, forms.ReportAccessForm)
 
 
 class ReportMetaFlowTest(ReportFlowHelper):

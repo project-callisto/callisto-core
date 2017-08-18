@@ -1,7 +1,7 @@
 import json
 import logging
 
-import ratelimit
+import ratelimit.mixins
 from nacl.exceptions import CryptoError
 
 from django.conf import settings
@@ -77,7 +77,7 @@ class ReportCreateView(
 
     def get_success_url(self):
         return reverse_lazy(
-            'wizard_update',
+            'report_update',
             kwargs={
                 'step': 0,
                 'uuid': self.report.uuid,
@@ -85,12 +85,11 @@ class ReportCreateView(
         )
 
 
-class ReportAccessView(
+class ReportBaseAccessView(
     ReportBaseView,
     views.edit.UpdateView,
     ratelimit.mixins.RatelimitMixin,
 ):
-    access_form_class = forms.ReportAccessForm
     invalid_access_message = 'Invalid access request at url {}'
     ratelimit_key = 'user'
     ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
@@ -104,11 +103,21 @@ class ReportAccessView(
 
     @property
     def access_granted(self):
-        try:
-            self.report.decrypted_report(self.storage.secret_key)
-            return True
-        except CryptoError:
-            return False
+        if self.storage.secret_key:
+            try:
+                self.report.decrypted_report(self.storage.secret_key)
+                return True
+            except CryptoError:
+                self._log_invalid_access()
+        return False
+
+    def _log_invalid_access(self):
+        logger.info(self.invalid_access_message.format(
+            self.request.get_full_path()))
+
+
+class ReportFormAccessView(ReportBaseAccessView):
+    access_form_class = forms.ReportAccessForm
 
     def dispatch(self, request, *args, **kwargs):
         if self.storage.secret_key:
@@ -128,30 +137,8 @@ class ReportAccessView(
             self._log_invalid_access()
             return self.access_form_class(**self.get_form_kwargs())
 
-    def _log_invalid_access(self):
-        logger.info(self.invalid_access_message.format(
-            self.request.get_full_path()))
 
-
-class ReportPDFView(ReportAccessView):
-
-    def __temp(self):
-        response = HttpResponse(content_type='application/pdf')
-        response.update({
-            'Content-Disposition': 'inline; filename="{}"'.format(filename),
-        })
-        pdf = PDFFullReport(
-            report=self.report,
-            decrypted_report=form.decrypted_report
-        ).generate_pdf_report(
-            recipient=None,
-            report_id=None,
-        )
-        response.write(pdf)
-        return response
-
-
-class BaseReportingView(ReportAccessView):
+class BaseReportingView(ReportFormAccessView):
 
     def form_valid(self, form):
         output = super().form_valid(form)
@@ -231,12 +218,13 @@ class MatchingView(BaseReportingView):
         return output
 
 
-class ReportActionView(ReportAccessView):
+class ReportActionView(ReportBaseAccessView):
 
     def get(self, request, *args, **kwargs):
         if self.access_granted:
-            self.report_action()
-        return super().post(request, *args, **kwargs)
+            return self.report_action()
+        else:
+            return super().post(request, *args, **kwargs)
 
 
 class MatchingWithdrawView(ReportActionView):
@@ -251,3 +239,21 @@ class ReportDeleteView(ReportActionView):
 
     def report_action(self):
         self.report.delete()
+
+
+class ReportPDFView(ReportActionView):
+
+    def report_action(self):
+        response = HttpResponse(content_type='application/pdf')
+        response.update({
+            'Content-Disposition': 'inline; filename="report.pdf"',
+        })
+        pdf = PDFFullReport(
+            report=self.report,
+            decrypted_report=self.form.decrypted_report,
+        ).generate_pdf_report(
+            recipient=None,
+            report_id=None,
+        )
+        response.write(pdf)
+        return response

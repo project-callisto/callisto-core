@@ -3,7 +3,7 @@ from wizard_builder.views import WizardView
 
 from django.core.urlresolvers import reverse
 
-from .views import ReportAccessView, SecretKeyStorageHelper
+from .views import ReportFormAccessView, SecretKeyStorageHelper
 
 
 class ReportStepsHelper(StepsHelper):
@@ -36,7 +36,7 @@ class EncryptedStorageHelper(
 
 
 class EncryptedWizardView(
-    ReportAccessView,
+    ReportFormAccessView,
     WizardView
 ):
     template_name = 'callisto_core/delivery/wizard_form.html'
