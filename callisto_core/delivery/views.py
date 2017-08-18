@@ -13,7 +13,6 @@ from django.utils.html import conditional_escape
 from django.views import generic as views
 
 from . import forms, models
-from ..evaluation.models import EvalRow
 from ..utils.api import MatchingApi, NotificationApi
 from .models import MatchReport, SentFullReport
 from .report_delivery import MatchReportContent, PDFFullReport
@@ -121,7 +120,6 @@ class ReportFormAccessView(ReportBaseAccessView):
 
     def dispatch(self, request, *args, **kwargs):
         if self.storage.secret_key:
-            EvalRow.store_eval_row(action=EvalRow.VIEW, report=self.report)
             return super().dispatch(request, *args, **kwargs)
         else:
             return views.edit.UpdateView.dispatch(
@@ -157,7 +155,6 @@ class ReportingView(BaseReportingView):
 
     def form_valid(self, form):
         output = super().form_valid(form)
-        EvalRow.store_eval_row(action=EvalRow.SUBMIT, report=self.report)
         sent_full_report = SentFullReport.objects.create(
             report=self.report,
             to_address=settings.COORDINATOR_EMAIL,
@@ -206,9 +203,6 @@ class MatchingView(BaseReportingView):
                 # temporarily save identifier in DB until matching is run
                 match_report.identifier = perp_identifier
                 match_report.save()
-
-            # record matching submission in anonymous evaluation data
-            EvalRow.store_eval_row(action=EvalRow.MATCH, report=self.report, match_identifier=perp_identifier)
 
         self._send_confirmation_email(form)
 
