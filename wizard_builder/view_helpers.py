@@ -27,9 +27,8 @@ class SerializedDataHelper(object):
     def metadata_fields(self):
         return [
             'csrfmiddlewaretoken',
-            *self.steps.wizard_form_fields,
             self.storage.form_pk_field,
-        ]
+        ] + self.steps.wizard_form_fields
 
     @property
     def cleaned_data(self):
