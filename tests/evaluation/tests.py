@@ -1,5 +1,5 @@
 import json
-import unittest.skip
+from unittest import skip
 
 import gnupg
 import six
@@ -40,7 +40,7 @@ class EvalRowTest(TestCase):
         row.save()
         return row
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_can_hash_on_user_id(self):
         user = User.objects.create_user(username="dummy", password="dummy")
         report = Report.objects.create(owner=user, encrypted=b'first report')
@@ -49,7 +49,7 @@ class EvalRowTest(TestCase):
         self.assertNotEqual(EvalRow.objects.first().user_identifier, user.id)
         self.assertNotEqual(EvalRow.objects.first().record_identifier, report.id)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_user_hashes_correctly(self):
         user1 = User.objects.create_user(username="dummy", password="dummy")
         report1 = Report.objects.create(owner=user1, encrypted=b'first report')
@@ -65,7 +65,7 @@ class EvalRowTest(TestCase):
         self.assertNotEqual(EvalRow.objects.get(id=row1.pk).user_identifier,
                             EvalRow.objects.get(id=row2.pk).user_identifier)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_report_hashes_correctly(self):
         user1 = User.objects.create_user(username="dummy", password="dummy")
         report1 = Report.objects.create(owner=user1, encrypted=b'first report')
@@ -87,7 +87,7 @@ class EvalRowTest(TestCase):
         self.assertEqual(EvalRow.objects.get(id=row3.pk).record_identifier,
                          EvalRow.objects.get(id=row3_edit.pk).record_identifier)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_can_encrypt_a_row(self):
         user = User.objects.create_user(username="dummy", password="dummy")
         report = Report.objects.create(owner=user, encrypted=b'first report')
@@ -101,7 +101,7 @@ class EvalRowTest(TestCase):
         self.assertIsNotNone(EvalRow.objects.get(id=row.pk).row)
         self.assertNotEqual(EvalRow.objects.get(id=row.pk).row, test_row)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_can_decrypt_a_row(self):
         gpg = gnupg.GPG()
         test_key = gpg.import_keys(private_test_key)
@@ -116,7 +116,7 @@ class EvalRowTest(TestCase):
         row.full_clean()
         self.assertEqual(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row))), test_row)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_make_eval_row(self):
         user = User.objects.create_user(username="dummy", password="dummy")
         report = Report.objects.create(owner=user, encrypted=b'first report')
@@ -126,7 +126,7 @@ class EvalRowTest(TestCase):
 
 class EvalFieldTest(TestCase):
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_question_can_have_eval_field(self):
         page = Page.objects.create()
         rfi = SingleLineText(text="This is a question", page=page)
@@ -136,14 +136,14 @@ class EvalFieldTest(TestCase):
         self.assertIsNotNone(SingleLineText.objects.first().evaluationfield)
         self.assertEqual(SingleLineText.objects.first().evaluationfield, EvaluationField.objects.first())
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_question_can_not_have_eval_field(self):
         page = Page.objects.create()
         rfi = SingleLineText(text="This is a question", page=page)
         rfi.save()
         self.assertRaises(ObjectDoesNotExist, lambda: SingleLineText.objects.first().evaluationfield)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_evalfield_label_is_non_unique(self):
         page = Page.objects.create()
         q1 = SingleLineText(text="This is a question", page=page)
@@ -211,21 +211,21 @@ class ExtractAnswersTest(TestCase):
             "unanswered": []
         }
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_extract_choices(self):
         self.maxDiff = None
         self.set_up_simple_report_scenario()
         anonymised = EvalRow()._extract_answers(json.loads(self.json_report))
         self.assertIn('radio_choices', anonymised)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_extract_answers(self):
         self.maxDiff = None
         self.set_up_simple_report_scenario()
         anonymised = EvalRow()._extract_answers(json.loads(self.json_report))
         self.assertEqual(anonymised, self.expected)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_match_id_gets_appended(self):
         self.set_up_simple_report_scenario()
         anonymised1 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy1')
@@ -235,7 +235,7 @@ class ExtractAnswersTest(TestCase):
         self.assertEqual(anonymised1['match_identifier'], anonymised2['match_identifier'])
         self.assertNotEqual(anonymised1['match_identifier'], anonymised3['match_identifier'])
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_match_id_type_gets_appended(self):
         self.set_up_simple_report_scenario()
         anonymised1 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy1')
@@ -245,7 +245,7 @@ class ExtractAnswersTest(TestCase):
         self.assertEqual(anonymised2['match_identifier_type'], 'twitter')
         self.assertEqual(anonymised3['match_identifier_type'], 'email')
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_extract_answers_with_extra(self):
         self.maxDiff = None
         page1 = Page.objects.create()
@@ -359,7 +359,7 @@ class ExtractAnswersTest(TestCase):
         anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_extract_answers_with_multiple(self):
         self.maxDiff = None
 
@@ -453,7 +453,7 @@ class ExtractAnswersTest(TestCase):
         anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_tracking_of_answered_questions(self):
         self.maxDiff = None
 
@@ -501,7 +501,7 @@ class ExtractAnswersTest(TestCase):
         anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_tracking_of_answered_questions_checkbox(self):
         self.maxDiff = None
 
@@ -551,7 +551,7 @@ class ExtractAnswersTest(TestCase):
         anonymised = EvalRow()._extract_answers(json_report)
         self.assertEqual(anonymised, expected)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     def test_anonymise_record_end_to_end(self):
         self.maxDiff = None
 
@@ -597,7 +597,7 @@ class EvalActionTest(MatchTest):
         self.report.encrypt_report(self.report_text, self.key)
         self.report.save()
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     @patch('callisto_core.delivery.views.MatchingApi')
     @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
     def test_submission_to_matching_creates_eval_row(
@@ -628,7 +628,7 @@ class EvalActionTest(MatchTest):
             decrypted_text=None,
         )
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
     @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_match_notification')
     @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_matching_report_to_authority')
@@ -640,7 +640,7 @@ class EvalActionTest(MatchTest):
         call2 = call(action=EvalRow.MATCH_FOUND, report=match2.report, decrypted_text=None, match_identifier=None)
         mock_anonymise_record.assert_has_calls([call1, call2])
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
     @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_report_to_authority')
     def test_submit_creates_eval_row(self, mock_send_report, mock_anonymise_record):
@@ -655,7 +655,7 @@ class EvalActionTest(MatchTest):
         mock_anonymise_record.assert_called_with(action=EvalRow.SUBMIT, report=self.report, decrypted_text=None,
                                                  match_identifier=None)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
     @patch('callisto_core.delivery.views.Report.delete')
     def test_delete_creates_eval_row(self, mock_delete, mock_anonymise_record):
@@ -668,7 +668,7 @@ class EvalActionTest(MatchTest):
         mock_anonymise_record.assert_called_with(action=EvalRow.DELETE, report=self.report, decrypted_text=None,
                                                  match_identifier=None)
 
-    @unittest.skip('eval temporarily disabled')
+    @skip('eval temporarily disabled')
     @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
     def test_autosave_creates_eval_row(self, mock_anonymise_record):
         response = self.client.post(

@@ -98,7 +98,7 @@ class SiteRequestTest(TestCase):
         self.report_key = 'bananabread! is not my key'
         self.report.encrypt_report('{}', self.report_key)
         self.report.save()
-        self.submit_url = reverse('test_submit_report', args=[self.report.pk])
+        self.submit_url = reverse('report_submission', args=[self.report.pk])
 
     def test_can_request_pages_without_site_id_set(self):
         response = self.client.get(self.submit_url)
