@@ -1,9 +1,13 @@
+import logging
+
 from wizard_builder.view_helpers import StepsHelper, StorageHelper
 from wizard_builder.views import WizardView
 
 from django.core.urlresolvers import reverse
 
 from .views import ReportFormAccessView, SecretKeyStorageHelper
+
+logger = logging.getLogger(__name__)
 
 
 class ReportStepsHelper(StepsHelper):
@@ -22,20 +26,21 @@ class EncryptedStorageHelper(
     SecretKeyStorageHelper,
     StorageHelper,
 ):
+    invalid_storage_request_messsage = 'data storage requested with secret key set'
 
     @property
     def report(self):
         return self.view.report
 
-    def data_from_key(self, form_key):
+    def current_data_from_storage(self):
         if self.secret_key:
-            return self.report.decrypted_report(
-                self.secret_key).get(form_key, {})
+            return self.report.decrypted_report(self.secret_key)
         else:
+            logger.warn(self.invalid_storage_request_messsage)
             return {}
 
-    def update(self):
-        self.report.encrypt_report(self.form_data, self.secret_key)
+    def add_data_to_storage(self, data):
+        self.report.encrypt_report(data, self.secret_key)
 
 
 class EncryptedWizardView(

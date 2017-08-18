@@ -57,7 +57,6 @@ class ReportBaseView(views.edit.ModelFormMixin):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update({'view': self})
-        print('ReportBaseView.get_form_kwargs', kwargs)
         return kwargs
 
     def _set_key_from_form(self, form):
@@ -244,10 +243,12 @@ class ReportDeleteView(ReportActionView):
 class ReportPDFView(ReportActionView):
 
     def report_action(self):
+        return self._report_pdf_response()
+
+    def _report_pdf_response(self):
         response = HttpResponse(content_type='application/pdf')
-        response.update({
-            'Content-Disposition': 'inline; filename="report.pdf"',
-        })
+        response['Content-Disposition'] = 'inline; filename="report.pdf"'
+        # TODO: self.report.as_pdf(key=self.secret_key)
         pdf = PDFFullReport(
             report=self.report,
             decrypted_report=self.form.decrypted_report,
