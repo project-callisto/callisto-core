@@ -1,6 +1,5 @@
 import logging
 
-from ..evaluation.models import EvalRow
 from ..utils.api import NotificationApi
 from .models import MatchReport
 
@@ -74,7 +73,6 @@ class CallistoCoreMatchingApi(object):
         logger.info("new match found")
         owners_notified = []
         for match_report in matches:
-            EvalRow.store_eval_row(action=EvalRow.MATCH_FOUND, report=match_report.report)
             owner = match_report.report.owner
             # only send notification emails to new matches
             if owner not in owners_notified and not match_report.report.match_found \
