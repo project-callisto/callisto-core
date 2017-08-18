@@ -297,12 +297,18 @@ class StorageHelper(object):
     def update(self):
         data = self.view.request.session.get('data', {})
         data[self.post_form_pk] = self.post_data
-        self.view.request.session['data'] = data
+        self.add_data_to_storage(data)
 
     def data_from_pk(self, pk):
         key = self.view.form_pk(pk)
         return self.data_from_key(key)
 
     def data_from_key(self, form_key):
-        data = self.view.request.session.get('data', {})
+        data = self.get_data_from_storage()
         return data.get(form_key, {})
+
+    def get_data_from_storage(self):
+        return self.view.request.session.get('data', {})
+
+    def add_data_to_storage(self, data):
+        self.view.request.session['data'] = data
