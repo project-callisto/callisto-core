@@ -24,13 +24,6 @@ class SerializedDataHelper(object):
         self._format_data()
 
     @property
-    def metadata_fields(self):
-        return [
-            'csrfmiddlewaretoken',
-            self.storage.form_pk_field,
-        ] + self.steps.wizard_form_fields
-
-    @property
     def cleaned_data(self):
         return self.zipped_data
 
@@ -40,16 +33,9 @@ class SerializedDataHelper(object):
 
     def _cleaned_form_data(self, page_data, index):
         self._parse_answer_fields(
-            self._form_data_without_metadata(page_data),
+            page_data,
             self._form_questions_serialized(index),
         )
-
-    def _form_data_without_metadata(self, data):
-        return {
-            key: value
-            for key, value in data.items()
-            if key not in self.metadata_fields
-        }
 
     def _form_questions_serialized(self, index):
         return self.forms[index].serialized
@@ -298,8 +284,16 @@ class StorageHelper(object):
     @property
     def post_data(self):
         data = self.data_from_key(self.post_form_pk)
-        data.update(self.view.request.POST)
+        post_data = self._data_without_metadata(self.view.request.POST)
+        data.update(post_data)
         return data
+
+    @property
+    def metadata_fields(self):
+        return [
+            'csrfmiddlewaretoken',
+            self.form_pk_field,
+        ] + self.view.steps.wizard_form_fields
 
     def form_pk(self, pk):
         return '{}_{}'.format(self.form_pk_field, pk)
@@ -323,3 +317,10 @@ class StorageHelper(object):
 
     def add_data_to_storage(self, data):
         self.view.request.session['data'] = data
+
+    def _data_without_metadata(self, data):
+        return {
+            key: value
+            for key, value in dict(data).items()
+            if key not in self.metadata_fields
+        }

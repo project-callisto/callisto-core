@@ -47,3 +47,4 @@ class PageForm(forms.Form):
             self._clean_data()
             self.cleaned_data[name] = field.widget.value_from_datadict(
                 self.data, self.files, self.add_prefix(name))
+        print('\t\tPageForm._clean_fields.data', self.cleaned_data)
