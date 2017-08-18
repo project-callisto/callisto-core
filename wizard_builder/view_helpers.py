@@ -15,20 +15,17 @@ class SerializedDataHelper(object):
     choice_id_error_message = 'Choice(pk={}) not found in {}'
     choice_option_id_error_message = 'ChoiceOption(pk={}) not found in {}'
 
+    @classmethod
+    def get_zipped_data(cls, storage):
+        return cls(storage).zipped_data
+
     def __init__(self, storage):
         self.storage = storage
-        self.forms = storage.view.forms
-        self.data = storage.form_data['data']
-        self.steps = storage.view.steps
         self.zipped_data = []
         self._format_data()
 
-    @property
-    def cleaned_data(self):
-        return self.zipped_data
-
     def _format_data(self):
-        for index, page_data in enumerate(self.data):
+        for index, page_data in enumerate(self.storage.form_data['data']):
             self._cleaned_form_data(page_data, index)
 
     def _cleaned_form_data(self, page_data, index):
@@ -38,7 +35,7 @@ class SerializedDataHelper(object):
         )
 
     def _form_questions_serialized(self, index):
-        return self.forms[index].serialized
+        return self.storage.view.forms[index].serialized
 
     def _parse_answer_fields(self, answers, questions):
         for answer_key, answer_value in answers.items():
@@ -147,11 +144,11 @@ class StepsHelper(object):
 
     @property
     def current(self):
-        _step = self.view.curent_step or 0
-        if _step == self.done_name:
-            return _step
-        elif _step <= self.last:
-            return _step
+        step = self.view.curent_step or 0
+        if isinstance(step, str):
+            return step
+        elif step <= self.last:
+            return step
         else:
             return self.last
 
@@ -165,7 +162,10 @@ class StepsHelper(object):
 
     @property
     def next_is_done(self):
-        return self.next == self.done_name
+        if isinstance(self.current, int):
+            return self.next == self.done_name
+        else:
+            return False
 
     @property
     def current_is_done(self):
@@ -194,6 +194,12 @@ class StepsHelper(object):
     @property
     def _goto_step_review(self):
         return self._goto_step(self.review_name)
+
+    def parse_step(self, step):
+        if step == self.done_name:
+            return step
+        else:
+            return int(step)
 
     def url(self, step):
         return reverse(
@@ -241,7 +247,7 @@ class StorageHelper(object):
 
     @property
     def cleaned_form_data(self):
-        return self.data_manager(self)
+        return self.data_manager.get_zipped_data(self)
 
     @property
     def post_form_pk(self):

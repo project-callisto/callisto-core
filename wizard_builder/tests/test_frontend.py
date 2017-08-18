@@ -56,6 +56,11 @@ class ElementHelper(object):
         self.browser = browser
 
     @property
+    def done(self):
+        return self.browser.find_element_by_css_selector(
+            '[value="{}"]'.format(view_helpers.StepsHelper.review_name))
+
+    @property
     def next(self):
         return self.browser.find_element_by_css_selector(
             '[value="{}"]'.format(view_helpers.StepsHelper.next_name))
@@ -194,3 +199,15 @@ class FrontendTest(FunctionalTest):
             'text input content!!!',
             self.element.text_input.get_attribute('value'),
         )
+
+    def test_can_render_done_page(self):
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+
+    def test_text_input_present_on_done_page(self):
+        self.element.next.click()
+        self.element.text_input.send_keys('text input content!!!')
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains('body', 'text input content!!!')

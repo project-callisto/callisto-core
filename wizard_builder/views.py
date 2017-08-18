@@ -76,11 +76,13 @@ class WizardView(
         return self.form_manager.get_forms(self)
 
     def get_form(self):
-        form = self.forms[self.steps.current]
-        return form
+        if isinstance(self.steps.current, int):
+            return self.forms[self.steps.current]
+        else:
+            return None
 
     def dispatch(self, request, step=None, *args, **kwargs):
-        self.curent_step = int(step)
+        self.curent_step = self.steps.parse_step(step)
         self.forms = self.get_forms()
         return super().dispatch(request, *args, **kwargs)
 
