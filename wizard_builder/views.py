@@ -15,6 +15,14 @@ class NewWizardView(views.base.RedirectView):
 class WizardViewTemplateHelpers(object):
 
     @property
+    def wizard_prev_step_exists(self):
+        return self.steps.prev
+
+    @property
+    def wizard_next_is_done(self):
+        return self.steps.next_is_done
+
+    @property
     def wizard_current_step(self):
         return self.steps.current
 
@@ -40,6 +48,7 @@ class WizardViewTemplateHelpers(object):
 
     @property
     def wizard_form_pk_field(self):
+        # TODO: smell this being the only storage attribute accessed in view
         return self.storage.form_pk_field
 
 
