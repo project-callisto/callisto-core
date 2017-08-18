@@ -1,11 +1,10 @@
 History
 -------
 
-0.5.3 (2017-08-16)
+0.5.4 (2017-08-18)
 ++++++++++++++++++
 
 * Refactor wizard views into a FormView
-* increased code quality to 4.0
 * remove all django-formtools legacy code
 * added fixtures and template defaults
 * added some heroku setup management commands

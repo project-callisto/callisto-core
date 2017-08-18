@@ -271,7 +271,7 @@ class StorageHelper(object):
     @property
     def form_data(self):
         return {'data': [
-            self.data_from_pk(form.pk)
+            self.current_data_from_pk(form.pk)
             for form in self.view.forms
         ]}
 
@@ -285,11 +285,11 @@ class StorageHelper(object):
         return self.form_pk(pk)
 
     @property
-    def post_data(self):
-        data = self.data_from_key(self.post_form_pk)
+    def current_and_post_data(self):
+        current_data = self.current_data_from_key(self.post_form_pk)
         post_data = self._data_without_metadata(self.view.request.POST)
-        data.update(post_data)
-        return data
+        current_data.update(post_data)
+        return current_data
 
     @property
     def metadata_fields(self):
@@ -302,20 +302,19 @@ class StorageHelper(object):
         return '{}_{}'.format(self.form_pk_field, pk)
 
     def update(self):
-        data = self.view.request.session.get('data', {})
-        data[self.post_form_pk] = self.post_data
+        data = self.current_data_from_storage()
+        data[self.post_form_pk] = self.current_and_post_data
         self.add_data_to_storage(data)
-        print('StorageHelper.update', data)
 
-    def data_from_pk(self, pk):
+    def current_data_from_pk(self, pk):
         key = self.form_pk(pk)
-        return self.data_from_key(key)
+        return self.current_data_from_key(key)
 
-    def data_from_key(self, form_key):
-        data = self.get_data_from_storage()
+    def current_data_from_key(self, form_key):
+        data = self.current_data_from_storage()
         return data.get(form_key, {})
 
-    def get_data_from_storage(self):
+    def current_data_from_storage(self):
         return self.view.request.session.get('data', {})
 
     def add_data_to_storage(self, data):

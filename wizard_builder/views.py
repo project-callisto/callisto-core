@@ -76,7 +76,8 @@ class WizardView(
         return self.form_manager.get_forms(self)
 
     def get_form(self):
-        return self.forms[self.steps.current]
+        form = self.forms[self.steps.current]
+        return form
 
     def dispatch(self, request, step=None, *args, **kwargs):
         self.steps.set_from_get(step)
