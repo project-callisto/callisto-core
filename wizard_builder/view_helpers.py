@@ -295,11 +295,14 @@ class StorageHelper(object):
         return data
 
     def update(self):
-        self.view.request.session[self.post_form_pk] = self.post_data
+        data = self.view.request.session.get('data', {})
+        data[self.post_form_pk] = self.post_data
+        self.view.request.session['data'] = data
 
     def data_from_pk(self, pk):
         key = self.view.form_pk(pk)
         return self.data_from_key(key)
 
     def data_from_key(self, form_key):
-        return self.view.request.session.get(form_key, {})
+        data = self.view.request.session.get('data', {})
+        return data.get(form_key, {})
