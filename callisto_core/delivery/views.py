@@ -117,7 +117,7 @@ class ReportBaseAccessView(
         return False
 
     def _log_invalid_access(self):
-        logger.info(self.invalid_access_message.format(
+        logger.warn(self.invalid_access_message.format(
             self.request.get_full_path()))
 
 

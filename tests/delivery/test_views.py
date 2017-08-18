@@ -7,6 +7,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from callisto_core.delivery.models import Report
+
 User = get_user_model()
 
 
@@ -31,13 +33,25 @@ class ReportFlowHelper(TestCase):
         )
 
     def client_post_report_creation(self):
-        return self.client.post(
+        response = self.client.post(
             reverse('report_new'),
             data={
                 'key': self.secret_key,
                 'key_confirmation': self.secret_key,
             },
             follow=True,
+        )
+        self.report = response.context['report']
+        return response
+
+    def client_get_report_delete(self):
+        return self.client.get(
+            reverse(
+                'report_delete',
+                kwargs={
+                    'uuid': self.report.uuid,
+                },
+            ),
         )
 
     def client_post_report_access(self, url):
@@ -138,14 +152,10 @@ class NewReportFlowTest(ReportFlowHelper):
 
 class ReportMetaFlowTest(ReportFlowHelper):
 
-    def test_deletes_report(self):
+    def test_report_delete(self):
+        self.client_post_report_creation()
         self.assertEqual(Report.objects.count(), 1)
-        response = self.client.post(
-            (self.delete_url % self.report.id),
-            data={'key': self.report_key},
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context.get('report_deleted'))
+        self.client_get_report_delete()
         self.assertEqual(Report.objects.count(), 0)
 
     def test_export_returns_pdf(self):
