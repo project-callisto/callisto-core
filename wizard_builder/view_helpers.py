@@ -161,7 +161,10 @@ class StepsHelper(object):
 
     @property
     def _current(self):
-        _step = self.view.request.session.get('current_step', self.first)
+        _step = self.view.request.session.get(
+            self.wizard_current_name,
+            self.first,
+        )
         if _step == self.done_name:
             return _step
         else:
@@ -232,7 +235,7 @@ class StepsHelper(object):
         return self._goto_step_review or step == self.done_name
 
     def set_from_get(self, step):
-        self.view.request.session['current_step'] = step
+        self.view.request.session[self.wizard_current_name] = step
 
     def set_from_post(self):
         step = self.view.request.POST.get(
@@ -241,7 +244,7 @@ class StepsHelper(object):
             step = self.adjust_step(-1)
         if self._goto_step_next:
             step = self.adjust_step(1)
-        self.view.request.session['current_step'] = step
+        self.view.request.session[self.wizard_current_name] = step
 
     def adjust_step(self, adjustment):
         # TODO: tests as spec
