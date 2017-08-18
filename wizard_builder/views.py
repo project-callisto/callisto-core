@@ -47,10 +47,10 @@ class WizardView(views.edit.FormView):
     def post(self, request, *args, **kwargs):
         self.steps.set_from_post()
         output = super().post(request, *args, **kwargs)
-        self.storage.update()
         return output
 
     def form_valid(self, form):
+        self.storage.update()
         if self.steps.finished(self.steps.current):
             return self.render_form_done()
         elif self.steps.overflowed(self.steps.current):
