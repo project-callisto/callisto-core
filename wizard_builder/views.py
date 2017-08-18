@@ -72,15 +72,15 @@ class WizardView(
     def storage(self):
         return self.storage_helper(self)
 
-    @property
-    def manager(self):
-        return self.form_manager(self)
+    def get_forms(self):
+        return self.form_manager.get_forms(self)
 
     def get_form(self):
-        return self.manager.forms[self.steps.current]
+        return self.forms[self.steps.current]
 
     def dispatch(self, request, step=None, *args, **kwargs):
         self.steps.set_from_get(step)
+        self.forms = self.get_forms()
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):

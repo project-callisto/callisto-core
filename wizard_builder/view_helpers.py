@@ -17,7 +17,7 @@ class SerializedDataHelper(object):
 
     def __init__(self, storage):
         self.storage = storage
-        self.forms = storage.view.manager.forms
+        self.forms = storage.view.forms
         self.data = storage.form_data['data']
         self.steps = storage.view.steps
         self.zipped_data = []
@@ -158,7 +158,7 @@ class StepsHelper(object):
 
     @property
     def all(self):
-        return self.view.manager.forms
+        return self.view.forms
 
     @property
     def step_count(self):
@@ -246,8 +246,7 @@ class StepsHelper(object):
     def finished(self, step):
         return self._goto_step_review or step == self.done_name
 
-    def set_from_get(self, step_url_param):
-        step = step_url_param or self.current
+    def set_from_get(self, step):
         self.view.request.session['current_step'] = step
 
     def set_from_post(self):
@@ -267,7 +266,7 @@ class StepsHelper(object):
         if key == self.first:
             return self.first
         elif self.step_count > key:
-            return self.view.manager.forms[key].manager_index
+            return self.view.forms[key].manager_index
         elif self.step_count == key:
             return self.done_name
         else:
@@ -285,7 +284,7 @@ class StorageHelper(object):
     def form_data(self):
         return {'data': [
             self.data_from_pk(form.pk)
-            for form in self.view.manager.forms
+            for form in self.view.forms
         ]}
 
     @property
@@ -294,7 +293,6 @@ class StorageHelper(object):
 
     @property
     def post_form_pk(self):
-        print(self.view.request.POST)
         pk = self.view.request.POST[self.form_pk_field]
         return self.form_pk(pk)
 
