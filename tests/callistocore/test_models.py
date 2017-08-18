@@ -69,12 +69,21 @@ class ReportModelTest(TestCase):
 
     def test_can_decrypt_old_reports(self):
         legacy_report = LegacyReportData()
-        legacy_report.encrypt_report("this text should be encrypted otherwise bad things", key='this is my key')
-        report = Report(owner=self.user, encrypted=legacy_report.encrypted, salt=legacy_report.salt)
+        legacy_report.encrypt_report(
+            "this text should be encrypted otherwise bad things",
+            key='this is my key',
+        )
+        report = Report(
+            owner=self.user,
+            encrypted=legacy_report.encrypted,
+            salt=legacy_report.salt,
+        )
         report.save()
         saved_report = Report.objects.first()
-        self.assertEqual(saved_report.decrypted_report('this is my key'),
-                         "this text should be encrypted otherwise bad things")
+        self.assertEqual(
+            saved_report.decrypted_report('this is my key'),
+            "this text should be encrypted otherwise bad things",
+        )
 
     def test_no_times_by_default(self):
         report = Report(owner=self.user)

@@ -87,8 +87,11 @@ class Report(models.Model):
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
         _, stretched_key = hashers.make_key(self.encode_prefix, key, self.salt)
-        json_report_text = security.decrypt_text(stretched_key, self.encrypted)
-        return json.loads(json_report_text)
+        report_text = security.decrypt_text(stretched_key, self.encrypted)
+        try:
+            return json.loads(report_text)
+        except json.decoder.JSONDecodeError:
+            return report_text
 
     def withdraw_from_matching(self):
         """ Deletes all associated MatchReports """
