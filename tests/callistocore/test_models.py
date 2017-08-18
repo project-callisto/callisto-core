@@ -30,12 +30,6 @@ class ReportModelTest(TestCase):
             report.save()
             report.full_clean()
 
-    def test_report_owner_is_not_optional(self):
-        report = Report(encrypted=b'a report')
-        with self.assertRaises(IntegrityError):
-            report.save()
-            report.full_clean()
-
     def test_report_ordering(self):
         report1 = Report.objects.create(owner=self.user, encrypted=b'first report')
         report2 = Report.objects.create(owner=self.user, encrypted=b'2 report')
