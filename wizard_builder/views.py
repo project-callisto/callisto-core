@@ -80,7 +80,7 @@ class WizardView(
         return form
 
     def dispatch(self, request, step=None, *args, **kwargs):
-        self.steps.set_from_get(step)
+        self.curent_step = int(step)
         self.forms = self.get_forms()
         return super().dispatch(request, *args, **kwargs)
 
