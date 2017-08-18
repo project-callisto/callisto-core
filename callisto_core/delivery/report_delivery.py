@@ -3,7 +3,6 @@ import logging
 from collections import OrderedDict
 from io import BytesIO
 
-import pytz
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet

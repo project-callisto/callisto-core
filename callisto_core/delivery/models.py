@@ -1,6 +1,6 @@
 import json
-import uuid
 import logging
+import uuid
 
 from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel

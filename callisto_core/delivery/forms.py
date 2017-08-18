@@ -5,9 +5,9 @@ from nacl.exceptions import CryptoError
 
 from django import forms
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
-from django.contrib.auth import get_user_model
 
 from . import models, validators
 from ..utils import api

@@ -1,7 +1,6 @@
 import logging
 
 import gnupg
-import pytz
 
 from django.conf import settings
 from django.contrib.sites.models import Site

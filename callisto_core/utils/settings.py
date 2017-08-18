@@ -119,7 +119,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        'gnupg':{
+        'gnupg': {
             'handlers': ['console'],
             'propagate': False,
             'level': os.getenv('LOG_LEVEL', default='INFO'),

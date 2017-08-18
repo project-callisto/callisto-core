@@ -1,11 +1,11 @@
 from callisto_core.delivery import forms, validators
 from wizard_builder.forms import PageForm
 
+from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
