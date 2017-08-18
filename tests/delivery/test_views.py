@@ -54,6 +54,16 @@ class ReportFlowHelper(TestCase):
             ),
         )
 
+    def client_get_report_view_pdf(self):
+        return self.client.get(
+            reverse(
+                'report_view_pdf',
+                kwargs={
+                    'uuid': self.report.uuid,
+                },
+            ),
+        )
+
     def client_post_report_access(self, url):
         return self.client.post(
             url,
@@ -152,29 +162,44 @@ class NewReportFlowTest(ReportFlowHelper):
 
 class ReportMetaFlowTest(ReportFlowHelper):
 
+    def test_report_action_no_key(self):
+        self.client_post_report_creation()
+        self.assertTrue(self.report.pk)
+        self.client_clear_secret_key()
+        self.client_get_report_delete()
+        self.assertTrue(self.report.pk)
+
+    def test_report_action_invalid_key(self):
+        self.client_post_report_creation()
+        self.assertTrue(self.report.pk)
+        self.client_clear_secret_key()
+        self.secret_key = 'wrong key'
+        self.client_get_report_delete()
+        self.assertTrue(self.report.pk)
+
     def test_report_delete(self):
         self.client_post_report_creation()
-        self.assertEqual(Report.objects.count(), 1)
+        self.assertTrue(self.report.pk)
         self.client_get_report_delete()
-        self.assertEqual(Report.objects.count(), 0)
+        self.assertFalse(self.report.pk)
 
     def test_export_returns_pdf(self):
-        response = self.client.post(
-            (self.export_url % self.report.id),
-            data={'key': self.report_key},
-        )
+        self.client_post_report_creation()
+        response = self.client_get_report_view_pdf()
         self.assertEqual(response.status_code, 200)
         self.assertEquals(
             response.get('Content-Disposition'),
-            'attachment; filename="report.pdf"'
+            'attachment; filename="report.pdf"',
         )
 
     def test_export_pdf_has_report(self):
-        response = self.client.post(
-            (self.export_url % self.report.id),
-            data={'key': self.report_key},
-        )
+        self.client_post_report_creation()
+        response = self.client_get_report_view_pdf()
         self.assertEqual(response.status_code, 200)
+        self.assertEquals(
+            response.get('Content-Disposition'),
+            'attachment; filename="report.pdf"',
+        )
         exported_report = BytesIO(response.content)
         pdf_reader = PyPDF2.PdfFileReader(exported_report)
         self.assertNotIn("Tatiana Nine", pdf_reader.getPage(0).extractText())
