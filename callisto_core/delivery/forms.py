@@ -7,11 +7,13 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.formsets import formset_factory
+from django.contrib.auth import get_user_model
 
 from . import models, validators
 from ..utils import api
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 
 def passphrase_field(label):
@@ -25,7 +27,17 @@ def passphrase_field(label):
     )
 
 
-class ReportBaseForm(forms.models.ModelForm):
+class FormViewExtensionMixin(object):
+
+    def __init__(self, *args, **kwargs):
+        self.view = kwargs.pop('view')
+        super().__init__(*args, **kwargs)
+
+
+class ReportBaseForm(
+    FormViewExtensionMixin,
+    forms.models.ModelForm,
+):
     key = passphrase_field('Passphrase')
 
     @property
@@ -43,6 +55,12 @@ class ReportCreateForm(
 ):
     message_confirmation_error = "key and key confirmation must match"
     key_confirmation = passphrase_field('Confirm Passphrase')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user = self.view.request.user
+        if isinstance(user, User):
+            self.instance.owner = user
 
     def clean_key_confirmation(self):
         key = self.data.get("key")
@@ -78,7 +96,10 @@ class ReportAccessForm(ReportBaseForm):
         raise forms.ValidationError(self.message_key_error)
 
 
-class SubmitReportToAuthorityForm(forms.models.ModelForm):
+class SubmitReportToAuthorityForm(
+    FormViewExtensionMixin,
+    forms.models.ModelForm,
+):
     contact_name = forms.CharField(
         label="Your preferred first name:",
         widget=forms.TextInput(
@@ -136,7 +157,7 @@ class SubmitReportToAuthorityForm(forms.models.ModelForm):
     def clean_email_confirmation(self):
         if strtobool(self.data.get('email_confirmation')):
             api.NotificationApi.send_user_notification(
-                self, 'submit_confirmation', self.site_id)
+                self, 'submit_confirmation', self.view.site_id)
 
     class Meta:
         model = models.Report

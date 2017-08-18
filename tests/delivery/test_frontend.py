@@ -1,4 +1,8 @@
+from django.contrib.auth import get_user_model
+
 from wizard_builder.tests import test_frontend as wizard_builder_tests
+
+User = get_user_model()
 
 
 class EncryptedFrontendTest(wizard_builder_tests.FrontendTest):

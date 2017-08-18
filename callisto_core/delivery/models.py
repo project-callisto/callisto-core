@@ -1,5 +1,6 @@
 import json
 import uuid
+import logging
 
 from nacl.exceptions import CryptoError
 from polymorphic.models import PolymorphicModel
@@ -9,6 +10,8 @@ from django.db import models
 from django.utils.crypto import get_random_string
 
 from . import hashers, security
+
+logger = logging.getLogger(__name__)
 
 
 class Report(models.Model):
@@ -91,6 +94,7 @@ class Report(models.Model):
         try:
             return json.loads(report_text)
         except json.decoder.JSONDecodeError:
+            logger.info('decrypting legacy report')
             return report_text
 
     def withdraw_from_matching(self):

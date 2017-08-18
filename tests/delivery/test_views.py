@@ -5,6 +5,9 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class ReportFlowHelper(TestCase):
@@ -18,6 +21,14 @@ class ReportFlowHelper(TestCase):
         self.site = Site.objects.get(id=1)
         self.site.domain = 'testserver'
         self.site.save()
+        User.objects.create_user(
+            username='testing_122',
+            password='testing_12',
+        )
+        self.client.login(
+            username='testing_122',
+            password='testing_12',
+        )
 
     def client_post_report_creation(self):
         return self.client.post(

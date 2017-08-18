@@ -28,10 +28,13 @@ class EncryptedStorageHelper(
         return self.view.report
 
     def data_from_key(self, form_key):
-        return self.report.decrypted_report(self.secret_key).get(form_key, {})
+        if self.secret_key:
+            return self.report.decrypted_report(
+                self.secret_key).get(form_key, {})
+        else:
+            return {}
 
     def update(self):
-        print('self.form_data', self.form_data)
         self.report.encrypt_report(self.form_data, self.secret_key)
 
 
