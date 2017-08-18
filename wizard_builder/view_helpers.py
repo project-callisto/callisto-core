@@ -7,12 +7,6 @@ logger = logging.getLogger(__name__)
 
 class SerializedDataHelper(object):
     # TODO: move the zip functionality to PageForm or FormManager
-    metadata_fields = [
-        'csrfmiddlewaretoken',
-        'wizard_current_step',
-        'wizard_goto_step',
-        'form_pk',
-    ]
     conditional_fields = [
         'extra_info',
         'extra_options',
@@ -21,11 +15,21 @@ class SerializedDataHelper(object):
     choice_id_error_message = 'Choice(pk={}) not found in {}'
     choice_option_id_error_message = 'ChoiceOption(pk={}) not found in {}'
 
-    def __init__(self, data, forms):
-        self.forms = forms
-        self.data = data
+    def __init__(self, storage):
+        self.storage = storage
+        self.forms = storage.view.manager.forms
+        self.data = storage.form_data['data']
+        self.steps = storage.view.steps
         self.zipped_data = []
         self._format_data()
+
+    @property
+    def metadata_fields(self):
+        return [
+            'csrfmiddlewaretoken',
+            *self.steps.wizard_form_fields,
+            self.storage.form_pk_field,
+        ]
 
     @property
     def cleaned_data(self):
@@ -142,6 +146,12 @@ class StepsHelper(object):
     review_name = 'Review'
     next_name = 'Next'
     back_name = 'Back'
+    wizard_goto_name = 'wizard_goto_step'
+    wizard_current_name = 'wizard_current_step'
+    wizard_form_fields = [
+        wizard_current_name,
+        wizard_goto_name,
+    ]
 
     def __init__(self, view):
         self.view = view
@@ -222,7 +232,7 @@ class StepsHelper(object):
 
     def _goto_step(self, step_type):
         post = self.view.request.POST
-        return post.get('wizard_goto_step', None) == step_type
+        return post.get(self.wizard_goto_name, None) == step_type
 
     def url(self, step):
         return reverse(
@@ -241,7 +251,8 @@ class StepsHelper(object):
         self.view.request.session['current_step'] = step
 
     def set_from_post(self):
-        step = self.view.request.POST.get('wizard_current_step', self.current)
+        step = self.view.request.POST.get(
+            self.wizard_current_name, self.current)
         if self._goto_step_back:
             step = self.adjust_step(-1)
         if self._goto_step_next:
@@ -265,6 +276,7 @@ class StepsHelper(object):
 
 class StorageHelper(object):
     data_manager = SerializedDataHelper
+    form_pk_field = 'form_pk_field'
 
     def __init__(self, view):
         self.view = view
@@ -278,15 +290,13 @@ class StorageHelper(object):
 
     @property
     def cleaned_form_data(self):
-        return self.data_manager(
-            self.form_data['data'],
-            self.view.manager.forms,
-        ).cleaned_data
+        return self.data_manager(self)
 
     @property
     def post_form_pk(self):
-        return self.view.form_pk(self.view.request.POST[
-            self.view.form_pk_field])
+        print(self.view.request.POST)
+        pk = self.view.request.POST[self.form_pk_field]
+        return self.form_pk(pk)
 
     @property
     def post_data(self):
@@ -294,13 +304,16 @@ class StorageHelper(object):
         data.update(self.view.request.POST)
         return data
 
+    def form_pk(self, pk):
+        return '{}_{}'.format(self.form_pk_field, pk)
+
     def update(self):
         data = self.view.request.session.get('data', {})
         data[self.post_form_pk] = self.post_data
         self.add_data_to_storage(data)
 
     def data_from_pk(self, pk):
-        key = self.view.form_pk(pk)
+        key = self.form_pk(pk)
         return self.data_from_key(key)
 
     def data_from_key(self, form_key):

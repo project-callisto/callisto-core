@@ -110,9 +110,15 @@ class FrontendTest(FunctionalTest):
 
     def _assert_page_contents(self):
         self.assertCss('[type="submit"]')
-        self.assertCss('[name="wizard_current_step"]')
-        self.assertCss('[name="wizard_goto_step"]')
-        self.assertCss('[name="form_pk"]')
+        self.assertCss('[name="{}"]'.format(
+            view_helpers.StepsHelper.wizard_current_name,
+        ))
+        self.assertCss('[name="{}"]'.format(
+            view_helpers.StepsHelper.wizard_goto_name,
+        ))
+        self.assertCss('[name="{}"]'.format(
+            view_helpers.StorageHelper.form_pk_field,
+        ))
 
     def test_forwards_and_backwards_navigation(self):
         self.element.next.click()

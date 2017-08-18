@@ -12,12 +12,45 @@ class NewWizardView(views.base.RedirectView):
     )
 
 
-class WizardView(views.edit.FormView):
+class WizardViewTemplateHelpers(object):
+
+    @property
+    def wizard_current_step(self):
+        return self.steps.current
+
+    @property
+    def wizard_goto_name(self):
+        return self.steps.wizard_goto_name
+
+    @property
+    def wizard_current_name(self):
+        return self.steps.wizard_current_name
+
+    @property
+    def wizard_review_name(self):
+        return self.steps.review_name
+
+    @property
+    def wizard_next_name(self):
+        return self.steps.next_name
+
+    @property
+    def wizard_back_name(self):
+        return self.steps.back_name
+
+    @property
+    def wizard_form_pk_field(self):
+        return self.storage.form_pk_field
+
+
+class WizardView(
+    WizardViewTemplateHelpers,
+    views.edit.FormView,
+):
     site_id = None
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
     done_template_name = 'wizard_builder/review.html'
-    form_pk_field = 'form_pk'
     steps_helper = view_helpers.StepsHelper
     storage_helper = view_helpers.StorageHelper
     form_manager = managers.FormManager
@@ -33,9 +66,6 @@ class WizardView(views.edit.FormView):
     @property
     def manager(self):
         return self.form_manager(self)
-
-    def form_pk(self, pk):
-        return '{}_{}'.format(self.form_pk_field, pk)
 
     def get_form(self):
         return self.manager.forms[self.steps.current]
