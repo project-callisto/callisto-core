@@ -123,6 +123,11 @@ LOGGING = {
         },
     },
     'loggers': {
+        'gnupg':{
+            'handlers': ['console'],
+            'propagate': False,
+            'level': os.getenv('LOG_LEVEL', default='INFO'),
+        },
         'django': {
             'handlers': ['console'],
             'propagate': False,
