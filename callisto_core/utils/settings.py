@@ -15,7 +15,10 @@ def load_file(path):
     return data
 
 
-REPORT_TIME_ZONE = 'Europe/Paris'
+TIME_ZONE = 'UTC'
+USE_TZ = True
+
+
 COORDINATOR_NAME = "COORDINATOR_NAME"
 COORDINATOR_EMAIL = 'COORDINATOR_EMAIL@example.com'
 SCHOOL_SHORTNAME = "SCHOOL_SHORTNAME"

@@ -14,8 +14,6 @@ from ..delivery.report_delivery import PDFFullReport, PDFMatchReport
 from .models import EmailNotification
 
 logger = logging.getLogger(__name__)
-tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
-timezone.activate(pytz.timezone(tzname))
 
 
 class CallistoCoreNotificationApi(object):

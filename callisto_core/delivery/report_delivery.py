@@ -23,8 +23,6 @@ from django.utils.timezone import localtime
 from ..utils.api import NotificationApi
 
 date_format = "%m/%d/%Y @%H:%M%p"
-tzname = settings.REPORT_TIME_ZONE or 'America/Los_Angeles'
-timezone.activate(pytz.timezone(tzname))
 logger = logging.getLogger(__name__)
 
 
