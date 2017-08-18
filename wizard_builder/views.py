@@ -16,7 +16,7 @@ class WizardViewTemplateHelpers(object):
 
     @property
     def wizard_prev_step_exists(self):
-        return self.steps.prev
+        return self.steps.current
 
     @property
     def wizard_next_is_done(self):

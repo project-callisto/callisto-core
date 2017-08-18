@@ -56,7 +56,6 @@ class FormManager(object):
         form = FormClass(**data)
         form.full_clean()
         form.page = page
-        form.manager_index = index
         form.pk = page.pk
         form.section_map = self.section_map
         return form

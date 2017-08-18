@@ -142,16 +142,12 @@ class StepsHelper(object):
         self.view = view
 
     @property
-    def all(self):
-        return self.view.forms
-
-    @property
     def step_count(self):
-        return len(self.all)
+        return len(self.view.forms)
 
     @property
     def current(self):
-        _step = self.view.curent_step or self.first
+        _step = self.view.curent_step or 0
         if _step == self.done_name:
             return _step
         elif _step <= self.last:
@@ -160,32 +156,12 @@ class StepsHelper(object):
             return self.last
 
     @property
-    def _goto_step_back(self):
-        return self._goto_step(self.back_name)
-
-    @property
-    def _goto_step_next(self):
-        return self._goto_step(self.next_name)
-
-    @property
-    def _goto_step_review(self):
-        return self._goto_step(self.review_name)
-
-    @property
-    def first(self):
-        return 0
-
-    @property
     def last(self):
-        return self.all[-1].manager_index
+        return self.step_count - 1
 
     @property
     def next(self):
         return self.adjust_step(1)
-
-    @property
-    def prev(self):
-        return self.adjust_step(0)
 
     @property
     def next_is_done(self):
@@ -207,9 +183,17 @@ class StepsHelper(object):
     def done_url(self):
         return self.url(self.done_name)
 
-    def _goto_step(self, step_type):
-        post = self.view.request.POST
-        return post.get(self.wizard_goto_name, None) == step_type
+    @property
+    def _goto_step_back(self):
+        return self._goto_step(self.back_name)
+
+    @property
+    def _goto_step_next(self):
+        return self._goto_step(self.next_name)
+
+    @property
+    def _goto_step_review(self):
+        return self._goto_step(self.review_name)
 
     def url(self, step):
         return reverse(
@@ -230,18 +214,15 @@ class StepsHelper(object):
             self.view.curent_step = self.adjust_step(1)
 
     def adjust_step(self, adjustment):
-        # TODO: tests as spec
-        key = self.view.curent_step + adjustment
-        if key < self.first:
-            return None
-        if key == self.first:
-            return self.first
-        elif self.step_count > key:
-            return self.view.forms[key].manager_index
-        elif self.step_count == key:
+        step = self.view.curent_step + adjustment
+        if step >= self.step_count:
             return self.done_name
         else:
-            return None
+            return step
+
+    def _goto_step(self, step_type):
+        post = self.view.request.POST
+        return post.get(self.wizard_goto_name, None) == step_type
 
 
 class StorageHelper(object):
