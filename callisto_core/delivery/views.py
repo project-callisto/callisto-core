@@ -8,72 +8,22 @@ an understanding of them is required to utilize the views effectively
 import json
 import logging
 
-import ratelimit.mixins
-from nacl.exceptions import CryptoError
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.html import conditional_escape
 from django.views import generic as views
 
-from . import forms, models, report_delivery
+from . import forms, models, report_delivery, view_partials
 from ..utils.api import MatchingApi, NotificationApi
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
-class SecretKeyStorageHelper(object):
-
-    def __init__(self, view):
-        self.view = view
-
-    def set_secret_key(self, key):
-        self.view.request.session['secret_key'] = key
-
-    @property
-    def report(self):
-        return self.view.report
-
-    @property
-    def secret_key(self):
-        return self.view.request.session.get('secret_key')
-
-
-class ReportBaseView(
-    views.detail.DetailView,
-):
-    model = models.Report
-    context_object_name = 'report'
-    slug_field = 'uuid'
-    slug_url_kwarg = 'uuid'
-    storage_helper = SecretKeyStorageHelper
-
-    @property
-    def report(self):
-        # can only be accessed after form_valid()
-        return self.object
-
-    @property
-    def site_id(self):
-        return get_current_site(self.request).id
-
-    @property
-    def storage(self):
-        return self.storage_helper(self)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({'view': self})
-        return kwargs
-
-
 class ReportCreateView(
-    ReportBaseView,
+    view_partials.ReportBaseMixin,
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
@@ -94,113 +44,30 @@ class ReportCreateView(
             self.storage.set_secret_key(form.data['key'])
 
 
-class ReportBaseAccessView(
-    ReportBaseView,
-    ratelimit.mixins.RatelimitMixin,
-):
-    template_name = 'callisto_core/delivery/form.html'
-    valid_access_message = 'Valid access request at {}'
-    invalid_access_key_message = 'Invalid (key) access request at {}'
-    invalid_access_user_message = 'Invalid (user) access request at {}'
-    invalid_access_no_key_message = 'Invalid (no key) access request at {}'
-    ratelimit_key = 'user'
-    ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
-    access_form_class = forms.ReportAccessForm
-    access_template_name = template_name
-
-    @property
-    def decrypted_report(self):
-        return self.report.decrypted_report(self.storage.secret_key)
-
-    @property
-    def access_granted(self):
-        if settings.CALLISTO_CHECK_REPORT_OWNER:
-            if not self.report.owner == self.request.user:
-                self._log_warn(self.invalid_access_user_message)
-                raise PermissionDenied
-        else:
-            pass
-        if self.storage.secret_key:
-            try:
-                self.decrypted_report
-                # TODO: self.log.info('Valid access')
-                self._log_info(self.valid_access_message)
-                return True
-            except CryptoError:
-                self._log_warn(self.invalid_access_key_message)
-                return False
-        else:
-            self._log_info(self.invalid_access_no_key_message)
-            return False
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.storage.secret_key:
-            return super().dispatch(request, *args, **kwargs)
-        elif self.request.POST.get('key'):
-            return self._render_key_input_response()
-        else:
-            return self._render_access_form()
-
-    def _render_key_input_response(self):
-        form = self.access_form_class(**self.get_form_kwargs())
-        if form.is_valid():
-            self.storage.set_secret_key(self.request.POST.get('key'))
-            return HttpResponseRedirect(self.request.path)
-        else:
-            return self._render_access_form(form)
-
-    def _render_access_form(self, form=None):
-        self.object = self.report
-        self.template_name = self.access_template_name
-        if not form:
-            form = self.access_form_class(**self.get_form_kwargs())
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def _log_info(self, msg):
-        # TODO: LoggingHelper
-        self._log(msg, logger.info)
-
-    def _log_warn(self, msg):
-        # TODO: LoggingHelper
-        self._log(msg, logger.warn)
-
-    def _log(self, msg, log):
-        # TODO: LoggingHelper
-        path = self.request.get_full_path()
-        log(msg.format(path))
-
-
-class ReportUpdateView(
-    ReportBaseAccessView,
-    views.edit.UpdateView,
+class MatchingWithdrawView(
+    view_partials.ReportActionView,
 ):
 
-    @property
-    def report(self):
-        # can be accessed at any point
-        return self.get_object()
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({'instance': self.report})
-        return kwargs
+    def _report_action(self):
+        # TODO: self.action.withdraw()
+        self.report.withdraw_from_matching()
 
 
-class BaseReportingView(ReportUpdateView):
+class ReportDeleteView(
+    view_partials.ReportActionView,
+):
 
-    def form_valid(self, form):
-        output = super().form_valid(form)
-        if form.cleaned_data.get('email_confirmation') == "True":
-            NotificationApi.send_user_notification(
-                form,
-                self.email_confirmation_name,
-                self.site_id,
-            )
-        return output
+    def _report_action(self):
+        # TODO: self.action.delete()
+        self.report.delete()
+
+    def _action_response(self):
+        return HttpResponseRedirect(reverse('report_new'))
 
 
-class ReportingView(BaseReportingView):
+class ReportingView(
+    view_partials.BaseReportingView,
+):
     form_class = forms.ReportingForm
     email_confirmation_name = 'submit_confirmation'
 
@@ -219,7 +86,9 @@ class ReportingView(BaseReportingView):
         return output
 
 
-class MatchingView(BaseReportingView):
+class MatchingView(
+    view_partials.BaseReportingView,
+):
     form_class = forms.SubmitToMatchingForm
     email_confirmation_name = 'match_confirmation'
 
@@ -262,43 +131,3 @@ class MatchingView(BaseReportingView):
             MatchingApi.run_matching(match_reports_to_check=matches_for_immediate_processing)
 
         return output
-
-
-class ReportActionView(ReportUpdateView):
-
-    def get(self, request, *args, **kwargs):
-        if self.access_granted:
-            self._report_action()
-            return self._action_response()
-        else:
-            return super().get(request, *args, **kwargs)
-
-    def _report_action(self):
-        # TODO: implement as a helper
-        pass
-
-    def _action_response(self):
-        return self._redirect_to_done()
-
-    def _redirect_to_done(self):
-        return HttpResponseRedirect(reverse(
-            'report_view',
-            kwargs={'uuid': self.report.uuid},
-        ))
-
-
-class MatchingWithdrawView(ReportActionView):
-
-    def _report_action(self):
-        # TODO: self.action.withdraw()
-        self.report.withdraw_from_matching()
-
-
-class ReportDeleteView(ReportActionView):
-
-    def _report_action(self):
-        # TODO: self.action.delete()
-        self.report.delete()
-
-    def _action_response(self):
-        return HttpResponseRedirect(reverse('report_new'))
