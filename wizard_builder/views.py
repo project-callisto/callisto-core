@@ -91,6 +91,7 @@ class WizardView(
         return output
 
     def form_valid(self, form):
+        form.full_clean()
         self.storage.update()
         if self.steps.finished(self.steps.current):
             return self.render_form_done()

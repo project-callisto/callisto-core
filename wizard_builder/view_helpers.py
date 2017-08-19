@@ -5,6 +5,10 @@ from django.core.urlresolvers import reverse
 logger = logging.getLogger(__name__)
 
 
+def is_single_element_list(item):
+    return bool(isinstance(item, list)) and (len(item) == 1)
+
+
 class SerializedDataHelper(object):
     # TODO: move the zip functionality to PageForm or FormManager
     conditional_fields = [
@@ -257,7 +261,9 @@ class StorageHelper(object):
     @property
     def current_and_post_data(self):
         current_data = self.current_data_from_key(self.post_form_pk)
-        post_data = self._data_without_metadata(self.view.request.POST)
+        post_data = dict(self.view.request.POST)
+        post_data = self._data_without_metadata(post_data)
+        post_data = self._data_arrays_resolved(post_data)
         current_data.update(post_data)
         return current_data
 
@@ -290,9 +296,22 @@ class StorageHelper(object):
     def add_data_to_storage(self, data):
         self.view.request.session['data'] = data
 
+    def _data_arrays_resolved(self, data):
+        '''
+            resolves
+                data['text'] = ['my text input']
+
+            into
+                data['text'] = 'my text input'
+        '''
+        return {
+            key: value[0] if is_single_element_list(value) else value
+            for key, value in data.items()
+        }
+
     def _data_without_metadata(self, data):
         return {
             key: value
-            for key, value in dict(data).items()
+            for key, value in data.items()
             if key not in self.metadata_fields
         }
