@@ -86,8 +86,10 @@ class ReportBaseAccessView(
 ):
     storage_helper = SecretKeyStorageHelper
     template_name = 'callisto_core/delivery/form.html'
-    invalid_access_key_message = 'Invalid key access request at {}'
-    invalid_access_user_message = 'Invalid user access request at {}'
+    valid_access_message = 'Valid access request at {}'
+    invalid_access_key_message = 'Invalid (key) access request at {}'
+    invalid_access_user_message = 'Invalid (user) access request at {}'
+    invalid_access_no_key_message = 'Invalid (no key) access request at {}'
     ratelimit_key = 'user'
     ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
     access_form_class = forms.ReportAccessForm
@@ -101,18 +103,20 @@ class ReportBaseAccessView(
     def access_granted(self):
         if settings.CALLISTO_CHECK_REPORT_OWNER:
             if not self.report.owner == self.request.user:
-                self._log(self.invalid_access_user_message)
+                self._log_warn(self.invalid_access_user_message)
                 raise PermissionDenied
         else:
             pass
         if self.storage.secret_key:
             try:
                 self.decrypted_report
+                self._log_info(self.valid_access_message)
                 return True
             except CryptoError:
-                self._log(self.invalid_access_key_message)
+                self._log_warn(self.invalid_access_key_message)
                 return False
         else:
+            self._log_info(self.invalid_access_no_key_message)
             return False
 
     def dispatch(self, request, *args, **kwargs):
@@ -127,9 +131,15 @@ class ReportBaseAccessView(
         self._set_key_from_form(form)
         return super().form_valid(form)
 
-    def _log(self, msg):
+    def _log_info(self, msg):
+        self._log(msg, logger.info)
+
+    def _log_warn(self, msg):
+        self._log(msg, logger.warn)
+
+    def _log(self, msg, log):
         path = self.request.get_full_path()
-        logger.warn(msg.format(path))
+        log(msg.format(path))
 
     def _set_key_from_form(self, form):
         if form.data.get('key'):
