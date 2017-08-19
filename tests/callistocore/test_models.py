@@ -40,22 +40,6 @@ class ReportModelTest(TestCase):
         report.save()
         self.assertIn(report, self.user .report_set.all())
 
-    # need to at minimum save which fields were displayed
-    def test_cannot_save_empty_reports(self):
-        report = Report(owner=self.user, encrypted=b'')
-        with self.assertRaises(ValidationError):
-            report.save()
-            report.full_clean()
-
-    def test_report_ordering(self):
-        report1 = Report.objects.create(owner=self.user, encrypted=b'first report')
-        report2 = Report.objects.create(owner=self.user, encrypted=b'2 report')
-        report3 = Report.objects.create(owner=self.user, encrypted=b'report #3')
-        self.assertEqual(
-            list(Report.objects.all()),
-            [report3, report2, report1]
-        )
-
     def test_can_encrypt_report(self):
         report = Report(owner=self.user)
         report.encrypt_report(
@@ -75,8 +59,10 @@ class ReportModelTest(TestCase):
         )
         report.save()
         saved_report = Report.objects.first()
-        self.assertEqual(saved_report.decrypted_report('this is my key'),
-                         "this text should be encrypted, yes it should by golly!")
+        self.assertEqual(
+            saved_report.decrypted_report('this is my key'),
+            "this text should be encrypted, yes it should by golly!",
+        )
 
     def test_can_decrypt_old_reports(self):
         legacy_report = LegacyReportData()
