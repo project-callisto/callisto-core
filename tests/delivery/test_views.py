@@ -1,7 +1,6 @@
 from io import BytesIO
 
 import PyPDF2
-
 from callisto_core.delivery import forms, validators
 from callisto_core.delivery.models import Report
 from wizard_builder.forms import PageForm
@@ -217,7 +216,8 @@ class ReportMetaFlowTest(ReportFlowHelper):
         )
         exported_report = BytesIO(response.content)
         pdf_reader = PyPDF2.PdfFileReader(exported_report)
-        from IPython import embed; embed()
+        from IPython import embed
+        embed()
         self.assertIn("Reported by: testing_12", pdf_reader.getPage(0).extractText())
         self.assertIn('test answer', pdf_reader.getPage(1).extractText())
         self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())

@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.html import conditional_escape
 from django.views import generic as views
 
@@ -133,16 +133,29 @@ class ReportFormAccessView(ReportBaseAccessView):
     def dispatch(self, request, *args, **kwargs):
         if self.storage.secret_key:
             return super().dispatch(request, *args, **kwargs)
+        elif self.request.POST.get('key'):
+            return self._render_key_input_response()
         else:
             return self._render_access_form()
 
-    def get_success_url(self):
-        return self.request.path
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'instance': self.report})
+        return kwargs
 
-    def _render_access_form(self):
+    def _render_key_input_response(self):
+        form = self.access_form_class(**self.get_form_kwargs())
+        if form.is_valid():
+            self.storage.set_secret_key(self.request.POST.get('key'))
+            return HttpResponseRedirect(self.request.path)
+        else:
+            return self._render_access_form(form)
+
+    def _render_access_form(self, form=None):
         self.object = self.report
         self.template_name = self.access_template_name
-        form = self.access_form_class(**self.get_form_kwargs())
+        if not form:
+            form = self.access_form_class(**self.get_form_kwargs())
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
 

@@ -49,10 +49,7 @@ class ReportBaseForm(
         fields = []
 
 
-class ReportCreateForm(
-    ReportBaseForm,
-    forms.models.ModelForm,
-):
+class ReportCreateForm(ReportBaseForm):
     message_confirmation_error = "key and key confirmation must match"
     key_confirmation = passphrase_field('Confirm Passphrase')
 
