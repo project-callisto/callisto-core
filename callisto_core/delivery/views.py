@@ -1,3 +1,18 @@
+'''
+
+These views integrate thoroughly with django class based views
+https://docs.djangoproject.com/en/1.11/topics/class-based-views/
+an understanding of them is required to utilize the views effectively
+
+Patterns:
+
+- all view functions must return either a response or a super() call
+    that ends in a response, except...
+- ...for __FUNC (double underscore) functions with are utility functions,
+    and do not need a return
+- _FUNC (single underscore) functions are internal to the view
+
+'''
 import json
 import logging
 
