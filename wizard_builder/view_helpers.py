@@ -144,7 +144,7 @@ class StepsHelper(object):
 
     @property
     def current(self):
-        step = self.view.curent_step or 0
+        step = getattr(self.view, 'curent_step', 0)
         if isinstance(step, str):
             return step
         elif step <= self.last:

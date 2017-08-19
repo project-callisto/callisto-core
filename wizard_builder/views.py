@@ -82,8 +82,7 @@ class WizardView(
             return None
 
     def dispatch(self, request, step=None, *args, **kwargs):
-        self.curent_step = self.steps.parse_step(step)
-        self.forms = self.get_forms()
+        self._dispatch_processing(step)
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -126,3 +125,9 @@ class WizardView(
 
     def render_current(self):
         return HttpResponseRedirect(self.steps.current_url)
+
+    def _dispatch_processing(self, step):
+        if not getattr(self, 'curent_step', None):
+            self.curent_step = self.steps.parse_step(step)
+        if not getattr(self, 'forms', None):
+            self.forms = self.get_forms()
