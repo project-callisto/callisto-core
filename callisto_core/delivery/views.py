@@ -4,14 +4,6 @@ These views integrate thoroughly with django class based views
 https://docs.djangoproject.com/en/1.11/topics/class-based-views/
 an understanding of them is required to utilize the views effectively
 
-Patterns:
-
-- all view functions must return either a response or a super() call
-    that ends in a response, except...
-- ...for __FUNC (double underscore) functions with are utility functions,
-    and do not need a return
-- _FUNC (single underscore) functions are internal to the view
-
 '''
 import json
 import logging
@@ -59,6 +51,7 @@ class ReportBaseView(
     context_object_name = 'report'
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
+    storage_helper = SecretKeyStorageHelper
 
     @property
     def report(self):
@@ -88,18 +81,23 @@ class ReportCreateView(
     def get_success_url(self):
         return reverse_lazy(
             'report_update',
-            kwargs={
-                'step': 0,
-                'uuid': self.report.uuid,
-            },
+            kwargs={'step': 0, 'uuid': self.report.uuid},
         )
+
+    def form_valid(self, form):
+        self.__set_key_from_form(form)
+        return super().form_valid(form)
+
+    def __set_key_from_form(self, form):
+        # TODO: move to SecretKeyStorageHelper
+        if form.data.get('key'):
+            self.storage.set_secret_key(form.data['key'])
 
 
 class ReportBaseAccessView(
     ReportBaseView,
     ratelimit.mixins.RatelimitMixin,
 ):
-    storage_helper = SecretKeyStorageHelper
     template_name = 'callisto_core/delivery/form.html'
     valid_access_message = 'Valid access request at {}'
     invalid_access_key_message = 'Invalid (key) access request at {}'
@@ -118,47 +116,34 @@ class ReportBaseAccessView(
     def access_granted(self):
         if settings.CALLISTO_CHECK_REPORT_OWNER:
             if not self.report.owner == self.request.user:
-                self._log_warn(self.invalid_access_user_message)
+                self.__log_warn(self.invalid_access_user_message)
                 raise PermissionDenied
         else:
             pass
         if self.storage.secret_key:
             try:
                 self.decrypted_report
-                self._log_info(self.valid_access_message)
+                # TODO: self.log.info('Valid access')
+                self.__log_info(self.valid_access_message)
                 return True
             except CryptoError:
-                self._log_warn(self.invalid_access_key_message)
+                self.__log_warn(self.invalid_access_key_message)
                 return False
         else:
-            self._log_info(self.invalid_access_no_key_message)
+            self.__log_info(self.invalid_access_no_key_message)
             return False
 
     def dispatch(self, request, *args, **kwargs):
+        print('ReportBaseAccessView.dispatch')
         if self.storage.secret_key:
+            print('continuing dispatch')
             return super().dispatch(request, *args, **kwargs)
         elif self.request.POST.get('key'):
+            print('processing key input')
             return self._render_key_input_response()
         else:
+            print('requesting key input')
             return self._render_access_form()
-
-    def form_valid(self, form):
-        self._set_key_from_form(form)
-        return super().form_valid(form)
-
-    def _log_info(self, msg):
-        self._log(msg, logger.info)
-
-    def _log_warn(self, msg):
-        self._log(msg, logger.warn)
-
-    def _log(self, msg, log):
-        path = self.request.get_full_path()
-        log(msg.format(path))
-
-    def _set_key_from_form(self, form):
-        if form.data.get('key'):
-            self.storage.set_secret_key(form.data['key'])
 
     def _render_key_input_response(self):
         form = self.access_form_class(**self.get_form_kwargs())
@@ -175,6 +160,19 @@ class ReportBaseAccessView(
             form = self.access_form_class(**self.get_form_kwargs())
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
+
+    def __log_info(self, msg):
+        # TODO: LoggingHelper
+        self.__log(msg, logger.info)
+
+    def __log_warn(self, msg):
+        # TODO: LoggingHelper
+        self.__log(msg, logger.warn)
+
+    def __log(self, msg, log):
+        # TODO: LoggingHelper
+        path = self.request.get_full_path()
+        log(msg.format(path))
 
 
 class ReportUpdateView(
@@ -275,20 +273,35 @@ class ReportActionView(ReportUpdateView):
     def get(self, request, *args, **kwargs):
         if self.access_granted:
             print('access_granted !!!')
-            return self.report_action()
+            self.__report_action()
+            return self._action_response()
         else:
             print('denied XXX')
             return super().get(request, *args, **kwargs)
 
+    def _action_response(self):
+        return self._redirect_to_done()
+
+    def _redirect_to_done(self):
+        return HttpResponseRedirect(reverse(
+            'report_view',
+            kwargs={'uuid': self.report.uuid},
+        ))
+
+    def __report_action(self):
+        # TODO: implement as a helper
+        pass
+
 
 class MatchingWithdrawView(ReportActionView):
 
-    def report_action(self):
+    def __report_action(self):
+        # TODO: self.action.withdraw()
         self.report.withdraw_from_matching()
 
 
 class ReportDeleteView(ReportActionView):
 
-    def report_action(self):
-        print('deleting a thing')
+    def __report_action(self):
+        # TODO: self.action.delete()
         self.report.delete()

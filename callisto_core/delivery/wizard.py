@@ -70,7 +70,8 @@ class WizardActionView(
 
 class WizardPDFView(WizardActionView):
 
-    def report_action(self):
+    def __report_action(self):
+        # TODO: self.action.withdraw()
         return self._report_pdf_response()
 
     def _report_pdf_response(self):
