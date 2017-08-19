@@ -249,7 +249,7 @@ class PDFReport(object):
             canvas.setFillColor('gray')
             # canvas.setFont('OpenSans',12)
             canvas.drawString(margin, height - margin, "CONFIDENTIAL")
-            canvas.drawRightString(width - margin, height - margin, timezone.now())
+            canvas.drawRightString(width - margin, height - margin, str(timezone.now()))
             if recipient:
                 canvas.drawString(margin, margin, "Intended for: Title IX Coordinator %s" % recipient)
             canvas.restoreState()

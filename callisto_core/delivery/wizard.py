@@ -26,7 +26,6 @@ class EncryptedStorageHelper(
     SecretKeyStorageHelper,
     StorageHelper,
 ):
-    invalid_storage_request_messsage = 'data storage requested with secret key set'
 
     @property
     def report(self):
@@ -36,7 +35,6 @@ class EncryptedStorageHelper(
         if self.secret_key:
             return self.report.decrypted_report(self.secret_key)
         else:
-            logger.warn(self.invalid_storage_request_messsage)
             return {}
 
     def add_data_to_storage(self, data):
@@ -50,3 +48,7 @@ class EncryptedWizardView(
     template_name = 'callisto_core/delivery/wizard_form.html'
     storage_helper = EncryptedStorageHelper
     steps_helper = ReportStepsHelper
+
+    def dispatch(self, request, step=None, *args, **kwargs):
+        self._dispatch_processing(step)
+        return super().dispatch(request, step=step, *args, **kwargs)

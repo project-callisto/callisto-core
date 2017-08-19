@@ -1,3 +1,7 @@
+from io import BytesIO
+
+import PyPDF2
+
 from callisto_core.delivery import forms, validators
 from callisto_core.delivery.models import Report
 from wizard_builder.forms import PageForm
@@ -61,6 +65,13 @@ class ReportFlowHelper(TestCase):
                     'uuid': self.report.uuid,
                 },
             ),
+        )
+
+    def client_post_question_answer(self, url, answer):
+        return self.client.post(
+            url,
+            data=answer,
+            follow=True,
         )
 
     def client_post_report_access(self, url):
@@ -131,6 +142,7 @@ class NewReportFlowTest(ReportFlowHelper):
 
         response = self.client_post_report_access(
             response.redirect_chain[0][0])
+        from IPython import embed; embed()
         form = response.context['form']
 
         self.assertIsInstance(form, PageForm)
@@ -188,22 +200,29 @@ class ReportMetaFlowTest(ReportFlowHelper):
         self.assertEqual(response.status_code, 200)
         self.assertEquals(
             response.get('Content-Disposition'),
-            'attachment; filename="report.pdf"',
+            'inline; filename="report.pdf"',
         )
 
     def test_export_pdf_has_report(self):
-        self.client_post_report_creation()
+        response = self.client_post_report_creation()
+        self.client_post_question_answer(
+            response.redirect_chain[0][0],
+            {
+                'form_pk_field': '0',
+                'question_3': 'test answer',
+            }
+        )
         response = self.client_get_report_view_pdf()
         self.assertEqual(response.status_code, 200)
         self.assertEquals(
             response.get('Content-Disposition'),
-            'attachment; filename="report.pdf"',
+            'inline; filename="report.pdf"',
         )
         exported_report = BytesIO(response.content)
         pdf_reader = PyPDF2.PdfFileReader(exported_report)
-        self.assertNotIn("Tatiana Nine", pdf_reader.getPage(0).extractText())
+        from IPython import embed; embed()
         self.assertIn("Reported by: testing_12", pdf_reader.getPage(0).extractText())
-        self.assertIn("test answer", pdf_reader.getPage(1).extractText())
+        self.assertIn('test answer', pdf_reader.getPage(1).extractText())
         self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())
 
     def test_match_report_is_withdrawn(self):
@@ -260,7 +279,7 @@ class ReportMetaFlowTest(ReportFlowHelper):
         user2 = User.objects.create_user(username='testing_122', password='testing_12')
         self.client.login(username='testing_122', password='testing_12')
         report2_text = """[
-    { "answer": "test answer",
+    { "answer": 'test answer',
       "id": %i,
       "section": 1,
       "question_text": "first question",
@@ -322,7 +341,7 @@ class ReportMetaFlowTest(ReportFlowHelper):
         user2 = User.objects.create_user(username='testing_122', password='testing_12')
         self.client.login(username='testing_122', password='testing_12')
         report2_text = """[
-    { "answer": "test answer",
+    { "answer": 'test answer',
       "id": %i,
       "section": 1,
       "question_text": "first question",
@@ -374,7 +393,7 @@ class ReportMetaFlowTest(ReportFlowHelper):
         user2 = User.objects.create_user(username='testing_122', password='testing_12')
         self.client.login(username='testing_122', password='testing_12')
         report2_text = """[
-    { "answer": "test answer",
+    { "answer": 'test answer',
       "id": %i,
       "section": 1,
       "question_text": "first question",
@@ -437,7 +456,7 @@ class ReportMetaFlowTest(ReportFlowHelper):
         user2 = User.objects.create_user(username='testing_122', password='testing_12')
         self.client.login(username='testing_122', password='testing_12')
         report2_text = """[
-    { "answer": "test answer",
+    { "answer": 'test answer',
       "id": %i,
       "section": 1,
       "question_text": "first question",

@@ -97,8 +97,6 @@ class ReportBaseAccessView(
     invalid_access_message = 'Invalid access request at url {}'
     ratelimit_key = 'user'
     ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
-    ratelimit_block = True
-    ratelimit_method = 'POST'
 
     @property
     def report(self):
@@ -111,6 +109,10 @@ class ReportBaseAccessView(
 
     @property
     def access_granted(self):
+        # !!! IMPORTANT !!!
+        # Implementers should wrap this in a
+        # self.report.owner == self.request.user check
+        # and redirect to login if that check fails
         if self.storage.secret_key:
             try:
                 self.decrypted_report
@@ -126,23 +128,23 @@ class ReportBaseAccessView(
 
 class ReportFormAccessView(ReportBaseAccessView):
     access_form_class = forms.ReportAccessForm
+    access_template_name = ReportBaseAccessView.template_name
 
     def dispatch(self, request, *args, **kwargs):
         if self.storage.secret_key:
             return super().dispatch(request, *args, **kwargs)
         else:
-            return views.edit.UpdateView.dispatch(
-                self, request, *args, **kwargs)
+            return self._render_access_form()
 
     def get_success_url(self):
         return self.request.path
 
-    def get_form(self, form_class=None):
-        if self.storage.secret_key:
-            return super().get_form()
-        else:
-            self._log_invalid_access()
-            return self.access_form_class(**self.get_form_kwargs())
+    def _render_access_form(self):
+        self.object = self.report
+        self.template_name = self.access_template_name
+        form = self.access_form_class(**self.get_form_kwargs())
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
 
 
 class BaseReportingView(ReportFormAccessView):
