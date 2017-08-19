@@ -81,14 +81,21 @@ class ElementHelper(object):
             '.extra-widget-dropdown input')
 
     @property
+    def choice_1(self):
+        return self.choice_number(0)
+
+    @property
     def choice_3(self):
-        return self.browser.find_elements_by_css_selector(
-            '[type="checkbox"]')[2]
+        return self.choice_number(2)
 
     @property
     def text_input(self):
         return self.browser.find_element_by_css_selector(
             '[type="text"]')
+
+    def choice_number(self, number):
+        return self.browser.find_elements_by_css_selector(
+            '[type="checkbox"]')[number]
 
 
 @override_settings(DEBUG=True)
@@ -204,6 +211,15 @@ class FrontendTest(FunctionalTest):
         self.element.next.click()
         self.element.next.click()
         self.element.done.click()
+        self.assertSelectorContains('h2', 'Question Review')
+
+    def test_choice_present_on_done_page(self):
+        self.element.choice_1.click()
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains(
+            'body', model.page_1_question_1_choice_1.text)
 
     def test_text_input_present_on_done_page(self):
         self.element.next.click()
