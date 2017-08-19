@@ -1,25 +1,5 @@
 {% extends 'callisto_core/delivery/base.html' %}
 
-{% load wizard_builder %}
-
 {% block content %}
-<div>
-    <form method="POST" action="#" novalidate>
-        <div class="container-fluid">
-            <div class="col-md-8 col-md-offset-2">
-                {% csrf_token %}
-                {% include 'callisto_core/delivery/errors.html' with errors=form.non_field_errors %}
-                {% for field in form %}
-                    <div class="form-group {% if field.errors %}has-error{% endif %}">
-                        {{ field.label_tag }}{% if field.field.required %}*{% endif %}
-                        {% include 'callisto_core/delivery/errors.html' with errors=field.errors %}
-                        {{ field|add_aria_tags_to_field }}
-                    </div>
-                {% endfor %}
-                <p class="help-block">* Indicates required field</p>
-                <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="Submit" />
-            </div>
-        </div>
-    </form>
-</div>
+    {% include 'callisto_core/delivery/form_include.html' %}
 {% endblock %}
