@@ -29,6 +29,10 @@ class ReportBaseMixin(object):
     def storage(self):
         return self.storage_helper(self)
 
+    @property
+    def report(self):
+        return self.object
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update({'view': self})
@@ -42,11 +46,6 @@ class ReportDetailView(
     context_object_name = 'report'
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
-
-    @property
-    def report(self):
-        # can only be accessed after form_valid()
-        return self.object
 
 
 class ReportLimitedDetailView(
