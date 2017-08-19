@@ -23,7 +23,7 @@ urlpatterns = [
         name="report_view",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/pdf/$',
-        wizard.ReportPDFView.as_view(),
+        wizard.WizardPDFView.as_view(),
         name="report_view_pdf",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/submission$',

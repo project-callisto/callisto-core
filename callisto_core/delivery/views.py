@@ -172,7 +172,7 @@ class BaseReportingView(ReportFormAccessView):
 
 
 class ReportingView(BaseReportingView):
-    form_class = forms.SubmitReportToAuthorityForm
+    form_class = forms.ReportingForm
 
     def form_valid(self, form):
         output = super().form_valid(form)

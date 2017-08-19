@@ -57,7 +57,7 @@ class EncryptedWizardView(
         return super().dispatch(request, step=step, *args, **kwargs)
 
 
-class WizardAccessActionView(
+class WizardActionView(
     ReportActionView,
     EncryptedWizardView,
 ):
@@ -66,7 +66,7 @@ class WizardAccessActionView(
             request, step=StepsHelper.done_name, *args, **kwargs)
 
 
-class ReportPDFView(WizardAccessActionView):
+class WizardPDFView(WizardActionView):
 
     def report_action(self):
         return self._report_pdf_response()

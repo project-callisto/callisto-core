@@ -92,7 +92,7 @@ class ReportAccessForm(ReportBaseForm):
         raise forms.ValidationError(self.message_key_error)
 
 
-class SubmitReportToAuthorityForm(
+class ReportingForm(
     FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
