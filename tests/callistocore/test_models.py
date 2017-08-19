@@ -9,8 +9,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 
-from .models import LegacyMatchReportData, LegacyReportData
 from .. import test_base
+from .models import LegacyMatchReportData, LegacyReportData
 
 User = get_user_model()
 # TODO: generate mock_report_data in wizard builder
@@ -32,8 +32,10 @@ class ReportModelTest(test_base.ReportFlowHelper):
         )
         pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
         self.assertIn("Reported by: testing_12", pdf_reader.getPage(0).extractText())
-        self.assertIn('test answer', pdf_reader.getPage(1).extractText())
-        self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())
+        self.assertIn('food options', pdf_reader.getPage(1).extractText())
+        self.assertIn('vegetables', pdf_reader.getPage(1).extractText())
+        self.assertIn('apples: red', pdf_reader.getPage(1).extractText())
+        self.assertIn('eat it now???', pdf_reader.getPage(1).extractText())
 
     def test_reports_have_owners(self):
         report = Report()

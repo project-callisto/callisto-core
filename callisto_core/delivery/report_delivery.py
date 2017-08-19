@@ -8,7 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
 from reportlab.pdfgen import canvas
 from reportlab.platypus import (
-    KeepTogether, ListFlowable, ListItem, PageBreak, Paragraph,
+    ListFlowable, ListItem, PageBreak, Paragraph,
     SimpleDocTemplate, Spacer,
 )
 
@@ -149,31 +149,17 @@ class PDFReport(object):
     # FORMATTING HELPERS
 
     def add_question(self, question):
-        for element in self.format_question(question):
-            self.pdf_elements.append(element)
+        self.pdf_elements.append(
+            Paragraph(question, self.body_style),
+        )
+        self.pdf_elements.append(Spacer(1, 4))
 
     def add_answer_list(self, answers):
-        for element in self.format_answer_list(answers):
-            self.pdf_elements.append(element)
-
-    def format_question(self, question):
-        return [
-            Paragraph(question, self.body_style),
-            Spacer(1, 4),
-        ]
-
-    def format_answer_list(self, answers, keep_together=True):
-        answers = ListFlowable(
-            answers,
-            bulletType='bullet',
-            style=self.answers_list_style,
-        )
-        if keep_together:
-            answers = KeepTogether(answers)
-        return [
-            answers,
-            Spacer(1, 16),
-        ]
+        for answer in answers:
+            self.pdf_elements.append(
+                Paragraph(answer, self.notes_style),
+            )
+            self.pdf_elements.append(Spacer(1, 1))
 
     def render_question(self, question, answers):
         self.add_question(question)
@@ -322,7 +308,8 @@ class PDFFullReport(PDFReport):
         self.pdf_elements.extend(self.get_metadata_page(recipient))
 
         # REPORT
-        for question, answers in self.report_data:
+        for item in self.report_data:
+            question, answers = item.popitem()
             self.render_question(question, answers)
 
         doc.build(
@@ -372,10 +359,20 @@ class PDFMatchReport(PDFReport):
                 recipient=settings.COORDINATOR_NAME))
 
         # MATCH REPORTS
-        self.pdf_elements.append(Paragraph(NotificationApi.report_title, self.report_title_style))
+        self.pdf_elements.append(
+            Paragraph(
+                NotificationApi.report_title,
+                self.report_title_style,
+            )
+        )
 
         # perpetrator info
-        self.pdf_elements.append(Paragraph("Perpetrator", self.section_title_style))
+        self.pdf_elements.append(
+            Paragraph(
+                "Perpetrator",
+                self.section_title_style,
+            )
+        )
         names = ', '.join(OrderedDict.fromkeys([report.perp_name.strip() for _, report in matches_with_reports
                                                 if report.perp_name]))
         if len(names) < 1:
@@ -385,7 +382,12 @@ class PDFMatchReport(PDFReport):
 
         # reporter info
         for idx, (match_report, match_report_content) in enumerate(matches_with_reports):
-            self.pdf_elements.append(Paragraph("Report " + str(idx + 1), self.section_title_style))
+            self.pdf_elements.append(
+                Paragraph(
+                    "Report " + str(idx + 1),
+                    self.section_title_style,
+                )
+            )
 
             report = match_report.report
             user = report.owner

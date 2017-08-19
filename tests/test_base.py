@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.contrib.sites.models import Site
 
 User = get_user_model()
 

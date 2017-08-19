@@ -1,8 +1,9 @@
+from unittest.mock import MagicMock
+
 from callisto_core.delivery import forms, validators
 from callisto_core.delivery.forms import SubmitToMatchingForm
 from callisto_core.delivery.models import Report
 from mock import patch
-from unittest.mock import MagicMock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
