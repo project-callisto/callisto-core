@@ -8,6 +8,8 @@ from mock import patch
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 
+from .. import test_base
+
 User = get_user_model()
 
 
@@ -176,9 +178,10 @@ class ReportCreateFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
 
-class ReportAccessFormTest(TestCase):
+class ReportAccessFormTest(test_base.ReportFlowHelper):
 
     def test_wrong_key_rejected(self):
+        self.client_post_report_creation()
         form = forms.ReportAccessForm(
             data={'key': 'not my key'},
             instance=self.report,
@@ -186,14 +189,13 @@ class ReportAccessFormTest(TestCase):
         )
         form.full_clean()
         self.assertFalse(form.is_valid())
-        self.assertFalse(getattr(form, 'decrypted_report', None))
 
     def test_right_key_accepted(self):
+        self.client_post_report_creation()
         form = forms.ReportAccessForm(
-            data={'key': self.key},
+            data={'key': self.secret_key},
             instance=self.report,
             view=MagicMock(),
         )
         form.full_clean()
         self.assertTrue(form.is_valid())
-        self.assertTrue(getattr(form, 'decrypted_report', None))

@@ -8,8 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
 from reportlab.pdfgen import canvas
 from reportlab.platypus import (
-    ListFlowable, ListItem, PageBreak, Paragraph,
-    SimpleDocTemplate, Spacer,
+    ListFlowable, ListItem, PageBreak, Paragraph, SimpleDocTemplate, Spacer,
 )
 
 from django.conf import settings

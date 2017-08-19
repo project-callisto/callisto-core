@@ -110,6 +110,7 @@ class ReportModelTest(test_base.ReportFlowHelper):
 class MatchReportTest(test_base.ReportFlowHelper):
 
     def setUp(self):
+        super().setUp()
         self.client_post_report_creation()
         match_report = MatchReport(report=self.report, identifier='dummy')
         match_report.encrypt_match_report("test match report", match_report.identifier)
