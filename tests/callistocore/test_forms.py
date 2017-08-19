@@ -2,6 +2,7 @@ from callisto_core.delivery import forms, validators
 from callisto_core.delivery.forms import SubmitToMatchingForm
 from callisto_core.delivery.models import Report
 from mock import patch
+from unittest.mock import MagicMock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
@@ -163,29 +164,24 @@ class ReportCreateFormTest(TestCase):
         form = forms.ReportCreateForm({
             'key': 'this is a key',
             'key_confirmation': 'this is also a key',
-        })
+        }, view=MagicMock())
         self.assertFalse(form.is_valid())
 
     def test_matching_keys_accepted(self):
         form = forms.ReportCreateForm({
             'key': 'this is my good secret key',
             'key_confirmation': 'this is my good secret key',
-        })
+        }, view=MagicMock())
         self.assertTrue(form.is_valid())
 
 
 class ReportAccessFormTest(TestCase):
 
-    def setUp(self):
-        user = User.objects.create(username="dummy", password="dummy")
-        self.report = Report(owner=user)
-        self.key = '~*~*~*~my key~*~*~*~'
-        self.report.encrypt_report('this is a report', self.key)
-
     def test_wrong_key_rejected(self):
         form = forms.ReportAccessForm(
             data={'key': 'not my key'},
             instance=self.report,
+            view=MagicMock(),
         )
         form.full_clean()
         self.assertFalse(form.is_valid())
@@ -195,6 +191,7 @@ class ReportAccessFormTest(TestCase):
         form = forms.ReportAccessForm(
             data={'key': self.key},
             instance=self.report,
+            view=MagicMock(),
         )
         form.full_clean()
         self.assertTrue(form.is_valid())

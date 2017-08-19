@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.contrib.sites.models import Site
 
 User = get_user_model()
 
@@ -24,6 +25,9 @@ class ReportFlowHelper(TestCase):
             username='testing_122',
             password='testing_12',
         )
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
 
     def client_post_report_creation(self):
         response = self.client.post(

@@ -35,7 +35,7 @@ class TempSiteID():
 class SiteIDTest(test_base.ReportFlowHelper):
 
     def setUp(self):
-        super(SiteIDTest, self).setUp()
+        super().setUp()
         self.second_site = Site.objects.create(domain='generic_second_site')
 
     @override_settings()
@@ -89,12 +89,6 @@ class SiteIDTest(test_base.ReportFlowHelper):
 
 
 class SiteRequestTest(TestCase):
-
-    def setUp(self):
-        super(SiteRequestTest, self).setUp()
-        self.site = Site.objects.get(id=1)
-        self.site.domain = 'testserver'
-        self.site.save()
 
     @skip('temporariy disabled')
     def test_can_request_pages_without_site_id_set(self):

@@ -8,26 +8,27 @@ from callisto_core.delivery.models import (
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
-from django.test import TestCase
 
 from .models import LegacyMatchReportData, LegacyReportData
+from .. import test_base
 
 User = get_user_model()
 # TODO: generate mock_report_data in wizard builder
-mock_report_data = [{'food options': ['vegetables', 'apples: red']}, {'eat it now???': ['catte']},
-                    {'do androids dream of electric sheep?': ['awdad']}, {'whats on the radios?': ['guitar']}]
+mock_report_data = [
+    {'food options': ['vegetables', 'apples: red']},
+    {'eat it now???': ['catte']},
+    {'do androids dream of electric sheep?': ['awdad']},
+    {'whats on the radios?': ['guitar']},
+]
 
 
-class ReportModelTest(TestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(username="dummy", password="dummy")
+class ReportModelTest(test_base.ReportFlowHelper):
 
     def test_report_pdf(self):
-        pdf = report.as_pdf(
+        self.client_post_report_creation()
+        pdf = self.report.as_pdf(
             data=mock_report_data,
             recipient=None,
-            report_id=None,
         )
         pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
         self.assertIn("Reported by: testing_12", pdf_reader.getPage(0).extractText())
@@ -104,13 +105,10 @@ class ReportModelTest(TestCase):
         self.assertFalse(Report.objects.first().match_found)
 
 
-class MatchReportTest(TestCase):
+class MatchReportTest(test_base.ReportFlowHelper):
 
     def setUp(self):
-        self.user = User.objects.create_user(username="dummy", password="dummy")
-        self.report = Report(owner=self.user)
-        self.report.encrypt_report("test report", "key")
-        self.report.save()
+        self.client_post_report_creation()
         match_report = MatchReport(report=self.report, identifier='dummy')
         match_report.encrypt_match_report("test match report", match_report.identifier)
         match_report.save()
@@ -150,7 +148,7 @@ class MatchReportTest(TestCase):
         self.assertEqual(new_match_report.get_match("dumbo"), "test legacy match report")
 
 
-class SentReportTest(TestCase):
+class SentReportTest(test_base.ReportFlowHelper):
 
     def test_id_format_works(self):
         sent_full_report = SentFullReport.objects.create()
@@ -162,13 +160,11 @@ class SentReportTest(TestCase):
         self.assertTrue(sent_match_report_id.endswith('-0'))
 
 
-class DeleteReportTest(TestCase):
+class DeleteReportTest(test_base.ReportFlowHelper):
 
     def setUp(self):
-        self.user = User.objects.create_user(username="dummy", password="dummy")
-        self.report = Report(owner=self.user)
-        self.report.encrypt_report("test report", "key")
-        self.report.save()
+        super().setUp()
+        self.client_post_report_creation()
 
     def test_can_delete_report(self):
         self.assertEqual(Report.objects.count(), 1)
