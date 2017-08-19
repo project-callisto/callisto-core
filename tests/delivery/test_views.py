@@ -197,28 +197,22 @@ class ReportMetaFlowTest(ReportFlowHelper):
             'inline; filename="report.pdf"',
         )
 
-    def test_match_report_is_withdrawn(self):
+    def test_match_report_entry(self):
         self.client_post_report_creation()
+        self.client_post_matching_enter()
         self.assertTrue(
             models.MatchReport.objects.filter(report=self.report).count(),
         )
-        response = self.client.get(self.withdrawal_url % self.report.pk)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(models.MatchReport.objects.filter(report=self.report).count(), 0)
 
-    def test_submit_creates_match(self):
-        response = self.client_post_match_report_submission()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.report.id, models.MatchReport.objects.latest('id').report.id)
+    def test_match_report_withdrawl(self):
+        self.client_post_report_creation()
+        self.client_post_matching_enter()
+        self.client_get_matching_withdraw()
+        self.assertFalse(
+            models.MatchReport.objects.filter(report=self.report).count(),
+        )
 
-    def test_multiple_perps_creates_multiple_matches(self):
-        total_matches_before = models.MatchReport.objects.count()
-        response = self.client_post_match_report_multiple_submission()
-        self.assertEqual(response.status_code, 200)
-        total_matches_after = models.MatchReport.objects.count()
-        self.assertEqual(total_matches_after - total_matches_before, 2)
-
-    @skip('match reports temporarily disabled')
+    @skip('match report pdfs temporarily disabled')
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_immediately(self):
         response = self.client_post_match_report_submission()
@@ -272,7 +266,7 @@ class ReportMetaFlowTest(ReportFlowHelper):
         self.assertIn('test match delivery body', message.body)
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
-    @skip('match reports temporarily disabled')
+    @skip('match report pdfs temporarily disabled')
     @override_settings(MATCH_IMMEDIATELY=False)
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_delayed(self):
