@@ -36,13 +36,18 @@ class SecretKeyStorageHelper(object):
         return self.view.request.session.get('secret_key')
 
 
-class ReportBaseView(views.edit.ModelFormMixin):
+class ReportBaseView(
+    views.detail.DetailView,
+):
     model = models.Report
-    storage_helper = SecretKeyStorageHelper
-    template_name = 'callisto_core/delivery/form.html'
     context_object_name = 'report'
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
+
+    @property
+    def report(self):
+        # can only be accessed after form_valid()
+        return self.object
 
     @property
     def site_id(self):
@@ -57,25 +62,12 @@ class ReportBaseView(views.edit.ModelFormMixin):
         kwargs.update({'view': self})
         return kwargs
 
-    def _set_key_from_form(self, form):
-        if form.data.get('key'):
-            self.storage.set_secret_key(form.data['key'])
-
-    def form_valid(self, form):
-        self._set_key_from_form(form)
-        return super().form_valid(form)
-
 
 class ReportCreateView(
     ReportBaseView,
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
-
-    @property
-    def report(self):
-        # can only be accessed after form_valid()
-        return self.object
 
     def get_success_url(self):
         return reverse_lazy(
@@ -89,17 +81,15 @@ class ReportCreateView(
 
 class ReportBaseAccessView(
     ReportBaseView,
-    views.edit.UpdateView,
     ratelimit.mixins.RatelimitMixin,
 ):
+    storage_helper = SecretKeyStorageHelper
+    template_name = 'callisto_core/delivery/form.html'
     invalid_access_message = 'Invalid access request at url {}'
     ratelimit_key = 'user'
     ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
-
-    @property
-    def report(self):
-        # can be accessed at any point
-        return self.get_object()
+    access_form_class = forms.ReportAccessForm
+    access_template_name = template_name
 
     @property
     def decrypted_report(self):
@@ -107,10 +97,9 @@ class ReportBaseAccessView(
 
     @property
     def access_granted(self):
-        # !!! IMPORTANT !!!
-        # Implementers should wrap this in a
-        # self.report.owner == self.request.user check
-        # and redirect to login if that check fails
+        if settings.CALLISTO_CHECK_REPORT_OWNER:
+            if not self.report.owner == self.request.user:
+                return False
         if self.storage.secret_key:
             try:
                 self.decrypted_report
@@ -118,15 +107,6 @@ class ReportBaseAccessView(
             except CryptoError:
                 self._log_invalid_access()
         return False
-
-    def _log_invalid_access(self):
-        logger.warn(self.invalid_access_message.format(
-            self.request.get_full_path()))
-
-
-class ReportFormAccessView(ReportBaseAccessView):
-    access_form_class = forms.ReportAccessForm
-    access_template_name = ReportBaseAccessView.template_name
 
     def dispatch(self, request, *args, **kwargs):
         if self.storage.secret_key:
@@ -136,10 +116,17 @@ class ReportFormAccessView(ReportBaseAccessView):
         else:
             return self._render_access_form()
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({'instance': self.report})
-        return kwargs
+    def form_valid(self, form):
+        self._set_key_from_form(form)
+        return super().form_valid(form)
+
+    def _log_invalid_access(self):
+        logger.warn(self.invalid_access_message.format(
+            self.request.get_full_path()))
+
+    def _set_key_from_form(self, form):
+        if form.data.get('key'):
+            self.storage.set_secret_key(form.data['key'])
 
     def _render_key_input_response(self):
         form = self.access_form_class(**self.get_form_kwargs())
@@ -158,7 +145,23 @@ class ReportFormAccessView(ReportBaseAccessView):
         return self.render_to_response(context)
 
 
-class BaseReportingView(ReportFormAccessView):
+class ReportUpdateView(
+    ReportBaseAccessView,
+    views.edit.UpdateView,
+):
+
+    @property
+    def report(self):
+        # can be accessed at any point
+        return self.get_object()
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'instance': self.report})
+        return kwargs
+
+
+class BaseReportingView(ReportUpdateView):
 
     def form_valid(self, form):
         output = super().form_valid(form)
@@ -173,6 +176,7 @@ class BaseReportingView(ReportFormAccessView):
 
 class ReportingView(BaseReportingView):
     form_class = forms.ReportingForm
+    email_confirmation_name = 'submit_confirmation'
 
     def form_valid(self, form):
         output = super().form_valid(form)
@@ -234,7 +238,7 @@ class MatchingView(BaseReportingView):
         return output
 
 
-class ReportActionView(ReportBaseAccessView):
+class ReportActionView(ReportUpdateView):
 
     def get(self, request, *args, **kwargs):
         if self.access_granted:

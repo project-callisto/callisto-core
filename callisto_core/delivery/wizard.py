@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 
 from .views import (
-    ReportActionView, ReportFormAccessView, SecretKeyStorageHelper,
+    ReportActionView, ReportUpdateView, SecretKeyStorageHelper,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,8 +46,8 @@ class EncryptedStorageHelper(
 
 
 class EncryptedWizardView(
-    ReportFormAccessView,
-    WizardView
+    ReportUpdateView,
+    WizardView,
 ):
     template_name = 'callisto_core/delivery/wizard_form.html'
     done_template_name = 'callisto_core/delivery/review.html'
