@@ -1,7 +1,7 @@
 History
 -------
 
-0.5.4 (2017-08-18)
+0.5.5 (2017-08-18)
 ++++++++++++++++++
 
 * Refactor wizard views into a FormView
