@@ -1,5 +1,3 @@
-from unittest import skip
-
 from callisto_core.delivery import forms, models, validators
 from wizard_builder.forms import PageForm
 
@@ -8,6 +6,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.core.management import call_command
 
 User = get_user_model()
 
@@ -88,6 +87,25 @@ class ReportFlowHelper(TestCase):
             self.client.session.get('secret_key'),
             None,
         )
+
+    def match_report_email_assertions(self):
+        self.assertEqual(len(mail.outbox), 3)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, 'test match notification')
+        self.assertEqual(message.to, ['test1@example.com'])
+        self.assertIn('Matching" <notification@', message.from_email)
+        self.assertIn('test match notification body', message.body)
+        message = mail.outbox[1]
+        self.assertEqual(message.subject, 'test match notification')
+        self.assertEqual(message.to, ['test2@example.com'])
+        self.assertIn('Matching" <notification@', message.from_email)
+        self.assertIn('test match notification body', message.body)
+        message = mail.outbox[2]
+        self.assertEqual(message.subject, 'test match delivery')
+        self.assertEqual(message.to, ['titleix@example.com'])
+        self.assertIn('"Reports" <reports@', message.from_email)
+        self.assertIn('test match delivery body', message.body)
+        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
 
 class NewReportFlowTest(ReportFlowHelper):
@@ -212,132 +230,17 @@ class ReportMetaFlowTest(ReportFlowHelper):
             models.MatchReport.objects.filter(report=self.report).count(),
         )
 
-    @skip('match report pdfs temporarily disabled')
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_immediately(self):
-        response = self.client_post_match_report_submission()
-        self.assertEqual(len(mail.outbox), 3)
-        message = mail.outbox[0]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test1@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[1]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test2@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[2]
-        self.assertEqual(message.subject, 'test match delivery')
-        self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertIn('"Reports" <reports@', message.from_email)
-        self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
+        self.client_post_report_creation()
+        self.client_post_matching_enter()
+        self.match_report_email_assertions()
 
-    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
-    @override_settings(CALLISTO_IDENTIFIER_DOMAINS=validators.facebook_or_twitter)
-    def test_non_fb_match(self):
-        self.client.post((self.submission_url % self.report.pk),
-                         data={'name': 'test submitter 1',
-                               'email': 'test1@example.com',
-                               'phone_number': '555-555-1212',
-                               'email_confirmation': "False",
-                               'key': self.report_key,
-                               'form-0-perp': 'twitter.com/trigger_a_match',
-                               'form-TOTAL_FORMS': '1',
-                               'form-INITIAL_FORMS': '1',
-                               'form-MAX_NUM_FORMS': '', })
-        response = self.client.post((self.submission_url % report2.pk),
-                                    data={'name': 'test submitter 2',
-                                          'email': 'test2@example.com',
-                                          'phone_number': '555-555-1213',
-                                          'email_confirmation': "False",
-                                          'key': report2_key,
-                                          'form-0-perp': 'twitter.com/Trigger_A_Match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '', })
-        self.assertNotIn('submit_error', response.context)
-        self.assertEqual(len(mail.outbox), 3)
-        message = mail.outbox[2]
-        self.assertEqual(message.subject, 'test match delivery')
-        self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertIn('"Reports" <reports@', message.from_email)
-        self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
-
-    @skip('match report pdfs temporarily disabled')
     @override_settings(MATCH_IMMEDIATELY=False)
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_delayed(self):
-        self.client.post((self.submission_url % self.report.pk),
-                         data={'name': 'test submitter 1',
-                               'email': 'test1@example.com',
-                               'phone_number': '555-555-1212',
-                               'email_confirmation': "False",
-                               'key': self.report_key,
-                               'form-0-perp': 'facebook.com/triggered_match',
-                               'form-TOTAL_FORMS': '1',
-                               'form-INITIAL_FORMS': '1',
-                               'form-MAX_NUM_FORMS': '', })
-        response = self.client.post((self.submission_url % report2.pk),
-                                    data={'name': 'test submitter 2',
-                                          'email': 'test2@example.com',
-                                          'phone_number': '555-555-1213',
-                                          'email_confirmation': "False",
-                                          'key': report2_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '', })
-        self.assertNotIn('submit_error', response.context)
+        self.client_post_report_creation()
+        self.client_post_matching_enter()
         self.assertEqual(len(mail.outbox), 0)
         call_command('find_matches')
-        self.assertEqual(len(mail.outbox), 3)
-        message = mail.outbox[0]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test1@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[1]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test2@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[2]
-        self.assertEqual(message.subject, 'test match delivery')
-        self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertIn('"Reports" <reports@', message.from_email)
-        self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
-
-    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.CustomNotificationApi')
-    def test_match_sends_custom_report(self):
-        self.client.post(('/test_reports/match_custom/%s/' % self.report.pk),
-                         data={'name': 'test submitter 1',
-                               'email': 'test1@example.com',
-                               'phone_number': '555-555-1212',
-                               'email_confirmation': "False",
-                               'key': self.report_key,
-                               'form-0-perp': 'facebook.com/triggered_match',
-                               'form-TOTAL_FORMS': '1',
-                               'form-INITIAL_FORMS': '1',
-                               'form-MAX_NUM_FORMS': '', })
-        response = self.client.post(('/test_reports/match_custom/%s/' % report2.pk),
-                                    data={'name': 'test submitter 2',
-                                          'email': 'test2@example.com',
-                                          'phone_number': '555-555-1213',
-                                          'email_confirmation': "False",
-                                          'key': report2_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '', })
-        self.assertNotIn('submit_error', response.context)
-        self.assertEqual(len(mail.outbox), 3)
-        message = mail.outbox[2]
-        self.assertEqual(message.subject, 'test match delivery')
-        self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertIn('"Custom" <custom@', message.from_email)
-        self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'custom_.*\\.pdf\\.gpg')
+        self.match_report_email_assertions()
