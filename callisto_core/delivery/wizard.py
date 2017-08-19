@@ -30,7 +30,7 @@ class WizardActionView(
     # NOTE: this is technically a view_partial
 
     def dispatch(self, request, *args, **kwargs):
-        step = view_helpers.ReportStepsHelper
+        step = view_helpers.ReportStepsHelper.done_name
         return super().dispatch(request, step=step, *args, **kwargs)
 
 
