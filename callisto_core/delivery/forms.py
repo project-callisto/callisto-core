@@ -157,8 +157,13 @@ class ReportingForm(
 
     class Meta:
         model = models.Report
-        fields = ['contact_name', 'contact_phone', 'contact_voicemail',
-                  'contact_email', 'contact_notes']
+        fields = [
+            'contact_name',
+            'contact_phone',
+            'contact_voicemail',
+            'contact_email',
+            'contact_notes',
+        ]
 
 
 def join_list_with_or(lst):

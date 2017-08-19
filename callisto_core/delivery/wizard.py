@@ -36,11 +36,12 @@ class EncryptedStorageHelper(
 
     def current_data_from_storage(self):
         if self.secret_key:
-            return self.report.decrypted_report(self.secret_key)
+            return self.report.decrypted_report(self.secret_key).get('data', {})
         else:
-            return {}
+            return {'data': {}}
 
     def add_data_to_storage(self, data):
+        data = {'data': data}
         self.report.encrypt_report(data, self.secret_key)
 
 
@@ -49,6 +50,7 @@ class EncryptedWizardView(
     WizardView
 ):
     template_name = 'callisto_core/delivery/wizard_form.html'
+    done_template_name = 'callisto_core/delivery/review.html'
     storage_helper = EncryptedStorageHelper
     steps_helper = ReportStepsHelper
 
