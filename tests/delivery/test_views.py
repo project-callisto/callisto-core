@@ -127,10 +127,10 @@ class NewReportFlowTest(ReportFlowHelper):
     def test_access_form_rendered_when_no_key_in_session(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
+        page_1_path = reverse('report_update', kwargs={'step': 0, 'uuid': uuid})
         self.client_clear_secret_key()
 
-        response = self.client.get(
-            reverse('report_update', kwargs={'step': 0, 'uuid': uuid}))
+        response = self.client.get(page_1_path)
         form = response.context['form']
 
         self.assertIsInstance(form, forms.ReportAccessForm)
@@ -138,14 +138,11 @@ class NewReportFlowTest(ReportFlowHelper):
     def test_can_reenter_secret_key(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
+        page_1_path = reverse('report_update', kwargs={'step': 0, 'uuid': uuid})
         self.client_clear_secret_key()
 
-        response = self.client_post_report_access(
-            response.redirect_chain[0][0])
-        from IPython import embed; embed()
-        form = response.context['form']
-
-        self.assertIsInstance(form, PageForm)
+        response = self.client_post_report_access(page_1_path)
+        self.assertRedirects(response, page_1_path)
 
     def test_access_form_returns_correct_report(self):
         response = self.client_post_report_creation()
