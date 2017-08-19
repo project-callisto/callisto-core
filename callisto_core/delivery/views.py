@@ -85,10 +85,10 @@ class ReportCreateView(
         )
 
     def form_valid(self, form):
-        self.__set_key_from_form(form)
+        self._set_key_from_form(form)
         return super().form_valid(form)
 
-    def __set_key_from_form(self, form):
+    def _set_key_from_form(self, form):
         # TODO: move to SecretKeyStorageHelper
         if form.data.get('key'):
             self.storage.set_secret_key(form.data['key'])
@@ -116,7 +116,7 @@ class ReportBaseAccessView(
     def access_granted(self):
         if settings.CALLISTO_CHECK_REPORT_OWNER:
             if not self.report.owner == self.request.user:
-                self.__log_warn(self.invalid_access_user_message)
+                self._log_warn(self.invalid_access_user_message)
                 raise PermissionDenied
         else:
             pass
@@ -124,13 +124,13 @@ class ReportBaseAccessView(
             try:
                 self.decrypted_report
                 # TODO: self.log.info('Valid access')
-                self.__log_info(self.valid_access_message)
+                self._log_info(self.valid_access_message)
                 return True
             except CryptoError:
-                self.__log_warn(self.invalid_access_key_message)
+                self._log_warn(self.invalid_access_key_message)
                 return False
         else:
-            self.__log_info(self.invalid_access_no_key_message)
+            self._log_info(self.invalid_access_no_key_message)
             return False
 
     def dispatch(self, request, *args, **kwargs):
@@ -157,15 +157,15 @@ class ReportBaseAccessView(
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
 
-    def __log_info(self, msg):
+    def _log_info(self, msg):
         # TODO: LoggingHelper
-        self.__log(msg, logger.info)
+        self._log(msg, logger.info)
 
-    def __log_warn(self, msg):
+    def _log_warn(self, msg):
         # TODO: LoggingHelper
-        self.__log(msg, logger.warn)
+        self._log(msg, logger.warn)
 
-    def __log(self, msg, log):
+    def _log(self, msg, log):
         # TODO: LoggingHelper
         path = self.request.get_full_path()
         log(msg.format(path))
