@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.utils.html import conditional_escape
 from django.views import generic as views
+from django.core.exceptions import PermissionDenied
 
 from . import forms, models, report_delivery
 from ..utils.api import MatchingApi, NotificationApi
@@ -85,7 +86,8 @@ class ReportBaseAccessView(
 ):
     storage_helper = SecretKeyStorageHelper
     template_name = 'callisto_core/delivery/form.html'
-    invalid_access_message = 'Invalid access request at url {}'
+    invalid_access_key_message = 'Invalid key access request at {}'
+    invalid_access_user_message = 'Invalid user access request at {}'
     ratelimit_key = 'user'
     ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
     access_form_class = forms.ReportAccessForm
@@ -99,14 +101,19 @@ class ReportBaseAccessView(
     def access_granted(self):
         if settings.CALLISTO_CHECK_REPORT_OWNER:
             if not self.report.owner == self.request.user:
-                return False
+                self._log(self.invalid_access_user_message)
+                raise PermissionDenied
+        else:
+            pass
         if self.storage.secret_key:
             try:
                 self.decrypted_report
                 return True
             except CryptoError:
-                self._log_invalid_access()
-        return False
+                self._log(self.invalid_access_key_message)
+                return False
+        else:
+            return False
 
     def dispatch(self, request, *args, **kwargs):
         if self.storage.secret_key:
@@ -120,9 +127,9 @@ class ReportBaseAccessView(
         self._set_key_from_form(form)
         return super().form_valid(form)
 
-    def _log_invalid_access(self):
-        logger.warn(self.invalid_access_message.format(
-            self.request.get_full_path()))
+    def _log(self, msg):
+        path = self.request.get_full_path()
+        logger.warn(msg.format(path))
 
     def _set_key_from_form(self, form):
         if form.data.get('key'):
@@ -242,8 +249,10 @@ class ReportActionView(ReportUpdateView):
 
     def get(self, request, *args, **kwargs):
         if self.access_granted:
+            print('access_granted !!!')
             return self.report_action()
         else:
+            print('denied XXX')
             return super().get(request, *args, **kwargs)
 
 
@@ -256,4 +265,5 @@ class MatchingWithdrawView(ReportActionView):
 class ReportDeleteView(ReportActionView):
 
     def report_action(self):
+        print('deleting a thing')
         self.report.delete()
