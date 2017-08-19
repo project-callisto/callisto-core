@@ -21,6 +21,7 @@ class PageForm(forms.Form):
 
     @property
     def serialized(self):
+        # TODO: serialize all the data required to generate questions
         return [
             question.serialized
             for question in self.page.questions
