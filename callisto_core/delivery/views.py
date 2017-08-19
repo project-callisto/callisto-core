@@ -106,10 +106,14 @@ class ReportBaseAccessView(
         return self.get_object()
 
     @property
+    def decrypted_report(self):
+        return self.report.decrypted_report(self.storage.secret_key)
+
+    @property
     def access_granted(self):
         if self.storage.secret_key:
             try:
-                self.report.decrypted_report(self.storage.secret_key)
+                self.decrypted_report
                 return True
             except CryptoError:
                 self._log_invalid_access()
@@ -251,7 +255,7 @@ class ReportPDFView(ReportActionView):
         # TODO: self.report.as_pdf(key=self.secret_key)
         pdf = PDFFullReport(
             report=self.report,
-            decrypted_report=self.form.decrypted_report,
+            decrypted_report=self.decrypted_report,
         ).generate_pdf_report(
             recipient=None,
             report_id=None,

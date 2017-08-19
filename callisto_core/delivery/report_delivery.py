@@ -17,11 +17,9 @@ from wizard_builder.models import Page
 from django.conf import settings
 from django.utils import timezone
 from django.utils.html import conditional_escape
-from django.utils.timezone import localtime
 
 from ..utils.api import NotificationApi
 
-date_format = "%m/%d/%Y @%H:%M%p"
 logger = logging.getLogger(__name__)
 
 
@@ -251,7 +249,7 @@ class PDFReport(object):
             canvas.setFillColor('gray')
             # canvas.setFont('OpenSans',12)
             canvas.drawString(margin, height - margin, "CONFIDENTIAL")
-            canvas.drawRightString(width - margin, height - margin, localtime(timezone.now()).strftime(date_format))
+            canvas.drawRightString(width - margin, height - margin, timezone.now())
             if recipient:
                 canvas.drawString(margin, margin, "Intended for: Title IX Coordinator %s" % recipient)
             canvas.restoreState()
@@ -278,13 +276,18 @@ class PDFFullReport(PDFReport):
 
         overview_body = "Reported by: {0}<br/>".format(self.get_user_identifier(self.user))
         if recipient:
-            overview_body = overview_body + "Submitted on:  {0}<br/>".format(localtime(self.report.submitted_to_school)
-                                                                             .strftime(date_format))
-        overview_body = overview_body + \
-            """Record Created: {0}
-            Last Edited: {1}""".format(localtime(self.report.added).strftime(date_format),
-                                       localtime(self.report.last_edited).strftime(date_format)
-                                       if self.report.last_edited else "<i>Not edited</i>")
+            overview_body = overview_body + '''
+                Submitted on:  {0}<br/>
+            '''.format(
+                self.report.submitted_to_school,
+            )
+        overview_body = overview_body + '''
+            Record Created: {0}
+            Last Edited: {1}
+        '''.format(
+            self.report.added,
+            self.report.last_edited if self.report.last_edited else "<i>Not edited</i>",
+        )
         overview_body = overview_body.replace('\n', '<br />\n')
 
         MetadataPage.append(Paragraph(overview_body, self.body_style))
@@ -320,8 +323,6 @@ class PDFFullReport(PDFReport):
 
     def generate_pdf_report(self, report_id, recipient=settings.COORDINATOR_NAME):
         # PREPARE PDF
-        report_content = json.loads(self.decrypted_report)
-
         report_buffer = BytesIO()
         doc = SimpleDocTemplate(report_buffer, pagesize=letter,
                                 rightMargin=72, leftMargin=72,
@@ -337,7 +338,7 @@ class PDFFullReport(PDFReport):
         # REPORT
         for section_id, section_name in Page.SECTION_CHOICES:
             self.pdf_elements.append(Paragraph(section_name, self.section_title_style))
-            section_qs = [x for x in report_content if x.get('section') == section_id]
+            section_qs = [x for x in self.decrypted_report if x.get('section') == section_id]
             for q in section_qs:
                 self.render_question(q)
 
@@ -405,24 +406,30 @@ class PDFMatchReport(PDFReport):
             if report.submitted_to_school:
                 sent_report = report.sentfullreport_set.first()
                 report_id = sent_report.get_report_id() if sent_report else "<i>Not found</i>"
-                is_submitted = """Yes
-                               Submitted to school on: {0}
-                               Submitted report ID: {1}""".format(
-                    localtime(report.submitted_to_school).strftime(date_format),
-                    report_id)
+                is_submitted = '''
+                    Yes
+                    Submitted to school on: {0}
+                    Submitted report ID: {1}
+                '''.format(
+                    report.submitted_to_school,
+                    report_id,
+                )
             else:
                 is_submitted = "No"
 
-            overview_body = """Perpetrator name given: {0}
-                               Reported by: {1}
-                               Submitted to matching on: {2}
-                               Record created: {3}
-                               Full record submitted? {4}""".format(
+            overview_body = '''
+                Perpetrator name given: {0}
+                Reported by: {1}
+                Submitted to matching on: {2}
+                Record created: {3}
+                Full record submitted? {4}
+            '''.format(
                 match_report_content.perp_name or "<i>None provided</i>",
                 self.get_user_identifier(user),
-                localtime(match_report.added).strftime(date_format),
-                localtime(report.added).strftime(date_format),
-                is_submitted).replace('\n', '<br />\n')
+                match_report.added,
+                report.added,
+                is_submitted,
+            ).replace('\n', '<br />\n')
 
             self.pdf_elements.append(Paragraph(overview_body, self.body_style))
 
