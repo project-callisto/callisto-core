@@ -1,3 +1,6 @@
+from io import BytesIO
+
+import PyPDF2
 from callisto_core.delivery.models import (
     MatchReport, Report, SentFullReport, SentMatchReport,
 )
@@ -10,12 +13,26 @@ from django.test import TestCase
 from .models import LegacyMatchReportData, LegacyReportData
 
 User = get_user_model()
+# TODO: generate mock_report_data in wizard builder
+mock_report_data = [{'food options': ['vegetables', 'apples: red']}, {'eat it now???': ['catte']},
+                    {'do androids dream of electric sheep?': ['awdad']}, {'whats on the radios?': ['guitar']}]
 
 
 class ReportModelTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="dummy", password="dummy")
+
+    def test_report_pdf(self):
+        pdf = report.as_pdf(
+            data=mock_report_data,
+            recipient=None,
+            report_id=None,
+        )
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        self.assertIn("Reported by: testing_12", pdf_reader.getPage(0).extractText())
+        self.assertIn('test answer', pdf_reader.getPage(1).extractText())
+        self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())
 
     def test_reports_have_owners(self):
         report = Report()

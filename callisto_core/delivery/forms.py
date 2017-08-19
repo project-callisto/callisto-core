@@ -7,7 +7,6 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.forms.formsets import formset_factory
 
 from . import models, validators
 from ..utils import api
@@ -171,37 +170,55 @@ def join_list_with_or(lst):
 
 
 class SubmitToMatchingForm(forms.Form):
-
     '''
         designed to be overridden if more complicated
         assignment of matching validators is needed
     '''
 
     def get_validators(self):
-        return getattr(settings, 'CALLISTO_IDENTIFIER_DOMAINS', validators.facebook_only)
+        return getattr(
+            settings,
+            'CALLISTO_IDENTIFIER_DOMAINS',
+            validators.facebook_only,
+        )
 
     def __init__(self, *args, **kwargs):
-        super(SubmitToMatchingForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.identifier_domain_info = self.get_validators()
 
-        self.formatted_identifier_descriptions = join_list_with_or(list(self.identifier_domain_info))
+        self.formatted_identifier_descriptions = join_list_with_or(
+            list(self.identifier_domain_info))
+
+        _identifier_titles = []
+        for identifier in list(self.identifier_domain_info):
+            _identifier_titles.append(identifier.title())
         self.formatted_identifier_descriptions_title_case = join_list_with_or(
-            [identifier.title() for identifier in list(self.identifier_domain_info)])
+            _identifier_titles
+        )
 
-        self.formatted_example_identifiers = join_list_with_or([identifier_info['example'] for _, identifier_info in
-                                                                self.identifier_domain_info.items()])
+        self.formatted_example_identifiers = join_list_with_or(
+            [
+                identifier_info['example']
+                for _, identifier_info in self.identifier_domain_info.items()
+            ]
+        )
 
-        self.fields['perp_name'] = forms.CharField(label="Perpetrator's Name",
-                                                   required=False,
-                                                   max_length=500,
-                                                   widget=forms.TextInput(
-                                                       attrs={
-                                                           'placeholder': 'ex. John Jacob Jingleheimer Schmidt'}))
+        self.fields['perp_name'] = forms.CharField(
+            label="Perpetrator's Name",
+            required=False,
+            max_length=500,
+            widget=forms.TextInput(
+                attrs={
+                    'placeholder': 'ex. John Jacob Jingleheimer Schmidt',
+                },
+            ),
+        )
 
         self.fields['perp'] = forms.CharField(
             label="Perpetrator's {}".format(
-                self.formatted_identifier_descriptions_title_case),
+                self.formatted_identifier_descriptions_title_case,
+            ),
             required=True,
             max_length=500,
             widget=forms.TextInput(
@@ -226,6 +243,3 @@ class SubmitToMatchingForm(forms.Form):
         # no valid identifier found
         raise ValidationError('Please enter a valid {}.'.format(self.formatted_identifier_descriptions),
                               code='invalidmatchidentifier')
-
-
-SubmitToMatchingFormSet = formset_factory(SubmitToMatchingForm, extra=0, min_num=1)

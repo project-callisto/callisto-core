@@ -4,8 +4,11 @@ from wizard_builder.view_helpers import StepsHelper, StorageHelper
 from wizard_builder.views import WizardView
 
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 
-from .views import ReportFormAccessView, SecretKeyStorageHelper
+from .views import (
+    ReportActionView, ReportFormAccessView, SecretKeyStorageHelper,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -52,3 +55,27 @@ class EncryptedWizardView(
     def dispatch(self, request, step=None, *args, **kwargs):
         self._dispatch_processing(step)
         return super().dispatch(request, step=step, *args, **kwargs)
+
+
+class WizardAccessActionView(
+    ReportActionView,
+    EncryptedWizardView,
+):
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(
+            request, step=StepsHelper.done_name, *args, **kwargs)
+
+
+class ReportPDFView(WizardAccessActionView):
+
+    def report_action(self):
+        return self._report_pdf_response()
+
+    def _report_pdf_response(self):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="report.pdf"'
+        response.write(self.report.as_pdf(
+            data=self.storage.cleaned_form_data,
+            recipient=None,
+        ))
+        return response

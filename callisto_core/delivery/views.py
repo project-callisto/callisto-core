@@ -8,14 +8,12 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.utils.html import conditional_escape
 from django.views import generic as views
 
-from . import forms, models
+from . import forms, models, report_delivery
 from ..utils.api import MatchingApi, NotificationApi
-from .models import MatchReport, SentFullReport
-from .report_delivery import MatchReportContent, PDFFullReport
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -174,12 +172,11 @@ class BaseReportingView(ReportFormAccessView):
 
 
 class ReportingView(BaseReportingView):
-    # was submit_report_to_authority
     form_class = forms.SubmitReportToAuthorityForm
 
     def form_valid(self, form):
         output = super().form_valid(form)
-        sent_full_report = SentFullReport.objects.create(
+        sent_full_report = models.SentFullReport.objects.create(
             report=self.report,
             to_address=settings.COORDINATOR_EMAIL,
         )
@@ -193,8 +190,7 @@ class ReportingView(BaseReportingView):
 
 
 class MatchingView(BaseReportingView):
-    # was submit_to_matching
-    form_class = forms.SubmitToMatchingFormSet
+    form_class = forms.SubmitToMatchingForm
     email_confirmation_name = 'match_confirmation'
 
     def form_valid(self, form):
@@ -202,21 +198,23 @@ class MatchingView(BaseReportingView):
 
         matches_for_immediate_processing = []
         for perp_form in form:
-            # enter into matching
-            match_report = MatchReport(report=self.report)
+            match_report = models.MatchReport(report=self.report)
 
             perp_identifier = perp_form.cleaned_data.get('perp')
             match_report.contact_email = form.cleaned_data.get('email')
-            match_report_content = \
-                MatchReportContent(identifier=perp_identifier,
-                                   perp_name=conditional_escape(perp_form.cleaned_data.get('perp_name')),
-                                   contact_name=conditional_escape(form.cleaned_data.get('name')),
-                                   email=match_report.contact_email,
-                                   phone=conditional_escape(form.cleaned_data.get('phone_number')),
-                                   voicemail=conditional_escape(form.cleaned_data.get('voicemail')),
-                                   notes=conditional_escape(form.cleaned_data.get('contact_notes')))
-            match_report.encrypt_match_report(report_text=json.dumps(match_report_content.__dict__),
-                                              key=perp_identifier)
+            match_report_content = report_delivery.MatchReportContent(
+                identifier=perp_identifier,
+                perp_name=conditional_escape(perp_form.cleaned_data.get('perp_name')),
+                contact_name=conditional_escape(form.cleaned_data.get('name')),
+                email=match_report.contact_email,
+                phone=conditional_escape(form.cleaned_data.get('phone_number')),
+                voicemail=conditional_escape(form.cleaned_data.get('voicemail')),
+                notes=conditional_escape(form.cleaned_data.get('contact_notes')),
+            )
+            match_report.encrypt_match_report(
+                report_text=json.dumps(match_report_content.__dict__),
+                key=perp_identifier,
+            )
 
             if settings.MATCH_IMMEDIATELY:
                 # save in DB without identifier
@@ -242,38 +240,16 @@ class ReportActionView(ReportBaseAccessView):
         if self.access_granted:
             return self.report_action()
         else:
-            return super().post(request, *args, **kwargs)
+            return super().get(request, *args, **kwargs)
 
 
 class MatchingWithdrawView(ReportActionView):
-    # was withdraw_from_matching
 
     def report_action(self):
         self.report.withdraw_from_matching()
 
 
 class ReportDeleteView(ReportActionView):
-    # was delete_report
 
     def report_action(self):
         self.report.delete()
-
-
-class ReportPDFView(ReportActionView):
-
-    def report_action(self):
-        return self._report_pdf_response()
-
-    def _report_pdf_response(self):
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename="report.pdf"'
-        # TODO: self.report.as_pdf(key=self.secret_key)
-        pdf = PDFFullReport(
-            report=self.report,
-            decrypted_report=self.decrypted_report,
-        ).generate_pdf_report(
-            recipient=None,
-            report_id=None,
-        )
-        response.write(pdf)
-        return response

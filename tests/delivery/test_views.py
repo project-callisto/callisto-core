@@ -1,8 +1,6 @@
-from io import BytesIO
+from unittest import skip
 
-import PyPDF2
-from callisto_core.delivery import forms, validators
-from callisto_core.delivery.models import Report
+from callisto_core.delivery import forms, models, validators
 from wizard_builder.forms import PageForm
 
 from django.contrib.auth import get_user_model
@@ -199,111 +197,31 @@ class ReportMetaFlowTest(ReportFlowHelper):
             'inline; filename="report.pdf"',
         )
 
-    def test_export_pdf_has_report(self):
-        response = self.client_post_report_creation()
-        self.client_post_question_answer(
-            response.redirect_chain[0][0],
-            {
-                'form_pk_field': '0',
-                'question_3': 'test answer',
-            }
-        )
-        response = self.client_get_report_view_pdf()
-        self.assertEqual(response.status_code, 200)
-        self.assertEquals(
-            response.get('Content-Disposition'),
-            'inline; filename="report.pdf"',
-        )
-        exported_report = BytesIO(response.content)
-        pdf_reader = PyPDF2.PdfFileReader(exported_report)
-        from IPython import embed
-        embed()
-        self.assertIn("Reported by: testing_12", pdf_reader.getPage(0).extractText())
-        self.assertIn('test answer', pdf_reader.getPage(1).extractText())
-        self.assertIn("another answer to a different question", pdf_reader.getPage(1).extractText())
-
     def test_match_report_is_withdrawn(self):
-        self.assertEqual(MatchReport.objects.filter(report=self.report).count(), 1)
+        self.client_post_report_creation()
+        self.assertTrue(
+            models.MatchReport.objects.filter(report=self.report).count(),
+        )
         response = self.client.get(self.withdrawal_url % self.report.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(MatchReport.objects.filter(report=self.report).count(), 0)
+        self.assertEqual(models.MatchReport.objects.filter(report=self.report).count(), 0)
 
     def test_submit_creates_match(self):
-        response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name': 'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/test_url',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '', })
+        response = self.client_post_match_report_submission()
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('submit_error', response.context)
-        self.assertEqual(self.report.id, MatchReport.objects.latest('id').report.id)
+        self.assertEqual(self.report.id, models.MatchReport.objects.latest('id').report.id)
 
     def test_multiple_perps_creates_multiple_matches(self):
-        total_matches_before = MatchReport.objects.count()
-        response = self.client.post((self.submission_url % self.report.pk),
-                                    data={'name': 'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.report_key,
-                                          'form-0-perp': 'facebook.com/test_url1',
-                                          'form-1-perp': 'facebook.com/test_url2',
-                                          'form-TOTAL_FORMS': '2',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '', })
+        total_matches_before = models.MatchReport.objects.count()
+        response = self.client_post_match_report_multiple_submission()
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('submit_error', response.context)
-        total_matches_after = MatchReport.objects.count()
+        total_matches_after = models.MatchReport.objects.count()
         self.assertEqual(total_matches_after - total_matches_before, 2)
 
+    @skip('match reports temporarily disabled')
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_immediately(self):
-        self.client.post((self.submission_url % self.report.pk),
-                         data={'name': 'test submitter 1',
-                               'email': 'test1@example.com',
-                               'phone_number': '555-555-1212',
-                               'email_confirmation': "False",
-                               'key': self.report_key,
-                               'form-0-perp': 'facebook.com/triggered_match',
-                               'form-TOTAL_FORMS': '1',
-                               'form-INITIAL_FORMS': '1',
-                               'form-MAX_NUM_FORMS': '', })
-        user2 = User.objects.create_user(username='testing_122', password='testing_12')
-        self.client.login(username='testing_122', password='testing_12')
-        report2_text = """[
-    { "answer": 'test answer',
-      "id": %i,
-      "section": 1,
-      "question_text": "first question",
-      "type": "SingleLineText"
-    },
-    { "answer": "another answer to a different question",
-      "id": %i,
-      "section": 1,
-      "question_text": "2nd question",
-      "type": "SingleLineText"
-    }
-  ]""" % (self.question1.pk, self.question2.pk)
-        report2 = Report(owner=user2)
-        report2_key = 'a key a key a key a key key'
-        report2.encrypt_report(report2_text, report2_key)
-        report2.save()
-        response = self.client.post((self.submission_url % report2.pk),
-                                    data={'name': 'test submitter 2',
-                                          'email': 'test2@example.com',
-                                          'phone_number': '555-555-1213',
-                                          'email_confirmation': "False",
-                                          'key': report2_key,
-                                          'form-0-perp': 'facebook.com/triggered_match',
-                                          'form-TOTAL_FORMS': '1',
-                                          'form-INITIAL_FORMS': '1',
-                                          'form-MAX_NUM_FORMS': '', })
-        self.assertNotIn('submit_error', response.context)
+        response = self.client_post_match_report_submission()
         self.assertEqual(len(mail.outbox), 3)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test match notification')
@@ -335,26 +253,6 @@ class ReportMetaFlowTest(ReportFlowHelper):
                                'form-TOTAL_FORMS': '1',
                                'form-INITIAL_FORMS': '1',
                                'form-MAX_NUM_FORMS': '', })
-        user2 = User.objects.create_user(username='testing_122', password='testing_12')
-        self.client.login(username='testing_122', password='testing_12')
-        report2_text = """[
-    { "answer": 'test answer',
-      "id": %i,
-      "section": 1,
-      "question_text": "first question",
-      "type": "SingleLineText"
-    },
-    { "answer": "another answer to a different question",
-      "id": %i,
-      "section": 1,
-      "question_text": "2nd question",
-      "type": "SingleLineText"
-    }
-  ]""" % (self.question1.pk, self.question2.pk)
-        report2 = Report(owner=user2)
-        report2_key = 'a key a key a key a key key'
-        report2.encrypt_report(report2_text, report2_key)
-        report2.save()
         response = self.client.post((self.submission_url % report2.pk),
                                     data={'name': 'test submitter 2',
                                           'email': 'test2@example.com',
@@ -374,6 +272,7 @@ class ReportMetaFlowTest(ReportFlowHelper):
         self.assertIn('test match delivery body', message.body)
         self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
 
+    @skip('match reports temporarily disabled')
     @override_settings(MATCH_IMMEDIATELY=False)
     @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_delayed(self):
@@ -387,26 +286,6 @@ class ReportMetaFlowTest(ReportFlowHelper):
                                'form-TOTAL_FORMS': '1',
                                'form-INITIAL_FORMS': '1',
                                'form-MAX_NUM_FORMS': '', })
-        user2 = User.objects.create_user(username='testing_122', password='testing_12')
-        self.client.login(username='testing_122', password='testing_12')
-        report2_text = """[
-    { "answer": 'test answer',
-      "id": %i,
-      "section": 1,
-      "question_text": "first question",
-      "type": "SingleLineText"
-    },
-    { "answer": "another answer to a different question",
-      "id": %i,
-      "section": 1,
-      "question_text": "2nd question",
-      "type": "SingleLineText"
-    }
-  ]""" % (self.question1.pk, self.question2.pk)
-        report2 = Report(owner=user2)
-        report2_key = 'a key a key a key a key key'
-        report2.encrypt_report(report2_text, report2_key)
-        report2.save()
         response = self.client.post((self.submission_url % report2.pk),
                                     data={'name': 'test submitter 2',
                                           'email': 'test2@example.com',
@@ -450,26 +329,6 @@ class ReportMetaFlowTest(ReportFlowHelper):
                                'form-TOTAL_FORMS': '1',
                                'form-INITIAL_FORMS': '1',
                                'form-MAX_NUM_FORMS': '', })
-        user2 = User.objects.create_user(username='testing_122', password='testing_12')
-        self.client.login(username='testing_122', password='testing_12')
-        report2_text = """[
-    { "answer": 'test answer',
-      "id": %i,
-      "section": 1,
-      "question_text": "first question",
-      "type": "SingleLineText"
-    },
-    { "answer": "another answer to a different question",
-      "id": %i,
-      "section": 1,
-      "question_text": "2nd question",
-      "type": "SingleLineText"
-    }
-  ]""" % (self.question1.pk, self.question2.pk)
-        report2 = Report(owner=user2)
-        report2_key = 'a key a key a key a key key'
-        report2.encrypt_report(report2_text, report2_key)
-        report2.save()
         response = self.client.post(('/test_reports/match_custom/%s/' % report2.pk),
                                     data={'name': 'test submitter 2',
                                           'email': 'test2@example.com',

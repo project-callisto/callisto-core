@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.crypto import get_random_string
 
-from . import hashers, security
+from . import hashers, report_delivery, security
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,15 @@ class Report(models.Model):
             return report_id
         else:
             return None
+
+    def as_pdf(self, data, recipient):
+        return report_delivery.PDFFullReport(
+            report=self,
+            report_data=data,
+        ).generate_pdf_report(
+            recipient=recipient,
+            report_id=self.id,
+        )
 
     def setup(self, secret_key):
         self.encrypt_report({}, secret_key)
