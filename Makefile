@@ -50,6 +50,9 @@ test-suite: ## run the unit and intregration tests
 test-fast: ## runs the test suite, with fast failures and a re-used database
 	pytest -v -l -s --maxfail=1 --ff --reuse-db
 
+test-watch:
+	pytest-watch --onpass "say passed" --onfail "say failed"
+
 test: ## run both the test suite and the linters
 	make test-lint
 	make test-suite
