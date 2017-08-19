@@ -14,11 +14,11 @@ from nacl.exceptions import CryptoError
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.urlresolvers import reverse_lazy
+from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.html import conditional_escape
 from django.views import generic as views
-from django.core.exceptions import PermissionDenied
 
 from . import forms, models, report_delivery
 from ..utils.api import MatchingApi, NotificationApi
@@ -79,7 +79,7 @@ class ReportCreateView(
     form_class = forms.ReportCreateForm
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             'report_update',
             kwargs={'step': 0, 'uuid': self.report.uuid},
         )
@@ -134,15 +134,11 @@ class ReportBaseAccessView(
             return False
 
     def dispatch(self, request, *args, **kwargs):
-        print('ReportBaseAccessView.dispatch')
         if self.storage.secret_key:
-            print('continuing dispatch')
             return super().dispatch(request, *args, **kwargs)
         elif self.request.POST.get('key'):
-            print('processing key input')
             return self._render_key_input_response()
         else:
-            print('requesting key input')
             return self._render_access_form()
 
     def _render_key_input_response(self):
@@ -272,12 +268,14 @@ class ReportActionView(ReportUpdateView):
 
     def get(self, request, *args, **kwargs):
         if self.access_granted:
-            print('access_granted !!!')
-            self.__report_action()
+            self._report_action()
             return self._action_response()
         else:
-            print('denied XXX')
             return super().get(request, *args, **kwargs)
+
+    def _report_action(self):
+        # TODO: implement as a helper
+        pass
 
     def _action_response(self):
         return self._redirect_to_done()
@@ -288,20 +286,19 @@ class ReportActionView(ReportUpdateView):
             kwargs={'uuid': self.report.uuid},
         ))
 
-    def __report_action(self):
-        # TODO: implement as a helper
-        pass
-
 
 class MatchingWithdrawView(ReportActionView):
 
-    def __report_action(self):
+    def _report_action(self):
         # TODO: self.action.withdraw()
         self.report.withdraw_from_matching()
 
 
 class ReportDeleteView(ReportActionView):
 
-    def __report_action(self):
+    def _report_action(self):
         # TODO: self.action.delete()
         self.report.delete()
+
+    def _action_response(self):
+        return HttpResponseRedirect(reverse('report_new'))

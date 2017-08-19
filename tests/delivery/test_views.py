@@ -90,6 +90,9 @@ class ReportFlowHelper(TestCase):
             None,
         )
 
+    def assert_report_exists(self):
+        return bool(models.Report.objects.filter(pk=self.report.pk).count())
+
     def match_report_email_assertions(self):
         self.assertEqual(len(mail.outbox), 3)
         message = mail.outbox[0]
@@ -192,7 +195,7 @@ class ReportMetaFlowTest(ReportFlowHelper):
         self.assertTrue(self.report.pk)
         self.client_clear_secret_key()
         self.client_get_report_delete()
-        self.assertTrue(self.report.pk)
+        self.assertTrue(self.assert_report_exists())
 
     def test_report_action_invalid_key(self):
         self.client_post_report_creation()
@@ -200,13 +203,13 @@ class ReportMetaFlowTest(ReportFlowHelper):
         self.client_clear_secret_key()
         self.secret_key = 'wrong key'
         self.client_get_report_delete()
-        self.assertTrue(self.report.pk)
+        self.assertTrue(self.assert_report_exists())
 
     def test_report_delete(self):
         self.client_post_report_creation()
         self.assertTrue(self.report.pk)
         self.client_get_report_delete()
-        self.assertFalse(self.report.pk)
+        self.assertFalse(self.assert_report_exists())
 
     def test_export_returns_pdf(self):
         self.client_post_report_creation()

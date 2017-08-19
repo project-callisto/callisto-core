@@ -6,9 +6,7 @@ from wizard_builder.views import WizardView
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 
-from .views import (
-    ReportActionView, ReportUpdateView, SecretKeyStorageHelper,
-)
+from .views import ReportActionView, ReportUpdateView, SecretKeyStorageHelper
 
 logger = logging.getLogger(__name__)
 
