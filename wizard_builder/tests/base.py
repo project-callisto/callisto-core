@@ -101,6 +101,7 @@ class FunctionalTest(Assertions, StaticLiveServerTestCase):
 
     def _dump_html(self):
         filename = self._get_filename() + '.html'
+        logger.info(self.browser.page_source)
         logger.info('dumping page HTML to {}'.format(filename))
         with open(filename, 'w') as f:
             f.write(self.browser.page_source)
