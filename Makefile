@@ -30,7 +30,7 @@ test-callisto-core:
 	pip show callisto-core |\
 		grep 'Location' |\
 		sed 's/Location: \(.*\)/\1\/callisto_core\/tests/' |\
-		xargs -t pytest -v --ds=wizard_builder.tests.test_callisto_core_settings
+		xargs -t pytest -v --ds=wizard_builder.tests.callisto_core_settings
 
 test-code:
 	make test-local-suite
