@@ -2,7 +2,6 @@
 
 mock==2.0.0
 flake8==3.4.1
-tox==2.7.0
 PyPDF2==1.26.0
 isort==4.2.15
 django-migration-testcase==0.0.13

@@ -1,20 +1,13 @@
-.PHONY: clean-pyc clean-build help
 .DEFAULT_GOAL := help
 
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
 clean: ## clean the local files for a release
-	make clean-build
-	make clean-pyc
-
-clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
 	rm -rf *.sqlite3
-
-clean-pyc: ## remove Python file artifacts
 	find callisto_core -name '*.pyc' -exec rm -f {} +
 	find callisto_core -name '*.pyo' -exec rm -f {} +
 	find callisto_core -name '*~' -exec rm -f {} +
@@ -44,11 +37,6 @@ release: ## package and upload a release
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 	python setup.py tag
-
-sdist: ## package
-	make clean
-	python setup.py sdist
-	ls -l dist
 
 app-setup: ## setup the test application environment
 	python manage.py flush --noinput
