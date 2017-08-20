@@ -1,3 +1,3 @@
-from callisto_core.utils.settings import *
+from callisto_core.utils.settings import *  # NOQA
 
-from .settings import *
+from .settings import *  # NOQA
