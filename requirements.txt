@@ -1,1 +1,1 @@
--r requirements/dev.txt
+-r callisto_core/requirements/dev.txt

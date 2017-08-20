@@ -21,13 +21,13 @@ clean-pyc: ## remove Python file artifacts
 	find callisto_core -type d -name "__pycache__" -exec rm -rf {} +
 
 clean-lint: ## cleanup / display issues with isort and pep8
-	autopep8 callisto_core/ -raai --experimental
+	autopep8 callisto_core/ -raai
 	isort -rc callisto_core/
 	make test-lint
 
 test-lint: ## check style with pep8 and isort
-	isort --check-only --diff --quiet -rc callisto_core/
 	flake8 callisto_core/
+	isort --check-only --diff --quiet -rc callisto_core/
 
 test-suite: ## run the unit and integration tests
 	pytest -v

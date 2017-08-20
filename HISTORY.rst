@@ -3,10 +3,11 @@
 History
 -------
 
-0.10.1 (2017-08-18)
+0.10.2 (2017-08-20)
 ++++++++++++++++++
 
 * new record form encryption process
+* include requirements and tests in package
 
     https://github.com/SexualHealthInnovations/callisto-core/pull/213
 
