@@ -3,8 +3,6 @@
     "model": "wizard_builder.page",
     "pk": 1,
     "fields": {
-      "created": "2017-08-05T18:49:02.040",
-      "modified": "2017-08-05T18:49:02.040",
       "position": 1,
       "section": 1,
       "infobox": "a breakfast",
@@ -17,8 +15,6 @@
     "model": "wizard_builder.page",
     "pk": 2,
     "fields": {
-      "created": "2017-08-09T17:53:42.794",
-      "modified": "2017-08-09T17:54:27.828",
       "position": 2,
       "section": 1,
       "infobox": "the big one",
@@ -31,8 +27,6 @@
     "model": "wizard_builder.page",
     "pk": 3,
     "fields": {
-      "created": "2017-08-15T03:59:59.362",
-      "modified": "2017-08-15T03:59:59.362",
       "position": 3,
       "section": 1,
       "infobox": "evening playlist",
@@ -45,8 +39,6 @@
     "model": "wizard_builder.formquestion",
     "pk": 1,
     "fields": {
-      "created": "2017-08-05T18:49:33.607",
-      "modified": "2017-08-07T17:10:22.854",
       "text": "food options",
       "descriptive_text": "choose some!",
       "page": 1,
@@ -57,8 +49,6 @@
     "model": "wizard_builder.formquestion",
     "pk": 2,
     "fields": {
-      "created": "2017-08-09T17:54:45.286",
-      "modified": "2017-08-09T17:54:45.286",
       "text": "do androids dream of electric sheep?",
       "descriptive_text": "answer wisely",
       "page": 2,
@@ -69,8 +59,6 @@
     "model": "wizard_builder.formquestion",
     "pk": 3,
     "fields": {
-      "created": "2017-08-11T07:59:13.439",
-      "modified": "2017-08-11T07:59:13.439",
       "text": "eat it now???",
       "descriptive_text": "",
       "page": 1,
@@ -81,8 +69,6 @@
     "model": "wizard_builder.formquestion",
     "pk": 4,
     "fields": {
-      "created": "2017-08-15T04:00:59.395",
-      "modified": "2017-08-15T04:00:59.395",
       "text": "whats on the radios?",
       "descriptive_text": "pick a type",
       "page": 3,

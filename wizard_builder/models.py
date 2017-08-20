@@ -15,15 +15,7 @@ from .widgets import CheckboxExtraSelectMultiple, RadioExtraSelect
 logger = logging.getLogger(__name__)
 
 
-class TimekeepingBase(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
-
-
-class Page(TimekeepingBase, models.Model):
+class Page(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -89,7 +81,7 @@ class Page(TimekeepingBase, models.Model):
 
 
 # TODO: rename to Question when downcasting is removed
-class FormQuestion(TimekeepingBase, models.Model):
+class FormQuestion(models.Model):
     text = HTMLField(blank=True)
     descriptive_text = HTMLField(blank=True)
     page = models.ForeignKey(

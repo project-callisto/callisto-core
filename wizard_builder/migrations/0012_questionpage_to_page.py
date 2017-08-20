@@ -9,6 +9,8 @@ def copy_pagebase_id(apps, schema_editor):
     current_database = schema_editor.connection.alias
     QuestionPage = apps.get_model('wizard_builder.QuestionPage')
     Page = apps.get_model('wizard_builder.Page')
+    from IPython import embed
+    embed()
     for question_page in QuestionPage.objects.using(current_database):
         page = Page.objects.create(
             id=question_page.id,
