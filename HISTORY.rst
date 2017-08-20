@@ -3,40 +3,48 @@
 History
 -------
 
+0.10.12 (2017-08-20)
+++++++++++++++++++
+
+* new record form encryption process
+* include requirements and tests in package
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/213
+
 0.9.2 (2017-07-07)
 ++++++++++++++++++
 
 * don't overwrite email domain if it's already set
 
-https://github.com/SexualHealthInnovations/callisto-core/pull/213
+    https://github.com/SexualHealthInnovations/callisto-core/pull/213
 
 0.9.1 (2017-07-06)
 ++++++++++++++++++
 
 * update MatchingApi to match NotificationApi
 
-https://github.com/SexualHealthInnovations/callisto-core/pull/212
+    https://github.com/SexualHealthInnovations/callisto-core/pull/212
 
 0.9.0 (2017-07-06)
 ++++++++++++++++++
 
 * NotificationApi update, allowing for me effective subclassing
 
-https://github.com/SexualHealthInnovations/callisto-core/pull/210
+    https://github.com/SexualHealthInnovations/callisto-core/pull/210
 
 0.8.2 (2017-07-03)
 ++++++++++++++++++
 
 * add logging to email notifications
 
-https://github.com/SexualHealthInnovations/callisto-core/pull/208
+    https://github.com/SexualHealthInnovations/callisto-core/pull/208
 
 0.8.1 (2017-06-26)
 ++++++++++++++++++
 
 * remove password entropy requirement
 
-https://github.com/SexualHealthInnovations/callisto-core/pull/205
+    https://github.com/SexualHealthInnovations/callisto-core/pull/205
 
 0.8.0 (2017-06-23)
 ++++++++++++++++++
