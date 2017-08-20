@@ -5,15 +5,14 @@ sudo: false
 cache: pip
 env:
   global:
-    - DJANGO_11=Django>=1.11,<2.0
+    - DJANGO_111=Django>=1.11,<2.0
     - DJANGO_DEV=https://github.com/django/django/tarball/master
-env:
-  - DJANGO_VERSION=$DJANGO_11
+  - DJANGO_VERSION=$DJANGO_111
   - DJANGO_VERSION=$DJANGO_DEV
 matrix:
   fast_finish: true
   allow_failures:
-    - env: DJANGO_VERSION=DJANGO_DEV
+    - env: DJANGO_VERSION=$DJANGO_DEV
 install:
   - pip install -r requirements/test.txt --upgrade
   - pip install $DJANGO_VERSION
