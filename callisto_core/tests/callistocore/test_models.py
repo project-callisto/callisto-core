@@ -1,13 +1,9 @@
 from io import BytesIO
 
 import PyPDF2
-from callisto_core.delivery.models import (
-    MatchReport, Report, SentFullReport, SentMatchReport,
-)
+from callisto_core.delivery.models import MatchReport, Report, SentFullReport, SentMatchReport
 
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from django.db.utils import IntegrityError
 
 from .. import test_base
 from .models import LegacyMatchReportData, LegacyReportData
@@ -31,7 +27,9 @@ class ReportModelTest(test_base.ReportFlowHelper):
             recipient=None,
         )
         pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
-        self.assertIn("Reported by: testing_12", pdf_reader.getPage(0).extractText())
+        self.assertIn(
+            "Reported by: testing_12",
+            pdf_reader.getPage(0).extractText())
         self.assertIn('food options', pdf_reader.getPage(1).extractText())
         self.assertIn('vegetables', pdf_reader.getPage(1).extractText())
         self.assertIn('apples: red', pdf_reader.getPage(1).extractText())
@@ -97,7 +95,10 @@ class ReportModelTest(test_base.ReportFlowHelper):
         report = Report(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
-        MatchReport.objects.create(report=report, contact_email='test@example.com', identifier='dummy')
+        MatchReport.objects.create(
+            report=report,
+            contact_email='test@example.com',
+            identifier='dummy')
         self.assertIsNotNone(Report.objects.first().entered_into_matching)
         report.match_found = True
         report.save()
@@ -113,17 +114,21 @@ class MatchReportTest(test_base.ReportFlowHelper):
         super().setUp()
         self.client_post_report_creation()
         match_report = MatchReport(report=self.report, identifier='dummy')
-        match_report.encrypt_match_report("test match report", match_report.identifier)
+        match_report.encrypt_match_report(
+            "test match report", match_report.identifier)
         match_report.save()
 
     def test_entered_into_matching_property_is_set(self):
         self.assertIsNotNone(Report.objects.first().entered_into_matching)
 
-    def test_entered_into_matching_is_blank_before_entering_into_matching(self):
+    def test_entered_into_matching_is_blank_before_entering_into_matching(
+            self):
         report = Report(owner=self.user)
         report.encrypt_report("test non-matching report", "key")
         report.save()
-        self.assertIsNone(Report.objects.get(pk=report.id).entered_into_matching)
+        self.assertIsNone(
+            Report.objects.get(
+                pk=report.id).entered_into_matching)
 
     def test_can_encrypt_match_report(self):
         saved_match_report = MatchReport.objects.first()
@@ -134,21 +139,34 @@ class MatchReportTest(test_base.ReportFlowHelper):
 
     def test_can_decrypt_match_report(self):
         saved_match_report = MatchReport.objects.first()
-        self.assertEqual(saved_match_report.get_match('dummy'), "test match report")
+        self.assertEqual(
+            saved_match_report.get_match('dummy'),
+            "test match report")
 
     def test_can_decrypt_old_match_report(self):
         legacy_match_report = LegacyMatchReportData()
-        legacy_match_report.encrypt_match_report("test legacy match report", "dumbo")
+        legacy_match_report.encrypt_match_report(
+            "test legacy match report", "dumbo")
 
         legacy_report = LegacyReportData()
-        legacy_report.encrypt_report("this text should be encrypted otherwise bad things", key='this is my key')
-        report = Report(owner=self.user, encrypted=legacy_report.encrypted, salt=legacy_report.salt)
+        legacy_report.encrypt_report(
+            "this text should be encrypted otherwise bad things",
+            key='this is my key')
+        report = Report(
+            owner=self.user,
+            encrypted=legacy_report.encrypted,
+            salt=legacy_report.salt)
         report.save()
 
-        new_match_report = MatchReport(report=report, encrypted=legacy_match_report.encrypted,
-                                       salt=legacy_match_report.salt, identifier="dumbo")
+        new_match_report = MatchReport(
+            report=report,
+            encrypted=legacy_match_report.encrypted,
+            salt=legacy_match_report.salt,
+            identifier="dumbo")
         new_match_report.save()
-        self.assertEqual(new_match_report.get_match("dumbo"), "test legacy match report")
+        self.assertEqual(
+            new_match_report.get_match("dumbo"),
+            "test legacy match report")
 
 
 class SentReportTest(test_base.ReportFlowHelper):
@@ -177,7 +195,8 @@ class DeleteReportTest(test_base.ReportFlowHelper):
 
     def test_deleted_report_deletes_match_report(self):
         match_report = MatchReport(report=self.report, identifier='dummy')
-        match_report.encrypt_match_report("test match report", match_report.identifier)
+        match_report.encrypt_match_report(
+            "test match report", match_report.identifier)
         match_report.save()
         self.assertEqual(MatchReport.objects.count(), 1)
         self.report.delete()
@@ -210,14 +229,20 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         report2.save()
         self.assertIsNotNone(match_report.sentmatchreport_set.first())
         self.assertIsNotNone(match_report2.sentmatchreport_set.first())
-        self.assertEqual(match_report, SentMatchReport.objects.first().reports.all()[0])
-        self.assertEqual(match_report2, SentMatchReport.objects.first().reports.all()[1])
+        self.assertEqual(
+            match_report,
+            SentMatchReport.objects.first().reports.all()[0])
+        self.assertEqual(
+            match_report2,
+            SentMatchReport.objects.first().reports.all()[1])
         self.report.delete()
         self.assertEqual(Report.objects.count(), 1)
         self.assertEqual(MatchReport.objects.count(), 1)
         self.assertEqual(SentMatchReport.objects.first(), sent_match_report)
         self.assertEqual(SentMatchReport.objects.first().reports.count(), 1)
-        self.assertEqual(SentMatchReport.objects.first().reports.first(), match_report2)
+        self.assertEqual(
+            SentMatchReport.objects.first().reports.first(),
+            match_report2)
         self.assertTrue(Report.objects.first().match_found)
         report2.delete()
         self.assertEqual(Report.objects.count(), 0)

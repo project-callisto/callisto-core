@@ -3,19 +3,18 @@ from unittest import skip
 
 import gnupg
 import six
-from callisto_core.delivery.models import Report
-from callisto_core.evaluation.models import EvalRow, EvaluationField
-from callisto_core.utils.api import MatchingApi
 from mock import ANY, call, patch
-from wizard_builder.models import (
-    Checkbox, Choice, Page, RadioButton, SingleLineText,
-)
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
 
+from wizard_builder.models import Checkbox, Choice, Page, RadioButton, SingleLineText
+
+from ...delivery.models import Report
+from ...evaluation.models import EvalRow, EvaluationField
+from ...utils.api import MatchingApi
 from ..callistocore.test_matching import MatchTest
 from .test_keypair import private_test_key, public_test_key
 
@@ -25,10 +24,14 @@ User = get_user_model()
 def delete_test_key(gpg, identifier):
     private_key_delete = str(gpg.delete_keys(identifier, True))
     if private_key_delete != 'ok':
-        raise RuntimeError('delete of test GPG private key failed: ' + private_key_delete)
+        raise RuntimeError(
+            'delete of test GPG private key failed: ' +
+            private_key_delete)
     public_key_delete = str(gpg.delete_keys(identifier))
     if public_key_delete != 'ok':
-        raise RuntimeError('delete of test GPG public key failed: ' + public_key_delete)
+        raise RuntimeError(
+            'delete of test GPG public key failed: ' +
+            public_key_delete)
 
 
 class EvalRowTest(TestCase):
@@ -47,14 +50,17 @@ class EvalRowTest(TestCase):
         self.save_row_for_report(report)
         self.assertEqual(EvalRow.objects.count(), 1)
         self.assertNotEqual(EvalRow.objects.first().user_identifier, user.id)
-        self.assertNotEqual(EvalRow.objects.first().record_identifier, report.id)
+        self.assertNotEqual(
+            EvalRow.objects.first().record_identifier,
+            report.id)
 
     @skip('eval temporarily disabled')
     def test_user_hashes_correctly(self):
         user1 = User.objects.create_user(username="dummy", password="dummy")
         report1 = Report.objects.create(owner=user1, encrypted=b'first report')
         user2 = User.objects.create_user(username="dummy1", password="dummy")
-        report2 = Report.objects.create(owner=user2, encrypted=b'second report')
+        report2 = Report.objects.create(
+            owner=user2, encrypted=b'second report')
         report3 = Report.objects.create(owner=user1, encrypted=b'third report')
         row1 = self.save_row_for_report(report1)
         row2 = self.save_row_for_report(report2)
@@ -70,7 +76,8 @@ class EvalRowTest(TestCase):
         user1 = User.objects.create_user(username="dummy", password="dummy")
         report1 = Report.objects.create(owner=user1, encrypted=b'first report')
         user2 = User.objects.create_user(username="dummy1", password="dummy")
-        report2 = Report.objects.create(owner=user2, encrypted=b'second report')
+        report2 = Report.objects.create(
+            owner=user2, encrypted=b'second report')
         report3 = Report.objects.create(owner=user1, encrypted=b'third report')
         row1 = self.save_row_for_report(report1)
         row2 = self.save_row_for_report(report2)
@@ -84,8 +91,10 @@ class EvalRowTest(TestCase):
                             EvalRow.objects.get(id=row3.pk).record_identifier)
         self.assertNotEqual(EvalRow.objects.get(id=row1.pk).record_identifier,
                             EvalRow.objects.get(id=row2.pk).record_identifier)
-        self.assertEqual(EvalRow.objects.get(id=row3.pk).record_identifier,
-                         EvalRow.objects.get(id=row3_edit.pk).record_identifier)
+        self.assertEqual(
+            EvalRow.objects.get(
+                id=row3.pk).record_identifier, EvalRow.objects.get(
+                id=row3_edit.pk).record_identifier)
 
     @skip('eval temporarily disabled')
     def test_can_encrypt_a_row(self):
@@ -114,7 +123,13 @@ class EvalRowTest(TestCase):
         row._encrypt_eval_row(test_row, key=public_test_key)
         row.save()
         row.full_clean()
-        self.assertEqual(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row))), test_row)
+        self.assertEqual(
+            six.text_type(
+                gpg.decrypt(
+                    six.binary_type(
+                        EvalRow.objects.get(
+                            id=row.pk).row))),
+            test_row)
 
     @skip('eval temporarily disabled')
     def test_make_eval_row(self):
@@ -134,14 +149,18 @@ class EvalFieldTest(TestCase):
         EvaluationField.objects.create(question=rfi)
         self.assertIsNotNone(EvaluationField.objects.first().question)
         self.assertIsNotNone(SingleLineText.objects.first().evaluationfield)
-        self.assertEqual(SingleLineText.objects.first().evaluationfield, EvaluationField.objects.first())
+        self.assertEqual(
+            SingleLineText.objects.first().evaluationfield,
+            EvaluationField.objects.first())
 
     @skip('eval temporarily disabled')
     def test_question_can_not_have_eval_field(self):
         page = Page.objects.create()
         rfi = SingleLineText(text="This is a question", page=page)
         rfi.save()
-        self.assertRaises(ObjectDoesNotExist, lambda: SingleLineText.objects.first().evaluationfield)
+        self.assertRaises(
+            ObjectDoesNotExist,
+            lambda: SingleLineText.objects.first().evaluationfield)
 
     @skip('eval temporarily disabled')
     def test_evalfield_label_is_non_unique(self):
@@ -160,18 +179,28 @@ class ExtractAnswersTest(TestCase):
     def set_up_simple_report_scenario(self):
         page1 = Page.objects.create()
         page2 = Page.objects.create()
-        question1 = SingleLineText.objects.create(text="first question", page=page1)
-        question2 = SingleLineText.objects.create(text="2nd question", page=page2)
+        question1 = SingleLineText.objects.create(
+            text="first question", page=page1)
+        question2 = SingleLineText.objects.create(
+            text="2nd question", page=page2)
         EvaluationField.objects.create(question=question2, label="q2")
-        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page2)
+        radio_button_q = RadioButton.objects.create(
+            text="this is a radio button question", page=page2)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
+            Choice.objects.create(
+                text="This is choice %i" %
+                i, question=radio_button_q)
         EvaluationField.objects.create(question=radio_button_q, label="radio")
 
         choice_ids = [ch.pk for ch in radio_button_q.choice_set.all()]
         selected_id = choice_ids[2]
 
-        object_ids = [question1.pk, question2.pk, selected_id, radio_button_q.pk, ] + choice_ids
+        object_ids = [
+            question1.pk,
+            question2.pk,
+            selected_id,
+            radio_button_q.pk,
+        ] + choice_ids
 
         self.json_report = """[
     { "answer": "test answer",
@@ -228,19 +257,29 @@ class ExtractAnswersTest(TestCase):
     @skip('eval temporarily disabled')
     def test_match_id_gets_appended(self):
         self.set_up_simple_report_scenario()
-        anonymised1 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy1')
-        anonymised2 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy1')
-        anonymised3 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy2')
+        anonymised1 = EvalRow()._create_eval_row_text(
+            self.json_report, match_identifier='dummy1')
+        anonymised2 = EvalRow()._create_eval_row_text(
+            self.json_report, match_identifier='dummy1')
+        anonymised3 = EvalRow()._create_eval_row_text(
+            self.json_report, match_identifier='dummy2')
         self.assertNotEqual(anonymised1['match_identifier'], 'dummy1')
-        self.assertEqual(anonymised1['match_identifier'], anonymised2['match_identifier'])
-        self.assertNotEqual(anonymised1['match_identifier'], anonymised3['match_identifier'])
+        self.assertEqual(
+            anonymised1['match_identifier'],
+            anonymised2['match_identifier'])
+        self.assertNotEqual(
+            anonymised1['match_identifier'],
+            anonymised3['match_identifier'])
 
     @skip('eval temporarily disabled')
     def test_match_id_type_gets_appended(self):
         self.set_up_simple_report_scenario()
-        anonymised1 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='dummy1')
-        anonymised2 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='twitter:dummy1')
-        anonymised3 = EvalRow()._create_eval_row_text(self.json_report, match_identifier='email:this:is:not:possible')
+        anonymised1 = EvalRow()._create_eval_row_text(
+            self.json_report, match_identifier='dummy1')
+        anonymised2 = EvalRow()._create_eval_row_text(
+            self.json_report, match_identifier='twitter:dummy1')
+        anonymised3 = EvalRow()._create_eval_row_text(
+            self.json_report, match_identifier='email:this:is:not:possible')
         self.assertEqual(anonymised1['match_identifier_type'], 'facebook')
         self.assertEqual(anonymised2['match_identifier_type'], 'twitter')
         self.assertEqual(anonymised3['match_identifier_type'], 'email')
@@ -250,25 +289,34 @@ class ExtractAnswersTest(TestCase):
         self.maxDiff = None
         page1 = Page.objects.create()
 
-        question1 = RadioButton.objects.create(text="this is a radio button question", page=page1)
+        question1 = RadioButton.objects.create(
+            text="this is a radio button question", page=page1)
         for i in range(5):
-            choice = Choice.objects.create(text="This is choice %i" % i, question=question1)
+            choice = Choice.objects.create(
+                text="This is choice %i" %
+                i, question=question1)
             if i == 0:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
         EvaluationField.objects.create(question=question1, label="q1")
 
-        question2 = RadioButton.objects.create(text="this is another radio button question", page=page1)
+        question2 = RadioButton.objects.create(
+            text="this is another radio button question", page=page1)
         for i in range(5):
-            choice = Choice.objects.create(text="This is choice %i" % i, question=question2)
+            choice = Choice.objects.create(
+                text="This is choice %i" %
+                i, question=question2)
             if i % 2 == 1:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
         EvaluationField.objects.create(question=question2, label="q2")
 
-        question3 = RadioButton.objects.create(text="this is a radio button question too", page=page1)
+        question3 = RadioButton.objects.create(
+            text="this is a radio button question too", page=page1)
         for i in range(5):
-            choice = Choice.objects.create(text="This is choice %i" % i, question=question3)
+            choice = Choice.objects.create(
+                text="This is choice %i" %
+                i, question=question3)
             if i == 0:
                 choice.extra_info_placeholder = "extra box for choice %i" % i
                 choice.save()
@@ -330,7 +378,9 @@ class ExtractAnswersTest(TestCase):
                     }
          }""" % tuple(third_q_object_ids)
 
-        json_report = json.loads("[%s, %s, %s]" % (first_q_output, second_q_output, third_q_output))
+        json_report = json.loads(
+            "[%s, %s, %s]" %
+            (first_q_output, second_q_output, third_q_output))
 
         expected = {
             "q1": str(q1_selected_id),
@@ -364,22 +414,33 @@ class ExtractAnswersTest(TestCase):
         self.maxDiff = None
 
         page1 = Page.objects.create()
-        single_question = SingleLineText.objects.create(text="single question", page=page1)
-        EvaluationField.objects.create(question=single_question, label="single_q")
+        single_question = SingleLineText.objects.create(
+            text="single question", page=page1)
+        EvaluationField.objects.create(
+            question=single_question, label="single_q")
 
         page2 = Page.objects.create(multiple=True, name_for_multiple="form")
-        question1 = SingleLineText.objects.create(text="first question", page=page2)
-        question2 = SingleLineText.objects.create(text="2nd question", page=page2)
+        question1 = SingleLineText.objects.create(
+            text="first question", page=page2)
+        question2 = SingleLineText.objects.create(
+            text="2nd question", page=page2)
         EvaluationField.objects.create(question=question2, label="q2")
-        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page2)
+        radio_button_q = RadioButton.objects.create(
+            text="this is a radio button question", page=page2)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
+            Choice.objects.create(
+                text="This is choice %i" %
+                i, question=radio_button_q)
         EvaluationField.objects.create(question=radio_button_q, label="radio")
 
         choice_ids = [ch.pk for ch in radio_button_q.choice_set.all()]
         selected_id_1 = choice_ids[1]
         selected_id_2 = choice_ids[4]
-        object_ids = [question1.pk, question2.pk, radio_button_q.pk, ] + choice_ids
+        object_ids = [
+            question1.pk,
+            question2.pk,
+            radio_button_q.pk,
+        ] + choice_ids
 
         answer_set_template = """[
     { "answer": "test answer <PREFIX> answer",
@@ -407,8 +468,12 @@ class ExtractAnswersTest(TestCase):
     }
   ]""" % tuple(object_ids)
 
-        answer_set_one = answer_set_template.replace("<PREFIX>", "first").replace("<SELECTED>", str(selected_id_1))
-        answer_set_two = answer_set_template.replace("<PREFIX>", "second").replace("<SELECTED>", str(selected_id_2))
+        answer_set_one = answer_set_template.replace(
+            "<PREFIX>", "first").replace(
+            "<SELECTED>", str(selected_id_1))
+        answer_set_two = answer_set_template.replace(
+            "<PREFIX>", "second").replace(
+            "<SELECTED>", str(selected_id_2))
 
         json_report = json.loads("""
       [ { "answer": "single answer",
@@ -458,14 +523,23 @@ class ExtractAnswersTest(TestCase):
         self.maxDiff = None
 
         page1 = Page.objects.create()
-        question1 = SingleLineText.objects.create(text="first question", page=page1)
-        question2 = SingleLineText.objects.create(text="2nd question", page=page1)
-        radio_button_q = RadioButton.objects.create(text="this is a radio button question", page=page1)
+        question1 = SingleLineText.objects.create(
+            text="first question", page=page1)
+        question2 = SingleLineText.objects.create(
+            text="2nd question", page=page1)
+        radio_button_q = RadioButton.objects.create(
+            text="this is a radio button question", page=page1)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question=radio_button_q)
+            Choice.objects.create(
+                text="This is choice %i" %
+                i, question=radio_button_q)
 
         choice_ids = [ch.pk for ch in radio_button_q.choice_set.all()]
-        object_ids = [question1.pk, question2.pk, radio_button_q.pk, ] + choice_ids
+        object_ids = [
+            question1.pk,
+            question2.pk,
+            radio_button_q.pk,
+        ] + choice_ids
 
         json_report = json.loads("""[
     { "answer": "test answer",
@@ -506,12 +580,18 @@ class ExtractAnswersTest(TestCase):
         self.maxDiff = None
 
         page1 = Page.objects.create()
-        checkbox_q_1 = Checkbox.objects.create(text="this is a checkbox question", page=page1)
+        checkbox_q_1 = Checkbox.objects.create(
+            text="this is a checkbox question", page=page1)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question=checkbox_q_1)
-        checkbox_q_2 = Checkbox.objects.create(text="this is another checkbox question", page=page1)
+            Choice.objects.create(
+                text="This is choice %i" %
+                i, question=checkbox_q_1)
+        checkbox_q_2 = Checkbox.objects.create(
+            text="this is another checkbox question", page=page1)
         for i in range(5):
-            Choice.objects.create(text="This is choice %i" % i, question=checkbox_q_2)
+            Choice.objects.create(
+                text="This is choice %i" %
+                i, question=checkbox_q_2)
 
         choice_ids_1 = [ch.pk for ch in checkbox_q_1.choice_set.all()]
         choice_ids_2 = [ch.pk for ch in checkbox_q_2.choice_set.all()]
@@ -565,12 +645,21 @@ class ExtractAnswersTest(TestCase):
         self.addCleanup(delete_test_key, gpg, test_key.fingerprints[0])
 
         row = EvalRow()
-        row.anonymise_record(action=EvalRow.CREATE, report=report, decrypted_text=self.json_report,
-                             key=public_test_key)
+        row.anonymise_record(
+            action=EvalRow.CREATE,
+            report=report,
+            decrypted_text=self.json_report,
+            key=public_test_key)
         row.save()
 
-        self.assertEqual(json.loads(six.text_type(gpg.decrypt(six.binary_type(EvalRow.objects.get(id=row.pk).row)))),
-                         self.expected)
+        self.assertEqual(
+            json.loads(
+                six.text_type(
+                    gpg.decrypt(
+                        six.binary_type(
+                            EvalRow.objects.get(
+                                id=row.pk).row)))),
+            self.expected)
 
 
 class EvalActionTest(MatchTest):
@@ -582,8 +671,10 @@ class EvalActionTest(MatchTest):
         self.page1.sites.add(self.site.id)
         self.page2 = Page.objects.create()
         self.page2.sites.add(self.site.id)
-        self.question1 = SingleLineText.objects.create(text="first question", page=self.page1)
-        self.question2 = SingleLineText.objects.create(text="2nd question", page=self.page2)
+        self.question1 = SingleLineText.objects.create(
+            text="first question", page=self.page1)
+        self.question2 = SingleLineText.objects.create(
+            text="2nd question", page=self.page2)
 
         self.client.login(username='dummy', password='dummy')
         self.request = HttpRequest()
@@ -598,8 +689,8 @@ class EvalActionTest(MatchTest):
         self.report.save()
 
     @skip('eval temporarily disabled')
-    @patch('callisto_core.delivery.views.MatchingApi')
-    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
+    @patch('...delivery.views.MatchingApi')
+    @patch('...delivery.views.EvalRow.anonymise_record')
     def test_submission_to_matching_creates_eval_row(
         self,
         mock_anonymise_record,
@@ -629,35 +720,56 @@ class EvalActionTest(MatchTest):
         )
 
     @skip('eval temporarily disabled')
-    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
-    @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_match_notification')
-    @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_matching_report_to_authority')
-    def test_match_trigger_creates_eval_row(self, mock_send_to_authority, mock_notify, mock_anonymise_record):
+    @patch('...delivery.views.EvalRow.anonymise_record')
+    @patch('...notification.api.CallistoCoreNotificationApi.send_match_notification')
+    @patch('...notification.api.CallistoCoreNotificationApi.send_matching_report_to_authority')
+    def test_match_trigger_creates_eval_row(
+            self,
+            mock_send_to_authority,
+            mock_notify,
+            mock_anonymise_record):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         MatchingApi.run_matching()
-        call1 = call(action=EvalRow.MATCH_FOUND, report=match1.report, decrypted_text=None, match_identifier=None)
-        call2 = call(action=EvalRow.MATCH_FOUND, report=match2.report, decrypted_text=None, match_identifier=None)
+        call1 = call(
+            action=EvalRow.MATCH_FOUND,
+            report=match1.report,
+            decrypted_text=None,
+            match_identifier=None)
+        call2 = call(
+            action=EvalRow.MATCH_FOUND,
+            report=match2.report,
+            decrypted_text=None,
+            match_identifier=None)
         mock_anonymise_record.assert_has_calls([call1, call2])
 
     @skip('eval temporarily disabled')
-    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
-    @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_report_to_authority')
-    def test_submit_creates_eval_row(self, mock_send_report, mock_anonymise_record):
-        response = self.client.post(('/test_reports/submit/%s/' % self.report.pk),
-                                    data={'name': 'test submitter',
-                                          'email': 'test@example.com',
-                                          'phone_number': '555-555-1212',
-                                          'email_confirmation': "False",
-                                          'key': self.key})
+    @patch('...delivery.views.EvalRow.anonymise_record')
+    @patch('...notification.api.CallistoCoreNotificationApi.send_report_to_authority')
+    def test_submit_creates_eval_row(
+            self,
+            mock_send_report,
+            mock_anonymise_record):
+        response = self.client.post(
+            ('/test_reports/submit/%s/' %
+             self.report.pk),
+            data={
+                'name': 'test submitter',
+                'email': 'test@example.com',
+                'phone_number': '555-555-1212',
+                'email_confirmation': "False",
+                'key': self.key})
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        mock_anonymise_record.assert_called_with(action=EvalRow.SUBMIT, report=self.report, decrypted_text=None,
-                                                 match_identifier=None)
+        mock_anonymise_record.assert_called_with(
+            action=EvalRow.SUBMIT,
+            report=self.report,
+            decrypted_text=None,
+            match_identifier=None)
 
     @skip('eval temporarily disabled')
-    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
-    @patch('callisto_core.delivery.views.Report.delete')
+    @patch('...delivery.views.EvalRow.anonymise_record')
+    @patch('...delivery.views.Report.delete')
     def test_delete_creates_eval_row(self, mock_delete, mock_anonymise_record):
         response = self.client.post(
             '/test_reports/delete/%s/' % self.report.id,
@@ -665,11 +777,14 @@ class EvalActionTest(MatchTest):
         )
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('submit_error', response.context)
-        mock_anonymise_record.assert_called_with(action=EvalRow.DELETE, report=self.report, decrypted_text=None,
-                                                 match_identifier=None)
+        mock_anonymise_record.assert_called_with(
+            action=EvalRow.DELETE,
+            report=self.report,
+            decrypted_text=None,
+            match_identifier=None)
 
     @skip('eval temporarily disabled')
-    @patch('callisto_core.delivery.views.EvalRow.anonymise_record')
+    @patch('...delivery.views.EvalRow.anonymise_record')
     def test_autosave_creates_eval_row(self, mock_anonymise_record):
         response = self.client.post(
             '/test_reports/new/0/',
@@ -686,5 +801,8 @@ class EvalActionTest(MatchTest):
             follow=True)
         self.client.get("www.google.com")
         # JSON sorting is making this test flap
-        mock_anonymise_record.assert_called_with(action=EvalRow.AUTOSAVE, report=Report.objects.first(),
-                                                 decrypted_text=ANY, match_identifier=None)
+        mock_anonymise_record.assert_called_with(
+            action=EvalRow.AUTOSAVE,
+            report=Report.objects.first(),
+            decrypted_text=ANY,
+            match_identifier=None)

@@ -1,12 +1,9 @@
-from wizard_builder.admin import (
-    FormQuestionChildAdmin, FormQuestionParentAdmin, MultipleChoiceChildAdmin,
-    MultipleChoiceParentAdmin,
-)
-from wizard_builder.models import (
-    Checkbox, FormQuestion, MultipleChoice, RadioButton, SingleLineText,
-)
-
 from django.contrib import admin
+
+from wizard_builder.admin import (
+    FormQuestionChildAdmin, FormQuestionParentAdmin, MultipleChoiceChildAdmin, MultipleChoiceParentAdmin,
+)
+from wizard_builder.models import Checkbox, FormQuestion, MultipleChoice, RadioButton, SingleLineText
 
 from .models import EvaluationField
 

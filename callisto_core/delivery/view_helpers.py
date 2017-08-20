@@ -1,6 +1,6 @@
-from wizard_builder import view_helpers as wizard_builder_view_helpers
-
 from django.core.urlresolvers import reverse
+
+from wizard_builder import view_helpers as wizard_builder_view_helpers
 
 
 class SecretKeyStorageHelper(object):
@@ -45,7 +45,8 @@ class EncryptedStorageHelper(
 
     def current_data_from_storage(self):
         if self.secret_key:
-            return self.report.decrypted_report(self.secret_key).get('data', {})
+            return self.report.decrypted_report(
+                self.secret_key).get('data', {})
         else:
             return {'data': {}}
 

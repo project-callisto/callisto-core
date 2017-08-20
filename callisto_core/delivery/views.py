@@ -128,6 +128,7 @@ class MatchingView(
         self._send_confirmation_email(form)
 
         if settings.MATCH_IMMEDIATELY:
-            MatchingApi.run_matching(match_reports_to_check=matches_for_immediate_processing)
+            MatchingApi.run_matching(
+                match_reports_to_check=matches_for_immediate_processing)
 
         return output

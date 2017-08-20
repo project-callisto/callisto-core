@@ -1,8 +1,5 @@
 import json
 
-from callisto_core.delivery.models import MatchReport, Report
-from callisto_core.delivery.report_delivery import MatchReportContent
-from callisto_core.utils.api import MatchingApi
 from mock import call, patch
 
 from django.contrib.auth import get_user_model
@@ -10,6 +7,10 @@ from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
+
+from ...delivery.models import MatchReport, Report
+from ...delivery.report_delivery import MatchReportContent
+from ...utils.api import MatchingApi
 
 User = get_user_model()
 
@@ -20,8 +21,10 @@ class MatchTest(TestCase):
         self.site = Site.objects.get(id=1)
         self.site.domain = 'testserver'
         self.site.save()
-        self.user1 = User.objects.create_user(username="dummy", password="dummy")
-        self.user2 = User.objects.create_user(username="ymmud", password="dummy")
+        self.user1 = User.objects.create_user(
+            username="dummy", password="dummy")
+        self.user2 = User.objects.create_user(
+            username="ymmud", password="dummy")
 
     def create_match(self, user, identifier, match_report_content=None):
         report = Report(owner=user)
@@ -30,13 +33,15 @@ class MatchTest(TestCase):
         match_report = MatchReport(report=report, identifier=identifier)
         match_report_object = match_report_content if match_report_content else MatchReportContent(
             identifier='test', perp_name='test', email='test@example.com', phone="test")
-        match_report.encrypt_match_report(json.dumps(match_report_object.__dict__), identifier)
+        match_report.encrypt_match_report(json.dumps(
+            match_report_object.__dict__), identifier)
         match_report.save()
         return match_report
 
 
-@override_settings(CALLISTO_MATCHING_API='tests.callistocore.forms.CustomMatchingApi')
-@patch('tests.callistocore.forms.CustomMatchingApi.process_new_matches')
+@override_settings(
+    CALLISTO_MATCHING_API='callisto_core.tests.callistocore.forms.CustomMatchingApi')
+@patch('callisto_core.tests.callistocore.forms.CustomMatchingApi.process_new_matches')
 class MatchDiscoveryTest(MatchTest):
 
     def test_running_matching_sets_report_seen(self, mock_process):
@@ -90,7 +95,8 @@ class MatchDiscoveryTest(MatchTest):
         self.assertFalse(match2.report.match_found)
         self.assertFalse(match3.report.match_found)
 
-    def test_existing_match_not_retriggered_by_same_reporter(self, mock_process):
+    def test_existing_match_not_retriggered_by_same_reporter(
+            self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
         MatchingApi.run_matching()
@@ -131,7 +137,8 @@ class MatchDiscoveryTest(MatchTest):
         user4 = User.objects.create_user(username="mmudy", password="dummy")
         match4 = self.create_match(user4, 'dummy1')
         MatchingApi.run_matching()
-        mock_process.assert_called_once_with([match2, match3, match4], 'dummy1')
+        mock_process.assert_called_once_with(
+            [match2, match3, match4], 'dummy1')
         match1.report.refresh_from_db()
         match2.report.refresh_from_db()
         match3.report.refresh_from_db()
@@ -201,12 +208,15 @@ class MatchDiscoveryTest(MatchTest):
 
 
 @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_match_notification')
-@override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SendDisabledNotificationApi')
+@override_settings(
+    CALLISTO_NOTIFICATION_API='callisto_core.tests.callistocore.forms.SendDisabledNotificationApi')
 class MatchNotificationTest(MatchTest):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username="dummy", password="dummy")
-        self.user2 = User.objects.create_user(username="ymmud", password="dummy")
+        self.user1 = User.objects.create_user(
+            username="dummy", password="dummy")
+        self.user2 = User.objects.create_user(
+            username="ymmud", password="dummy")
 
     def test_both_new_matches_sent_emails(self, mock_send_email):
         report1 = self.create_match(self.user1, 'dummy')
@@ -222,7 +232,11 @@ class MatchNotificationTest(MatchTest):
         user3 = User.objects.create_user(username="yumdm", password="dummy")
         report3 = self.create_match(user3, 'dummy')
         MatchingApi.run_matching()
-        calls = [call(self.user1, report1), call(self.user2, report2), call(user3, report3)]
+        calls = [
+            call(
+                self.user1, report1), call(
+                self.user2, report2), call(
+                user3, report3)]
         mock_send_email.assert_has_calls(calls)
         self.assertEqual(mock_send_email.call_count, 3)
 
@@ -266,8 +280,9 @@ class MatchingCommandTest(MatchTest):
         call_command('find_matches')
         mock_process.assert_called_once_with([match1, match2], 'dummy')
 
-    @override_settings(CALLISTO_MATCHING_API='tests.callistocore.forms.CustomMatchingApi')
-    @patch('tests.callistocore.forms.CustomMatchingApi.process_new_matches')
+    @override_settings(
+        CALLISTO_MATCHING_API='callisto_core.tests.callistocore.forms.CustomMatchingApi')
+    @patch('callisto_core.tests.callistocore.forms.CustomMatchingApi.process_new_matches')
     def test_command_runs_matches_with_overridden_api(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')

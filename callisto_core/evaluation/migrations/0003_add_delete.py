@@ -15,6 +15,26 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='evalrow',
             name='action',
-            field=models.CharField(choices=[('c', 'Create'), ('e', 'Edit'), ('v', 'View'), ('s', 'Submit'), ('m', 'Match'), ('mf', 'Match found'), ('w', 'Withdraw'), ('d', 'Delete'), ('f', 'First')], max_length=2),
+            field=models.CharField(
+                choices=[
+                    ('c',
+                     'Create'),
+                    ('e',
+                     'Edit'),
+                    ('v',
+                     'View'),
+                    ('s',
+                     'Submit'),
+                    ('m',
+                     'Match'),
+                    ('mf',
+                     'Match found'),
+                    ('w',
+                     'Withdraw'),
+                    ('d',
+                     'Delete'),
+                    ('f',
+                     'First')],
+                max_length=2),
         ),
     ]

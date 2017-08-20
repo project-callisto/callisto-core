@@ -21,7 +21,8 @@ class EmailNotificationDeliveryMigrationTest(MigrationTest):
         subject = 'migration test'
         body = 'test for email notification migration'
 
-        LegacyEmailNotification = self.get_model_before('delivery.EmailNotification')
+        LegacyEmailNotification = self.get_model_before(
+            'delivery.EmailNotification')
         LegacyEmailNotification.objects.create(
             name=name,
             subject=subject,
@@ -31,7 +32,8 @@ class EmailNotificationDeliveryMigrationTest(MigrationTest):
 
         self.run_migration()
 
-        NewEmailNotification = self.get_model_after('notification.EmailNotification')
+        NewEmailNotification = self.get_model_after(
+            'notification.EmailNotification')
         _, created = NewEmailNotification.objects.get_or_create(
             name=name,
             subject=subject,

@@ -1,16 +1,7 @@
 from io import BytesIO
 
 import PyPDF2
-import pytz
 import six
-from callisto_core.delivery.models import (
-    Report, SentFullReport, SentMatchReport,
-)
-from callisto_core.delivery.report_delivery import (
-    MatchReportContent, PDFFullReport, PDFMatchReport,
-)
-from callisto_core.notification.models import EmailNotification
-from callisto_core.utils.api import NotificationApi
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -18,6 +9,10 @@ from django.core import mail
 from django.test import override_settings
 from django.utils import timezone
 
+from ...delivery.models import Report, SentFullReport, SentMatchReport
+from ...delivery.report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
+from ...notification.models import EmailNotification
+from ...utils.api import NotificationApi
 from .test_matching import MatchTest
 
 User = get_user_model()
@@ -61,7 +56,8 @@ class ReportRenderTest(MatchTest):
                 # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
                 regex = '7\\s+This is checkbox choice {}'.format(i)
             else:
-                # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+                # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or
+                # "n"
                 regex = 'n\\s+This is checkbox choice {}'.format(i)
             six.assertRegex(self, rendered_text, regex)
         self.assertIn('Extra text for choice 0', rendered_text)
@@ -265,7 +261,8 @@ class ReportRenderTest(MatchTest):
                 # Zapf Dingbats "a23" or "BALLOT X" is encoded as 0x37 or "7"
                 regex = '7\\s+This is radiobutton choice {}'.format(i)
             else:
-                # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or "n"
+                # Zapf Dingbats "a73" or "BALLOT SQUARE" is encoded as 0x6E or
+                # "n"
                 regex = 'n\\s+This is radiobutton choice {}'.format(i)
             six.assertRegex(self, rendered_text, regex)
         self.assertIn('Extra text for choice 0', rendered_text)
@@ -338,7 +335,9 @@ class ReportDeliveryTest(MatchTest):
         pdfReader = PyPDF2.PdfFileReader(exported_report)
         self.assertIn("Reported by: dummy", pdfReader.getPage(0).extractText())
         self.assertIn("test answer", pdfReader.getPage(1).extractText())
-        self.assertIn("answer to 2nd question", pdfReader.getPage(1).extractText())
+        self.assertIn(
+            "answer to 2nd question",
+            pdfReader.getPage(1).extractText())
 
     def test_pdf_report_generated_with_timestamp(self):
         report = PDFFullReport(self.report, self.decrypted_report)
@@ -347,20 +346,26 @@ class ReportDeliveryTest(MatchTest):
         pdfReader = PyPDF2.PdfFileReader(exported_report)
         self.assertIn(timezone.now(), pdfReader.getPage(0).extractText())
 
-    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
+    @override_settings(
+        CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_submission_to_reporting_authority(self):
         EmailNotification.objects.create(
             name='report_delivery',
             subject="test delivery",
             body="test body",
         ).sites.add(self.site.id)
-        sent_full_report = SentFullReport.objects.create(report=self.report, to_address=settings.COORDINATOR_EMAIL)
-        NotificationApi.send_report_to_authority(sent_full_report, self.decrypted_report, self.site.id)
+        sent_full_report = SentFullReport.objects.create(
+            report=self.report, to_address=settings.COORDINATOR_EMAIL)
+        NotificationApi.send_report_to_authority(
+            sent_full_report, self.decrypted_report, self.site.id)
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test delivery')
         self.assertIn('"Reports" <reports', message.from_email)
-        self.assertEqual(message.attachments[0][0], 'report_%s.pdf.gpg' % sent_full_report.get_report_id())
+        self.assertEqual(
+            message.attachments[0][0],
+            'report_%s.pdf.gpg' %
+            sent_full_report.get_report_id())
 
     # TODO: test encryption of submitted report email
 
@@ -372,12 +377,13 @@ class ReportDeliveryTest(MatchTest):
                                                    contact_name='Una',
                                                    voicemail='Yes')
         match1 = self.create_match(self.user1, 'perp', match1_report_content)
-        match2_report_content = MatchReportContent(identifier='perp',
-                                                   perp_name='Perpy',
-                                                   email='email2@example.com',
-                                                   phone='(000) 0000000',
-                                                   contact_name='Ni',
-                                                   notes='Please only call after 5pm')
+        match2_report_content = MatchReportContent(
+            identifier='perp',
+            perp_name='Perpy',
+            email='email2@example.com',
+            phone='(000) 0000000',
+            contact_name='Ni',
+            notes='Please only call after 5pm')
         match2 = self.create_match(self.user2, 'perp', match2_report_content)
         report = PDFMatchReport([match1, match2], "perp")
         output = report.generate_match_report(report_id=1)
@@ -385,22 +391,26 @@ class ReportDeliveryTest(MatchTest):
         pdfReader = PyPDF2.PdfFileReader(exported_report)
 
         pdf_text = pdfReader.getPage(0).extractText()
-        self.assertIn("Intended for: Title IX Coordinator Tatiana Nine", pdf_text)
+        self.assertIn(
+            "Intended for: Title IX Coordinator Tatiana Nine",
+            pdf_text)
         self.assertIn("Matching identifier: perp", pdf_text)
         self.assertIn("Name(s): Perpy, Perperick", pdf_text)
         # Report 1
         self.assertIn("Perpetrator name given: Perpy", pdf_text)
         self.assertIn("Reported by: ymmud", pdf_text)
-        self.assertRegexpMatches(pdf_text,
-                                 'Submitted to matching on: \d\d/\d\d/201\d @\d\d:\d\d[P|A]M')
-        self.assertRegexpMatches(pdf_text,
-                                 'Record created: \d\d/\d\d/201\d @\d\d:\d\d[P|A]M')
+        self.assertRegexpMatches(
+            pdf_text, 'Submitted to matching on: \d\d/\d\d/201\d @\d\d:\d\d[P|A]M')
+        self.assertRegexpMatches(
+            pdf_text, 'Record created: \d\d/\d\d/201\d @\d\d:\d\d[P|A]M')
         self.assertIn("Full record submitted? No", pdf_text)
         self.assertIn("Name: Una", pdf_text)
         self.assertIn("Phone: 555-555-1212", pdf_text)
         self.assertIn("Voicemail preferences: Yes", pdf_text)
         self.assertIn("Email: email1@example.com", pdf_text)
-        self.assertIn("Notes on preferred contact time of day, gender of admin, etc.:\nNone provided", pdf_text)
+        self.assertIn(
+            "Notes on preferred contact time of day, gender of admin, etc.:\nNone provided",
+            pdf_text)
         # Report 2
         self.assertIn("Perpetrator name given: Perperick", pdf_text)
         self.assertIn("Reported by: dummy", pdf_text)
@@ -412,7 +422,8 @@ class ReportDeliveryTest(MatchTest):
             "Notes on preferred contact time of day, gender of admin, etc.:\nPlease only call after 5pm",
             pdf_text)
 
-    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
+    @override_settings(
+        CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_matches_to_reporting_authority(self):
         EmailNotification.objects.create(
             name='match_delivery',
@@ -421,16 +432,21 @@ class ReportDeliveryTest(MatchTest):
         ).sites.add(self.site.id)
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        NotificationApi.send_matching_report_to_authority([match1, match2], "dummy")
+        NotificationApi.send_matching_report_to_authority(
+            [match1, match2], "dummy")
         sent_report_id = SentMatchReport.objects.latest('id').get_report_id()
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(message.subject, 'test match delivery')
         self.assertIn('"Reports" <reports', message.from_email)
-        self.assertEqual(message.attachments[0][0], 'report_%s.pdf.gpg' % sent_report_id)
+        self.assertEqual(
+            message.attachments[0][0],
+            'report_%s.pdf.gpg' %
+            sent_report_id)
 
     def test_user_identifier(self):
-        user_with_email = User.objects.create_user(username="email_dummy", password="dummy", email="test@example.com")
+        user_with_email = User.objects.create_user(
+            username="email_dummy", password="dummy", email="test@example.com")
         report = Report(owner=user_with_email)
         report.encrypt_report(self.decrypted_report, "a key a key a key")
         report.save()
@@ -438,4 +454,6 @@ class ReportDeliveryTest(MatchTest):
         output = pdf_report.generate_pdf_report(recipient=None, report_id=None)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
-        self.assertIn("Reported by: test@example.com", pdfReader.getPage(0).extractText())
+        self.assertIn(
+            "Reported by: test@example.com",
+            pdfReader.getPage(0).extractText())

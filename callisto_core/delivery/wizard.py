@@ -1,8 +1,8 @@
 import logging
 
-from wizard_builder import views as wizard_builder_views
-
 from django.http import HttpResponse
+
+from wizard_builder import views as wizard_builder_views
 
 from . import view_helpers, view_partials
 

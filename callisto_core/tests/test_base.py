@@ -1,9 +1,10 @@
-from callisto_core.delivery import models
-
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+
+from ..delivery import models
 
 User = get_user_model()
 
@@ -108,4 +109,6 @@ class ReportFlowHelper(TestCase):
         self.assertEqual(message.to, ['titleix@example.com'])
         self.assertIn('"Reports" <reports@', message.from_email)
         self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(message.attachments[0][0], 'report_.*\\.pdf\\.gpg')
+        self.assertRegexpMatches(
+            message.attachments[0][0],
+            'report_.*\\.pdf\\.gpg')

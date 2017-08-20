@@ -18,7 +18,10 @@ class Report(models.Model):
     """The full text of a reported incident."""
     uuid = models.UUIDField(default=uuid.uuid4)
     encrypted = models.BinaryField(blank=False)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True)
     added = models.DateTimeField(auto_now_add=True)
     autosaved = models.BooleanField(null=False, default=False)
     last_edited = models.DateTimeField(blank=True, null=True)
@@ -205,17 +208,24 @@ class MatchReport(models.Model):
 
 class SentReport(PolymorphicModel):
     """Report of one or more incidents, sent to the monitoring organization"""
-    # TODO: store link to s3 backup https://github.com/SexualHealthInnovations/callisto-core/issues/14
+    # TODO: store link to s3 backup
+    # https://github.com/SexualHealthInnovations/callisto-core/issues/14
     sent = models.DateTimeField(auto_now_add=True)
     to_address = models.CharField(blank=False, null=False, max_length=4096)
 
     def _get_id_for_authority(self, is_match):
-        return "{0}-{1}-{2}".format(settings.SCHOOL_REPORT_PREFIX, '%05d' % self.id, 0 if is_match else 1)
+        return "{0}-{1}-{2}".format(
+            settings.SCHOOL_REPORT_PREFIX, '%05d' %
+            self.id, 0 if is_match else 1)
 
 
 class SentFullReport(SentReport):
     """Report of a single incident since to the monitoring organization"""
-    report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.SET_NULL)
+    report = models.ForeignKey(
+        Report,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL)
 
     def get_report_id(self):
         return self._get_id_for_authority(is_match=False)

@@ -5,7 +5,6 @@ from callisto_core.notification.api import CallistoCoreNotificationApi
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.http import HttpResponse
 
 
 class SiteAwareNotificationApi(CallistoCoreNotificationApi):

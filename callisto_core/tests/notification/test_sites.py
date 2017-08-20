@@ -1,16 +1,14 @@
 from unittest import skip
 
-from callisto_core.delivery.models import Report
-from callisto_core.notification.models import EmailNotification
 from mock import patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings
 
 from .. import test_base
+from ...notification.models import EmailNotification
 
 User = get_user_model()
 
@@ -56,10 +54,14 @@ class SiteIDTest(test_base.ReportFlowHelper):
             index += 1
 
         with TempSiteID(site_1.id):
-            self.assertEqual(EmailNotification.objects.on_site().count(), site_1_pages)
+            self.assertEqual(
+                EmailNotification.objects.on_site().count(),
+                site_1_pages)
 
         with TempSiteID(site_2.id):
-            self.assertEqual(EmailNotification.objects.on_site().count(), site_2_pages)
+            self.assertEqual(
+                EmailNotification.objects.on_site().count(),
+                site_2_pages)
 
     @override_settings()
     def test_site_not_overriden_on_save(self):
@@ -97,7 +99,7 @@ class SiteRequestTest(TestCase):
         self.assertNotEqual(response.status_code, 404)
 
     @skip('temporariy disabled')
-    @patch('callisto_core.notification.managers.EmailNotificationQuerySet.on_site')
+    @patch('...notification.managers.EmailNotificationQuerySet.on_site')
     def test_site_passed_to_email_notification_manager(self, mock_on_site):
         self.client_post_report_creation()
         self.client_post_reporting()

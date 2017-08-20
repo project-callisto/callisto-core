@@ -35,9 +35,15 @@ class MatchReportMigrationTest(MigrationTest):
         user_name = "Maggie"
         email = "migration@example.com"
         perp_name = "Perp"
-        MatchReport.objects.create(report=report, identifier=identifier, contact_phone=phone,
-                                   contact_voicemail=voicemail, contact_name=user_name, contact_email=email,
-                                   name=perp_name, seen=True)
+        MatchReport.objects.create(
+            report=report,
+            identifier=identifier,
+            contact_phone=phone,
+            contact_voicemail=voicemail,
+            contact_name=user_name,
+            contact_email=email,
+            name=perp_name,
+            seen=True)
         self.assertEqual(MatchReport.objects.count(), 1)
 
         self.run_migration()
@@ -47,7 +53,11 @@ class MatchReportMigrationTest(MigrationTest):
         match_report = MatchReport.objects.first()
         self.assertEqual(match_report.identifier, None)
         decrypted_report = json.loads(
-            _legacy_decrypt_report(match_report.salt, identifier, security.unpepper(match_report.encrypted)))
+            _legacy_decrypt_report(
+                match_report.salt,
+                identifier,
+                security.unpepper(
+                    match_report.encrypted)))
         self.assertEqual(decrypted_report['identifier'], identifier)
         self.assertEqual(decrypted_report['perp_name'], perp_name)
         self.assertEqual(decrypted_report['phone'], phone)
@@ -70,9 +80,14 @@ class MatchReportMigrationTest(MigrationTest):
         user_name = "Maggie"
         email = "migration@example.com"
         perp_name = "Perp"
-        MatchReport.objects.create(report=report, identifier=identifier, contact_phone=phone,
-                                   contact_name=user_name, contact_email=email,
-                                   name=perp_name, seen=True)
+        MatchReport.objects.create(
+            report=report,
+            identifier=identifier,
+            contact_phone=phone,
+            contact_name=user_name,
+            contact_email=email,
+            name=perp_name,
+            seen=True)
         self.assertEqual(MatchReport.objects.count(), 1)
 
         self.run_migration()
@@ -83,15 +98,22 @@ class MatchReportMigrationTest(MigrationTest):
         Report = self.get_model_after('Report')
         report2 = Report(owner_id=user2.pk)
         report2.save()
-        report_content = MatchReportContent(identifier='test_identifier', perp_name='Perperick', contact_name='Rita',
-                                            email='email1@example.com', phone='555-555-1212')
+        report_content = MatchReportContent(
+            identifier='test_identifier',
+            perp_name='Perperick',
+            contact_name='Rita',
+            email='email1@example.com',
+            phone='555-555-1212')
         salt = get_random_string()
         encrypted_report = security.pepper(
             _legacy_encrypt_report(
                 salt, identifier, json.dumps(
                     report_content.__dict__)))
-        match_report = MatchReport.objects.create(report=report2, identifier=identifier, encrypted=encrypted_report,
-                                                  salt=salt)
+        match_report = MatchReport.objects.create(
+            report=report2,
+            identifier=identifier,
+            encrypted=encrypted_report,
+            salt=salt)
         MatchingApi.find_matches(match_reports_to_check=[match_report])
         # have to use ANY because objects in migration tests are faked
         mock_process.assert_called_once_with([ANY, ANY], 'test_identifier')
@@ -111,7 +133,8 @@ class MultipleRecipientMigrationTest(MigrationTest):
         report = Report(owner_id=user.pk)
         report.save()
         SentFullReport = self.get_model_before('SentFullReport')
-        sent_report = SentFullReport.objects.create(report_id=report.pk, to_address="test@example.com")
+        sent_report = SentFullReport.objects.create(
+            report_id=report.pk, to_address="test@example.com")
         sent_report.save()
         self.assertEqual(SentFullReport.objects.count(), 1)
 

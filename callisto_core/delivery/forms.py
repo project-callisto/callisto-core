@@ -111,15 +111,14 @@ class ReportingForm(
     contact_voicemail = forms.CharField(
         label="Is it ok to leave a voicemail? If so, what would you like the message to refer to?",
         widget=forms.TextInput(
-            attrs={'placeholder': "ex. Yes, please just say you're following up from Callisto."},
+            attrs={
+                'placeholder': "ex. Yes, please just say you're following up from Callisto."},
         ),
     )
     contact_email = forms.EmailField(
         label="If you can't be reached by phone, what's the best email address to reach you?",
         widget=forms.TextInput(
-            attrs={'placeholder': 'ex. myname@gmail.com'},
-        ),
-    )
+            attrs={'placeholder': 'ex. myname@gmail.com'},),)
     contact_notes = forms.CharField(
         label='''
             Any notes on what time of day is best to reach you?
@@ -238,13 +237,17 @@ class SubmitToMatchingForm(forms.Form):
                 matching_identifier = identifier_info['validation'](raw_url)
                 if matching_identifier:
                     prefix = identifier_info['unique_prefix']
-                    if len(prefix) > 0:  # Facebook has an empty unique identifier for backwards compatibility
-                        matching_identifier = prefix + ":" + matching_identifier  # FB URLs can't contain colons
+                    if len(
+                            prefix) > 0:  # Facebook has an empty unique identifier for backwards compatibility
+                        matching_identifier = prefix + ":" + \
+                            matching_identifier  # FB URLs can't contain colons
                     return matching_identifier
             except Exception as e:
                 if e.__class__ is not ValidationError:
                     logger.exception(e)
                 pass
         # no valid identifier found
-        raise ValidationError('Please enter a valid {}.'.format(self.formatted_identifier_descriptions),
-                              code='invalidmatchidentifier')
+        raise ValidationError(
+            'Please enter a valid {}.'.format(
+                self.formatted_identifier_descriptions),
+            code='invalidmatchidentifier')

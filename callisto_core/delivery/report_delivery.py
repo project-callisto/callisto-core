@@ -7,9 +7,7 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
 from reportlab.pdfgen import canvas
-from reportlab.platypus import (
-    ListFlowable, ListItem, PageBreak, Paragraph, SimpleDocTemplate, Spacer,
-)
+from reportlab.platypus import ListFlowable, ListItem, PageBreak, Paragraph, SimpleDocTemplate, Spacer
 
 from django.conf import settings
 from django.utils import timezone
@@ -28,7 +26,15 @@ class MatchReportContent:
     # This constructor is called with keyword arguments populated by
     # encrypted data. Existing arguments should not be removed or renamed,
     # and new arguments must have default values.
-    def __init__(self, identifier, perp_name, email, phone, contact_name=None, voicemail=None, notes=None):
+    def __init__(
+            self,
+            identifier,
+            perp_name,
+            email,
+            phone,
+            contact_name=None,
+            voicemail=None,
+            notes=None):
         self.identifier = identifier
         self.perp_name = perp_name
         self.contact_name = contact_name
@@ -61,7 +67,9 @@ class NumberedCanvas(canvas.Canvas):
         width, height = letter
         margin = 0.66 * 72
         self.setFillColor('gray')
-        self.drawRightString(width - margin, margin, "Page %d of %d" % (self._pageNumber, page_count))
+        self.drawRightString(
+            width - margin, margin, "Page %d of %d" %
+            (self._pageNumber, page_count))
 
 
 class PDFReport(object):
@@ -171,9 +179,14 @@ class PDFReport(object):
             canvas.saveState()
             canvas.setFillColor('gray')
             canvas.drawString(margin, height - margin, "CONFIDENTIAL")
-            canvas.drawRightString(width - margin, height - margin, str(timezone.now()))
+            canvas.drawRightString(
+                width - margin, height - margin, str(timezone.now()))
             if recipient:
-                canvas.drawString(margin, margin, "Intended for: Title IX Coordinator %s" % recipient)
+                canvas.drawString(
+                    margin,
+                    margin,
+                    "Intended for: Title IX Coordinator %s" %
+                    recipient)
             canvas.restoreState()
         return func
 
@@ -283,7 +296,10 @@ class PDFFullReport(PDFReport):
 
         return MetadataPage
 
-    def generate_pdf_report(self, report_id, recipient=settings.COORDINATOR_NAME):
+    def generate_pdf_report(
+            self,
+            report_id,
+            recipient=settings.COORDINATOR_NAME):
         # PREPARE PDF
         report_buffer = BytesIO()
         doc = SimpleDocTemplate(
@@ -294,7 +310,8 @@ class PDFFullReport(PDFReport):
         )
 
         # COVER PAGE
-        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+        # TODO:
+        # https://github.com/SexualHealthInnovations/callisto-core/issues/150
         self.pdf_elements.extend(
             NotificationApi.get_cover_page(
                 self,
@@ -342,15 +359,19 @@ class PDFMatchReport(PDFReport):
           bytes: a PDF with the submitted perp information & contact information of the reporters for this match
 
         '''
-        matches_with_reports = [(match, MatchReportContent(**json.loads(match.get_match(self.identifier))))
-                                for match in self.matches]
+        matches_with_reports = [
+            (match,
+             MatchReportContent(
+                 **json.loads(match.get_match(self.identifier))))
+            for match in self.matches]
 
         buffer = BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter,
                                 rightMargin=72, leftMargin=72,
                                 topMargin=72, bottomMargin=72)
         # COVER PAGE
-        # TODO: https://github.com/SexualHealthInnovations/callisto-core/issues/150
+        # TODO:
+        # https://github.com/SexualHealthInnovations/callisto-core/issues/150
         self.pdf_elements.extend(
             NotificationApi.get_cover_page(
                 self,
@@ -372,15 +393,17 @@ class PDFMatchReport(PDFReport):
                 self.section_title_style,
             )
         )
-        names = ', '.join(OrderedDict.fromkeys([report.perp_name.strip() for _, report in matches_with_reports
-                                                if report.perp_name]))
+        names = ', '.join(OrderedDict.fromkeys([report.perp_name.strip(
+        ) for _, report in matches_with_reports if report.perp_name]))
         if len(names) < 1:
             names = '<i>None provided</i>'
-        perp_info = ('Name(s): ' + names) + '<br/>' + "Matching identifier: " + self.identifier
+        perp_info = ('Name(s): ' + names) + '<br/>' + \
+            "Matching identifier: " + self.identifier
         self.pdf_elements.append(Paragraph(perp_info, self.body_style))
 
         # reporter info
-        for idx, (match_report, match_report_content) in enumerate(matches_with_reports):
+        for idx, (match_report, match_report_content) in enumerate(
+                matches_with_reports):
             self.pdf_elements.append(
                 Paragraph(
                     "Report " + str(idx + 1),

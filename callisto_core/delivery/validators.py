@@ -42,7 +42,8 @@ def twitter_validation_function(value):
         url_parts = _get_url_parts(value)
         # check if acceptable domain
         domain = url_parts[1]
-        if not (domain == 'twitter.com' or domain == 'www.twitter.com' or domain == 'mobile.twitter.com'):
+        if not (domain == 'twitter.com' or domain ==
+                'www.twitter.com' or domain == 'mobile.twitter.com'):
             return None
         path = _get_initial_path(url_parts)
     except ValidationError:
@@ -50,15 +51,17 @@ def twitter_validation_function(value):
             path = value[1:]
     # TODO: validate against allowed username characters
     # https://github.com/SexualHealthInnovations/callisto-core/issues/181
-    if not path or path == "" or len(path) > 15 or path in generic_twitter_urls:
+    if not path or path == "" or len(
+            path) > 15 or path in generic_twitter_urls:
         return None
     else:
         return path
 
 
-twitter_validation_info = {'validation': twitter_validation_function,
-                           'example': 'https://twitter.com/twitter_handle or @twitter_handle',
-                           'unique_prefix': 'twitter'}
+twitter_validation_info = {
+    'validation': twitter_validation_function,
+    'example': 'https://twitter.com/twitter_handle or @twitter_handle',
+    'unique_prefix': 'twitter'}
 
 
 generic_fb_urls = [
@@ -98,7 +101,8 @@ def facebook_validation_function(url):
 
         # TODO: validate against allowed username characteristics
         # https://github.com/SexualHealthInnovations/callisto-core/issues/181
-        if not path or path == "" or path.endswith('.php') or path in generic_fb_urls:
+        if not path or path == "" or path.endswith(
+                '.php') or path in generic_fb_urls:
             return None
         else:
             return path
@@ -111,9 +115,10 @@ def facebook_validation_function(url):
  identifiers are stored plain, with the prefix "www.facebook.com/" stripped. All other identifiers should be prefixed
  to allow for global uniqueness from Facebook profile identifiers.
 '''
-facebook_validation_info = {'validation': facebook_validation_function,
-                            'example': 'http://www.facebook.com/johnsmithfakename',
-                            'unique_prefix': ''}
+facebook_validation_info = {
+    'validation': facebook_validation_function,
+    'example': 'http://www.facebook.com/johnsmithfakename',
+    'unique_prefix': ''}
 
 '''
     potential options for identifier_domain_info, used in SubmitToMatchingForm
@@ -132,7 +137,11 @@ facebook_validation_info = {'validation': facebook_validation_function,
     see MatchingValidation.facebook_only (default)
 '''
 
-facebook_only = OrderedDict([('Facebook profile URL', facebook_validation_info)])
-twitter_only = OrderedDict([('Twitter username/profile URL', twitter_validation_info)])
-facebook_or_twitter = OrderedDict([('Facebook profile URL', facebook_validation_info),
-                                   ('Twitter username/profile URL', twitter_validation_info)])
+facebook_only = OrderedDict(
+    [('Facebook profile URL', facebook_validation_info)])
+twitter_only = OrderedDict(
+    [('Twitter username/profile URL', twitter_validation_info)])
+facebook_or_twitter = OrderedDict([('Facebook profile URL',
+                                    facebook_validation_info),
+                                   ('Twitter username/profile URL',
+                                    twitter_validation_info)])

@@ -43,22 +43,30 @@ class CallistoCoreMatchingApi(object):
         """
         for match_report in match_reports_to_check:
             identifier = match_report.identifier
-            match_list = [potential for potential in self.get_all_eligible_match_reports(match_report)
-                          if potential.get_match(identifier)]
+            match_list = [
+                potential
+                for potential in self.get_all_eligible_match_reports(
+                    match_report) if potential.get_match(identifier)]
             if len(match_list) > 1:
-                seen_match_owners = [match.report.owner for match in match_list if match.seen]
-                new_match_owners = [match.report.owner for match in match_list if not match.seen]
+                seen_match_owners = [
+                    match.report.owner for match in match_list if match.seen]
+                new_match_owners = [
+                    match.report.owner for match in match_list
+                    if not match.seen]
                 # filter out multiple reports made by the same person
                 if len(set(seen_match_owners + new_match_owners)) > 1:
-                    # only send notifications if new matches are submitted by owners we don't know about
-                    if not set(new_match_owners).issubset(set(seen_match_owners)):
+                    # only send notifications if new matches are submitted by
+                    # owners we don't know about
+                    if not set(new_match_owners).issubset(
+                            set(seen_match_owners)):
                         self.process_new_matches(match_list, identifier)
                     for matched_report in match_list:
                         matched_report.report.match_found = True
                         matched_report.report.save()
             for match in match_list:
                 match.seen = True
-                # delete identifier, which should only be filled for newly added match reports in delayed matching case
+                # delete identifier, which should only be filled for newly
+                # added match reports in delayed matching case
                 match.identifier = None
                 match.save()
 

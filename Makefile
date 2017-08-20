@@ -19,21 +19,15 @@ clean-pyc: ## remove Python file artifacts
 	find callisto_core -name '*.pyo' -exec rm -f {} +
 	find callisto_core -name '*~' -exec rm -f {} +
 	find callisto_core -type d -name "__pycache__" -exec rm -rf {} +
-	find tests -name '*.pyc' -exec rm -f {} +
-	find tests -name '*.pyo' -exec rm -f {} +
-	find tests -name '*~' -exec rm -f {} +
-	find tests -type d -name "__pycache__" -exec rm -rf {} +
 
 clean-lint: ## cleanup / display issues with isort and pep8
+	autopep8 callisto_core/ -raai --experimental
 	isort -rc callisto_core/
-	isort -rc tests/
-	autopep8 --in-place --recursive --aggressive --aggressive callisto_core/ --max-line-length 119 --exclude="*/migrations/*"
-	autopep8 --in-place --recursive --aggressive --aggressive tests/ --max-line-length 119 --exclude="*/migrations/*"
 	make test-lint
 
 test-lint: ## check style with pep8 and isort
-	flake8 callisto_core/
 	isort --check-only --diff --quiet -rc callisto_core/
+	flake8 callisto_core/
 
 test-suite: ## run the unit and integration tests
 	pytest -v

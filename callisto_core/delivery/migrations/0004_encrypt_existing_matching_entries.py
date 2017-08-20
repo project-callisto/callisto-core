@@ -17,18 +17,25 @@ def encrypt_match_report(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     MatchReport = apps.get_model('delivery', 'MatchReport')
     for match_report in MatchReport.objects.using(db_alias).all():
-        match_report_content = MatchReportContent(identifier=match_report.identifier,
-                                                  perp_name=match_report.name,
-                                                  email=match_report.contact_email,
-                                                  phone=match_report.contact_phone,
-                                                  contact_name=match_report.contact_name,
-                                                  voicemail=match_report.contact_voicemail,
-                                                  notes=match_report.contact_notes)
+        match_report_content = MatchReportContent(
+            identifier=match_report.identifier,
+            perp_name=match_report.name,
+            email=match_report.contact_email,
+            phone=match_report.contact_phone,
+            contact_name=match_report.contact_name,
+            voicemail=match_report.contact_voicemail,
+            notes=match_report.contact_notes)
         match_report.salt = get_random_string()
-        stretched_identifier = pbkdf2(match_report.identifier, match_report.salt,
-                                      settings.ORIGINAL_KEY_ITERATIONS, digest=hashlib.sha256)
-        encrypted_match_report = security.pepper(security.encrypt_report(stretched_key=stretched_identifier,
-                                                         report_text=json.dumps(match_report_content.__dict__)))
+        stretched_identifier = pbkdf2(
+            match_report.identifier,
+            match_report.salt,
+            settings.ORIGINAL_KEY_ITERATIONS,
+            digest=hashlib.sha256)
+        encrypted_match_report = security.pepper(
+            security.encrypt_report(
+                stretched_key=stretched_identifier,
+                report_text=json.dumps(
+                    match_report_content.__dict__)))
         match_report.encrypted = encrypted_match_report
         if match_report.seen:
             match_report.identifier = None
@@ -42,5 +49,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-         migrations.RunPython(encrypt_match_report, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            encrypt_match_report,
+            reverse_code=migrations.RunPython.noop),
     ]

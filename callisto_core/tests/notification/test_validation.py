@@ -1,10 +1,10 @@
-from callisto_core.notification.models import EmailNotification
-from tests.notification.test_sites import TempSiteID
-
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
+
+from ...notification.models import EmailNotification
+from .test_sites import TempSiteID
 
 
 class EmailValidationTest(TestCase):
@@ -37,7 +37,8 @@ class EmailValidationTest(TestCase):
 
     def test_email_invalid_when_no_site_added(self):
         with self.assertRaises(ValidationError):
-            invalid_email = EmailNotification.objects.create(name='has no site!!!')
+            invalid_email = EmailNotification.objects.create(
+                name='has no site!!!')
             invalid_email.full_clean()
 
     def test_validation_error_does_not_delete_email(self):

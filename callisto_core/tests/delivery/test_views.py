@@ -1,14 +1,14 @@
 from unittest import skip
 
-from callisto_core.delivery import forms, models, validators
-from wizard_builder.forms import PageForm
-
-from django.contrib.sites.models import Site
+from django.core import mail
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 
+from wizard_builder.forms import PageForm
+
 from .. import test_base
+from ...delivery import forms, models
 
 
 class NewReportFlowTest(test_base.ReportFlowHelper):
@@ -36,7 +36,7 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
             self.client.session.get('secret_key'),
             None,
         )
-        response = self.client_post_report_creation()
+        self.client_post_report_creation()
         self.assertEqual(
             self.client.session.get('secret_key'),
             self.secret_key,
@@ -45,7 +45,9 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
     def test_access_form_rendered_when_no_key_in_session(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
-        page_1_path = reverse('report_update', kwargs={'step': 0, 'uuid': uuid})
+        page_1_path = reverse(
+            'report_update', kwargs={
+                'step': 0, 'uuid': uuid})
         self.client_clear_secret_key()
 
         response = self.client.get(page_1_path)
@@ -56,7 +58,9 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
     def test_can_reenter_secret_key(self):
         response = self.client_post_report_creation()
         uuid = response.context['report'].uuid
-        page_1_path = reverse('report_update', kwargs={'step': 0, 'uuid': uuid})
+        page_1_path = reverse(
+            'report_update', kwargs={
+                'step': 0, 'uuid': uuid})
         self.client_clear_secret_key()
 
         response = self.client_post_report_access(page_1_path)
@@ -74,7 +78,6 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
 
     def test_report_not_accessible_with_incorrect_key(self):
         response = self.client_post_report_creation()
-        uuid = response.context['report'].uuid
         self.client_clear_secret_key()
 
         self.secret_key = 'wrong key'
@@ -136,7 +139,8 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
         )
 
     @skip('temporariy disabled')
-    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
+    @override_settings(
+        CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_immediately(self):
         self.client_post_report_creation()
         self.client_post_matching_enter()
@@ -144,7 +148,8 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
 
     @skip('temporariy disabled')
     @override_settings(MATCH_IMMEDIATELY=False)
-    @override_settings(CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
+    @override_settings(
+        CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_delayed(self):
         self.client_post_report_creation()
         self.client_post_matching_enter()

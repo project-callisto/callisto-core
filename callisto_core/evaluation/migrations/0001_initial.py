@@ -13,21 +13,30 @@ class Migration(migrations.Migration):
     operations = [
         migrations.CreateModel(
             name='EvalRow',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
-                ('record_identifier', models.CharField(max_length=500)),
-                ('action', models.CharField(choices=[('c', 'Create'), ('e', 'Edit'), ('v', 'View'), ('s', 'Submit'), ('m', 'Match'), ('w', 'Withdraw'), ('f', 'First')], max_length=2)),
+            fields=[('id', models.AutoField(
+                verbose_name='ID', auto_created=True,
+                primary_key=True, serialize=False)),
+                ('record_identifier', models.CharField(
+                    max_length=500)),
+                ('action', models.CharField(
+                    choices=[('c', 'Create'),
+                             ('e', 'Edit'),
+                             ('v', 'View'),
+                             ('s', 'Submit'),
+                             ('m', 'Match'),
+                             ('w', 'Withdraw'),
+                             ('f', 'First')],
+                    max_length=2)),
                 ('row', models.BinaryField(blank=True)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('user_identifier', models.CharField(max_length=500, default='default')),
-            ],
-        ),
+                ('timestamp', models.DateTimeField(
+                    auto_now_add=True)),
+                ('user_identifier', models.CharField(
+                    max_length=500, default='default')), ],),
         migrations.CreateModel(
             name='EvaluationField',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
+            fields=[('id', models.AutoField(
+                verbose_name='ID', auto_created=True,
+                primary_key=True, serialize=False)),
                 ('label', models.CharField(max_length=500)),
-                ('question', models.OneToOneField(to='wizard_builder.FormQuestion')),
-            ],
-        ),
-    ]
+                ('question', models.OneToOneField(
+                    to='wizard_builder.FormQuestion')), ],), ]

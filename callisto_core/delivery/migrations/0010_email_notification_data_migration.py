@@ -13,11 +13,14 @@ def update_content_types(source, apps, schema_editor):
         model='emailnotification',
     ).delete()
 
+
 def update_content_types_forward(apps, schema_editor):
     update_content_types('delivery', apps, schema_editor)
 
+
 def update_content_types_reverse(apps, schema_editor):
     update_content_types('notification', apps, schema_editor)
+
 
 class Migration(migrations.Migration):
 
@@ -26,8 +29,9 @@ class Migration(migrations.Migration):
     ]
 
     database_operations = [
-        migrations.AlterModelTable('EmailNotification', 'notification_emailnotification')
-    ]
+        migrations.AlterModelTable(
+            'EmailNotification',
+            'notification_emailnotification')]
 
     state_operations = [
         migrations.DeleteModel('EmailNotification')
