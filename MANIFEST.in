@@ -4,3 +4,4 @@ include HISTORY.rst
 include LICENSE
 include README.md
 recursive-include callisto_core/ *
+recursive-include tests/ *

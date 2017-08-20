@@ -19,6 +19,10 @@ clean-pyc: ## remove Python file artifacts
 	find callisto_core -name '*.pyo' -exec rm -f {} +
 	find callisto_core -name '*~' -exec rm -f {} +
 	find callisto_core -type d -name "__pycache__" -exec rm -rf {} +
+	find tests -name '*.pyc' -exec rm -f {} +
+	find tests -name '*.pyo' -exec rm -f {} +
+	find tests -name '*~' -exec rm -f {} +
+	find tests -type d -name "__pycache__" -exec rm -rf {} +
 
 clean-lint: ## cleanup / display issues with isort and pep8
 	isort -rc callisto_core/
