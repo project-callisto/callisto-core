@@ -1,4 +1,5 @@
 VERSION := $(shell cat wizard_builder/version.txt)
+DATA_FILE := wizard_builder/fixtures/wizard_builder_data.json
 
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
