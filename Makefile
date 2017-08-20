@@ -32,7 +32,8 @@ test-callisto-core:
 		sed 's/Location: \(.*\)/\1\/callisto_core\/tests/' |\
 		xargs -t pytest -v --ds=wizard_builder.tests.callisto_core_settings
 
-test-code:
+test-all:
+	make test-lint
 	make test-local-suite
 	make test-callisto-core
 
