@@ -1,7 +1,9 @@
 from io import BytesIO
 
 import PyPDF2
-from callisto_core.delivery.models import MatchReport, Report, SentFullReport, SentMatchReport
+from callisto_core.delivery.models import (
+    MatchReport, Report, SentFullReport, SentMatchReport,
+)
 
 from django.contrib.auth import get_user_model
 

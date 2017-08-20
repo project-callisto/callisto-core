@@ -10,7 +10,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
 
-from wizard_builder.models import Checkbox, Choice, Page, RadioButton, SingleLineText
+from wizard_builder.models import (
+    Checkbox, Choice, Page, RadioButton, SingleLineText,
+)
 
 from ...delivery.models import Report
 from ...evaluation.models import EvalRow, EvaluationField

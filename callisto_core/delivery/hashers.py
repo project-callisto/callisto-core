@@ -3,7 +3,9 @@ import base64
 import argon2
 
 from django.conf import settings
-from django.contrib.auth.hashers import BasePasswordHasher, PBKDF2PasswordHasher
+from django.contrib.auth.hashers import (
+    BasePasswordHasher, PBKDF2PasswordHasher,
+)
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string

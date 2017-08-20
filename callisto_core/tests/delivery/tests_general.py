@@ -10,7 +10,9 @@ from django.test import override_settings
 from django.utils import timezone
 
 from ...delivery.models import Report, SentFullReport, SentMatchReport
-from ...delivery.report_delivery import MatchReportContent, PDFFullReport, PDFMatchReport
+from ...delivery.report_delivery import (
+    MatchReportContent, PDFFullReport, PDFMatchReport,
+)
 from ...notification.models import EmailNotification
 from ...utils.api import NotificationApi
 from .test_matching import MatchTest
