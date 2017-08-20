@@ -5,23 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
-def copy_pagebase_id(apps, schema_editor):
-    current_database = schema_editor.connection.alias
-    QuestionPage = apps.get_model('wizard_builder.QuestionPage')
-    Page = apps.get_model('wizard_builder.Page')
-    from IPython import embed
-    embed()
-    for question_page in QuestionPage.objects.using(current_database):
-        page = Page.objects.create(
-            id=question_page.id,
-            position=question_page.position,
-            section=question_page.section,
-            infobox=question_page.infobox,
-        )
-        for site in question_page.sites.all():
-            page.sites.add(site)
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
