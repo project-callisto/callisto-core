@@ -8,15 +8,15 @@ from django.db import migrations, models
 def copy_pagebase_id(apps, schema_editor):
     current_database = schema_editor.connection.alias
     QuestionPage = apps.get_model('wizard_builder.QuestionPage')
-    Page = apps.get_model('wizard_builder.Page')
     for question_page in QuestionPage.objects.using(current_database):
         with schema_editor.connection.cursor() as cursor:
             cursor.execute(
                 'INSERT INTO "wizard_builder_page" ("id", "position", "section", "infobox") VALUES (%s, %s, %s, %s)', [
-                    question_page.id, question_page.position, question_page.section, question_page.infobox, ], )
-        page = Page.objects.get(id=question_page.id)
-        for site in question_page.sites.all():
-            page.sites.add(site)
+                    question_page.id, question_page.position, question_page.section, question_page.infobox], )
+            for site in question_page.sites.all():
+                cursor.execute(
+                    'INSERT INTO "wizard_builder_page_sites" ("page_id", "site_id") VALUES (%s, %s)', [
+                        question_page.id, site.id], )
 
 
 class Migration(migrations.Migration):
