@@ -10,12 +10,16 @@ def copy_pagebase_id(apps, schema_editor):
     QuestionPage = apps.get_model('wizard_builder.QuestionPage')
     Page = apps.get_model('wizard_builder.Page')
     for question_page in QuestionPage.objects.using(current_database):
-        page = Page.objects.create(
-            id=question_page.id,
-            position=question_page.position,
-            section=question_page.section,
-            infobox=question_page.infobox,
+        schema_editor.connection.cursor().execute(
+            'INSERT INTO "wizard_builder_page" ("id", "position", "section", "infobox") VALUES (%s, %s, %s, %s)',
+            [
+                question_page.id,
+                question_page.position,
+                question_page.section,
+                question_page.infobox,
+            ],
         )
+        page = Page.objects.get(id=question_page.id)
         for site in question_page.sites.all():
             page.sites.add(site)
 
