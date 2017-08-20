@@ -31,7 +31,8 @@ class Command(BaseCommand):
                              'timestamp': row.timestamp.__str__()}
             gpg = gnupg.GPG()
             gpg.import_keys(settings.CALLISTO_EVAL_PRIVATE_KEY)
-            decrypted_eval_row = six.text_type(gpg.decrypt(six.binary_type(row.row)))
+            decrypted_eval_row = six.text_type(
+                gpg.decrypt(six.binary_type(row.row)))
             if decrypted_eval_row:
                 decrypted_row.update(json.loads(decrypted_eval_row))
             decrypted_eval_data.append(decrypted_row)

@@ -20,7 +20,8 @@ def get_hashers():
         hasher_cls = import_string(hasher_path)
         hasher = hasher_cls()
         if not getattr(hasher, 'algorithm'):
-            raise ImproperlyConfigured("hasher doesn't specify an algorithm name: {}".format(hasher_path))
+            raise ImproperlyConfigured(
+                "hasher doesn't specify an algorithm name: {}".format(hasher_path))
         hashers.append(hasher)
     return hashers
 
@@ -38,8 +39,9 @@ def get_hasher(algorithm='default'):
         try:
             return hashers[algorithm]
         except KeyError:
-            raise ValueError("Unknown key hashing algorithm {0}."
-                             "Did you specify it in the KEY_HASHERS setting?".format(algorithm))
+            raise ValueError(
+                "Unknown key hashing algorithm {0}."
+                "Did you specify it in the KEY_HASHERS setting?".format(algorithm))
 
 
 def identify_hasher(encoded):
@@ -47,7 +49,8 @@ def identify_hasher(encoded):
     Returns a hasher based on either a fully encoded key or just the encode
     prefix. If the encoded prefix is empty, assume the previous default hasher.
     """
-    # assume all previous entries before this scheme is implemented use PBKDF2 + SHA256
+    # assume all previous entries before this scheme is implemented use PBKDF2
+    # + SHA256
     if not encoded:
         algorithm = 'pbkdf2_sha256'
     else:
@@ -69,7 +72,8 @@ def make_key(encode_prefix, key, salt):
         iterations = encode_prefix.split('$')[1]
 
     encoded = hasher.encode(key, salt, iterations=iterations)
-    if hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(encode_prefix):
+    if hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(
+            encode_prefix):
         hasher.harden_runtime(key, encoded)
 
     prefix, key = hasher.split_encoded(encoded)
@@ -116,7 +120,8 @@ class Argon2KeyHasher(BasePasswordHasher):
     memory_cost = settings.ARGON2_MEM_COST
     parallelism = settings.ARGON2_PARALLELISM
 
-    # accept **kwargs to allow a single encode statement across different hashers
+    # accept **kwargs to allow a single encode statement across different
+    # hashers
     def encode(self, key, salt, **kwargs):
         assert key is not None
         assert salt and '$' not in salt
@@ -155,7 +160,8 @@ class Argon2KeyHasher(BasePasswordHasher):
         )
 
     def harden_runtime(self, key, encoded):
-        # The runtime for Argon2 is too complicated to implement a sensible hardening algorithm.
+        # The runtime for Argon2 is too complicated to implement a sensible
+        # hardening algorithm.
         pass
 
     def split_encoded(self, encoded):
@@ -169,7 +175,8 @@ class Argon2KeyHasher(BasePasswordHasher):
         missing_padding_salt = 4 - len(b64salt) % 4
         missing_padding_hash = 4 - len(b64stretched) % 4
 
-        # argon2's secret_hash() output doesn't include padding so to decode it we have to add it back in
+        # argon2's secret_hash() output doesn't include padding so to decode it
+        # we have to add it back in
         if missing_padding_hash:
             b64stretched += '=' * missing_padding_hash
         if missing_padding_salt:
