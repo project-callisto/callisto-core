@@ -3,7 +3,7 @@
 History
 -------
 
-0.10.2 (2017-08-20)
+0.10.12 (2017-08-20)
 ++++++++++++++++++
 
 * new record form encryption process
