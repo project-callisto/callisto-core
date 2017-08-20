@@ -12,14 +12,29 @@ test-lint: ## lint with isort and flake8
 	flake8 wizard_builder/
 	isort --check-only --diff --quiet -rc wizard_builder/
 
-test-fast: ## runs the test suite, with fast failures and a re-used database
+test-fast:
 	pytest -vlsx --ff --reuse-db
 
-test-code:
+test-local-suite:
 	python manage.py check
 	pytest -v
-	pip install callisto-core --upgrade && pip uninstall -y django-wizard-builder && pip install -e .
-	pip show callisto-core | grep 'Location' | sed 's/Location: \(.*\)/\1\/callisto_core\/tests/' | xargs pytest -v
+
+test-callisto-core:
+	pip install callisto-core --upgrade
+	pip show callisto-core |\
+		grep 'Location' |\
+		sed 's/Location: \(.*\)/\1\/callisto_core\/requirements\/dev.txt/' |\
+		xargs -t pip install --upgrade -r
+	pip uninstall -y django-wizard-builder
+	pip install -e .
+	pip show callisto-core |\
+		grep 'Location' |\
+		sed 's/Location: \(.*\)/\1\/callisto_core\/tests/' |\
+		xargs -t pytest -v --ds=wizard_builder.tests.test_callisto_core_settings
+
+test-code:
+	make test-local-suite
+	make test-callisto-core
 
 clean-build: ## clean the repo in preparation for release
 	rm -fr build/
