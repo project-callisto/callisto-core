@@ -1,6 +1,6 @@
 import sys
 
-from wizard_builder.tests.test_settings import *
+from wizard_builder.tests.settings import *
 
 DATABASES = {
     "default": {
