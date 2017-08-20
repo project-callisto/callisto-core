@@ -23,7 +23,7 @@ test-callisto-core:
 	pip install callisto-core --upgrade
 	pip show callisto-core |\
 		grep 'Location' |\
-		sed 's/Location: \(.*\)/\1\/callisto_core\/requirements\/dev.txt/' |\
+		sed 's/Location: \(.*\)/\1\/callisto_core\/requirements\/test.txt/' |\
 		xargs -t pip install --upgrade -r
 	pip uninstall -y django-wizard-builder
 	pip install -e .
