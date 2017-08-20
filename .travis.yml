@@ -16,6 +16,7 @@ matrix:
     - env: DJANGO_VERSION=DJANGO_DEV
 install:
   - pip install -r requirements/test.txt --upgrade
+  - pip install $DJANGO_VERSION
 script:
   - make test-all
 notifications:
