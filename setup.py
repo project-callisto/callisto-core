@@ -50,7 +50,7 @@ setup(
     python_requires='>=3',
     install_requires=[
         'django',
-        'django-polymorphic==1.2',
+        'django-polymorphic==1.3',
         'django-ratelimit==1.0.1',
         'django-wizard-builder==1.0.1',
         'PyNaCl==1.1.2',
