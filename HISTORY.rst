@@ -7,6 +7,8 @@ History
 * first major release version
 * lock api to callisto-core
 
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/125
+
 0.5.5 (2017-08-18)
 ++++++++++++++++++
 
