@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0018_choice_extra_info_text'),
+        ('wizard_builder', '0020_choice_extra_info_text'),
     ]
 
     operations = [

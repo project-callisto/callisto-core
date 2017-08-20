@@ -1,0 +1,28 @@
+<form method="post" enctype="multipart/form-data">
+    {% if form.page.infobox %}
+        <div><p>{{ form.page.infobox }}</p></div>
+    {% endif %}
+
+    {% csrf_token %}
+    <input type="hidden" name="{{ view.wizard_current_name }}" value="{{ view.wizard_current_step }}"/>
+    <input type="hidden" name="{{ view.wizard_form_pk_field }}" value="{{ form.pk }}"/>
+
+    <div class="container-fluid">
+        {% include "wizard_builder/wizard_form_fields.html" %}
+    </div>
+
+    <div class="col-xs-4">
+        {% if view.wizard_prev_step_exists %}
+            <input class='btn btn-default btn-block' type="submit" name="{{ view.wizard_goto_name }}" value="{{ view.wizard_back_name }}" />
+        {% endif %}
+    </div>
+
+    <div class="col-xs-4 col-xs-offset-4">
+        {% if view.wizard_next_is_done %}
+            <input class='btn btn-primary btn-block' type="submit" name="{{ view.wizard_goto_name }}" value="{{ view.wizard_review_name }}" />
+        {% else %}
+            <input class='btn btn-primary btn-block' type="submit" name="{{ view.wizard_goto_name }}" value="{{ view.wizard_next_name }}" />
+        {% endif %}
+    </div>
+
+</form>

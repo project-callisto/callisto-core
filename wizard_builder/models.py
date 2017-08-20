@@ -15,15 +15,7 @@ from .widgets import CheckboxExtraSelectMultiple, RadioExtraSelect
 logger = logging.getLogger(__name__)
 
 
-class TimekeepingBase(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
-
-
-class Page(TimekeepingBase, models.Model):
+class Page(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -89,7 +81,7 @@ class Page(TimekeepingBase, models.Model):
 
 
 # TODO: rename to Question when downcasting is removed
-class FormQuestion(TimekeepingBase, models.Model):
+class FormQuestion(models.Model):
     text = HTMLField(blank=True)
     descriptive_text = HTMLField(blank=True)
     page = models.ForeignKey(
@@ -146,6 +138,7 @@ class FormQuestion(TimekeepingBase, models.Model):
             'question_text': self.text,
             'type': self._meta.model_name.capitalize(),
             'section': self.section,
+            'field_id': self.field_id,
         }
 
     def save(self, *args, **kwargs):
@@ -172,7 +165,7 @@ class MultipleChoice(FormQuestion):
 
     @property
     def choices(self):
-        return self.choice_set.all()
+        return list(self.choice_set.all().order_by('position'))
 
     @property
     def choices_field_display(self):
@@ -240,18 +233,21 @@ class Choice(models.Model):
         return {
             'pk': self.pk,
             'text': self.text,
-            'options': self.text_options,
+            'options': self.options_data,
             'position': self.position,
             'extra_info_text': self.extra_info_text,
         }
 
     @property
-    def text_options(self):
-        return list(self.options.values('text'))
+    def options_data(self):
+        return [
+            {'pk': option.pk, 'text': option.text}
+            for option in self.options
+        ]
 
     @property
     def options(self):
-        return self.choiceoption_set.all()
+        return list(self.choiceoption_set.all())
 
     class Meta:
         ordering = ['position', 'pk']

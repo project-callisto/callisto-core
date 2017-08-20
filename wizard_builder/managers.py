@@ -11,6 +11,10 @@ from django.db.models.query import QuerySet
 
 class FormManager(object):
 
+    @classmethod
+    def get_forms(cls, view):
+        return cls(view).forms
+
     def __init__(self, view):
         self.view = view
 
@@ -48,20 +52,16 @@ class FormManager(object):
             FormClass, index, page)
 
     def _create_form_instance(self, FormClass, index, page):
-        form = FormClass(**self._create_form_data(page))
+        data = self._create_form_data(page)
+        form = FormClass(**data)
         form.full_clean()
         form.page = page
-        form.manager_index = index
         form.pk = page.pk
         form.section_map = self.section_map
         return form
 
     def _create_form_data(self, page):
-        data = self.view.storage.data_from_pk(page.pk)
-        return {
-            'data': data,
-            'initial': data,
-        }
+        return {'data': self.view.storage.current_data_from_pk(page.pk)}
 
 
 class PageQuerySet(QuerySet):

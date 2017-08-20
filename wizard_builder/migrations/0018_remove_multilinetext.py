@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0015_remove_unused_models'),
+        ('wizard_builder', '0017_remove_unused_models'),
     ]
 
     operations = [

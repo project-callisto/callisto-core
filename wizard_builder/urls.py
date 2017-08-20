@@ -1,8 +1,6 @@
-from django.conf.urls import include, url
-from django.contrib import admin
-from django.views.generic.base import RedirectView
+from django.conf.urls import url
 
-from .. import views
+from . import views
 
 urlpatterns = [
     url(r'^$',
@@ -16,7 +14,4 @@ urlpatterns = [
         views.WizardView.as_view(),
         name='wizard_update',
         ),
-    url(r'^nested_admin/', include('nested_admin.urls')),
-    url(r'^tinymce/', include('tinymce.urls')),
-    url(r'^admin/', admin.site.urls),
 ]

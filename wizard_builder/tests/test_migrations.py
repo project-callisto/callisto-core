@@ -58,7 +58,7 @@ class PageIDMigrationTest(MigrationTest):
 
     app_name = 'wizard_builder'
     before = '0011_rename_questionpage_attrs'
-    after = '0012_questionpage_to_page'
+    after = '0014_questionpage_to_page_3'
 
     def _get_attrs(self, cls, attr):
         return list(cls.objects.all().values_list(attr, flat=True))

@@ -1,175 +1,68 @@
-from django.core.urlresolvers import reverse
-from django.http.response import HttpResponseRedirect, JsonResponse
-from django.views.generic.edit import FormView
+from django.core.urlresolvers import reverse_lazy
+from django.http.response import HttpResponseRedirect
+from django.views import generic as views
 
-from .managers import FormManager
+from . import managers, view_helpers
 
 
-class StepsHelper(object):
-    done_name = 'done'
+class NewWizardView(views.base.RedirectView):
+    url = reverse_lazy(
+        'wizard_update',
+        kwargs={'step': 0},
+    )
 
-    def __init__(self, view):
-        self.view = view
 
-    @property
-    def all(self):
-        return self.view.manager.forms
-
-    @property
-    def step_count(self):
-        return len(self.all)
+class WizardViewTemplateHelpers(object):
 
     @property
-    def current(self):
-        _step = self._current or self.first
-        if _step == self.done_name:
-            return _step
-        elif _step <= self.last:
-            return _step
-        else:
-            return self.last
+    def wizard_prev_step_exists(self):
+        return self.steps.current
 
     @property
-    def _current(self):
-        _step = self.view.request.session.get('current_step', self.first)
-        if _step == self.done_name:
-            return _step
-        else:
-            return int(_step)
+    def wizard_next_is_done(self):
+        return self.steps.next_is_done
 
     @property
-    def _goto_step_back(self):
-        return self._goto_step('Back')
+    def wizard_current_step(self):
+        return self.steps.current
 
     @property
-    def _goto_step_next(self):
-        return self._goto_step('Next')
+    def wizard_goto_name(self):
+        return self.steps.wizard_goto_name
 
     @property
-    def _goto_step_submit(self):
-        return self._goto_step('Submit')
+    def wizard_current_name(self):
+        return self.steps.wizard_current_name
 
     @property
-    def first(self):
-        return 0
+    def wizard_review_name(self):
+        return self.steps.review_name
 
     @property
-    def last(self):
-        return self.all[-1].manager_index
+    def wizard_next_name(self):
+        return self.steps.next_name
 
     @property
-    def next(self):
-        return self.adjust_step(1)
+    def wizard_back_name(self):
+        return self.steps.back_name
 
     @property
-    def prev(self):
-        return self.adjust_step(0)
-
-    @property
-    def next_is_done(self):
-        return self.next == self.done_name
-
-    @property
-    def current_is_done(self):
-        return self.current == self.done_name
-
-    @property
-    def current_url(self):
-        return self.url(self.current)
-
-    @property
-    def last_url(self):
-        return self.url(self.last)
-
-    @property
-    def done_url(self):
-        return self.url(self.done_name)
-
-    def _goto_step(self, step_type):
-        post = self.view.request.POST
-        return post.get('wizard_goto_step', None) == step_type
-
-    def url(self, step):
-        return reverse(
-            self.view.request.resolver_match.view_name,
-            kwargs={'step': step},
-        )
-
-    def overflowed(self, step):
-        return int(step) > int(self.last)
-
-    def finished(self, step):
-        return self._goto_step_submit or step == self.done_name
-
-    def set_from_get(self, step_url_param):
-        step = step_url_param or self.current
-        self.view.request.session['current_step'] = step
-
-    def set_from_post(self):
-        step = self.view.request.POST.get('wizard_current_step', self.current)
-        if self._goto_step_back:
-            step = self.adjust_step(-1)
-        if self._goto_step_next:
-            step = self.adjust_step(1)
-        self.view.request.session['current_step'] = step
-
-    def adjust_step(self, adjustment):
-        # TODO: tests as spec
-        key = self.current + adjustment
-        if key < self.first:
-            return None
-        if key == self.first:
-            return self.first
-        elif self.step_count > key:
-            return self.view.manager.forms[key].manager_index
-        elif self.step_count == key:
-            return self.done_name
-        else:
-            return None
+    def wizard_form_pk_field(self):
+        # TODO: smell this being the only storage attribute accessed in view
+        return self.storage.form_pk_field
 
 
-class StorageHelper(object):
-
-    def __init__(self, view):
-        self.view = view
-
-    @property
-    def get_form_data(self):
-        return {'data': [
-            self.view.request.session[self.key(form.pk)]
-            for form in self.view.manager.forms
-        ]}
-
-    @property
-    def post_form_pk(self):
-        return self.view.form_pk(self.view.request.POST[
-            self.view.form_pk_field])
-
-    @property
-    def post_data(self):
-        data = self._data_from_key(self.post_form_pk)
-        data.update(self.view.request.POST)
-        return data
-
-    def set_form_data(self):
-        self.view.request.session[self.post_form_pk] = self.post_data
-
-    def data_from_pk(self, pk):
-        key = self.view.form_pk(pk)
-        return self._data_from_key(key)
-
-    def _data_from_key(self, key):
-        return self.view.request.session.get(key, {})
-
-
-class WizardView(FormView):
+class WizardView(
+    WizardViewTemplateHelpers,
+    views.edit.FormView,
+):
     site_id = None
     url_name = None
     template_name = 'wizard_builder/wizard_form.html'
-    form_pk_field = 'form_pk'
-    steps_helper = StepsHelper
-    storage_helper = StorageHelper
-    form_manager = FormManager
+    done_template_name = 'wizard_builder/review.html'
+    steps_helper = view_helpers.StepsHelper
+    storage_helper = view_helpers.StorageHelper
+    form_manager = managers.FormManager
 
     @property
     def steps(self):
@@ -179,42 +72,63 @@ class WizardView(FormView):
     def storage(self):
         return self.storage_helper(self)
 
-    @property
-    def manager(self):
-        return self.form_manager(self)
-
-    def form_pk(self, pk):
-        return '{}_{}'.format(self.form_pk_field, pk)
+    def get_forms(self):
+        return self.form_manager.get_forms(self)
 
     def get_form(self):
-        return self.manager.forms[self.steps.current]
+        if isinstance(self.steps.current, int):
+            return self.forms[self.steps.current]
+        else:
+            return None
 
     def dispatch(self, request, step=None, *args, **kwargs):
-        self.steps.set_from_get(step)
-        if self.steps.finished(step):
-            return self.render_done(**kwargs)
-        elif self.steps.overflowed(step):
-            return self.render_last(**kwargs)
-        else:
-            return super().dispatch(request, *args, **kwargs)
+        self._dispatch_processing(step)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.steps.set_from_post()
-        self.storage.set_form_data()
-        return self.render_current()
+        output = super().post(request, *args, **kwargs)
+        return output
 
-    def render_done(self, **kwargs):
-        if self.steps.current_is_done:
-            # TODO: a review screen template
-            return self.render_finished(**kwargs)
+    def form_valid(self, form):
+        form.full_clean()
+        self.storage.update()
+        if self.steps.finished(self.steps.current):
+            return self.render_form_done()
+        elif self.steps.overflowed(self.steps.current):
+            return self.render_last()
         else:
-            return HttpResponseRedirect(self.steps.done_url)
+            return self.render_current()
 
-    def render_finished(self, **kwargs):
-        return JsonResponse(self.storage.get_form_data)
+    def get_context_data(self, **kwargs):
+        if self.steps.current_is_done:
+            self.template_name = self.done_template_name
+            kwargs['form'] = None
+            kwargs['form_data'] = self.storage.cleaned_form_data
+            return super().get_context_data(**kwargs)
+        else:
+            return super().get_context_data(**kwargs)
 
-    def render_last(self, **kwargs):
+    def render_form_done(self):
+        if self.steps.current_is_done:
+            return self.render_finished()
+        else:
+            return self.render_done()
+
+    def render_done(self):
+        return HttpResponseRedirect(self.steps.done_url)
+
+    def render_finished(self):
+        return self.render_to_response(self.get_context_data())
+
+    def render_last(self):
         return HttpResponseRedirect(self.steps.last_url)
 
-    def render_current(self, **kwargs):
+    def render_current(self):
         return HttpResponseRedirect(self.steps.current_url)
+
+    def _dispatch_processing(self, step):
+        if not getattr(self, 'curent_step', None):
+            self.curent_step = self.steps.parse_step(step)
+        if not getattr(self, 'forms', None):
+            self.forms = self.get_forms()

@@ -11,31 +11,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0012_questionpage_to_page'),
+        ('wizard_builder', '0014_questionpage_to_page_3'),
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='formquestion',
-            old_name='added',
-            new_name='created',
-        ),
-        migrations.AddField(
-            model_name='formquestion',
-            name='modified',
-            field=models.DateTimeField(auto_now=True),
-        ),
-        migrations.AddField(
-            model_name='page',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='page',
-            name='modified',
-            field=models.DateTimeField(auto_now=True),
-        ),
         migrations.AlterField(
             model_name='formquestion',
             name='descriptive_text',

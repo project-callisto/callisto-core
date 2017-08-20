@@ -1,70 +1,60 @@
-.PHONY: clean-pyc clean-build docs help
-.DEFAULT_GOAL := help
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
-try:
-	from urllib import pathname2url
-except:
-	from urllib.request import pathname2url
-
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
-endef
-export BROWSER_PYSCRIPT
-DATA_FILE = 'wizard_builder/tests/test_app/fixtures/data.json'
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
 VERSION := $(shell cat wizard_builder/version.txt)
 
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
-clean: ## clean the repo in preparation for release
-	make clean-build
-	make clean-pyc
+clean-lint: ## run the cleanup functions for the linters
+	autopep8 wizard_builder/ -raai
+	isort -rc wizard_builder/
+	make test-lint
 
-clean-build: ## remove build artifacts
+test-lint: ## lint with isort and flake8
+	flake8 wizard_builder/
+	isort --check-only --diff --quiet -rc wizard_builder/
+
+test-fast:
+	pytest -vlsx --ff --reuse-db
+
+test-local-suite:
+	python manage.py check
+	pytest -v
+
+test-callisto-core:
+	pip install callisto-core --upgrade
+	pip show callisto-core |\
+		grep 'Location' |\
+		sed 's/Location: \(.*\)/\1\/callisto_core\/requirements\/test.txt/' |\
+		xargs -t pip install --upgrade -r
+	pip uninstall -y django-wizard-builder
+	pip install -e .
+	pip show callisto-core |\
+		grep 'Location' |\
+		sed 's/Location: \(.*\)/\1\/callisto_core\/tests/' |\
+		xargs -t pytest -v --ds=wizard_builder.tests.callisto_core_settings
+
+test-all:
+	make test-lint
+	make test-local-suite
+	make test-callisto-core
+
+clean-build: ## clean the repo in preparation for release
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
-
-clean-pyc: ## remove Python file artifacts
+	rm -rf wizard_builder/tests/screendumps/
+	rm -rf wizard_builder/tests/staticfiles/
 	find wizard_builder -name '*.pyc' -exec rm -f {} +
 	find wizard_builder -name '*.pyo' -exec rm -f {} +
 	find wizard_builder -name '*~' -exec rm -f {} +
 	find wizard_builder -type d -name "__pycache__" -exec rm -rf {} +
 
-clean-lint: ## run the cleanup functions for the linters
-	isort -rc wizard_builder/
-	autopep8 --in-place --recursive --aggressive --aggressive wizard_builder/
-	make test-lint
-
-test-lint: ## lint with isort and flake8
-	isort --check-only --diff --quiet -rc wizard_builder/
-	flake8 wizard_builder/
-
-test-suite: ## run the unit and intregration tests
-	python manage.py check
-	pytest -v
-
-test-fast: ## runs the test suite, with fast failures and a re-used database
-	pytest -v -l -s --maxfail=1 --ff --reuse-db
-
-test: ## run both the test suite and the linters
-	make test-lint
-	make test-suite
-
-test-all: ## run tests on every Python version with tox
-	tox
-
-release: clean ## package and upload a release
+release: ## package and upload a release
+	make clean-build
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 	git tag -a $(VERSION) -m 'version $(VERSION)'
 	git push --tags
 	git push
-
-sdist: clean ## package
-	python setup.py sdist
-	ls -l dist
 
 app-setup: ## setup the test application environment
 	python manage.py flush --noinput
@@ -73,12 +63,12 @@ app-setup: ## setup the test application environment
 	python manage.py setup_sites
 	make load-fixture
 
-shell:
+shell: ## manage.py shell_plus with dev settings
 	DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.dev_settings' python manage.py shell_plus
 
-load-fixture:
+load-fixture: ## load fixture from file
 	python manage.py loaddata $(DATA_FILE)
 
-create-fixture:
+create-fixture: ## create fixture from db
 	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
 	npx json -f $(DATA_FILE) -I

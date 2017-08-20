@@ -1,15 +1,26 @@
 History
 -------
 
-0.4.1 (2017-08-11)
+1.0.0 (2017-08-18)
+++++++++++++++++++
+
+* first major release version
+* lock api to callisto-core
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/125
+
+0.5.5 (2017-08-18)
 ++++++++++++++++++
 
 * Refactor wizard views into a FormView
-* increase code quality to 4.0
 * remove all django-formtools legacy code
+* added fixtures and template defaults
+* added some heroku setup management commands
+* include tests in release
 
     https://github.com/SexualHealthInnovations/django-wizard-builder/pull/118
     https://github.com/SexualHealthInnovations/django-wizard-builder/pull/120
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/125
 
 0.3.2 (2017-08-07)
 ++++++++++++++++++

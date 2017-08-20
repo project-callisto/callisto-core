@@ -25,8 +25,8 @@ class InheritanceTest(TestCase):
 class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
-        Page.objects.using('test_app').delete()
-        Page.objects.using('test_app').get_or_create(
+        Page.objects.using('dumpdata_db').delete()
+        Page.objects.using('dumpdata_db').get_or_create(
             infobox='dumpdata hack question',
         )
         subprocess.check_call('''
@@ -35,16 +35,18 @@ class DumpdataHackTest(TestCase):
                     wizard_builder \
                     -o wizard_builder/tests/test_app/test-dump.json \
                     --natural-foreign \
-                    --indent 2
+                    --indent 2 \
+                    --database dumpdata_db
         ''', shell=True)
 
         subprocess.check_call('''
             DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.ops_settings' \
                 python manage.py loaddata \
-                    wizard_builder/tests/test_app/test-dump.json
+                    wizard_builder/tests/test_app/test-dump.json \
+                    --database dumpdata_db
         ''', shell=True)
 
         with open('wizard_builder/tests/test_app/test-dump.json', 'r') as dump_file:
             dump_file_contents = dump_file.read()
         self.assertIn('wizard_builder.page', dump_file_contents)
-        self.assertEqual(Page.objects.using('test_app').count(), 1)
+        self.assertEqual(Page.objects.using('dumpdata_db').count(), 1)

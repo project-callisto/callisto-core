@@ -5,23 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
-def copy_pagebase_id(apps, schema_editor):
-    current_database = schema_editor.connection.alias
-    QuestionPage = apps.get_model('wizard_builder.QuestionPage')
-    Page = apps.get_model('wizard_builder.Page')
-    for question_page in QuestionPage.objects.using(current_database):
-        page = Page.objects.create(
-            id=question_page.id,
-            position=question_page.position,
-            section=question_page.section,
-            infobox=question_page.infobox,
-            multiple=question_page.multiple,
-            name_for_multiple=question_page.name_for_multiple,
-        )
-        for site in question_page.sites.all():
-            page.sites.add(site)
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -37,35 +20,10 @@ class Migration(migrations.Migration):
                 ('position', models.PositiveSmallIntegerField(default=0, verbose_name='position')),
                 ('section', models.IntegerField(choices=[(1, 'When'), (2, 'Where'), (3, 'What'), (4, 'Who')], default=1)),
                 ('infobox', models.TextField(blank=True, verbose_name='why is this asked? wrap additional titles in [[double brackets]]')),
-                ('multiple', models.BooleanField(default=False, verbose_name='User can add multiple')),
-                ('name_for_multiple', models.TextField(blank=True, verbose_name='name of field for "add another" prompt')),
                 ('sites', models.ManyToManyField(to='sites.Site')),
             ],
             options={
                 'ordering': ['position'],
             },
-        ),
-        migrations.RunPython(
-            copy_pagebase_id,
-            reverse_code=migrations.RunPython.noop,
-        ),
-        migrations.AlterField(
-            model_name='formquestion',
-            name='page',
-            field=models.ForeignKey(null=True, on_delete=models.deletion.SET_NULL, to='wizard_builder.Page'),
-        ),
-        migrations.RemoveField(
-            model_name='questionpage',
-            name='pagebase_ptr',
-        ),
-        migrations.RemoveField(
-            model_name='questionpage',
-            name='sites',
-        ),
-        migrations.DeleteModel(
-            name='QuestionPage',
-        ),
-        migrations.DeleteModel(
-            name='PageBase',
         ),
     ]

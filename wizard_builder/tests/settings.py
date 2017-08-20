@@ -15,14 +15,15 @@ APP_URL = os.environ.get('APP_URL', 'localhost')
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
+        "NAME": 'wizard_builder_default.sqlite3',
     },
-    "test_app": {
+    "dumpdata_db": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": 'wizard_builder.test_app.NOT_USED',
+        "NAME": 'wizard_builder_fake_dumpdata_db.sqlite3',
         'TEST': {
-            'NAME': 'wizard_builder.test_app.sqlite3',
+            'NAME': 'wizard_builder_dumpdata_db.sqlite3',
         },
-    }
+    },
 }
 
 INSTALLED_APPS = [
