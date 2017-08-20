@@ -1,6 +1,12 @@
 History
 -------
 
+1.0.0 (2017-08-18)
+++++++++++++++++++
+
+* first major release version
+* lock api to callisto-core
+
 0.5.5 (2017-08-18)
 ++++++++++++++++++
 

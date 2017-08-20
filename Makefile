@@ -57,8 +57,13 @@ test: ## run both the test suite and the linters
 	make test-lint
 	make test-suite
 
+test-callisto-core:
+	pip install callisto-core --upgrade && pip uninstall -y django-wizard-builder && pip install -e .
+	pip show callisto-core | grep 'Location' | sed 's/Location: \(.*\)/\1\/callisto_core\/tests/' | xargs pytest
+
 test-all: ## run tests on every Python version with tox
 	tox
+	make test-callisto-core
 
 release: clean ## package and upload a release
 	python setup.py sdist upload
