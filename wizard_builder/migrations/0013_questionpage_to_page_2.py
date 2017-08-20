@@ -22,7 +22,7 @@ def copy_questionpage_to_page(apps, schema_editor):
 def delete_page_rows(apps, schema_editor):
     current_database = schema_editor.connection.alias
     Page = apps.get_model('wizard_builder.Page')
-    Page.objects.all().delete()
+    Page.objects.using(current_database).delete()
 
 
 class Migration(migrations.Migration):
