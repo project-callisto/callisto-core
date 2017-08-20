@@ -9,11 +9,7 @@ class Command(BaseCommand):
 
     def _setup_current_site(self):
         if os.getenv('HEROKU_APP_NAME', default=''):
-            review_app_domain = os.getenv('HEROKU_APP_NAME') + '.herokuapp.com'
-        else:
-            review_app_domain = ''
-        if review_app_domain:
-            current_domain = settings.review_app_domain
+            current_domain = os.getenv('HEROKU_APP_NAME') + '.herokuapp.com'
         else:
             current_domain = settings.APP_URL
         Site.objects.filter(domain=current_domain).exclude(id=1).delete()
