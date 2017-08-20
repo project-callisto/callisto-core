@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
-def copy_pagebase_id(apps, schema_editor):
+def copy_questionpage_to_page(apps, schema_editor):
     current_database = schema_editor.connection.alias
     QuestionPage = apps.get_model('wizard_builder.QuestionPage')
     for question_page in QuestionPage.objects.using(current_database):
@@ -19,6 +19,12 @@ def copy_pagebase_id(apps, schema_editor):
                         question_page.id, site.id], )
 
 
+def delete_page_rows(apps, schema_editor):
+    current_database = schema_editor.connection.alias
+    Page = apps.get_model('wizard_builder.Page')
+    Page.objects.all().delete()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -27,7 +33,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            copy_pagebase_id,
-            reverse_code=migrations.RunPython.noop,
+            copy_questionpage_to_page,
+            delete_page_rows,
         ),
     ]
