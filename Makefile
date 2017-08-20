@@ -19,7 +19,7 @@ test-code:
 	python manage.py check
 	pytest -v
 	pip install callisto-core --upgrade && pip uninstall -y django-wizard-builder && pip install -e .
-	pip show callisto-core | grep 'Location' | sed 's/Location: \(.*\)/\1\/callisto_core\/tests/' | xargs pytest
+	pip show callisto-core | grep 'Location' | sed 's/Location: \(.*\)/\1\/callisto_core\/tests/' | xargs pytest -v
 
 clean-build: ## clean the repo in preparation for release
 	rm -fr build/
