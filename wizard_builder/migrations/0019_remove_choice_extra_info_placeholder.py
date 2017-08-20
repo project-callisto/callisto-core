@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0016_remove_multilinetext'),
+        ('wizard_builder', '0018_remove_multilinetext'),
     ]
 
     operations = [

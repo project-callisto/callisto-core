@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0019_choiceoption'),
+        ('wizard_builder', '0021_choiceoption'),
     ]
 
     operations = [

@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0017_remove_choice_extra_info_placeholder'),
+        ('wizard_builder', '0019_remove_choice_extra_info_placeholder'),
     ]
 
     operations = [

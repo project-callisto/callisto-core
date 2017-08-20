@@ -11,7 +11,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0012_questionpage_to_page'),
+        ('wizard_builder', '0014_questionpage_to_page_3'),
     ]
 
     operations = [
