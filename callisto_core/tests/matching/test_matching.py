@@ -15,8 +15,8 @@ User = get_user_model()
 
 
 @override_settings(
-    CALLISTO_MATCHING_API='callisto_core.tests.callistocore.forms.CustomMatchingApi')
-@patch('callisto_core.tests.callistocore.forms.CustomMatchingApi.process_new_matches')
+    CALLISTO_MATCHING_API='callisto_core.tests.utils.api.CustomMatchingApi')
+@patch('callisto_core.tests.utils.api.CustomMatchingApi.process_new_matches')
 class MatchDiscoveryTest(MatchSetup):
 
     def test_running_matching_sets_report_seen(self, mock_process):
@@ -256,8 +256,8 @@ class MatchingCommandTest(MatchSetup):
         mock_process.assert_called_once_with([match1, match2], 'test')
 
     @override_settings(
-        CALLISTO_MATCHING_API='callisto_core.tests.callistocore.forms.CustomMatchingApi')
-    @patch('callisto_core.tests.callistocore.forms.CustomMatchingApi.process_new_matches')
+        CALLISTO_MATCHING_API='callisto_core.tests.utils.api.CustomMatchingApi')
+    @patch('callisto_core.tests.utils.api.CustomMatchingApi.process_new_matches')
     def test_command_runs_matches_with_overridden_api(self, mock_process):
         match1 = self.create_match(self.user1, 'test')
         match2 = self.create_match(self.user2, 'test')

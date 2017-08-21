@@ -1,6 +1,5 @@
-# TODO: rename this file to api.py
+# TODO: move to callisto_core.tests.utils.api
 
-from callisto_core.matching.api import CallistoCoreMatchingApi
 from callisto_core.notification.api import CallistoCoreNotificationApi
 
 from django.conf import settings
@@ -25,15 +24,3 @@ class CustomNotificationApi(SiteAwareNotificationApi):
     from_email = '"Custom" <custom@{0}>'.format(settings.APP_URL)
     report_filename = "custom_{0}.pdf.gpg"
     report_title = 'Custom'
-
-
-class ExtendedCustomNotificationApi(CustomNotificationApi):
-
-    def send_report_to_authority(*args):
-        pass
-
-
-class CustomMatchingApi(CallistoCoreMatchingApi):
-
-    def process_new_matches(*args):
-        pass
