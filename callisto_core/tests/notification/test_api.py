@@ -2,7 +2,7 @@ from mock import patch
 
 from django.test import TestCase, override_settings
 
-from ...utils.api import MatchingApi, NotificationApi
+from ...utils.api import NotificationApi
 
 
 class ApiTest(TestCase):
@@ -33,15 +33,3 @@ class ApiTest(TestCase):
             NotificationApi.send_claws_to_scratch_couch(),
             None,
         )
-
-    @patch('callisto_core.delivery.api.CallistoCoreMatchingApi.find_matches')
-    def test_default_matching_api_call(self, mock_process):
-        MatchingApi.find_matches()
-        mock_process.assert_called_once_with()
-
-    @override_settings(
-        CALLISTO_MATCHING_API='callisto_core.tests.callistocore.forms.CustomMatchingApi')
-    @patch('callisto_core.tests.callistocore.forms.CustomMatchingApi.run_matching')
-    def test_overridden_matching_api_call(self, mock_process):
-        MatchingApi.run_matching(self.mock_argument_1)
-        mock_process.assert_called_once_with(self.mock_argument_1)

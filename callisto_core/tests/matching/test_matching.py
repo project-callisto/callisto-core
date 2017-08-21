@@ -273,7 +273,7 @@ class MatchNotificationTest(MatchTest):
 
 class MatchingCommandTest(MatchTest):
 
-    @patch('callisto_core.delivery.api.CallistoCoreMatchingApi.process_new_matches')
+    @patch('callisto_core.matching.api.CallistoCoreMatchingApi.process_new_matches')
     def test_command_runs_matches(self, mock_process):
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')

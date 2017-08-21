@@ -1,7 +1,7 @@
 import logging
 
 from ..utils.api import NotificationApi
-from .models import MatchReport
+from ..deliverybmodels import MatchReport
 
 logger = logging.getLogger(__name__)
 
