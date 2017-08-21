@@ -174,6 +174,7 @@ class MatchReport(models.Model):
         self.encrypted = security.pepper(
             security.encrypt_text(stretched_key, report_text),
         )
+        self.save()
 
     def get_match(self, identifier):
         """
