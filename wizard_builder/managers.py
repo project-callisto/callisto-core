@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from model_utils.managers import InheritanceManager, InheritanceQuerySet
@@ -7,6 +8,8 @@ from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
+
+logger = logging.getLogger(__name__)
 
 
 class FormManager(object):
@@ -35,15 +38,19 @@ class FormManager(object):
 
     @property
     def forms(self):
-        return [
+        forms = [
             self._create_form(index, page)
             for index, page in enumerate(self.pages)
         ]
+        logger.debug(forms)
+        return forms
 
     @property
     def pages(self):
         from .models import Page
-        return Page.objects.wizard_set(self.site_id)
+        pages = Page.objects.wizard_set(self.site_id)
+        logger.debug(pages)
+        return pages
 
     def _create_form(self, index, page):
         from .forms import PageForm
