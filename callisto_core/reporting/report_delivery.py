@@ -20,6 +20,16 @@ from ..utils.api import NotificationApi
 logger = logging.getLogger(__name__)
 
 
+def report_as_pdf(report, data, recipient):
+    return PDFFullReport(
+        report=report,
+        report_data=data,
+    ).generate_pdf_report(
+        recipient=recipient,
+        report_id=report.id,
+    )
+
+
 class MatchReportContent:
     '''
         TODO: remove this class

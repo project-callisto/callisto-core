@@ -2,7 +2,7 @@ import json
 from unittest import skip
 
 from callisto_core.delivery import security
-from callisto_core.delivery.report_delivery import MatchReportContent
+from callisto_core.reporting.report_delivery import MatchReportContent
 from callisto_core.utils.api import MatchingApi
 from django_migration_testcase import MigrationTest
 from mock import ANY, patch

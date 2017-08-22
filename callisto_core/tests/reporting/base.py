@@ -5,7 +5,7 @@ from django.contrib.sites.models import Site
 from django.test import TestCase
 
 from ...delivery.models import MatchReport, Report
-from ...delivery.report_delivery import MatchReportContent
+from ...reporting.report_delivery import MatchReportContent
 from ...utils.api import MatchingApi
 
 User = get_user_model()

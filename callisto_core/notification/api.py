@@ -9,7 +9,7 @@ from django.template import Context, Template
 from django.utils import timezone
 
 from ..delivery.models import SentMatchReport
-from ..delivery.report_delivery import PDFFullReport, PDFMatchReport
+from ..reporting.report_delivery import PDFFullReport, PDFMatchReport
 from .models import EmailNotification
 
 logger = logging.getLogger(__name__)

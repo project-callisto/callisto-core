@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from wizard_builder import views as wizard_builder_views
 
 from . import view_helpers, view_partials
+from ..reporting import report_delivery
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,8 @@ class WizardPDFView(
     def _report_pdf_response(self):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'inline; filename="report.pdf"'
-        response.write(self.report.as_pdf(
+        response.write(report_delivery.report_as_pdf(
+            report=self.report,
             data=self.storage.cleaned_form_data,
             recipient=None,
         ))
