@@ -2,9 +2,15 @@
 
 {% block post-review-content %}
 <div>
-    <div class="col-xs-4">
-        <a class='btn btn-primary btn-block' href='/'>Back To Start</a>
-    </div>
+    {% if report.entered_into_matching %}
+        <div class="col-xs-4">
+            <a class='btn btn-primary btn-block' href="{% url 'report_matching_enter' report.uuid %}">Withdraw from Matching</a>
+        </div>
+    {% else %}
+        <div class="col-xs-4">
+            <a class='btn btn-primary btn-block' href="{% url 'report_matching_withdraw' report.uuid %}">Enter Matching</a>
+        </div>
+    {% endif %}
 
     <div class="col-xs-4 col-xs-offset-4">
         <a class='btn btn-primary btn-block' href='/'>Back To Start</a>
