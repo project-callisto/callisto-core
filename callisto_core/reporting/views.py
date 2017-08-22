@@ -1,6 +1,12 @@
-from . import forms, view_partials
+import logging
+
+from django.conf import settings
+
+from . import forms, report_delivery, view_partials
 from ..delivery import view_partials as delivery_view_partials
 from ..utils import api
+
+logger = logging.getLogger(__name__)
 
 
 class MatchingWithdrawView(
@@ -50,12 +56,12 @@ class MatchingView(
             match_report.contact_email = form.cleaned_data.get('email')
             match_report_content = report_delivery.MatchReportContent(
                 identifier=perp_identifier,
-                perp_name=conditional_escape(perp_form.cleaned_data.get('perp_name')),
-                contact_name=conditional_escape(form.cleaned_data.get('name')),
+                perp_name=perp_form.cleaned_data.get('perp_name'),
+                contact_name=form.cleaned_data.get('name'),
                 email=match_report.contact_email,
-                phone=conditional_escape(form.cleaned_data.get('phone_number')),
-                voicemail=conditional_escape(form.cleaned_data.get('voicemail')),
-                notes=conditional_escape(form.cleaned_data.get('contact_notes')),
+                phone=form.cleaned_data.get('phone_number'),
+                voicemail=form.cleaned_data.get('voicemail'),
+                notes=form.cleaned_data.get('contact_notes'),
             )
             match_report.encrypt_match_report(
                 report_text=json.dumps(match_report_content.__dict__),
@@ -75,7 +81,7 @@ class MatchingView(
         self._send_confirmation_email(form)
 
         if settings.MATCH_IMMEDIATELY:
-            MatchingApi.run_matching(
+            api.MatchingApi.run_matching(
                 match_reports_to_check=matches_for_immediate_processing)
 
         return output

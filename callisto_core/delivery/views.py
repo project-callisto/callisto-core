@@ -5,18 +5,14 @@ https://docs.djangoproject.com/en/1.11/topics/class-based-views/
 an understanding of them is required to utilize the views effectively
 
 '''
-import json
 import logging
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.utils.html import conditional_escape
 from django.views import generic as views
 
-from . import forms, models, report_delivery, view_partials
-from ..utils.api import MatchingApi, NotificationApi
+from . import forms, view_partials
 
 User = get_user_model()
 logger = logging.getLogger(__name__)

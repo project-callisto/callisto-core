@@ -13,6 +13,7 @@ from reportlab.platypus import (
 
 from django.conf import settings
 from django.utils import timezone
+from django.utils.html import conditional_escape
 
 from ..utils.api import NotificationApi
 
