@@ -113,18 +113,16 @@ class MatchNotificationTest(MatchSetup):
         self.assertEqual(mock_send_email.call_count, 4)
 
     def test_users_are_deduplicated(self, mock_send_email):
-        MatchingApi.run_matching()
+        self.create_match(self.user1, 'test1')
+        self.create_match(self.user1, 'test1')
         self.assertFalse(mock_send_email.called)
-        report3 = self.create_match(self.user2, 'test1')
-        MatchingApi.run_matching()
-        calls = [call(self.user1, self.match1), call(self.user2, report3)]
-        mock_send_email.assert_has_calls(calls)
+        self.create_match(self.user2, 'test1')
         self.assertEqual(mock_send_email.call_count, 2)
 
     def test_doesnt_notify_on_reported_reports(self, mock_send_email):
-        report1 = self.create_match(self.user1, 'test1')
-        report2 = self.create_match(self.user2, 'test1')
-        report2.report.submitted_to_school = timezone.now()
-        report2.report.save()
+        self.create_match(self.user1, 'test1')
+        match_report = self.create_match(self.user2, 'test1', alert=False)
+        match_report.report.submitted_to_school = timezone.now()
+        match_report.report.save()
         MatchingApi.run_matching()
-        mock_send_email.assert_called_once_with(self.user1, report1)
+        self.assertEqual(mock_send_email.call_count, 1)
