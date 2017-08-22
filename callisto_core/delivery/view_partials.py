@@ -11,7 +11,6 @@ from django.http import HttpResponseRedirect
 from django.views import generic as views
 
 from . import forms, models, view_helpers
-from ..utils.api import NotificationApi
 
 logger = logging.getLogger(__name__)
 
@@ -168,18 +167,3 @@ class ReportActionView(
             'report_view',
             kwargs={'uuid': self.report.uuid},
         ))
-
-
-class BaseReportingView(
-    ReportUpdateView,
-):
-
-    def form_valid(self, form):
-        output = super().form_valid(form)
-        if form.cleaned_data.get('email_confirmation') == "True":
-            NotificationApi.send_user_notification(
-                form,
-                self.email_confirmation_name,
-                self.site_id,
-            )
-        return output

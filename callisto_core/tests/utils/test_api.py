@@ -13,7 +13,7 @@ class ApiTest(TestCase):
             None,
         )
 
-    @patch('callisto_core.matching.api.CallistoCoreMatchingApi.find_matches')
+    @patch('callisto_core.reporting.api.CallistoCoreMatchingApi.find_matches')
     def test_default_api_call(self, mock_process):
         MatchingApi.find_matches()
         mock_process.assert_called_once_with()

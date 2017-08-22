@@ -1,5 +1,5 @@
-from callisto_core.matching.api import CallistoCoreMatchingApi
 from callisto_core.notification.api import CallistoCoreNotificationApi
+from callisto_core.reporting.api import CallistoCoreMatchingApi
 
 from django.contrib.sites.models import Site
 

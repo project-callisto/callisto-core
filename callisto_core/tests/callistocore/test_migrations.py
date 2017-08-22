@@ -67,7 +67,7 @@ class MatchReportMigrationTest(MigrationTest):
         self.assertEqual(decrypted_report['notes'], None)
 
     @skip('migration already run')
-    @patch('callisto.delivery.matching.CallistoMatching.process_new_matches')
+    @patch('callisto.delivery.reporting.CallistoMatching.process_new_matches')
     def test_matches_after_encryption(self, mock_process):
 
         user1 = User.objects.create_user(username="dummy1", password="dummy")

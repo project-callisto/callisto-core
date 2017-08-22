@@ -17,7 +17,7 @@ from wizard_builder.models import (
 from ...delivery.models import Report
 from ...evaluation.models import EvalRow, EvaluationField
 from ...utils.api import MatchingApi
-from ..matching.base import MatchSetup
+from ..reporting.base import MatchSetup
 from .test_keypair import private_test_key, public_test_key
 
 User = get_user_model()

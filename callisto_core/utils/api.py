@@ -51,7 +51,7 @@ class Api(type):
 
 class MatchingApi(metaclass=Api):
     API_SETTING_NAME = 'CALLISTO_MATCHING_API'
-    DEFAULT_CLASS_PATH = 'callisto_core.matching.api.CallistoCoreMatchingApi'
+    DEFAULT_CLASS_PATH = 'callisto_core.reporting.api.CallistoCoreMatchingApi'
 
 
 class NotificationApi(metaclass=Api):
