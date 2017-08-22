@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 
 class MatchReportContent:
     '''
+        TODO: remove this class
+
         Class to structure contact information collected
         from match submission form for report
     '''
@@ -30,21 +32,16 @@ class MatchReportContent:
     # encrypted data. Existing arguments should not be removed or renamed,
     # and new arguments must have default values.
     def __init__(
-            self,
-            identifier,
-            perp_name,
-            email,
-            phone,
-            contact_name=None,
-            voicemail=None,
-            notes=None):
-        self.identifier = identifier
-        self.perp_name = perp_name
-        self.contact_name = contact_name
-        self.email = email
-        self.phone = phone
-        self.voicemail = voicemail
-        self.notes = notes
+        self, identifier, perp_name, email, phone,
+        contact_name=None, voicemail=None, notes=None,
+    ):
+        self.identifier = conditional_escape(identifier)
+        self.perp_name = conditional_escape(perp_name)
+        self.contact_name = conditional_escape(contact_name)
+        self.email = conditional_escape(email)
+        self.phone = conditional_escape(phone)
+        self.voicemail = conditional_escape(voicemail)
+        self.notes = conditional_escape(notes)
 
 
 class NumberedCanvas(canvas.Canvas):

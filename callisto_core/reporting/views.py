@@ -1,9 +1,12 @@
+import json
 import logging
 
 from django.conf import settings
 
 from . import forms, report_delivery, view_partials
-from ..delivery import view_partials as delivery_view_partials
+from ..delivery import (
+    models as delivery_models, view_partials as delivery_view_partials,
+)
 from ..utils import api
 
 logger = logging.getLogger(__name__)
@@ -26,7 +29,7 @@ class ReportingView(
 
     def form_valid(self, form):
         output = super().form_valid(form)
-        sent_full_report = models.SentFullReport.objects.create(
+        sent_full_report = delivery_models.SentFullReport.objects.create(
             report=self.report,
             to_address=settings.COORDINATOR_EMAIL,
         )
@@ -50,7 +53,7 @@ class MatchingView(
 
         matches_for_immediate_processing = []
         for perp_form in form:
-            match_report = models.MatchReport(report=self.report)
+            match_report = delivery_models.MatchReport(report=self.report)
 
             perp_identifier = perp_form.cleaned_data.get('perp')
             match_report.contact_email = form.cleaned_data.get('email')
