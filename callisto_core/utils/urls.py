@@ -33,7 +33,7 @@ urlpatterns = [
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/submission$',
         reporting_views.ReportingView.as_view(),
-        name="report_submission",
+        name="report_reporting",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/matching/enter/$',
         reporting_views.MatchingView.as_view(),
