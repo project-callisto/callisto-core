@@ -18,10 +18,16 @@ class MatchSetup(TestCase):
         self.site.domain = 'testserver'
         self.site.save()
         self.user1 = User.objects.create_user(
-            username="test", password="test",
+            username="test1", password="test",
         )
         self.user2 = User.objects.create_user(
-            username="tset", password="test",
+            username="tset22", password="test",
+        )
+        self.user3 = User.objects.create_user(
+            username="tset333", password="test",
+        )
+        self.user4 = User.objects.create_user(
+            username="tset4444", password="test",
         )
 
     def assert_matches_found_true(self):

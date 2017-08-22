@@ -53,15 +53,10 @@ class MatchDiscoveryTest(MatchSetup):
         self.assert_matches_found_false()
 
     def test_multiple_matches(self):
-        user3 = User.objects.create_user(
-            username="test3", password="test")
-        user4 = User.objects.create_user(
-            username="test4", password="test")
-
         self.create_match(self.user1, 'test1')
         self.create_match(self.user2, 'test1')
-        self.create_match(user3, 'test1')
-        self.create_match(user4, 'test1')
+        self.create_match(self.user3, 'test1')
+        self.create_match(self.user4, 'test1')
         self.assert_matches_found_true()
 
 
@@ -92,58 +87,29 @@ class MatchAlertingTest(MatchSetup):
         self.assert_matches_found_true()
 
     def test_triggers_new_matches_only(self, mock_process):
-        MatchingApi.run_matching()
+        self.create_match(self.user1, 'test1')
+        self.create_match(self.user2, 'test1')
         self.assertTrue(mock_process.called)
+
         mock_process.reset_mock()
-        user3 = User.objects.create_user(username="yumdm", password="test")
-        self.create_match(user3, 'test1')
-        MatchingApi.run_matching()
+        self.create_match(self.user3, 'test2')
         self.assertFalse(mock_process.called)
-        self.match1.report.refresh_from_db()
-        self.match2.report.refresh_from_db()
-        self.assertTrue(self.match1.report.match_found)
-        self.assertTrue(self.match2.report.match_found)
 
 
 @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_match_notification')
 class MatchNotificationTest(MatchSetup):
 
-    def setUp(self):
-        self.user1 = User.objects.create_user(
-            username="test", password="test")
-        self.user2 = User.objects.create_user(
-            username="ymmud", password="test")
-
-    def test_both_new_matches_sent_emails(self, mock_send_email):
-        report1 = self.create_match(self.user1, 'test1')
-        report2 = self.create_match(self.user2, 'test1')
-        MatchingApi.run_matching()
-        calls = [call(self.user1, report1), call(self.user2, report2)]
-        mock_send_email.assert_has_calls(calls)
+    def test_basic_email_case(self, mock_send_email):
+        self.create_match(self.user1, 'test1')
+        self.create_match(self.user2, 'test1')
         self.assertEqual(mock_send_email.call_count, 2)
 
-    def test_multiple_match_sends_emails_to_all(self, mock_send_email):
-        report1 = self.create_match(self.user1, 'test1')
-        report2 = self.create_match(self.user2, 'test1')
-        user3 = User.objects.create_user(username="yumdm", password="test")
-        report3 = self.create_match(user3, 'test1')
-        MatchingApi.run_matching()
-        calls = [
-            call(
-                self.user1, report1), call(
-                self.user2, report2), call(
-                user3, report3)]
-        mock_send_email.assert_has_calls(calls)
-        self.assertEqual(mock_send_email.call_count, 3)
-
-    def test_only_new_matches_sent_emails(self, mock_send_email):
-        MatchingApi.run_matching()
-        self.assertTrue(mock_send_email.called)
-        mock_send_email.reset_mock()
-        user3 = User.objects.create_user(username="yumdm", password="test")
-        report3 = self.create_match(user3, 'test1')
-        MatchingApi.run_matching()
-        mock_send_email.assert_called_once_with(user3, report3)
+    def test_multiple_email_case(self, mock_send_email):
+        self.create_match(self.user1, 'test1')
+        self.create_match(self.user2, 'test1')
+        self.create_match(self.user3, 'test1')
+        self.create_match(self.user4, 'test1')
+        self.assertEqual(mock_send_email.call_count, 4)
 
     def test_users_are_deduplicated(self, mock_send_email):
         MatchingApi.run_matching()
