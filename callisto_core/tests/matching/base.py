@@ -40,8 +40,10 @@ class MatchSetup(TestCase):
         for match in MatchReport.objects.all():
             assertion(match.match_found)
 
-    def create_match(self, user, identifier,
-                     match_report_content=None, alert=True):
+    def create_match(
+        self, user, identifier,
+        match_report_content=None, alert=True,
+    ):
         report = Report(owner=user)
         report.encrypt_report("test report 1", "key")
         match_report = MatchReport(report=report, identifier=identifier)
