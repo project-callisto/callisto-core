@@ -6,6 +6,7 @@ from django.test import TestCase
 
 from ...delivery.models import MatchReport, Report
 from ...delivery.report_delivery import MatchReportContent
+from ...utils.api import MatchingApi
 
 User = get_user_model()
 
@@ -23,7 +24,18 @@ class MatchSetup(TestCase):
             username="tset", password="test",
         )
 
-    def create_match(self, user, identifier, match_report_content=None):
+    def assert_matches_found_true(self):
+        self.assert_matches_found(self.assertTrue)
+
+    def assert_matches_found_false(self):
+        self.assert_matches_found(self.assertFalse)
+
+    def assert_matches_found(self, assertion):
+        for match in MatchReport.objects.all():
+            assertion(match.match_found)
+
+    def create_match(self, user, identifier,
+                     match_report_content=None, alert=True):
         report = Report(owner=user)
         report.encrypt_report("test report 1", "key")
         match_report = MatchReport(report=report, identifier=identifier)
@@ -40,5 +52,8 @@ class MatchSetup(TestCase):
             json.dumps(match_report_object.__dict__),
             identifier,
         )
+
+        if alert:
+            MatchingApi.run_matching()
 
         return match_report

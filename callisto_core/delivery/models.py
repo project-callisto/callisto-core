@@ -154,6 +154,11 @@ class MatchReport(models.Model):
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
 
+    @property
+    def match_found(self):
+        self.report.refresh_from_db()
+        return self.report.match_found
+
     def encrypt_match_report(self, report_text, key):
         """Encrypts and attaches report text. Generates a random salt and stores it in an encode prefix on the
         MatchReport object.
