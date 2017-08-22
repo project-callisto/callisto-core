@@ -6,7 +6,7 @@ History
 
 * add debug logging to wizard manager
 
-1.0.0 (2017-08-18)
+1.0.0 (2017-08-20)
 ++++++++++++++++++
 
 * first major release version
