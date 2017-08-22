@@ -48,8 +48,6 @@ class CallistoCoreNotificationApi(object):
         '''
         TODO: docs
         '''
-        logger.debug('NotificationApi.send_report_to_authority')
-
         self.context = {
             'notification_name': 'report_delivery',
             'to_addresses': self.to_coordinators(),
@@ -70,7 +68,6 @@ class CallistoCoreNotificationApi(object):
 
         assumes all matches are on the same site
         '''
-        logger.debug('NotificationApi.send_matching_report_to_authority')
         user = matches[0].report.owner
 
         self.context = {
@@ -86,7 +83,6 @@ class CallistoCoreNotificationApi(object):
         '''
         TODO: docs
         '''
-        logger.debug('NotificationApi.send_user_notification')
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(
             settings.APP_URL,
         )
@@ -107,7 +103,6 @@ class CallistoCoreNotificationApi(object):
             match_report(MatchReport): MatchReport for which
                 a match has been found
         '''
-        logger.debug('NotificationApi.send_match_notification')
         from_email = '"Callisto Matching" <notification@{0}>'.format(
             settings.APP_URL,
         )
@@ -203,7 +198,7 @@ class CallistoCoreNotificationApi(object):
             self.context.update({'domain': site.domain})
 
     def set_notification(self):
-        # TODO: seperate funs for getting notification and assigning values
+        # TODO: seperate funcs for getting notification and assigning values
         notification = self.model.objects.on_site(
             self.context.get('site_id'),
         ).get(name=self.context['notification_name'])

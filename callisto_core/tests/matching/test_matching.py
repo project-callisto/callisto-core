@@ -95,6 +95,7 @@ class MatchAlertingTest(MatchSetup):
         self.create_match(self.user3, 'test2')
         self.assertFalse(mock_process.called)
 
+
 @override_settings(CALLISTO_MATCHING_API=MatchingApi.DEFAULT_CLASS_PATH)
 @patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_match_notification')
 class MatchNotificationTest(MatchSetup):
