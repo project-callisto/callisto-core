@@ -31,7 +31,7 @@ urlpatterns = [
         delivery_views.ReportDeleteView.as_view(),
         name="report_delete",
         ),
-    url(r'^reports/uuid/(?P<uuid>.+)/review/submission$',
+    url(r'^reports/uuid/(?P<uuid>.+)/review/reporting/$',
         reporting_views.ReportingView.as_view(),
         name="report_reporting",
         ),
