@@ -30,10 +30,8 @@ def report_as_pdf(report, data, recipient):
     )
 
 
-class MatchReportContent:
+class MatchReportContent(object):
     '''
-        TODO: remove this class
-
         Class to structure contact information collected
         from match submission form for report
     '''
@@ -52,6 +50,18 @@ class MatchReportContent:
         self.phone = conditional_escape(phone)
         self.voicemail = conditional_escape(voicemail)
         self.notes = conditional_escape(notes)
+
+    @classmethod
+    def from_form(cls, form):
+        return cls(
+            identifier=form.instance.identifier,
+            perp_name=form.cleaned_data.get('perp_name'),
+            contact_name=form.instance.report.contact_name,
+            email=form.instance.report.contact_email,
+            phone=form.instance.report.contact_phone,
+            voicemail=form.instance.report.contact_voicemail,
+            notes=form.instance.report.contact_notes,
+        )
 
 
 class NumberedCanvas(canvas.Canvas):

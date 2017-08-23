@@ -127,18 +127,12 @@ class MatchReport(models.Model):
     MatchReports--one per perpetrator.
     """
     report = models.ForeignKey('Report', on_delete=models.CASCADE)
-    contact_email = models.EmailField(blank=False, max_length=256)
-
     identifier = models.CharField(blank=False, null=True, max_length=500)
-
     added = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(blank=False, default=False)
-
     encrypted = models.BinaryField(null=False)
-
     # DEPRECIATED: only kept to decrypt old entries before upgrade
     salt = models.CharField(null=True, max_length=256)
-
     # <algorithm>$<iterations>$<salt>$
     encode_prefix = models.CharField(blank=True, max_length=500)
 

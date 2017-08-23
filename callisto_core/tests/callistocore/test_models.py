@@ -72,10 +72,7 @@ class ReportModelTest(test_base.ReportFlowHelper):
         report = Report(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
-        MatchReport.objects.create(
-            report=report,
-            contact_email='test@example.com',
-            identifier='dummy')
+        MatchReport.objects.create(report=report, identifier='dummy')
         self.assertIsNotNone(Report.objects.first().entered_into_matching)
         report.match_found = True
         report.save()

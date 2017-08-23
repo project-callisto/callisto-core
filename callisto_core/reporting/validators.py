@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from six.moves.urllib.parse import parse_qs, urlsplit
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import URLField
 
@@ -138,10 +139,56 @@ facebook_validation_info = {
 '''
 
 facebook_only = OrderedDict(
-    [('Facebook profile URL', facebook_validation_info)])
+    [('Facebook profile URL', facebook_validation_info)],
+)
 twitter_only = OrderedDict(
-    [('Twitter username/profile URL', twitter_validation_info)])
-facebook_or_twitter = OrderedDict([('Facebook profile URL',
-                                    facebook_validation_info),
-                                   ('Twitter username/profile URL',
-                                    twitter_validation_info)])
+    [('Twitter username/profile URL', twitter_validation_info)],
+)
+facebook_or_twitter = OrderedDict(
+    [
+        ('Facebook profile URL', facebook_validation_info),
+        ('Twitter username/profile URL', twitter_validation_info),
+    ],
+)
+
+
+def join_list_with_or(lst):
+    if len(lst) < 2:
+        return lst[0]
+    all_but_last = ', '.join(lst[:-1])
+    last = lst[-1]
+    return ' or '.join([all_but_last, last])
+
+
+class Validators(object):
+
+    @classmethod
+    def validators(cls):
+        return getattr(
+            settings,
+            'CALLISTO_IDENTIFIER_DOMAINS',
+            facebook_only,
+        )
+
+    @classmethod
+    def value(cls):
+        return cls.validators().values()
+
+    @classmethod
+    def invalid(cls):
+        return 'Please enter a valid ' + join_list_with_or(
+            list(cls.validators()))
+
+    @classmethod
+    def titled(cls):
+        return "Perpetrator's " + join_list_with_or([
+            identifier.title()
+            for identifier in list(cls.validators())
+        ])
+
+    @classmethod
+    def examples(cls):
+        return 'ex. ' + join_list_with_or([
+            identifier_info['example']
+            for identifier_info in cls.validators().values()
+        ])

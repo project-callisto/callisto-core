@@ -1,18 +1,19 @@
+import json
 import logging
 from distutils.util import strtobool
 
 from django import forms
 from django.conf import settings
 
-from . import validators
+from . import report_delivery
 from ..delivery import forms as delivery_forms, models as delivery_models
 from ..utils import api
+from .validators import Validators
 
 logger = logging.getLogger(__name__)
 
 
 class ReportingForm(
-    delivery_forms.FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
     contact_name = forms.CharField(
@@ -28,16 +29,27 @@ class ReportingForm(
         ),
     )
     contact_voicemail = forms.CharField(
-        label="Is it ok to leave a voicemail? If so, what would you like the message to refer to?",
+        label='''
+            Is it ok to leave a voicemail?
+            If so, what would you like the message to refer to?
+        ''',
         widget=forms.TextInput(
             attrs={
-                'placeholder': "ex. Yes, please just say you're following up from Callisto."},
+                'placeholder': '''
+                    ex. Yes, please just say you're
+                    following up from Callisto.
+                '''},
         ),
     )
     contact_email = forms.EmailField(
-        label="If you can't be reached by phone, what's the best email address to reach you?",
+        label='''
+            If you can't be reached by phone,
+            what's the best email address to reach you?
+        ''',
         widget=forms.TextInput(
-            attrs={'placeholder': 'ex. myname@gmail.com'},),)
+            attrs={'placeholder': 'ex. myname@gmail.com'},
+        ),
+    )
     contact_notes = forms.CharField(
         label='''
             Any notes on what time of day is best to reach you?
@@ -84,89 +96,60 @@ class ReportingForm(
         ]
 
 
-def join_list_with_or(lst):
-    if len(lst) < 2:
-        return lst[0]
-    all_but_last = ', '.join(lst[:-1])
-    last = lst[-1]
-    return ' or '.join([all_but_last, last])
-
-
-class SubmitToMatchingForm(forms.Form):
-    '''
-        designed to be overridden if more complicated
-        assignment of matching validators is needed
-    '''
-
-    def get_validators(self):
-        return getattr(
-            settings,
-            'CALLISTO_IDENTIFIER_DOMAINS',
-            validators.facebook_only,
-        )
+class SubmitToMatchingForm(
+    delivery_forms.FormViewExtensionMixin,
+    forms.models.ModelForm,
+):
+    perp_name = forms.CharField(
+        label="Perpetrator's Name",
+        required=False,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'ex. John Jacob Jingleheimer Schmidt'},
+        ),
+    )
+    identifier = forms.CharField(
+        label=Validators.titled(),
+        required=True,
+        widget=forms.TextInput(
+            attrs={'placeholder': Validators.examples()},
+        ),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.instance.report = self.view.report
 
-        self.identifier_domain_info = self.get_validators()
-
-        self.formatted_identifier_descriptions = join_list_with_or(
-            list(self.identifier_domain_info))
-
-        _identifier_titles = []
-        for identifier in list(self.identifier_domain_info):
-            _identifier_titles.append(identifier.title())
-        self.formatted_identifier_descriptions_title_case = join_list_with_or(
-            _identifier_titles
-        )
-
-        self.formatted_example_identifiers = join_list_with_or(
-            [
-                identifier_info['example']
-                for _, identifier_info in self.identifier_domain_info.items()
-            ]
-        )
-
-        self.fields['perp_name'] = forms.CharField(
-            label="Perpetrator's Name",
-            required=False,
-            max_length=500,
-            widget=forms.TextInput(
-                attrs={
-                    'placeholder': 'ex. John Jacob Jingleheimer Schmidt',
-                },
-            ),
-        )
-
-        self.fields['perp'] = forms.CharField(
-            label="Perpetrator's {}".format(
-                self.formatted_identifier_descriptions_title_case,
-            ),
-            required=True,
-            max_length=500,
-            widget=forms.TextInput(
-                attrs={
-                    'placeholder': 'ex. {}'.format(
-                        self.formatted_example_identifiers)}))
-
-    def clean_perp(self):
-        raw_url = self.cleaned_data.get('perp').strip()
-        for _, identifier_info in self.identifier_domain_info.items():
+    def clean_identifier(self):
+        identifier = self.cleaned_data.get('identifier').strip()
+        for identifier_info in Validators.value():
             try:
-                matching_identifier = identifier_info['validation'](raw_url)
-                if matching_identifier:
+                matching_id = identifier_info['validation'](identifier)
+                if matching_id:
                     prefix = identifier_info['unique_prefix']
-                    if len(
-                            prefix) > 0:  # Facebook has an empty unique identifier for backwards compatibility
-                        matching_identifier = prefix + ":" + \
-                            matching_identifier  # FB URLs can't contain colons
-                    return matching_identifier
+                    # Facebook has an empty unique identifier
+                    # for backwards compatibility
+                    if len(prefix) > 0:
+                        # FB URLs can't contain colons
+                        matching_id = prefix + ":" + matching_id
+                    return matching_id
             except Exception as e:
                 if e.__class__ is not forms.ValidationError:
                     logger.exception(e)
                 pass
         # no valid identifier found
-        raise forms.ValidationError(
-            'Please enter a valid {}.'.format(
-                self.formatted_identifier_descriptions),
-            code='invalidmatchidentifier')
+        raise forms.ValidationError(Validators.invalid())
+
+    def save(self, commit=True):
+        output = super().save(commit=commit)
+
+        report_content = report_delivery.MatchReportContent.from_form(self)
+        self.object.encrypt_match_report(
+            report_text=json.dumps(report_content.__dict__),
+            key=self.cleaned_data.get('identifier'),
+        )
+
+        return output
+
+    class Meta:
+        model = delivery_models.MatchReport
+        fields = ['identifier']
