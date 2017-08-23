@@ -1,0 +1,19 @@
+{% extends 'wizard_builder/base.html' %}
+
+{% block content %}
+
+    {% include "wizard_builder/review_include.html" %}
+
+    {% block post-review-content %}
+        <div>
+            <div class="col-xs-4">
+                <a class='btn btn-default btn-block' href='{{ view.steps.last_url }}'>Last Page</a>
+            </div>
+
+            <div class="col-xs-4 col-xs-offset-4">
+                <a class='btn btn-primary btn-block' href='/'>Back To Start</a>
+            </div>
+        </div>
+    {% endblock %}
+
+{% endblock %}
