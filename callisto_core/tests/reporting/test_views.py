@@ -1,4 +1,4 @@
-from unittest.mock import patch, call
+from unittest.mock import call, patch
 
 from callisto_core.delivery.models import MatchReport
 from callisto_core.reporting.forms import SubmitToMatchingForm
