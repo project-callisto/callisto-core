@@ -202,7 +202,10 @@ class PDFReport(object):
 
     @staticmethod
     def get_user_identifier(user):
-        return user.email or user.username
+        try:
+            return user.email or user.username
+        except AttributeError:
+            return ''
 
 
 class PDFFullReport(PDFReport):
