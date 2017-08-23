@@ -11,10 +11,18 @@ class SiteAwareNotificationApi(CallistoCoreNotificationApi):
         return 1
 
 
-class SendDisabledNotificationApi(SiteAwareNotificationApi):
+class CustomNotificationApi(SiteAwareNotificationApi):
 
     def send(self):
-        pass
+        pass  # disable sending
+
+    def log_action(self):
+        super().log_action()
+        for key, value in self.context.items():
+            self._logging(**{key: value})
+
+    def _logging(self, *args, **kwargs):
+        pass  # for testing inputs
 
 
 class CustomMatchingApi(CallistoCoreMatchingApi):

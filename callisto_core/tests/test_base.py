@@ -5,32 +5,39 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from ..delivery import models
+from callisto_core.notification.models import EmailNotification
 
 User = get_user_model()
 
 
-class ReportFlowHelper(TestCase):
+class ReportAssertionHelper(object):
 
-    secret_key = 'super secret'
-    fixtures = [
-        'wizard_builder_data',
-    ]
+    def assert_report_exists(self):
+        return bool(models.Report.objects.filter(pk=self.report.pk).count())
 
-    def setUp(self):
-        self.site = Site.objects.get(id=1)
-        self.site.domain = 'testserver'
-        self.site.save()
-        self.user = User.objects.create_user(
-            username='testing_122',
-            password='testing_12',
-        )
-        self.client.login(
-            username='testing_122',
-            password='testing_12',
-        )
-        self.site = Site.objects.get(id=1)
-        self.site.domain = 'testserver'
-        self.site.save()
+    def match_report_email_assertions(self):
+        self.assertEqual(len(mail.outbox), 3)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, 'test match notification')
+        self.assertEqual(message.to, ['test1@example.com'])
+        self.assertIn('Matching" <notification@', message.from_email)
+        self.assertIn('test match notification body', message.body)
+        message = mail.outbox[1]
+        self.assertEqual(message.subject, 'test match notification')
+        self.assertEqual(message.to, ['test2@example.com'])
+        self.assertIn('Matching" <notification@', message.from_email)
+        self.assertIn('test match notification body', message.body)
+        message = mail.outbox[2]
+        self.assertEqual(message.subject, 'test match delivery')
+        self.assertEqual(message.to, ['titleix@example.com'])
+        self.assertIn('"Reports" <reports@', message.from_email)
+        self.assertIn('test match delivery body', message.body)
+        self.assertRegexpMatches(
+            message.attachments[0][0],
+            'report_.*\\.pdf\\.gpg')
+
+
+class ReportPostHelper(object):
 
     def client_post_report_creation(self):
         response = self.client.post(
@@ -64,15 +71,21 @@ class ReportFlowHelper(TestCase):
             ),
         )
 
-    def client_post_enter_matching(self, identifier='test_iden'):
+    def client_post_enter_matching(self):
         return self.client.post(
             reverse(
                 'report_matching_enter',
                 kwargs={'uuid': self.report.uuid},
             ),
-            data={'identifier': identifier},
+            data={
+                'identifier': 'https://www.facebook.com/callistoorg',
+                'email_confirmation': 'True',
+            },
             follow=True,
         )
+
+    def client_post_reporting(self):
+        pass
 
     def client_post_question_answer(self, url, answer):
         return self.client.post(
@@ -99,26 +112,43 @@ class ReportFlowHelper(TestCase):
             None,
         )
 
-    def assert_report_exists(self):
-        return bool(models.Report.objects.filter(pk=self.report.pk).count())
 
-    def match_report_email_assertions(self):
-        self.assertEqual(len(mail.outbox), 3)
-        message = mail.outbox[0]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test1@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[1]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test2@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[2]
-        self.assertEqual(message.subject, 'test match delivery')
-        self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertIn('"Reports" <reports@', message.from_email)
-        self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(
-            message.attachments[0][0],
-            'report_.*\\.pdf\\.gpg')
+class ReportFlowHelper(
+    TestCase,
+    ReportPostHelper,
+    ReportAssertionHelper,
+):
+    secret_key = 'super secret'
+    fixtures = ['wizard_builder_data']
+
+    def setUp(self):
+        self._setup_sites()
+        self._setup_user()
+        self._setup_emails()
+
+    def _setup_user(self):
+        self.user = User.objects.create_user(
+            username='testing_122',
+            password='testing_12',
+        )
+        self.client.login(
+            username='testing_122',
+            password='testing_12',
+        )
+
+    def _setup_sites(self):
+        self.site = Site.objects.get(id=1)
+        self.site.domain = 'testserver'
+        self.site.save()
+
+    def _setup_emails(self):
+        EmailNotification.objects.create(
+            name='match_confirmation',
+            subject='test match confirmation',
+            body='matching confirm email',
+        ).sites.add(self.site.id)
+        EmailNotification.objects.create(
+            name='submit_confirmation',
+            subject='test submit confirmation',
+            body='reporting confirm email',
+        ).sites.add(self.site.id)

@@ -112,7 +112,7 @@ class SubmitToMatchingForm(
 
         if settings.MATCH_IMMEDIATELY:
             api.MatchingApi.run_matching(
-                match_reports_to_check=self.instance,
+                match_reports_to_check=[self.instance],
             )
 
         return output
