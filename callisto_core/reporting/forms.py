@@ -3,6 +3,7 @@ import logging
 from distutils.util import strtobool
 
 from django import forms
+from django.conf import settings
 
 from . import report_delivery
 from ..delivery import forms as delivery_forms, models as delivery_models
@@ -12,9 +13,22 @@ from .validators import Validators
 logger = logging.getLogger(__name__)
 
 
-class ReportingForm(
+class BaseReportingForm(
     delivery_forms.FormViewExtensionMixin,
     forms.models.ModelForm,
+):
+    email_confirmation = forms.ChoiceField(
+        choices=[
+            (True, "Yes"),
+            (False, "No, thanks"),
+        ],
+        label="Would you like an email confirmation?",
+        widget=forms.RadioSelect,
+    )
+
+
+class ReportingForm(
+    BaseReportingForm,
 ):
     contact_name = forms.CharField(
         label="Your preferred first name:",
@@ -31,14 +45,6 @@ class ReportingForm(
     contact_notes = forms.CharField(
         label="Any notes about how to contact you?",
         widget=forms.Textarea(),
-    )
-    email_confirmation = forms.ChoiceField(
-        choices=[
-            (True, "Yes"),
-            (False, "No, thanks"),
-        ],
-        label="Would you like an email confirmation?",
-        widget=forms.RadioSelect,
     )
 
     def clean_email_confirmation(self):
@@ -58,22 +64,17 @@ class ReportingForm(
 
 
 class SubmitToMatchingForm(
-    delivery_forms.FormViewExtensionMixin,
-    forms.models.ModelForm,
+    BaseReportingForm,
 ):
     perp_name = forms.CharField(
         label="Perpetrator's Name",
         required=False,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'ex. John Jacob Jingleheimer Schmidt'},
-        ),
+        widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
     )
     identifier = forms.CharField(
         label=Validators.titled(),
         required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': Validators.examples()},
-        ),
+        widget=forms.TextInput(attrs={'placeholder': Validators.examples()}),
     )
 
     def __init__(self, *args, **kwargs):
@@ -104,10 +105,15 @@ class SubmitToMatchingForm(
         output = super().save(commit=commit)
 
         report_content = report_delivery.MatchReportContent.from_form(self)
-        self.object.encrypt_match_report(
+        self.instance.encrypt_match_report(
             report_text=json.dumps(report_content.__dict__),
             key=self.cleaned_data.get('identifier'),
         )
+
+        if settings.MATCH_IMMEDIATELY:
+            api.MatchingApi.run_matching(
+                match_reports_to_check=self.instance,
+            )
 
         return output
 

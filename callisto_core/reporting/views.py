@@ -37,7 +37,6 @@ class ReportingView(
             form.decrypted_report,
             self.site_id,
         )
-        self._send_confirmation_email(form)
         return output
 
 
@@ -46,11 +45,3 @@ class MatchingView(
 ):
     form_class = forms.SubmitToMatchingForm
     email_confirmation_name = 'match_confirmation'
-
-    def form_valid(self, form):
-        if settings.MATCH_IMMEDIATELY:
-            api.MatchingApi.run_matching(
-                match_reports_to_check=self.object,
-            )
-        self._send_confirmation_email(form)
-        return super().form_valid(form)
