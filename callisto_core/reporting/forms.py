@@ -3,7 +3,6 @@ import logging
 from distutils.util import strtobool
 
 from django import forms
-from django.conf import settings
 
 from . import report_delivery
 from ..delivery import forms as delivery_forms, models as delivery_models
@@ -12,13 +11,6 @@ from .validators import Validators
 
 logger = logging.getLogger(__name__)
 
-contact_voicemail_label = 'Is it ok to leave a voicemail? If so, what would you like the message to refer to?'
-contact_voicemail_placeholder = "ex. Yes, please just say you're following up from Callisto."
-contact_email_label = "If you can't be reached by phone, what's the best email address to reach you?"
-contact_notes_label = f"Any notes on what time of day is best to reach you? A {settings.SCHOOL_SHORTNAME} staff member will try their best to accommodate your needs."
-contact_notes_placeholder = "ex. I have class from 9-2 most weekdays and work in the evenings, so mid afternoon is best (around 2:30-5pm). Wednesdays and Thursdays I have class the entire day, so those days don't work at all."
-email_confirmation_label = "Would you like us to send you a confirmation email with information about your rights in the reporting process, and where to get support and find resources on campus?"
-
 
 class ReportingForm(
     delivery_forms.FormViewExtensionMixin,
@@ -26,40 +18,26 @@ class ReportingForm(
 ):
     contact_name = forms.CharField(
         label="Your preferred first name:",
-        widget=forms.TextInput(
-            attrs={'placeholder': 'ex. Chris'},
-        ),
     )
     contact_phone = forms.CharField(
         label="Preferred phone number to call:",
-        widget=forms.TextInput(
-            attrs={'placeholder': 'ex. (555) 555-5555'}
-        ),
     )
     contact_voicemail = forms.CharField(
-        label=contact_voicemail_label,
-        widget=forms.TextInput(
-            attrs={'placeholder': contact_voicemail_placeholder},
-        ),
+        label='Is it ok to leave a voicemail?',
     )
     contact_email = forms.EmailField(
-        label=contact_email_label,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'ex. myname@gmail.com'},
-        ),
+        label="What's the best email address to reach you?",
     )
     contact_notes = forms.CharField(
-        label=contact_notes_label,
-        widget=forms.Textarea(
-            attrs={'placeholder': contact_notes_placeholder},
-        ),
+        label="Any notes about how to contact you?",
+        widget=forms.Textarea(),
     )
     email_confirmation = forms.ChoiceField(
         choices=[
             (True, "Yes"),
             (False, "No, thanks"),
         ],
-        label=email_confirmation_label,
+        label="Would you like an email confirmation?",
         widget=forms.RadioSelect,
     )
 
