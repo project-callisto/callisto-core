@@ -48,12 +48,9 @@ class MatchingView(
     email_confirmation_name = 'match_confirmation'
 
     def form_valid(self, form):
-        output = super().form_valid(form)
-
         if settings.MATCH_IMMEDIATELY:
             api.MatchingApi.run_matching(
                 match_reports_to_check=self.object,
             )
         self._send_confirmation_email(form)
-
-        return output
+        return super().form_valid(form)

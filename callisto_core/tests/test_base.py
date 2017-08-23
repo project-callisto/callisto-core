@@ -64,6 +64,16 @@ class ReportFlowHelper(TestCase):
             ),
         )
 
+    def client_post_enter_matching(self, identifier='test_iden'):
+        return self.client.post(
+            reverse(
+                'report_matching_enter',
+                kwargs={'uuid': self.report.uuid},
+            ),
+            data={'identifier': identifier},
+            follow=True,
+        )
+
     def client_post_question_answer(self, url, answer):
         return self.client.post(
             url,
