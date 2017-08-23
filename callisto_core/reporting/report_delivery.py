@@ -205,7 +205,7 @@ class PDFReport(object):
         try:
             return user.email or user.username
         except AttributeError:
-            return ''
+            return 'Anonymous User'
 
 
 class PDFFullReport(PDFReport):
@@ -233,7 +233,7 @@ class PDFFullReport(PDFReport):
             '''.format(
                 self.report.submitted_to_school,
             )
-        _last_edited = self.report.last_edited or '<i>Not edited</i>'
+        _last_edited = self.report.last_edited or '<i>No Edit Data</i>'
         overview_body = overview_body + '''
             Record Created: {0}<br />
             Last Edited: {1}<br />
