@@ -12,8 +12,16 @@ from .validators import Validators
 
 logger = logging.getLogger(__name__)
 
+contact_voicemail_label = 'Is it ok to leave a voicemail? If so, what would you like the message to refer to?'
+contact_voicemail_placeholder = "ex. Yes, please just say you're following up from Callisto."
+contact_email_label = "If you can't be reached by phone, what's the best email address to reach you?"
+contact_notes_label = f"Any notes on what time of day is best to reach you? A {settings.SCHOOL_SHORTNAME} staff member will try their best to accommodate your needs."
+contact_notes_placeholder = "ex. I have class from 9-2 most weekdays and work in the evenings, so mid afternoon is best (around 2:30-5pm). Wednesdays and Thursdays I have class the entire day, so those days don't work at all."
+email_confirmation_label = "Would you like us to send you a confirmation email with information about your rights in the reporting process, and where to get support and find resources on campus?"
+
 
 class ReportingForm(
+    delivery_forms.FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
     contact_name = forms.CharField(
@@ -29,42 +37,21 @@ class ReportingForm(
         ),
     )
     contact_voicemail = forms.CharField(
-        label='''
-            Is it ok to leave a voicemail?
-            If so, what would you like the message to refer to?
-        ''',
+        label=contact_voicemail_label,
         widget=forms.TextInput(
-            attrs={
-                'placeholder': '''
-                    ex. Yes, please just say you're
-                    following up from Callisto.
-                '''},
+            attrs={'placeholder': contact_voicemail_placeholder},
         ),
     )
     contact_email = forms.EmailField(
-        label='''
-            If you can't be reached by phone,
-            what's the best email address to reach you?
-        ''',
+        label=contact_email_label,
         widget=forms.TextInput(
             attrs={'placeholder': 'ex. myname@gmail.com'},
         ),
     )
     contact_notes = forms.CharField(
-        label='''
-            Any notes on what time of day is best to reach you?
-            A {0} staff member will try their best to accommodate
-            your needs.
-        '''.format(settings.SCHOOL_SHORTNAME),
+        label=contact_notes_label,
         widget=forms.Textarea(
-            attrs={
-                'placeholder': '''
-                    ex. I have class from 9-2 most weekdays and work in
-                    the evenings, so mid afternoon is best (around 2:30-5pm).
-                    Wednesdays and Thursdays I have class the entire day,
-                    so those days don't work at all.
-                ''',
-            },
+            attrs={'placeholder': contact_notes_placeholder},
         ),
     )
     email_confirmation = forms.ChoiceField(
@@ -72,11 +59,7 @@ class ReportingForm(
             (True, "Yes"),
             (False, "No, thanks"),
         ],
-        label='''
-            Would you like us to send you a confirmation email
-            with information about your rights in the reporting
-            process, and where to get support and find resources on campus?
-        ''',
+        label=email_confirmation_label,
         widget=forms.RadioSelect,
     )
 
