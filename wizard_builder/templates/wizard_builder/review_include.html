@@ -1,19 +1,15 @@
-{% extends 'wizard_builder/base.html' %}
-
-{% block content %}
-
-    {% include "wizard_builder/review_include.html" %}
-
-    {% block post-review-content %}
-        <div>
-            <div class="col-xs-4">
-                <a class='btn btn-default btn-block' href='{{ view.steps.last_url }}'>Last Page</a>
-            </div>
-
-            <div class="col-xs-4 col-xs-offset-4">
-                <a class='btn btn-primary btn-block' href='/'>Back To Start</a>
-            </div>
-        </div>
-    {% endblock %}
-
-{% endblock %}
+<h2>Question Review</h2>
+<ul class='review-list'>
+    {% for form_item in form_data %}
+        <li class='review-item'>
+        {% for question, answers in form_item.items %}
+            <h2 class='review-question'>{{ question }}</h2>
+            <ul class='review-answer-list'>
+                {% for answer in answers %}
+                    <li class='review-answer-item'>{{ answer }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+        </li>
+    {% endfor %}
+</ul>
