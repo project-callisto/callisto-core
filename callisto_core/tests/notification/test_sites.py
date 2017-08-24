@@ -40,18 +40,34 @@ class SiteIDTest(test_base.ReportFlowHelper):
     def test_on_site_respects_SITE_ID_setting(self):
         site_1 = Site.objects.get(id=1)
         site_2 = Site.objects.create()
-        site_1_pages = 3
-        site_2_pages = site_1_pages + 1
+        site_1_emails = 3
+        site_2_emails = site_1_emails + 1
+
+        with TempSiteID(site_1.id):
+            site_1_email_count = EmailNotification.objects.on_site().count()
+        with TempSiteID(site_2.id):
+            site_2_email_count = EmailNotification.objects.on_site().count()
 
         index = 0
-        for i in range(site_1_pages):
+        for i in range(site_1_emails):
             notification = EmailNotification.objects.create(name=index)
             notification.sites.add(site_1)
             index += 1
-        for i in range(site_2_pages):
+        for i in range(site_2_emails):
             notification = EmailNotification.objects.create(name=index)
             notification.sites.add(site_2)
             index += 1
+
+        with TempSiteID(site_1.id):
+            self.assertEqual(
+                EmailNotification.objects.on_site().count(),
+                site_1_email_count + site_1_emails,
+            )
+        with TempSiteID(site_2.id):
+            self.assertEqual(
+                EmailNotification.objects.on_site().count(),
+                site_2_email_count + site_2_emails,
+            )
 
     @override_settings()
     def test_site_not_overriden_on_save(self):
