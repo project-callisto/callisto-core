@@ -13,7 +13,7 @@ class SiteAwareNotificationApi(CallistoCoreNotificationApi):
 
 class CustomNotificationApi(SiteAwareNotificationApi):
 
-    def send(self):
+    def send_email(self):
         pass  # disable sending
 
     def log_action(self):

@@ -39,6 +39,7 @@ class Report(models.Model):
     contact_email = models.EmailField(blank=True, null=True, max_length=256)
     contact_notes = models.TextField(blank=True, null=True)
     contact_name = models.TextField(blank=True, null=True)
+    contact_email_confirmation = models.BooleanField(default=False)
     match_found = models.BooleanField(default=False)
 
     def __str__(self):

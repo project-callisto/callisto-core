@@ -86,7 +86,17 @@ class ReportPostHelper(object):
         )
 
     def client_post_reporting(self):
-        pass
+        return self.client.post(
+            reverse(
+                'report_reporting',
+                kwargs={'uuid': self.report.uuid},
+            ),
+            data={
+                'identifier': 'https://www.facebook.com/callistoorg',
+                'email_confirmation': 'True',
+            },
+            follow=True,
+        )
 
     def client_post_question_answer(self, url, answer):
         return self.client.post(
@@ -145,11 +155,7 @@ class ReportFlowHelper(
     def _setup_emails(self):
         EmailNotification.objects.create(
             name='match_confirmation',
-            subject='test match confirmation',
-            body='matching confirm email',
         ).sites.add(self.site.id)
         EmailNotification.objects.create(
             name='submit_confirmation',
-            subject='test submit confirmation',
-            body='reporting confirm email',
         ).sites.add(self.site.id)

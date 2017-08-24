@@ -37,8 +37,7 @@ class MatchingTest(test_base.ReportFlowHelper):
             self.client_post_enter_matching()
 
         api_logging.assert_has_calls([
-            call(response_status=200),
-            call(body='matching confirm email'),
+            call(notification_name='match_confirmation'),
         ], any_order=True)
 
 
@@ -50,6 +49,5 @@ class ReportingTest(test_base.ReportFlowHelper):
             self.client_post_reporting()
 
         api_logging.assert_has_calls([
-            call(response_status=200),
-            call(body='reporting confirm email'),
+            call(notification_name='submit_confirmation'),
         ], any_order=True)
