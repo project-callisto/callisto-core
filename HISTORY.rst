@@ -3,6 +3,13 @@
 History
 -------
 
+0.12.0 (2017-08-24)
+++++++++++++++++++
+
+* add reporting and matching views
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/251
+
 0.11.0 (2017-08-21)
 ++++++++++++++++++
 
