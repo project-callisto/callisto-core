@@ -1,7 +1,7 @@
 import logging
 
+from ..delivery.models import MatchReport
 from ..utils.api import NotificationApi
-from .models import MatchReport
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,6 @@ class CallistoCoreMatchingApi(object):
           match_reports_to_check(list of MatchReport, optional): the MatchReports to be checked (must have identifiers)
           or None if the value is to be queried from the DB (Default value = None)
         """
-        logger.info("running matching")
         if match_reports_to_check is None:
             match_reports_to_check = MatchReport.objects.filter(seen=False)
         self.find_matches(match_reports_to_check)
@@ -83,8 +82,11 @@ class CallistoCoreMatchingApi(object):
         for match_report in matches:
             owner = match_report.report.owner
             # only send notification emails to new matches
-            if owner not in owners_notified and not match_report.report.match_found \
-                    and not match_report.report.submitted_to_school:
+            if (
+                owner not in owners_notified
+                and not match_report.report.match_found
+                and not match_report.report.submitted_to_school
+            ):
                 NotificationApi.send_match_notification(owner, match_report)
                 owners_notified.append(owner)
         # send report to school

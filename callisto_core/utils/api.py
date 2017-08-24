@@ -1,5 +1,9 @@
+import logging
+
 from django.conf import settings
 from django.utils.module_loading import import_string
+
+logger = logging.getLogger(__name__)
 
 
 class Api(type):
@@ -36,12 +40,18 @@ class Api(type):
             cls.DEFAULT_CLASS_PATH,
         )
         api_instance = import_string(override_class_path)()
-        return getattr(api_instance, attr, lambda: None)
+        func = getattr(api_instance, attr, lambda: None)
+        func_name = getattr(func, '__name__', str(func))
+        logger.debug('{}.{}'.format(
+            api_instance.__class__.__name__,
+            func_name,
+        ))
+        return func
 
 
 class MatchingApi(metaclass=Api):
     API_SETTING_NAME = 'CALLISTO_MATCHING_API'
-    DEFAULT_CLASS_PATH = 'callisto_core.delivery.api.CallistoCoreMatchingApi'
+    DEFAULT_CLASS_PATH = 'callisto_core.reporting.api.CallistoCoreMatchingApi'
 
 
 class NotificationApi(metaclass=Api):

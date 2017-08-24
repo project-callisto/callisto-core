@@ -17,7 +17,7 @@ from wizard_builder.models import (
 from ...delivery.models import Report
 from ...evaluation.models import EvalRow, EvaluationField
 from ...utils.api import MatchingApi
-from ..callistocore.test_matching import MatchTest
+from ..reporting.base import MatchSetup
 from .test_keypair import private_test_key, public_test_key
 
 User = get_user_model()
@@ -47,7 +47,7 @@ class EvalRowTest(TestCase):
 
     @skip('eval temporarily disabled')
     def test_can_hash_on_user_id(self):
-        user = User.objects.create_user(username="dummy", password="dummy")
+        user = User.objects.create_user(username="test", password="test")
         report = Report.objects.create(owner=user, encrypted=b'first report')
         self.save_row_for_report(report)
         self.assertEqual(EvalRow.objects.count(), 1)
@@ -58,9 +58,9 @@ class EvalRowTest(TestCase):
 
     @skip('eval temporarily disabled')
     def test_user_hashes_correctly(self):
-        user1 = User.objects.create_user(username="dummy", password="dummy")
+        user1 = User.objects.create_user(username="test", password="test")
         report1 = Report.objects.create(owner=user1, encrypted=b'first report')
-        user2 = User.objects.create_user(username="dummy1", password="dummy")
+        user2 = User.objects.create_user(username="test1", password="test")
         report2 = Report.objects.create(
             owner=user2, encrypted=b'second report')
         report3 = Report.objects.create(owner=user1, encrypted=b'third report')
@@ -75,9 +75,9 @@ class EvalRowTest(TestCase):
 
     @skip('eval temporarily disabled')
     def test_report_hashes_correctly(self):
-        user1 = User.objects.create_user(username="dummy", password="dummy")
+        user1 = User.objects.create_user(username="test", password="test")
         report1 = Report.objects.create(owner=user1, encrypted=b'first report')
-        user2 = User.objects.create_user(username="dummy1", password="dummy")
+        user2 = User.objects.create_user(username="test1", password="test")
         report2 = Report.objects.create(
             owner=user2, encrypted=b'second report')
         report3 = Report.objects.create(owner=user1, encrypted=b'third report')
@@ -100,7 +100,7 @@ class EvalRowTest(TestCase):
 
     @skip('eval temporarily disabled')
     def test_can_encrypt_a_row(self):
-        user = User.objects.create_user(username="dummy", password="dummy")
+        user = User.objects.create_user(username="test", password="test")
         report = Report.objects.create(owner=user, encrypted=b'first report')
         row = EvalRow(action=EvalRow.CREATE)
         row.set_identifiers(report)
@@ -117,7 +117,7 @@ class EvalRowTest(TestCase):
         gpg = gnupg.GPG()
         test_key = gpg.import_keys(private_test_key)
         self.addCleanup(delete_test_key, gpg, test_key.fingerprints[0])
-        user = User.objects.create_user(username="dummy", password="dummy")
+        user = User.objects.create_user(username="test", password="test")
         report = Report.objects.create(owner=user, encrypted=b'first report')
         row = EvalRow(action=EvalRow.CREATE)
         row.set_identifiers(report)
@@ -135,7 +135,7 @@ class EvalRowTest(TestCase):
 
     @skip('eval temporarily disabled')
     def test_make_eval_row(self):
-        user = User.objects.create_user(username="dummy", password="dummy")
+        user = User.objects.create_user(username="test", password="test")
         report = Report.objects.create(owner=user, encrypted=b'first report')
         EvalRow.store_eval_row(EvalRow.CREATE, report=report)
         self.assertEqual(EvalRow.objects.count(), 1)
@@ -260,12 +260,12 @@ class ExtractAnswersTest(TestCase):
     def test_match_id_gets_appended(self):
         self.set_up_simple_report_scenario()
         anonymised1 = EvalRow()._create_eval_row_text(
-            self.json_report, match_identifier='dummy1')
+            self.json_report, match_identifier='test1')
         anonymised2 = EvalRow()._create_eval_row_text(
-            self.json_report, match_identifier='dummy1')
+            self.json_report, match_identifier='test1')
         anonymised3 = EvalRow()._create_eval_row_text(
-            self.json_report, match_identifier='dummy2')
-        self.assertNotEqual(anonymised1['match_identifier'], 'dummy1')
+            self.json_report, match_identifier='test2')
+        self.assertNotEqual(anonymised1['match_identifier'], 'test1')
         self.assertEqual(
             anonymised1['match_identifier'],
             anonymised2['match_identifier'])
@@ -277,9 +277,9 @@ class ExtractAnswersTest(TestCase):
     def test_match_id_type_gets_appended(self):
         self.set_up_simple_report_scenario()
         anonymised1 = EvalRow()._create_eval_row_text(
-            self.json_report, match_identifier='dummy1')
+            self.json_report, match_identifier='test1')
         anonymised2 = EvalRow()._create_eval_row_text(
-            self.json_report, match_identifier='twitter:dummy1')
+            self.json_report, match_identifier='twitter:test1')
         anonymised3 = EvalRow()._create_eval_row_text(
             self.json_report, match_identifier='email:this:is:not:possible')
         self.assertEqual(anonymised1['match_identifier_type'], 'facebook')
@@ -639,8 +639,8 @@ class ExtractAnswersTest(TestCase):
 
         self.set_up_simple_report_scenario()
 
-        user = User.objects.create_user(username="dummy", password="dummy")
-        report = Report.objects.create(owner=user, encrypted=b'dummy report')
+        user = User.objects.create_user(username="test", password="test")
+        report = Report.objects.create(owner=user, encrypted=b'test report')
 
         gpg = gnupg.GPG()
         test_key = gpg.import_keys(private_test_key)
@@ -664,7 +664,7 @@ class ExtractAnswersTest(TestCase):
             self.expected)
 
 
-class EvalActionTest(MatchTest):
+class EvalActionTest(MatchSetup):
 
     def setUp(self):
         super(EvalActionTest, self).setUp()
@@ -678,11 +678,11 @@ class EvalActionTest(MatchTest):
         self.question2 = SingleLineText.objects.create(
             text="2nd question", page=self.page2)
 
-        self.client.login(username='dummy', password='dummy')
+        self.client.login(username='test', password='test')
         self.request = HttpRequest()
         self.request.GET = {}
         self.request.method = 'GET'
-        self.request.user = User.objects.get(username='dummy')
+        self.request.user = User.objects.get(username='test')
 
         self.report_text = json.dumps({'test_question': 'test answer'})
         self.key = 'a key a key a key'
@@ -730,8 +730,8 @@ class EvalActionTest(MatchTest):
             mock_send_to_authority,
             mock_notify,
             mock_anonymise_record):
-        match1 = self.create_match(self.user1, 'dummy')
-        match2 = self.create_match(self.user2, 'dummy')
+        match1 = self.create_match(self.user1, 'test')
+        match2 = self.create_match(self.user2, 'test')
         MatchingApi.run_matching()
         call1 = call(
             action=EvalRow.MATCH_FOUND,

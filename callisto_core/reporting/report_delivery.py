@@ -13,13 +13,24 @@ from reportlab.platypus import (
 
 from django.conf import settings
 from django.utils import timezone
+from django.utils.html import conditional_escape
 
 from ..utils.api import NotificationApi
 
 logger = logging.getLogger(__name__)
 
 
-class MatchReportContent:
+def report_as_pdf(report, data, recipient):
+    return PDFFullReport(
+        report=report,
+        report_data=data,
+    ).generate_pdf_report(
+        recipient=recipient,
+        report_id=report.id,
+    )
+
+
+class MatchReportContent(object):
     '''
         Class to structure contact information collected
         from match submission form for report
@@ -29,21 +40,28 @@ class MatchReportContent:
     # encrypted data. Existing arguments should not be removed or renamed,
     # and new arguments must have default values.
     def __init__(
-            self,
-            identifier,
-            perp_name,
-            email,
-            phone,
-            contact_name=None,
-            voicemail=None,
-            notes=None):
-        self.identifier = identifier
-        self.perp_name = perp_name
-        self.contact_name = contact_name
-        self.email = email
-        self.phone = phone
-        self.voicemail = voicemail
-        self.notes = notes
+        self, identifier, perp_name, email, phone,
+        contact_name=None, voicemail=None, notes=None,
+    ):
+        self.identifier = conditional_escape(identifier)
+        self.perp_name = conditional_escape(perp_name)
+        self.contact_name = conditional_escape(contact_name)
+        self.email = conditional_escape(email)
+        self.phone = conditional_escape(phone)
+        self.voicemail = conditional_escape(voicemail)
+        self.notes = conditional_escape(notes)
+
+    @classmethod
+    def from_form(cls, form):
+        return cls(
+            identifier=form.instance.identifier,
+            perp_name=form.cleaned_data.get('perp_name'),
+            contact_name=form.instance.report.contact_name,
+            email=form.instance.report.contact_email,
+            phone=form.instance.report.contact_phone,
+            voicemail=form.instance.report.contact_voicemail,
+            notes=form.instance.report.contact_notes,
+        )
 
 
 class NumberedCanvas(canvas.Canvas):
@@ -194,7 +212,10 @@ class PDFReport(object):
 
     @staticmethod
     def get_user_identifier(user):
-        return user.email or user.username
+        try:
+            return user.email or user.username
+        except AttributeError:
+            return 'Anonymous User'
 
 
 class PDFFullReport(PDFReport):
@@ -222,7 +243,7 @@ class PDFFullReport(PDFReport):
             '''.format(
                 self.report.submitted_to_school,
             )
-        _last_edited = self.report.last_edited or '<i>Not edited</i>'
+        _last_edited = self.report.last_edited or '<i>No Edit Data</i>'
         overview_body = overview_body + '''
             Record Created: {0}<br />
             Last Edited: {1}<br />

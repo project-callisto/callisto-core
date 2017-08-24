@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.crypto import get_random_string
 
-from . import hashers, report_delivery, security
+from . import hashers, security
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +35,9 @@ class Report(models.Model):
 
     submitted_to_school = models.DateTimeField(blank=True, null=True)
     contact_phone = models.CharField(blank=True, null=True, max_length=256)
-    contact_voicemail = models.TextField(blank=True, null=True)
+    contact_voicemail = models.TextField(default=True)
     contact_email = models.EmailField(blank=True, null=True, max_length=256)
-    contact_notes = models.TextField(blank=True, null=True)
+    contact_notes = models.TextField(default='No Preference')
     contact_name = models.TextField(blank=True, null=True)
     match_found = models.BooleanField(default=False)
 
@@ -61,15 +61,6 @@ class Report(models.Model):
             return report_id
         else:
             return None
-
-    def as_pdf(self, data, recipient):
-        return report_delivery.PDFFullReport(
-            report=self,
-            report_data=data,
-        ).generate_pdf_report(
-            recipient=recipient,
-            report_id=self.id,
-        )
 
     def setup(self, secret_key):
         self.encrypt_report({}, secret_key)
@@ -136,23 +127,22 @@ class MatchReport(models.Model):
     MatchReports--one per perpetrator.
     """
     report = models.ForeignKey('Report', on_delete=models.CASCADE)
-    contact_email = models.EmailField(blank=False, max_length=256)
-
     identifier = models.CharField(blank=False, null=True, max_length=500)
-
     added = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(blank=False, default=False)
-
     encrypted = models.BinaryField(null=False)
-
     # DEPRECIATED: only kept to decrypt old entries before upgrade
     salt = models.CharField(null=True, max_length=256)
-
     # <algorithm>$<iterations>$<salt>$
     encode_prefix = models.CharField(blank=True, max_length=500)
 
     def __str__(self):
         return "Match report for report {0}".format(self.report.pk)
+
+    @property
+    def match_found(self):
+        self.report.refresh_from_db()
+        return self.report.match_found
 
     def encrypt_match_report(self, report_text, key):
         """Encrypts and attaches report text. Generates a random salt and stores it in an encode prefix on the
@@ -174,6 +164,7 @@ class MatchReport(models.Model):
         self.encrypted = security.pepper(
             security.encrypt_text(stretched_key, report_text),
         )
+        self.save()
 
     def get_match(self, identifier):
         """

@@ -11,7 +11,6 @@ from django.http import HttpResponseRedirect
 from django.views import generic as views
 
 from . import forms, models, view_helpers
-from ..utils.api import NotificationApi
 
 logger = logging.getLogger(__name__)
 
@@ -30,13 +29,17 @@ class ReportBaseMixin(object):
         return self.storage_helper(self)
 
     @property
-    def report(self):
-        return self.object
+    def decrypted_report(self):
+        return self.report.decrypted_report(self.storage.secret_key)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update({'view': self})
         return kwargs
+
+    def form_invalid(self, form):
+        logger.debug(form, form.errors)
+        return super().form_invalid(form)
 
 
 class ReportDetailView(
@@ -46,6 +49,10 @@ class ReportDetailView(
     context_object_name = 'report'
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
+
+    @property
+    def report(self):
+        return self.get_object()
 
 
 class ReportLimitedDetailView(
@@ -65,10 +72,6 @@ class ReportAccessView(
     invalid_access_no_key_message = 'Invalid (no key) access request at {}'
     access_form_class = forms.ReportAccessForm
     access_template_name = ReportBaseMixin.template_name
-
-    @property
-    def decrypted_report(self):
-        return self.report.decrypted_report(self.storage.secret_key)
 
     @property
     def access_granted(self):
@@ -168,18 +171,3 @@ class ReportActionView(
             'report_view',
             kwargs={'uuid': self.report.uuid},
         ))
-
-
-class BaseReportingView(
-    ReportUpdateView,
-):
-
-    def form_valid(self, form):
-        output = super().form_valid(form)
-        if form.cleaned_data.get('email_confirmation') == "True":
-            NotificationApi.send_user_notification(
-                form,
-                self.email_confirmation_name,
-                self.site_id,
-            )
-        return output

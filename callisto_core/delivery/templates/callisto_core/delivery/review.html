@@ -1,13 +1,30 @@
 {% extends 'wizard_builder/review.html' %}
 
 {% block post-review-content %}
-<div>
-    <div class="col-xs-4">
-        <a class='btn btn-primary btn-block' href='/'>Back To Start</a>
-    </div>
+<div class="review-actions">
+    <div>
+        <div class="col-xs-4">
+            <a class='btn btn-default btn-block' href='{{ view.steps.last_url }}'>Last Page</a>
+        </div>
 
-    <div class="col-xs-4 col-xs-offset-4">
-        <a class='btn btn-primary btn-block' href='/'>Back To Start</a>
+        <div class="col-xs-4 col-xs-offset-4">
+            <a class='btn btn-primary btn-block' href="{% url 'report_view_pdf' report.uuid %}" target='_blank'>View PDF</a>
+        </div>
+    </div>
+    <div>
+        {% if report.entered_into_matching %}
+            <div class="col-xs-4">
+                <a class='btn btn-primary btn-block' href="{% url 'report_matching_withdraw' report.uuid %}">Withdraw from Matching</a>
+            </div>
+        {% else %}
+            <div class="col-xs-4">
+                <a class='btn btn-primary btn-block' href="{% url 'report_matching_prep' report.uuid %}">Enter Matching</a>
+            </div>
+        {% endif %}
+
+        <div class="col-xs-4 col-xs-offset-4">
+            <a class='btn btn-primary btn-block' href="{% url 'reporting_prep' report.uuid %}">Reporting</a>
+        </div>
     </div>
 </div>
 {% endblock %}
