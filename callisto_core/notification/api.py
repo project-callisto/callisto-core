@@ -1,4 +1,5 @@
 import logging
+import typing
 
 import gnupg
 
@@ -8,7 +9,7 @@ from django.core.mail import EmailMessage
 from django.template import Context, Template
 from django.utils import timezone
 
-from ..delivery.models import SentMatchReport
+from ..delivery.models import SentFullReport, SentMatchReport
 from ..reporting.report_delivery import PDFFullReport, PDFMatchReport
 from .models import EmailNotification
 
@@ -44,9 +45,16 @@ class CallistoCoreNotificationApi(object):
 
     # entrypoints
 
-    def send_report_to_authority(self, sent_report, report_data, site_id=None):
+    def send_report_to_authority(
+        self,
+        sent_report: type(SentFullReport),
+        report_data: dict,
+        site_id=0,
+    ) -> None:
         '''
-        TODO: docs
+        Send new full report to the reporting coordinator
+
+        Called at the end of the "reporting" flow
         '''
         self.context = {
             'notification_name': 'report_delivery',
@@ -61,12 +69,39 @@ class CallistoCoreNotificationApi(object):
         sent_report.report.submitted_to_school = timezone.now()
         sent_report.report.save()
 
+    def send_confirmation(
+        self,
+        email_type: str,
+        to_addresses: typing.List[str],
+        site_id=0,
+    ) -> None:
+        '''
+        Send a matching or submission confirmation email to the user
+
+        email_type default valid options:
+            'match_confirmation'
+            'submit_confirmation'
+
+        Called if an email confirmation is requested
+        '''
+        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(
+            settings.APP_URL,
+        )
+        self.context = {
+            'notification_name': email_type,
+            'to_addresses': to_addresses,
+            'site_id': site_id,
+            'from_email': from_email,
+        }
+        self.send()
+
     def send_matching_report_to_authority(self, matches, identifier):
         '''
-        Encrypts the generated PDF with GPG and attaches it
-        to an email to the reporting authority
+        Notifies coordinator that a match has been found
 
-        assumes all matches are on the same site
+        Assumes all matches are on the same site
+
+        Called during a successful matching run
         '''
         user = matches[0].report.owner
 
@@ -79,24 +114,11 @@ class CallistoCoreNotificationApi(object):
         self.notification_with_match_report(matches, identifier)
         self.send()
 
-    def send_user_notification(self, form, notification_name, site_id=None):
-        '''
-        TODO: docs
-        '''
-        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(
-            settings.APP_URL,
-        )
-        self.context = {
-            'notification_name': notification_name,
-            'to_addresses': [form.cleaned_data.get('email')],
-            'site_id': site_id,
-            'from_email': from_email,
-        }
-        self.send()
-
     def send_match_notification(self, user, match_report):
         '''
         Notifies reporting user that a match has been found.
+
+        Called during a successful matching run
 
         Args:
             user(User): reporting user

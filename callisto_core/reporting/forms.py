@@ -1,16 +1,22 @@
 import json
 import logging
-from distutils.util import strtobool
 
 from django import forms
 from django.conf import settings
 
 from . import report_delivery
 from ..delivery import forms as delivery_forms, models as delivery_models
-from ..utils import api
 from .validators import Validators
 
 logger = logging.getLogger(__name__)
+
+
+def identifier_field(required):
+    return forms.CharField(
+        label=Validators.titled(),
+        required=required,
+        widget=forms.TextInput(attrs={'placeholder': Validators.examples()}),
+    )
 
 
 class PrepForm(
@@ -18,11 +24,15 @@ class PrepForm(
     forms.models.ModelForm,
 ):
     contact_name = forms.CharField(
-        label="Your preferred first name:",
+        label="First Name",
         required=False,
     )
+    contact_email = forms.CharField(
+        label="Email Address",
+        required=True,
+    )
     contact_phone = forms.CharField(
-        label="Preferred phone number to call:",
+        label="Phone Number",
         required=True,
     )
     contact_notes = forms.ChoiceField(
@@ -33,32 +43,14 @@ class PrepForm(
             ('No Preference', 'No Preference'),
         ],
         label='What is the best time to reach you?',
-        required=True,
-        widget=forms.Textarea(),
+        initial='No Preference',
+        widget=forms.RadioSelect,
     )
-    contact_voicemail = forms.ChoiceField(
-        choices=[
-            (True, 'Yes'),
-            (False, 'No'),
-        ],
+    contact_voicemail = forms.BooleanField(
         label='Is it okay if your school leaves a voicemail?',
-        widget=forms.RadioSelect,
-        required=True,
-    )
-    email_confirmation = forms.ChoiceField(
-        choices=[
-            (True, 'Yes'),
-            (False, 'No'),
-        ],
-        label="Do you want to receive an email explaining your rights under Title IX?",
-        widget=forms.RadioSelect,
+        initial=True,
         required=False,
     )
-
-    def clean_email_confirmation(self):
-        if strtobool(self.data.get('email_confirmation')):
-            api.NotificationApi.send_user_notification(
-                self, 'submit_confirmation', self.view.site_id)
 
     class Meta:
         model = delivery_models.Report
@@ -68,28 +60,27 @@ class PrepForm(
             'contact_phone',
             'contact_notes',
             'contact_voicemail',
-            'contact_email_confirmation',
         ]
 
 
-class MatchingForm(
+class ReportSubclassBaseForm(
     delivery_forms.FormViewExtensionMixin,
     forms.models.ModelForm,
+):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance.report = self.view.report
+
+
+class MatchingBaseForm(
+    ReportSubclassBaseForm,
 ):
     perp_name = forms.CharField(
         label="Perpetrator's Name",
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
     )
-    identifier = forms.CharField(
-        label=Validators.titled(),
-        required=True,
-        widget=forms.TextInput(attrs={'placeholder': Validators.examples()}),
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.instance.report = self.view.report
 
     def clean_identifier(self):
         identifier = self.cleaned_data.get('identifier').strip()
@@ -120,11 +111,6 @@ class MatchingForm(
             key=self.cleaned_data.get('identifier'),
         )
 
-        if settings.MATCH_IMMEDIATELY:
-            api.MatchingApi.run_matching(
-                match_reports_to_check=[self.instance],
-            )
-
         return output
 
     class Meta:
@@ -132,62 +118,36 @@ class MatchingForm(
         fields = ['identifier']
 
 
-class ReportingForm(
-    forms.Form,
+class MatchingOptionalForm(
+    MatchingBaseForm,
 ):
-    confirmation = forms.ChoiceField(
-        choices=[
-            (True, 'Yes'),
-            (False, 'No'),
-        ],
-        label="Do you want to receive an email explaining your rights under Title IX?",
-        widget=forms.RadioSelect,
-        required=False,
-    )
-    confirmation = forms.CharField(
-        label="Your preferred first name:",
-        required=False,
-    )
-    contact_phone = forms.CharField(
-        label="Preferred phone number to call:",
-        required=True,
-    )
-    contact_voicemail = forms.CharField(
-        label='Is it okay if your school leaves a voicemail?',
-        required=True,
-    )
-    contact_email = forms.EmailField(
-        label="What's the best email address to reach you?",
-        required=True,
-    )
-    contact_notes = forms.ChoiceField(
-        choices=[
-            ('Morning', 'Morning'),
-            ('Afternoon', 'Afternoon'),
-            ('Evening', 'Evening'),
-            ('No Preference', 'No Preference'),
-        ],
-        label='What is the best time to reach you?',
-        required=True,
-        widget=forms.Textarea(),
-    )
+    identifier = identifier_field(required=False)
 
-    def clean_email_confirmation(self):
-        if strtobool(self.data.get('email_confirmation')):
-            api.NotificationApi.send_user_notification(
-                self, 'submit_confirmation', self.view.site_id)
 
-    class Meta:
-        model = delivery_models.Report
-        fields = [
-            'contact_name',
-            'contact_phone',
-            'contact_voicemail',
-            'contact_email',
-            'contact_notes',
-        ]
+class MatchingRequiredForm(
+    MatchingBaseForm,
+):
+    identifier = identifier_field(required=True)
 
 
 class ConfirmationForm(
+    ReportSubclassBaseForm,
 ):
     key = delivery_forms.passphrase_field('Passphrase')
+    confirmation = forms.BooleanField(
+        label="Yes, I agree and I understand",
+        initial=False,
+        required=True,
+    )
+
+    def clean_key(self):
+        if not self.data.get('key') == self.view.storage.secret_key:
+            forms.ValidationError('Invalid key')
+
+    def save(self, commit=True):
+        self.instance.to_address = settings.COORDINATOR_EMAIL
+        return super().save(commit=commit)
+
+    class Meta:
+        model = delivery_models.SentFullReport
+        fields = []

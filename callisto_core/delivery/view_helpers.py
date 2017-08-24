@@ -43,6 +43,10 @@ class EncryptedStorageHelper(
     def report(self):
         return self.view.report
 
+    @property
+    def decrypted_report(self):
+        return self.report.decrypted_report(self.secret_key)
+
     def current_data_from_storage(self):
         if self.secret_key:
             return self.report.decrypted_report(

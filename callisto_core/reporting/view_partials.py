@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from ..delivery import view_partials as delivery_view_partials
+from ..utils import api
 
 
 class SubmissionPartial(
@@ -15,15 +17,26 @@ class SubmissionPartial(
         )
 
 
-class PrepPartial(
-    SubmissionPartial,
-):
-    back_url = 'report_view'
-
-
 class MatchingPartial(
     SubmissionPartial,
 ):
+
+    def _send_match_email(self):
+        api.NotificationApi.send_confirmation(
+            email_type='match_confirmation',
+            to_addresses=[self.view.report.contact_email],
+            site_id=self.site_id,
+        )
+
+    def form_valid(self, form):
+        output = super().form_valid(form)
+        if form.data.get('identifier'):
+            self._send_match_email()
+        if settings.MATCH_IMMEDIATELY:
+            api.MatchingApi.run_matching(
+                match_reports_to_check=[form.instance],
+            )
+        return output
 
     def get_form_kwargs(self):
         '''
@@ -40,16 +53,20 @@ class ConfirmationPartial(
     SubmissionPartial,
 ):
 
-    def _send_email_confirmations(self):
-        pass
+    def _send_report_emails(self):
+        for sent_full_report in self.view.report.sentfullreport_set.all():
+            api.NotificationApi.send_report_to_authority(
+                sent_report=sent_full_report,
+                report_data=self.view.storage.decrypted_report,
+                site_id=self.site_id,
+            )
+        api.NotificationApi.send_confirmation(
+            email_type='submit_confirmation',
+            to_addresses=[self.view.report.contact_email],
+            site_id=self.site_id,
+        )
 
     def form_valid(self, form):
         output = super().form_valid(form)
-        self._send_email_confirmations()
+        self._send_report_emails()
         return output
-
-    def get_success_url(self):
-        return reverse(
-            'report_view',
-            kwargs={'uuid': self.report.uuid},
-        )
