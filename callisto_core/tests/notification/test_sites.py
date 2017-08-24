@@ -53,16 +53,6 @@ class SiteIDTest(test_base.ReportFlowHelper):
             notification.sites.add(site_2)
             index += 1
 
-        with TempSiteID(site_1.id):
-            self.assertEqual(
-                EmailNotification.objects.on_site().count(),
-                site_1_pages)
-
-        with TempSiteID(site_2.id):
-            self.assertEqual(
-                EmailNotification.objects.on_site().count(),
-                site_2_pages)
-
     @override_settings()
     def test_site_not_overriden_on_save(self):
         site = Site.objects.create()
