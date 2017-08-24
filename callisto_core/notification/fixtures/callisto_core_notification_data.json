@@ -1,0 +1,62 @@
+[
+  {
+    "model": "notification.emailnotification",
+    "pk": 1,
+    "fields": {
+      "name": "report_delivery",
+      "subject": "",
+      "body": "",
+      "sites": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "notification.emailnotification",
+    "pk": 2,
+    "fields": {
+      "name": "match_notification",
+      "subject": "",
+      "body": "",
+      "sites": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "notification.emailnotification",
+    "pk": 3,
+    "fields": {
+      "name": "match_confirmation",
+      "subject": "",
+      "body": "",
+      "sites": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "notification.emailnotification",
+    "pk": 4,
+    "fields": {
+      "name": "submit_confirmation",
+      "subject": "",
+      "body": "",
+      "sites": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "notification.emailnotification",
+    "pk": 6,
+    "fields": {
+      "name": "match_delivery",
+      "subject": "",
+      "body": "",
+      "sites": [
+        1
+      ]
+    }
+  }
+]

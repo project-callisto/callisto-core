@@ -44,3 +44,4 @@ app-setup: ## setup the test application environment
 	python manage.py create_admins
 	python manage.py setup_sites
 	python manage.py loaddata wizard_builder_data
+	python manage.py loaddata callisto_core_notification_data

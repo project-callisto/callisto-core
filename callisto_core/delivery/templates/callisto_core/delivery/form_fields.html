@@ -1,0 +1,23 @@
+{% load wizard_builder %}
+{% load widget_tweaks %}
+
+{% csrf_token %}
+{% include 'callisto_core/delivery/errors.html' with errors=form.non_field_errors %}
+{% for field in form %}
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
+        <span class='field-label'>
+            {{ field.label_tag }}{% if field.field.required %}*{% endif %}
+        </span>
+        <span class='errors'>
+            {% include 'callisto_core/delivery/errors.html' with errors=field.errors %}
+        </span>
+        <span class='field'>
+            {% if not field|is_multiple_choice %}
+                {{ field|add_aria_tags_to_field|add_class:"form-control" }}
+            {% else %}
+                {{ field|add_aria_tags_to_field }}
+            {% endif %}
+        </span>
+    </div>
+{% endfor %}
+<p class="help-block">* Indicates required field</p>

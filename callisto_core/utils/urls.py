@@ -49,11 +49,11 @@ urlpatterns = [
     # matching flow
     url(r'^reports/uuid/(?P<uuid>.+)/matching/prep/$',
         reporting_views.MatchingPrepView.as_view(),
-        name="matching_prep",
+        name="report_matching_prep",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/matching/enter/$',
         reporting_views.MatchingEnterView.as_view(),
-        name="matching_enter",
+        name="report_matching_enter",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/matching/withdraw/$',
         reporting_views.MatchingWithdrawView.as_view(),

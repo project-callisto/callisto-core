@@ -18,12 +18,12 @@
             </div>
         {% else %}
             <div class="col-xs-4">
-                <a class='btn btn-primary btn-block' href="{% url 'report_matching_enter' report.uuid %}">Enter Matching</a>
+                <a class='btn btn-primary btn-block' href="{% url 'report_matching_prep' report.uuid %}">Enter Matching</a>
             </div>
         {% endif %}
 
         <div class="col-xs-4 col-xs-offset-4">
-            <a class='btn btn-primary btn-block' href="{% url 'report_reporting' report.uuid %}">Reporting</a>
+            <a class='btn btn-primary btn-block' href="{% url 'reporting_prep' report.uuid %}">Reporting</a>
         </div>
     </div>
 </div>

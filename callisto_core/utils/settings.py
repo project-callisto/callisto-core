@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'callisto_core.delivery',
     'callisto_core.evaluation',
     'callisto_core.notification',
+    'callisto_core.reporting',
 ]
 
 MIDDLEWARE_CLASSES = [

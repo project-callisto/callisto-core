@@ -47,14 +47,14 @@ class MatchingPrepView(
 ):
     form_class = forms.PrepForm
     back_url = 'report_view'
-    success_url = 'matching_enter'
+    success_url = 'report_matching_enter'
 
 
 class MatchingEnterView(
     view_partials.MatchingPartial
 ):
     form_class = forms.MatchingRequiredForm
-    back_url = 'matching_prep'
+    back_url = 'report_matching_prep'
     success_url = 'report_view'
 
 

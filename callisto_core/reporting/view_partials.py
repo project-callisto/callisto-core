@@ -24,7 +24,7 @@ class MatchingPartial(
     def _send_match_email(self):
         api.NotificationApi.send_confirmation(
             email_type='match_confirmation',
-            to_addresses=[self.view.report.contact_email],
+            to_addresses=[self.report.contact_email],
             site_id=self.site_id,
         )
 
@@ -57,12 +57,12 @@ class ConfirmationPartial(
         for sent_full_report in self.view.report.sentfullreport_set.all():
             api.NotificationApi.send_report_to_authority(
                 sent_report=sent_full_report,
-                report_data=self.view.storage.decrypted_report,
+                report_data=self.storage.decrypted_report,
                 site_id=self.site_id,
             )
         api.NotificationApi.send_confirmation(
             email_type='submit_confirmation',
-            to_addresses=[self.view.report.contact_email],
+            to_addresses=[self.report.contact_email],
             site_id=self.site_id,
         )
 
