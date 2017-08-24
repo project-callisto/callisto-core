@@ -53,13 +53,6 @@ class ReportingTest(test_base.ReportFlowHelper):
         self.client_post_reporting_confirmation()
         self.assertEqual(SentFullReport.objects.count(), 1)
 
-    def test_secret_key_required(self):
-        self.assertEqual(SentFullReport.objects.count(), 0)
-        self.client_post_report_creation()
-        self.client_post_report_prep()
-        self.client_post_reporting_confirmation()
-        self.assertEqual(SentFullReport.objects.count(), 0)
-
     def test_post_to_confirmation_sends_report_email(self):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
             self.client_post_report_creation()
