@@ -51,10 +51,11 @@ class ReportPostHelper(object):
             follow=True,
         )
         self.report = response.context['report']
+        self.assertIn(response.status_code, [200, 301, 302])
         return response
 
     def client_get_report_delete(self):
-        return self.client.get(
+        response = self.client.get(
             reverse(
                 'report_delete',
                 kwargs={
@@ -62,9 +63,11 @@ class ReportPostHelper(object):
                 },
             ),
         )
+        self.assertIn(response.status_code, [200, 301, 302])
+        return response
 
     def client_get_report_view_pdf(self):
-        return self.client.get(
+        response = self.client.get(
             reverse(
                 'report_view_pdf',
                 kwargs={
@@ -72,25 +75,31 @@ class ReportPostHelper(object):
                 },
             ),
         )
+        self.assertIn(response.status_code, [200, 301, 302])
+        return response
 
     def client_post_question_answer(self, url, answer):
-        return self.client.post(
+        response = self.client.post(
             url,
             data=answer,
             follow=True,
         )
+        self.assertIn(response.status_code, [200, 301, 302])
+        return response
 
     def client_post_report_access(self, url):
-        return self.client.post(
+        response = self.client.post(
             url,
             data={
                 'key': self.secret_key,
             },
             follow=True,
         )
+        self.assertIn(response.status_code, [200, 301, 302])
+        return response
 
     def client_post_report_prep(self):
-        return self.client.post(
+        response = self.client.post(
             reverse(
                 'reporting_prep',
                 kwargs={'uuid': self.report.uuid},
@@ -101,9 +110,11 @@ class ReportPostHelper(object):
             },
             follow=True,
         )
+        self.assertIn(response.status_code, [200, 301, 302])
+        return response
 
     def client_post_matching_enter(self):
-        return self.client.post(
+        response = self.client.post(
             reverse(
                 'report_matching_enter',
                 kwargs={'uuid': self.report.uuid},
@@ -113,9 +124,11 @@ class ReportPostHelper(object):
             },
             follow=True,
         )
+        self.assertIn(response.status_code, [200, 301, 302])
+        return response
 
     def client_post_reporting_confirmation(self):
-        return self.client.post(
+        response = self.client.post(
             reverse(
                 'reporting_confirmation',
                 kwargs={'uuid': self.report.uuid},
@@ -126,6 +139,8 @@ class ReportPostHelper(object):
             },
             follow=True,
         )
+        self.assertIn(response.status_code, [200, 301, 302])
+        return response
 
 
 class ReportFlowHelper(
