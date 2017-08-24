@@ -27,7 +27,7 @@ class ReportCreateView(
     def get_success_url(self):
         return reverse(
             'report_update',
-            kwargs={'step': 0, 'uuid': self.report.uuid},
+            kwargs={'step': 0, 'uuid': self.object.uuid},
         )
 
     def form_valid(self, form):

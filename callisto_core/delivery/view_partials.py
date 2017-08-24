@@ -29,13 +29,17 @@ class ReportBaseMixin(object):
         return self.storage_helper(self)
 
     @property
-    def report(self):
-        return self.object
+    def decrypted_report(self):
+        return self.report.decrypted_report(self.storage.secret_key)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update({'view': self})
         return kwargs
+
+    def form_invalid(self, form):
+        logger.debug(form, form.errors)
+        return super().form_invalid(form)
 
 
 class ReportDetailView(
@@ -45,6 +49,10 @@ class ReportDetailView(
     context_object_name = 'report'
     slug_field = 'uuid'
     slug_url_kwarg = 'uuid'
+
+    @property
+    def report(self):
+        return self.get_object()
 
 
 class ReportLimitedDetailView(
@@ -64,10 +72,6 @@ class ReportAccessView(
     invalid_access_no_key_message = 'Invalid (no key) access request at {}'
     access_form_class = forms.ReportAccessForm
     access_template_name = ReportBaseMixin.template_name
-
-    @property
-    def decrypted_report(self):
-        return self.report.decrypted_report(self.storage.secret_key)
 
     @property
     def access_granted(self):

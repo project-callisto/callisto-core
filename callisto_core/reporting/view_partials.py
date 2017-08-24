@@ -1,12 +1,14 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.views import generic as views
 
 from ..delivery import view_partials as delivery_view_partials
 from ..utils import api
 
 
 class SubmissionPartial(
-    delivery_view_partials.ReportUpdateView,
+    delivery_view_partials.ReportLimitedDetailView,
+    views.edit.UpdateView,
 ):
     template_name = 'callisto_core/reporting/submission.html'
 
@@ -17,8 +19,18 @@ class SubmissionPartial(
         )
 
 
-class MatchingPartial(
+class ReportSubclassPartial(
     SubmissionPartial,
+):
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'instance': None})
+        return kwargs
+
+
+class MatchingPartial(
+    ReportSubclassPartial,
 ):
 
     def _send_match_email(self):
@@ -32,29 +44,19 @@ class MatchingPartial(
         output = super().form_valid(form)
         if form.data.get('identifier'):
             self._send_match_email()
-        if settings.MATCH_IMMEDIATELY:
-            api.MatchingApi.run_matching(
-                match_reports_to_check=[form.instance],
-            )
+            if settings.MATCH_IMMEDIATELY:
+                api.MatchingApi.run_matching(
+                    match_reports_to_check=[form.instance],
+                )
         return output
-
-    def get_form_kwargs(self):
-        '''
-        When access is granted, this view swaps to creating
-        a new Report subclass
-        '''
-        kwargs = super().get_form_kwargs()
-        if self.access_granted:
-            kwargs.update({'instance': None})
-        return kwargs
 
 
 class ConfirmationPartial(
-    SubmissionPartial,
+    ReportSubclassPartial,
 ):
 
     def _send_report_emails(self):
-        for sent_full_report in self.view.report.sentfullreport_set.all():
+        for sent_full_report in self.report.sentfullreport_set.all():
             api.NotificationApi.send_report_to_authority(
                 sent_report=sent_full_report,
                 report_data=self.storage.decrypted_report,

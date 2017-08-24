@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from callisto_core.reporting.forms import SubmitToMatchingForm
+from callisto_core.reporting.forms import MatchingRequiredForm
 
 from django.test import TestCase, override_settings
 
@@ -8,7 +8,7 @@ from ...delivery import models
 from ...reporting import validators
 
 
-class SubmitToMatchingFormTest(TestCase):
+class MatchingRequiredFormTest(TestCase):
 
     @property
     def mock_view(self):
@@ -17,7 +17,7 @@ class SubmitToMatchingFormTest(TestCase):
         return mock
 
     def get_cleaned_identifier(self, url):
-        form = SubmitToMatchingForm(
+        form = MatchingRequiredForm(
             {'identifier': url},
             view=self.mock_view,
         )
@@ -31,14 +31,14 @@ class SubmitToMatchingFormTest(TestCase):
         )
 
     def verify_url_fails(self, url):
-        form = SubmitToMatchingForm(
+        form = MatchingRequiredForm(
             {'identifier': url},
             view=self.mock_view,
         )
         self.assertFalse(form.is_valid())
 
 
-class SubmitToMatchingFormFacebookTest(SubmitToMatchingFormTest):
+class MatchingRequiredFormFacebookTest(MatchingRequiredFormTest):
 
     def test_accept_facebook_url(self):
         self.verify_url_works(
@@ -140,7 +140,7 @@ class SubmitToMatchingFormFacebookTest(SubmitToMatchingFormTest):
 
 
 @override_settings(CALLISTO_IDENTIFIER_DOMAINS=validators.facebook_or_twitter)
-class SubmitToMatchingFormTwitterTest(SubmitToMatchingFormTest):
+class MatchingRequiredFormTwitterTest(MatchingRequiredFormTest):
 
     def test_accept_twitter_url(self):
         self.verify_url_works(

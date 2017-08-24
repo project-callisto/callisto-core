@@ -23,7 +23,6 @@ class ReportingMatchingView(
     view_partials.MatchingPartial
 ):
     form_class = forms.MatchingOptionalForm
-    template_name = 'callisto_core/reporting/reporting_matching.html'
     back_url = 'reporting_prep'
     success_url = 'reporting_confirmation'
 
@@ -32,7 +31,6 @@ class ReportingConfirmationView(
     view_partials.ConfirmationPartial
 ):
     form_class = forms.ConfirmationForm
-    template_name = 'callisto_core/reporting/reporting_confirmation.html'
     back_url = 'reporting_matching_enter'
     success_url = 'report_view'
 

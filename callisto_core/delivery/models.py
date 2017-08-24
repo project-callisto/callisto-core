@@ -35,9 +35,9 @@ class Report(models.Model):
 
     submitted_to_school = models.DateTimeField(blank=True, null=True)
     contact_phone = models.CharField(blank=True, null=True, max_length=256)
-    contact_voicemail = models.TextField(blank=True, null=True)
+    contact_voicemail = models.TextField(default=True)
     contact_email = models.EmailField(blank=True, null=True, max_length=256)
-    contact_notes = models.TextField(blank=True, null=True)
+    contact_notes = models.TextField(default='No Preference')
     contact_name = models.TextField(blank=True, null=True)
     match_found = models.BooleanField(default=False)
 

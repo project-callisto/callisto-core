@@ -1,5 +1,6 @@
 from callisto_core.notification.models import EmailNotification
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core import mail
@@ -72,32 +73,6 @@ class ReportPostHelper(object):
             ),
         )
 
-    def client_post_enter_matching(self):
-        return self.client.post(
-            reverse(
-                'report_matching_enter',
-                kwargs={'uuid': self.report.uuid},
-            ),
-            data={
-                'identifier': 'https://www.facebook.com/callistoorg',
-                'email_confirmation': 'True',
-            },
-            follow=True,
-        )
-
-    def client_post_reporting(self):
-        return self.client.post(
-            reverse(
-                'report_reporting',
-                kwargs={'uuid': self.report.uuid},
-            ),
-            data={
-                'identifier': 'https://www.facebook.com/callistoorg',
-                'email_confirmation': 'True',
-            },
-            follow=True,
-        )
-
     def client_post_question_answer(self, url, answer):
         return self.client.post(
             url,
@@ -114,13 +89,42 @@ class ReportPostHelper(object):
             follow=True,
         )
 
-    def client_clear_secret_key(self):
-        session = self.client.session
-        session['secret_key'] = None
-        session.save()
-        self.assertEqual(
-            self.client.session.get('secret_key'),
-            None,
+    def client_post_report_prep(self):
+        return self.client.post(
+            reverse(
+                'reporting_prep',
+                kwargs={'uuid': self.report.uuid},
+            ),
+            data={
+                'contact_email': 'test@example.com',
+                'contact_phone': '555-555-5555',
+            },
+            follow=True,
+        )
+
+    def client_post_matching_enter(self):
+        return self.client.post(
+            reverse(
+                'report_matching_enter',
+                kwargs={'uuid': self.report.uuid},
+            ),
+            data={
+                'identifier': 'https://www.facebook.com/callistoorg',
+            },
+            follow=True,
+        )
+
+    def client_post_reporting_confirmation(self):
+        return self.client.post(
+            reverse(
+                'reporting_confirmation',
+                kwargs={'uuid': self.report.uuid},
+            ),
+            data={
+                'confirmation': True,
+                'key': self.secret_key,
+            },
+            follow=True,
         )
 
 
@@ -130,12 +134,14 @@ class ReportFlowHelper(
     ReportAssertionHelper,
 ):
     secret_key = 'super secret'
-    fixtures = ['wizard_builder_data']
+    fixtures = [
+        'wizard_builder_data',
+        'callisto_core_notification_data',
+    ]
 
     def setUp(self):
         self._setup_sites()
         self._setup_user()
-        self._setup_emails()
 
     def _setup_user(self):
         self.user = User.objects.create_user(
@@ -152,10 +158,11 @@ class ReportFlowHelper(
         self.site.domain = 'testserver'
         self.site.save()
 
-    def _setup_emails(self):
-        EmailNotification.objects.create(
-            name='match_confirmation',
-        ).sites.add(self.site.id)
-        EmailNotification.objects.create(
-            name='submit_confirmation',
-        ).sites.add(self.site.id)
+    def client_clear_secret_key(self):
+        session = self.client.session
+        session['secret_key'] = None
+        session.save()
+        self.assertEqual(
+            self.client.session.get('secret_key'),
+            None,
+        )

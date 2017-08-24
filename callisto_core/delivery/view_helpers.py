@@ -19,6 +19,10 @@ class SecretKeyStorageHelper(object):
     def secret_key(self):
         return self.view.request.session.get('secret_key')
 
+    @property
+    def decrypted_report(self):
+        return self.report.decrypted_report(self.secret_key)
+
 
 class ReportStepsHelper(
     wizard_builder_view_helpers.StepsHelper,
@@ -38,14 +42,6 @@ class EncryptedStorageHelper(
     SecretKeyStorageHelper,
     wizard_builder_view_helpers.StorageHelper,
 ):
-
-    @property
-    def report(self):
-        return self.view.report
-
-    @property
-    def decrypted_report(self):
-        return self.report.decrypted_report(self.secret_key)
 
     def current_data_from_storage(self):
         if self.secret_key:

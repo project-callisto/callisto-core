@@ -13,6 +13,10 @@ User = get_user_model()
 
 class MatchSetup(TestCase):
 
+    fixtures = [
+        'callisto_core_notification_data',
+    ]
+
     def setUp(self):
         self.site = Site.objects.get(id=1)
         self.site.domain = 'testserver'

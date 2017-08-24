@@ -43,12 +43,11 @@ class PrepForm(
             ('No Preference', 'No Preference'),
         ],
         label='What is the best time to reach you?',
-        initial='No Preference',
         widget=forms.RadioSelect,
+        required=False,
     )
     contact_voicemail = forms.BooleanField(
         label='Is it okay if your school leaves a voicemail?',
-        initial=True,
         required=False,
     )
 
@@ -84,6 +83,8 @@ class MatchingBaseForm(
 
     def clean_identifier(self):
         identifier = self.cleaned_data.get('identifier').strip()
+        if not identifier:
+            return
         for identifier_info in Validators.value():
             try:
                 matching_id = identifier_info['validation'](identifier)
@@ -108,7 +109,7 @@ class MatchingBaseForm(
         report_content = report_delivery.MatchReportContent.from_form(self)
         self.instance.encrypt_match_report(
             report_text=json.dumps(report_content.__dict__),
-            key=self.cleaned_data.get('identifier'),
+            key=self.view.storage.secret_key,
         )
 
         return output
