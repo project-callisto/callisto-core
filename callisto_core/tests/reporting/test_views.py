@@ -1,3 +1,4 @@
+from unittest import skip
 from unittest.mock import call, patch
 
 from callisto_core.delivery.models import MatchReport, SentFullReport
@@ -16,6 +17,7 @@ class MatchingTest(test_base.ReportFlowHelper):
         self.client_post_matching_enter()
         self.assertEqual(MatchReport.objects.count(), 1)
 
+    @skip('feature WIP')
     def test_secret_key_required(self):
         self.assertEqual(MatchReport.objects.count(), 0)
         self.client_post_report_creation()
