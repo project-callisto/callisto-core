@@ -13,7 +13,7 @@ from .validators import Validators
 logger = logging.getLogger(__name__)
 
 
-class ReportingPrepForm(
+class PrepForm(
     delivery_forms.FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
@@ -72,55 +72,7 @@ class ReportingPrepForm(
         ]
 
 
-class ReportingForm(
-    delivery_forms.FormViewExtensionMixin,
-    forms.models.ModelForm,
-):
-    contact_name = forms.CharField(
-        label="Your preferred first name:",
-        required=False,
-    )
-    contact_phone = forms.CharField(
-        label="Preferred phone number to call:",
-        required=True,
-    )
-    contact_voicemail = forms.CharField(
-        label='Is it okay if your school leaves a voicemail?',
-        required=True,
-    )
-    contact_email = forms.EmailField(
-        label="What's the best email address to reach you?",
-        required=True,
-    )
-    contact_notes = forms.ChoiceField(
-        choices=[
-            ('Morning', 'Morning'),
-            ('Afternoon', 'Afternoon'),
-            ('Evening', 'Evening'),
-            ('No Preference', 'No Preference'),
-        ],
-        label='What is the best time to reach you?',
-        required=True,
-        widget=forms.Textarea(),
-    )
-
-    def clean_email_confirmation(self):
-        if strtobool(self.data.get('email_confirmation')):
-            api.NotificationApi.send_user_notification(
-                self, 'submit_confirmation', self.view.site_id)
-
-    class Meta:
-        model = delivery_models.Report
-        fields = [
-            'contact_name',
-            'contact_phone',
-            'contact_voicemail',
-            'contact_email',
-            'contact_notes',
-        ]
-
-
-class SubmitToMatchingForm(
+class MatchingForm(
     delivery_forms.FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
@@ -178,3 +130,64 @@ class SubmitToMatchingForm(
     class Meta:
         model = delivery_models.MatchReport
         fields = ['identifier']
+
+
+class ReportingForm(
+    forms.Form,
+):
+    confirmation = forms.ChoiceField(
+        choices=[
+            (True, 'Yes'),
+            (False, 'No'),
+        ],
+        label="Do you want to receive an email explaining your rights under Title IX?",
+        widget=forms.RadioSelect,
+        required=False,
+    )
+    confirmation = forms.CharField(
+        label="Your preferred first name:",
+        required=False,
+    )
+    contact_phone = forms.CharField(
+        label="Preferred phone number to call:",
+        required=True,
+    )
+    contact_voicemail = forms.CharField(
+        label='Is it okay if your school leaves a voicemail?',
+        required=True,
+    )
+    contact_email = forms.EmailField(
+        label="What's the best email address to reach you?",
+        required=True,
+    )
+    contact_notes = forms.ChoiceField(
+        choices=[
+            ('Morning', 'Morning'),
+            ('Afternoon', 'Afternoon'),
+            ('Evening', 'Evening'),
+            ('No Preference', 'No Preference'),
+        ],
+        label='What is the best time to reach you?',
+        required=True,
+        widget=forms.Textarea(),
+    )
+
+    def clean_email_confirmation(self):
+        if strtobool(self.data.get('email_confirmation')):
+            api.NotificationApi.send_user_notification(
+                self, 'submit_confirmation', self.view.site_id)
+
+    class Meta:
+        model = delivery_models.Report
+        fields = [
+            'contact_name',
+            'contact_phone',
+            'contact_voicemail',
+            'contact_email',
+            'contact_notes',
+        ]
+
+
+class ConfirmationForm(
+):
+    key = delivery_forms.passphrase_field('Passphrase')

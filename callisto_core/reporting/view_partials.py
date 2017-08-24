@@ -1,11 +1,28 @@
 from django.core.urlresolvers import reverse
 
 from ..delivery import view_partials as delivery_view_partials
-from ..utils import api
 
 
-class BaseReportingView(
+class SubmissionPartial(
     delivery_view_partials.ReportUpdateView,
+):
+    template_name = 'callisto_core/reporting/submission.html'
+
+    def get_success_url(self):
+        return reverse(
+            self.success_url,
+            kwargs={'uuid': self.report.uuid},
+        )
+
+
+class PrepPartial(
+    SubmissionPartial,
+):
+    back_url = 'report_view'
+
+
+class MatchingPartial(
+    SubmissionPartial,
 ):
 
     def get_form_kwargs(self):
@@ -18,18 +35,21 @@ class BaseReportingView(
             kwargs.update({'instance': None})
         return kwargs
 
+
+class ConfirmationPartial(
+    SubmissionPartial,
+):
+
+    def _send_email_confirmations(self):
+        pass
+
     def form_valid(self, form):
         output = super().form_valid(form)
-        if form.cleaned_data.get('email_confirmation') == "True":
-            api.NotificationApi.send_user_notification(
-                form,
-                self.email_confirmation_name,
-                self.site_id,
-            )
+        self._send_email_confirmations()
         return output
 
     def get_success_url(self):
         return reverse(
-            'report_update',
-            kwargs={'step': 0, 'uuid': self.report.uuid},
+            'report_view',
+            kwargs={'uuid': self.report.uuid},
         )
