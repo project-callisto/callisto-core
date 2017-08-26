@@ -4,14 +4,14 @@ engines:
     config:
       languages:
         python:
-          mass_threshold: 26
+          mass_threshold: 20 # default is 32
           python_version: 3
   fixme:
     enabled: true
   radon:
     enabled: true
     config:
-      threshold: "A"
+      threshold: "A" # default is "B"
 ratings:
   paths:
   - "**.inc"
