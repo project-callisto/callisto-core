@@ -3,11 +3,15 @@ engines:
     enabled: true
     config:
       languages:
-      - python
+        python:
+          mass_threshold: 26
+          python_version: 3
   fixme:
     enabled: true
   radon:
     enabled: true
+    config:
+      threshold: "A"
 ratings:
   paths:
   - "**.inc"
@@ -17,6 +21,3 @@ ratings:
   - "**.php"
   - "**.py"
   - "**.rb"
-exclude_paths:
-- wizard_builder/tests/
-- wizard_builder/migrations/
