@@ -22,4 +22,5 @@ ratings:
   - "**.py"
   - "**.rb"
 exclude_paths:
-- wizard_builder/migrations/0001_initial.py
+- wizard_builder/tests/
+- wizard_builder/migrations/
