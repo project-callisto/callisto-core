@@ -18,7 +18,7 @@ test-fast:
 
 test-local-suite:
 	python manage.py check
-	pytest -v
+	pytest --cov=wizard_builder -v
 
 test-callisto-core:
 	pip install callisto-core --upgrade
