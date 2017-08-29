@@ -51,7 +51,7 @@ class ChoiceOptionInline(nested_admin.NestedStackedInline):
 class ChoiceInline(nested_admin.NestedStackedInline):
     model = Choice
     sortable_field_name = "position"
-    extra = 1
+    extra = 0
     formfield_overrides = {
         models.TextField: {'widget': forms.TextInput},
     }
