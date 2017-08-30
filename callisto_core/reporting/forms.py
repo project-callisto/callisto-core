@@ -110,7 +110,7 @@ class MatchingBaseForm(
             report_content = report_delivery.MatchReportContent.from_form(self)
             self.instance.encrypt_match_report(
                 report_text=json.dumps(report_content.__dict__),
-                key=self.view.storage.secret_key,
+                key=self.cleaned_data.get('identifier'),
             )
 
             return output
