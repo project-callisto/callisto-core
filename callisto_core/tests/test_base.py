@@ -155,6 +155,7 @@ class ReportFlowHelper(
     ]
 
     def setUp(self):
+        super().setUp()
         self._setup_sites()
         self._setup_user()
 
