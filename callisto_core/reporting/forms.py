@@ -104,15 +104,16 @@ class MatchingBaseForm(
         raise forms.ValidationError(Validators.invalid())
 
     def save(self, commit=True):
-        output = super().save(commit=commit)
+        if self.cleaned_data.get('identifier'):
+            output = super().save(commit=commit)
 
-        report_content = report_delivery.MatchReportContent.from_form(self)
-        self.instance.encrypt_match_report(
-            report_text=json.dumps(report_content.__dict__),
-            key=self.view.storage.secret_key,
-        )
+            report_content = report_delivery.MatchReportContent.from_form(self)
+            self.instance.encrypt_match_report(
+                report_text=json.dumps(report_content.__dict__),
+                key=self.view.storage.secret_key,
+            )
 
-        return output
+            return output
 
     class Meta:
         model = delivery_models.MatchReport
