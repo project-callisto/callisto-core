@@ -4,19 +4,10 @@ import logging
 from django import forms
 from django.conf import settings
 
-from . import report_delivery
+from . import fields, report_delivery
 from ..delivery import forms as delivery_forms, models as delivery_models
-from .validators import Validators
 
 logger = logging.getLogger(__name__)
-
-
-def identifier_field(required):
-    return forms.CharField(
-        label=Validators.titled(),
-        required=required,
-        widget=forms.TextInput(attrs={'placeholder': Validators.examples()}),
-    )
 
 
 class PrepForm(
@@ -81,28 +72,6 @@ class MatchingBaseForm(
         widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
     )
 
-    def clean_identifier(self):
-        identifier = self.cleaned_data.get('identifier').strip()
-        if not identifier:
-            return
-        for identifier_info in Validators.value():
-            try:
-                matching_id = identifier_info['validation'](identifier)
-                if matching_id:
-                    prefix = identifier_info['unique_prefix']
-                    # Facebook has an empty unique identifier
-                    # for backwards compatibility
-                    if len(prefix) > 0:
-                        # FB URLs can't contain colons
-                        matching_id = prefix + ":" + matching_id
-                    return matching_id
-            except Exception as e:
-                if e.__class__ is not forms.ValidationError:
-                    logger.exception(e)
-                pass
-        # no valid identifier found
-        raise forms.ValidationError(Validators.invalid())
-
     def save(self, commit=True):
         output = super().save(commit=commit)
 
@@ -122,13 +91,13 @@ class MatchingBaseForm(
 class MatchingOptionalForm(
     MatchingBaseForm,
 ):
-    identifier = identifier_field(required=False)
+    identifier = fields.MatchIdentifierField(required=False)
 
 
 class MatchingRequiredForm(
     MatchingBaseForm,
 ):
-    identifier = identifier_field(required=True)
+    identifier = fields.MatchIdentifierField(required=True)
 
 
 class ConfirmationForm(
