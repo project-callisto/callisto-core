@@ -119,7 +119,9 @@ class ConfirmationViewTest(ReportingHelper):
     def test_accepts_secret_key_in_form(self):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
             self.client_clear_secret_key()
-            self.request()
+            # TODO: fix this flow
+            self.request() # once to set the key
+            self.request() # then another time to fill out the form
 
         api_logging.assert_has_calls([
             call(notification_name='submit_confirmation'),
