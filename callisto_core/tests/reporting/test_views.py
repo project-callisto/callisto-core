@@ -1,6 +1,7 @@
 from unittest import skip
 from unittest.mock import call, patch
 
+from callisto_core.delivery.forms import ReportAccessForm
 from callisto_core.delivery.models import MatchReport, SentFullReport
 from callisto_core.reporting import view_partials
 from callisto_core.reporting.forms import MatchingRequiredForm
@@ -14,6 +15,11 @@ class ReportingHelper(test_base.ReportFlowHelper):
     def setUp(self):
         super().setUp()
         self.client_post_report_creation()
+
+    def recovers_from_no_secret_key(self):
+        self.client_clear_secret_key()
+        response = self.request()
+        self.assertIsInstance(response.context['form'], ReportAccessForm)
 
 
 class SubmissionViewTest(ReportingHelper):
@@ -30,6 +36,9 @@ class SubmissionViewTest(ReportingHelper):
             response,
             view_partials.SubmissionPartial.template_name,
         )
+
+    def test_recovers_from_no_secret_key(self):
+        self.recovers_from_no_secret_key()
 
 
 class MatchingHelper(ReportingHelper):
@@ -59,6 +68,9 @@ class MatchingOptionalViewTest(MatchingHelper):
     def test_does_not_create_a_full_report(self):
         self.does_not_create_a_full_report()
 
+    def test_recovers_from_no_secret_key(self):
+        self.recovers_from_no_secret_key()
+
 
 class MatchingRequiredViewTest(MatchingHelper):
 
@@ -81,6 +93,9 @@ class MatchingRequiredViewTest(MatchingHelper):
     def test_does_not_create_a_full_report(self):
         self.does_not_create_a_full_report()
 
+    def test_recovers_from_no_secret_key(self):
+        self.recovers_from_no_secret_key()
+
 
 class ConfirmationViewTest(ReportingHelper):
 
@@ -100,3 +115,6 @@ class ConfirmationViewTest(ReportingHelper):
             call(notification_name='submit_confirmation'),
             call(notification_name='report_delivery'),
         ], any_order=True)
+
+    def test_recovers_from_no_secret_key(self):
+        self.recovers_from_no_secret_key()
