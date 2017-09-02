@@ -15,6 +15,10 @@ from . import forms, models, view_helpers
 logger = logging.getLogger(__name__)
 
 
+# TODO: generalize all of these to be about Model / Object, rather than Report
+# the intent there being more effective use of django builtin functionality
+
+
 class ReportBaseMixin(object):
     model = models.Report
     storage_helper = view_helpers.SecretKeyStorageHelper
@@ -22,6 +26,7 @@ class ReportBaseMixin(object):
 
     @property
     def site_id(self):
+        # TODO: remove
         return get_current_site(self.request).id
 
     @property
@@ -42,6 +47,9 @@ class ReportBaseMixin(object):
         return super().form_invalid(form)
 
 
+# TODO: rename all of these to end in Partial, not View
+
+
 class __ReportDetailView(
     ReportBaseMixin,
     views.detail.DetailView,
@@ -52,6 +60,7 @@ class __ReportDetailView(
 
     @property
     def report(self):
+        # TODO: remove, use self.object
         return self.get_object()
 
 
@@ -63,7 +72,7 @@ class __ReportLimitedDetailView(
     ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
 
 
-class ReportAccessView(
+class __ReportAccessView(
     __ReportLimitedDetailView,
 ):
     valid_access_message = 'Valid access request at {}'
@@ -75,12 +84,7 @@ class ReportAccessView(
 
     @property
     def access_granted(self):
-        if settings.CALLISTO_CHECK_REPORT_OWNER:
-            if not self.report.owner == self.request.user:
-                self._log_warn(self.invalid_access_user_message)
-                raise PermissionDenied
-        else:
-            pass
+        self._check_report_owner()
         if self.storage.secret_key:
             try:
                 self.decrypted_report
@@ -94,29 +98,38 @@ class ReportAccessView(
             self._log_info(self.invalid_access_no_key_message)
             return False
 
+    @property
+    def access_form_valid(self):
+        form = self._get_access_form()
+        if form.is_valid():
+            # TODO: dont hardcode passphrase POST arg
+            self.storage.set_secret_key(self.request.POST.get('key'))
+            return True
+        else:
+            return False
+
     def dispatch(self, request, *args, **kwargs):
-        if self.storage.secret_key:
+        if self.storage.secret_key or self.access_form_valid:
             return super().dispatch(request, *args, **kwargs)
-        elif self.request.POST.get('key'):
-            return self._render_key_input_response()
         else:
             return self._render_access_form()
 
-    def _render_key_input_response(self):
-        form = self.access_form_class(**self.get_form_kwargs())
-        if form.is_valid():
-            self.storage.set_secret_key(self.request.POST.get('key'))
-            return HttpResponseRedirect(self.request.path)
-        else:
-            return self._render_access_form(form)
+    def _get_access_form(self):
+        form_kwargs = self.get_form_kwargs()
+        form_kwargs.update({'instance': self.get_object()})
+        return self.access_form_class(**form_kwargs)
 
-    def _render_access_form(self, form=None):
+    def _render_access_form(self):
         self.object = self.report
         self.template_name = self.access_template_name
-        if not form:
-            form = self.access_form_class(**self.get_form_kwargs())
-        context = self.get_context_data(form=form)
+        context = self.get_context_data(form=self._get_access_form())
         return self.render_to_response(context)
+
+    def _check_report_owner(self):
+        if settings.CALLISTO_CHECK_REPORT_OWNER:
+            if not self.report.owner == self.request.user:
+                self._log_warn(self.invalid_access_user_message)
+                raise PermissionDenied
 
     def _log_info(self, msg):
         # TODO: LoggingHelper
@@ -133,19 +146,14 @@ class ReportAccessView(
 
 
 class ReportUpdateView(
-    ReportAccessView,
+    __ReportAccessView,
     views.edit.UpdateView,
 ):
 
     @property
     def report(self):
-        # can be accessed at any point
+        # TODO: remove, use self.object
         return self.get_object()
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({'instance': self.report})
-        return kwargs
 
 
 class ReportActionView(
@@ -160,10 +168,11 @@ class ReportActionView(
             return super().get(request, *args, **kwargs)
 
     def _report_action(self):
-        # TODO: implement as a helper
+        # TODO: rename to _view_action
         pass
 
     def _action_response(self):
+        # TODO: rename to _view_response
         return self._redirect_to_done()
 
     def _redirect_to_done(self):

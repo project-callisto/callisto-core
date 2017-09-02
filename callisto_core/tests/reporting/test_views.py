@@ -116,5 +116,12 @@ class ConfirmationViewTest(ReportingHelper):
             call(notification_name='report_delivery'),
         ], any_order=True)
 
-    def test_recovers_from_no_secret_key(self):
-        self.recovers_from_no_secret_key()
+    def test_accepts_secret_key_in_form(self):
+        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+            self.client_clear_secret_key()
+            self.request()
+
+        api_logging.assert_has_calls([
+            call(notification_name='submit_confirmation'),
+            call(notification_name='report_delivery'),
+        ], any_order=True)

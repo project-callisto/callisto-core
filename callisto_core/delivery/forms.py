@@ -69,6 +69,7 @@ class ReportCreateForm(ReportBaseForm):
 
 
 class ReportAccessForm(ReportBaseForm):
+    # TODO: form.save() should add key to storage?
     message_key_error = 'invalid secret key'
     message_key_error_log = 'decryption failure on {}'
 
