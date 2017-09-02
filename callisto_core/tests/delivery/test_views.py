@@ -63,7 +63,7 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
                 'step': 0, 'uuid': uuid})
         self.client_clear_secret_key()
 
-        response = self.client_post_wizard_report_access(page_1_path)
+        response = self.client_post_report_access(page_1_path)
         self.assertRedirects(response, page_1_path)
 
     def test_access_form_returns_correct_report(self):
@@ -71,7 +71,7 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
         uuid = response.context['report'].uuid
         self.client_clear_secret_key()
 
-        response = self.client_post_wizard_report_access(
+        response = self.client_post_report_access(
             response.redirect_chain[0][0])
 
         self.assertEqual(response.context['report'].uuid, uuid)
@@ -81,7 +81,7 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
         self.client_clear_secret_key()
 
         self.secret_key = 'wrong key'
-        response = self.client_post_wizard_report_access(
+        response = self.client_post_report_access(
             response.redirect_chain[0][0])
         form = response.context['form']
 

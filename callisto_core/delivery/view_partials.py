@@ -50,7 +50,7 @@ class ReportBaseMixin(object):
 # TODO: rename all of these to end in Partial, not View
 
 
-class _ReportDetailView(
+class __ReportDetailView(
     ReportBaseMixin,
     views.detail.DetailView,
 ):
@@ -64,16 +64,16 @@ class _ReportDetailView(
         return self.get_object()
 
 
-class _ReportLimitedDetailView(
-    _ReportDetailView,
+class __ReportLimitedDetailView(
+    __ReportDetailView,
     ratelimit.mixins.RatelimitMixin,
 ):
     ratelimit_key = 'user'
     ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
 
 
-class _ReportAccessView(
-    _ReportLimitedDetailView,
+class __ReportAccessView(
+    __ReportLimitedDetailView,
 ):
     valid_access_message = 'Valid access request at {}'
     invalid_access_key_message = 'Invalid (key) access request at {}'
@@ -146,7 +146,7 @@ class _ReportAccessView(
 
 
 class ReportUpdateView(
-    _ReportAccessView,
+    __ReportAccessView,
     views.edit.UpdateView,
 ):
 
