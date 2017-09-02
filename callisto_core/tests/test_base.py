@@ -87,11 +87,12 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, [200, 301, 302])
         return response
 
-    def client_post_report_access(self, url):
+    def client_post_wizard_report_access(self, url):
         response = self.client.post(
             url,
             data={
                 'key': self.secret_key,
+                'form_pk_field': '1',
             },
             follow=True,
         )
