@@ -109,8 +109,10 @@ class __ReportAccessView(
             return False
 
     def dispatch(self, request, *args, **kwargs):
-        if self.storage.secret_key or self.access_form_valid:
+        if self.storage.secret_key:
             return super().dispatch(request, *args, **kwargs)
+        elif self.access_form_valid:
+            return HttpResponseRedirect(self.request.path)
         else:
             return self._render_access_form()
 
