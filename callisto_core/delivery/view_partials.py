@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views import generic as views
 
-from . import forms, models, view_helpers
+from . import fields, forms, models, view_helpers
 
 logger = logging.getLogger(__name__)
 
@@ -114,21 +114,25 @@ class __ReportAccessView(
         return form.is_valid()
 
     @property
-    def object_form_has_key(self):
-        # TODO: create a Passphrase field class, and check for that instead
+    def object_form_has_passphrase(self):
         form = self.get_form()
-        return 'key' in form.fields.keys()
+        for field_name, field_object in form.fields.items():
+            if (
+                field_name == 'key' and
+                isinstance(field_object, fields.PassphraseField)
+            ):
+                return True
 
     @property
-    def access_passed_through(self):
+    def pass_access_through(self):
         return bool(
             self.access_form_valid and
             self.object_form_valid and
-            self.object_form_has_key
+            self.object_form_has_passphrase
         )
 
     def dispatch(self, request, *args, **kwargs):
-        if self.storage.secret_key or self.access_passed_through:
+        if self.storage.secret_key or self.pass_access_through:
             return super().dispatch(request, *args, **kwargs)
         elif self.access_form_valid:
             return HttpResponseRedirect(self.request.path)

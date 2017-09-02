@@ -5,7 +5,10 @@ from django import forms
 from django.conf import settings
 
 from . import fields, report_delivery
-from ..delivery import forms as delivery_forms, models as delivery_models
+from ..delivery import (
+    fields as delivery_fields, forms as delivery_forms,
+    models as delivery_models,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +106,7 @@ class MatchingRequiredForm(
 class ConfirmationForm(
     ReportSubclassBaseForm,
 ):
-    key = delivery_forms.passphrase_field('Passphrase')
+    key = delivery_fields.PassphraseField(label='Passphrase')
     confirmation = forms.BooleanField(
         label="Yes, I agree and I understand",
         initial=False,

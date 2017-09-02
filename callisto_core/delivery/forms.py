@@ -5,7 +5,7 @@ from nacl.exceptions import CryptoError
 from django import forms
 from django.contrib.auth import get_user_model
 
-from . import models
+from . import fields, models
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -25,7 +25,7 @@ def passphrase_field(label):
 class FormViewExtensionMixin(object):
 
     def __init__(self, *args, **kwargs):
-        self.view = kwargs.pop('view')
+        self.view = kwargs.pop('view')  # TODO: pass in something more specific
         super().__init__(*args, **kwargs)
 
 
@@ -33,7 +33,7 @@ class ReportBaseForm(
     FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
-    key = passphrase_field('Passphrase')
+    key = fields.PassphraseField(label='Passphrase')
 
     @property
     def report(self):
@@ -46,7 +46,7 @@ class ReportBaseForm(
 
 class ReportCreateForm(ReportBaseForm):
     message_confirmation_error = "key and key confirmation must match"
-    key_confirmation = passphrase_field('Confirm Passphrase')
+    key_confirmation = fields.PassphraseField(label='Confirm Passphrase')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
