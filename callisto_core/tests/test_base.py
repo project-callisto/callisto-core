@@ -113,6 +113,20 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, [200, 301, 302])
         return response
 
+    def client_post_matching_enter_empty(self):
+        response = self.client.post(
+            reverse(
+                'report_matching_enter',
+                kwargs={'uuid': self.report.uuid},
+            ),
+            data={
+                'identifier': 'INVALID',
+            },
+            follow=True,
+        )
+        self.assertIn(response.status_code, [200, 301, 302])
+        return response
+
     def client_post_matching_enter(self):
         response = self.client.post(
             reverse(

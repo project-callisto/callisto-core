@@ -2,62 +2,99 @@ from unittest import skip
 from unittest.mock import call, patch
 
 from callisto_core.delivery.models import MatchReport, SentFullReport
+from callisto_core.reporting import view_partials
 from callisto_core.reporting.forms import MatchingRequiredForm
 
 from .. import test_base
 from ..utils.api import CustomNotificationApi
 
 
-class MatchingTest(test_base.ReportFlowHelper):
+class ReportingHelper(test_base.ReportFlowHelper):
+
+    def setUp(self):
+        super().setUp()
+        self.client_post_report_creation()
+
+
+class SubmissionViewTest(ReportingHelper):
+
+    def setUp(self):
+        super().setUp()
+
+    def request(self):
+        return self.client_post_report_prep()
+
+    def test_submission_template_used(self):
+        response = self.request()
+        self.assertTemplateUsed(
+            response,
+            view_partials.SubmissionPartial.template_name,
+        )
+
+
+class MatchingHelper(ReportingHelper):
+
+    def does_not_create_a_full_report(self):
+        self.assertEqual(SentFullReport.objects.count(), 0)
+        self.request()
+        self.assertEqual(SentFullReport.objects.count(), 0)
+
+
+class MatchingOptionalViewTest(MatchingHelper):
+
+    def request(self):
+        return self.client_post_matching_enter_empty()
+
+    def test_match_report_not_created(self):
+        self.assertEqual(MatchReport.objects.count(), 0)
+        self.request()
+        self.assertEqual(MatchReport.objects.count(), 0)
+
+    def test_sends_no_email(self):
+        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+            self.request()
+
+        self.assertEqual(api_logging.call_count, 0)
+
+    def test_does_not_create_a_full_report(self):
+        self.does_not_create_a_full_report()
+
+
+class MatchingRequiredViewTest(MatchingHelper):
+
+    def request(self):
+        return self.client_post_matching_enter()
 
     def test_match_report_created(self):
         self.assertEqual(MatchReport.objects.count(), 0)
-        self.client_post_report_creation()
-        self.client_post_report_prep()
-        self.client_post_matching_enter()
+        self.request()
         self.assertEqual(MatchReport.objects.count(), 1)
-
-    @skip('feature WIP')
-    def test_secret_key_required(self):
-        self.assertEqual(MatchReport.objects.count(), 0)
-        self.client_post_report_creation()
-        self.client_post_report_prep()
-        self.client_clear_secret_key()
-        self.client_post_matching_enter()
-        self.assertEqual(MatchReport.objects.count(), 0)
-
-    def test_does_not_create_a_full_report(self):
-        self.assertEqual(SentFullReport.objects.count(), 0)
-        self.client_post_report_creation()
-        self.client_post_report_prep()
-        self.client_post_matching_enter()
-        self.assertEqual(SentFullReport.objects.count(), 0)
 
     def test_sends_match_confirmation_email(self):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
-            self.client_post_report_creation()
-            self.client_post_report_prep()
-            self.client_post_matching_enter()
+            self.request()
 
         api_logging.assert_has_calls([
             call(notification_name='match_confirmation'),
         ], any_order=True)
 
+    def test_does_not_create_a_full_report(self):
+        self.does_not_create_a_full_report()
 
-class ReportingTest(test_base.ReportFlowHelper):
+
+class ConfirmationViewTest(ReportingHelper):
+
+    def request(self):
+        return self.client_post_reporting_confirmation()
 
     def test_creates_a_full_report(self):
         self.assertEqual(SentFullReport.objects.count(), 0)
-        self.client_post_report_creation()
-        self.client_post_report_prep()
-        self.client_post_reporting_confirmation()
+        self.request()
         self.assertEqual(SentFullReport.objects.count(), 1)
 
-    def test_post_to_confirmation_sends_report_email(self):
+    def test_sends_emails(self):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
-            self.client_post_report_creation()
-            self.client_post_report_prep()
-            self.client_post_reporting_confirmation()
+            self.request()
 
         api_logging.assert_has_calls([
             call(notification_name='submit_confirmation'),
