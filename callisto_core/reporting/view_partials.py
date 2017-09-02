@@ -7,7 +7,7 @@ from ..utils import api
 
 
 class SubmissionPartial(
-    delivery_view_partials.ReportLimitedDetailView,
+    delivery_view_partials.ReportAccessView,
     views.edit.UpdateView,
 ):
     template_name = 'callisto_core/reporting/submission.html'

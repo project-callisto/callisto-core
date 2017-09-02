@@ -42,7 +42,7 @@ class ReportBaseMixin(object):
         return super().form_invalid(form)
 
 
-class ReportDetailView(
+class __ReportDetailView(
     ReportBaseMixin,
     views.detail.DetailView,
 ):
@@ -55,8 +55,8 @@ class ReportDetailView(
         return self.get_object()
 
 
-class ReportLimitedDetailView(
-    ReportDetailView,
+class __ReportLimitedDetailView(
+    __ReportDetailView,
     ratelimit.mixins.RatelimitMixin,
 ):
     ratelimit_key = 'user'
@@ -64,7 +64,7 @@ class ReportLimitedDetailView(
 
 
 class ReportAccessView(
-    ReportLimitedDetailView,
+    __ReportLimitedDetailView,
 ):
     valid_access_message = 'Valid access request at {}'
     invalid_access_key_message = 'Invalid (key) access request at {}'
