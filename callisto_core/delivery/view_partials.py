@@ -108,8 +108,27 @@ class __ReportAccessView(
         else:
             return False
 
+    @property
+    def object_form_valid(self):
+        form = self.get_form()
+        return form.is_valid()
+
+    @property
+    def object_form_has_key(self):
+        # TODO: create a Passphrase field class, and check for that instead
+        form = self.get_form()
+        return 'key' in form.fields.keys()
+
+    @property
+    def access_passed_through(self):
+        return bool(
+            self.access_form_valid and
+            self.object_form_valid and
+            self.object_form_has_key
+        )
+
     def dispatch(self, request, *args, **kwargs):
-        if self.storage.secret_key:
+        if self.storage.secret_key or self.access_passed_through:
             return super().dispatch(request, *args, **kwargs)
         elif self.access_form_valid:
             return HttpResponseRedirect(self.request.path)
