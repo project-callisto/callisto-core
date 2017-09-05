@@ -1,14 +1,12 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.views import generic as views
 
 from ..delivery import view_partials as delivery_view_partials
 from ..utils import api
 
 
 class SubmissionPartial(
-    delivery_view_partials.ReportLimitedDetailView,
-    views.edit.UpdateView,
+    delivery_view_partials.ReportUpdateView,
 ):
     template_name = 'callisto_core/reporting/submission.html'
 

@@ -3,6 +3,15 @@
 History
 -------
 
+0.12.1 (2017-09-05)
+++++++++++++++++++
+
+* refactor view inheritance, stabilize reporting and matching views
+* un-pin dependencies
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/260
+    https://github.com/SexualHealthInnovations/callisto-core/pull/261
+
 0.12.0 (2017-08-24)
 ++++++++++++++++++
 
