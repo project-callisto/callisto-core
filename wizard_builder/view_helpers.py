@@ -17,6 +17,12 @@ def is_empty_text_box(answer):
     return len(answer) == 1 and not answer[0]
 
 
+def get_by_pk(items, pk):
+    for item in items:
+        if str(item['pk']) == str(pk):
+            return item
+
+
 class SerializedDataHelper(object):
     # TODO: move the zip functionality to PageForm or FormManager
     conditional_fields = [
@@ -94,14 +100,10 @@ class SerializedDataHelper(object):
         return choice_text
 
     def _get_choice(self, question, answer):
-        for choice in question['choices']:
-            if str(choice['pk']) == str(answer):
-                return choice
+        return get_by_pk(question['choices'], answer)
 
     def _get_option_text(self, choice, answer):
-        for option in choice['options']:
-            if str(option['pk']) == str(answer):
-                return option['text']
+        return get_by_pk(choice['options'], answer)['text']
 
 
 class StepsHelper(object):
