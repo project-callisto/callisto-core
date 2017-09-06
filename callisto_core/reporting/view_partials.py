@@ -57,7 +57,7 @@ class ConfirmationPartial(
         for sent_full_report in self.report.sentfullreport_set.all():
             api.NotificationApi.send_report_to_authority(
                 sent_report=sent_full_report,
-                report_data=self.storage.decrypted_report,
+                report_data=self.storage.cleaned_form_data,
                 site_id=self.site_id,
             )
         api.NotificationApi.send_confirmation(
