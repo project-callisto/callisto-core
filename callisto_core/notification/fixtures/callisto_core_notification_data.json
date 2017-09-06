@@ -4,8 +4,8 @@
     "pk": 1,
     "fields": {
       "name": "report_delivery",
-      "subject": "",
-      "body": "",
+      "subject": "report_delivery",
+      "body": "report_delivery",
       "sites": [
         1
       ]
@@ -16,8 +16,8 @@
     "pk": 2,
     "fields": {
       "name": "match_notification",
-      "subject": "",
-      "body": "",
+      "subject": "match_notification",
+      "body": "match_notification",
       "sites": [
         1
       ]
@@ -28,8 +28,8 @@
     "pk": 3,
     "fields": {
       "name": "match_confirmation",
-      "subject": "",
-      "body": "",
+      "subject": "match_confirmation",
+      "body": "match_confirmation",
       "sites": [
         1
       ]
@@ -40,8 +40,8 @@
     "pk": 4,
     "fields": {
       "name": "submit_confirmation",
-      "subject": "",
-      "body": "",
+      "subject": "submit_confirmation",
+      "body": "submit_confirmation",
       "sites": [
         1
       ]
@@ -52,8 +52,8 @@
     "pk": 6,
     "fields": {
       "name": "match_delivery",
-      "subject": "",
-      "body": "",
+      "subject": "match_delivery",
+      "body": "match_delivery",
       "sites": [
         1
       ]
