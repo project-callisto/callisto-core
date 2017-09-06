@@ -53,7 +53,7 @@ urlpatterns = [
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/matching/enter/$',
         reporting_views.MatchingEnterView.as_view(),
-        name="report_matching_enter",
+        name="matching_enter",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/matching/withdraw/$',
         reporting_views.MatchingWithdrawView.as_view(),

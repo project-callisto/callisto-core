@@ -16,6 +16,8 @@ class MatchIdentifierField(forms.CharField):
         super().__init__(*args, **kwargs)
 
     def _clean_with_identifier_validators(self, value):
+        if not value:
+            return value
         for identifier_info in Validators.value():
             matching_id = identifier_info['validation'](value)
             if matching_id:

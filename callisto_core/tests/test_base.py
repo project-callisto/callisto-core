@@ -116,11 +116,11 @@ class ReportPostHelper(object):
     def client_post_matching_enter_empty(self):
         response = self.client.post(
             reverse(
-                'report_matching_enter',
+                'reporting_matching_enter',
                 kwargs={'uuid': self.report.uuid},
             ),
             data={
-                'identifier': 'INVALID',
+                'identifier': '',
             },
             follow=True,
         )
@@ -130,7 +130,7 @@ class ReportPostHelper(object):
     def client_post_matching_enter(self):
         response = self.client.post(
             reverse(
-                'report_matching_enter',
+                'matching_enter',
                 kwargs={'uuid': self.report.uuid},
             ),
             data={

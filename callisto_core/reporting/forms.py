@@ -76,19 +76,18 @@ class MatchingBaseForm(
     )
 
     def save(self, commit=True):
-        output = super().save(commit=commit)
+        if self.data.get('identifier'):
+            output = super().save(commit=commit)
 
-        report_content = report_delivery.MatchReportContent.from_form(self)
-        self.instance.encrypt_match_report(
-            report_text=json.dumps(report_content.__dict__),
-            key=self.view.storage.secret_key,
-        )
+            report_content = report_delivery.MatchReportContent.from_form(self)
+            self.instance.encrypt_match_report(
+                report_text=json.dumps(report_content.__dict__),
+                key=self.view.storage.secret_key,
+            )
 
-        return output
-
-    class Meta:
-        model = delivery_models.MatchReport
-        fields = ['identifier']
+            return output
+        else:
+            return None
 
 
 class MatchingOptionalForm(
@@ -96,11 +95,19 @@ class MatchingOptionalForm(
 ):
     identifier = fields.MatchIdentifierField(required=False)
 
+    class Meta:
+        model = delivery_models.MatchReport
+        fields = ['identifier']
+
 
 class MatchingRequiredForm(
     MatchingBaseForm,
 ):
     identifier = fields.MatchIdentifierField(required=True)
+
+    class Meta:
+        model = delivery_models.MatchReport
+        fields = ['identifier']
 
 
 class ConfirmationForm(

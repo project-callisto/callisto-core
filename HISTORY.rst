@@ -3,7 +3,7 @@
 History
 -------
 
-0.12.1 (2017-09-05)
+0.12.2 (2017-09-05)
 ++++++++++++++++++
 
 * refactor view inheritance, stabilize reporting and matching views

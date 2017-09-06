@@ -45,7 +45,7 @@ class MatchingPrepView(
 ):
     form_class = forms.PrepForm
     back_url = 'report_view'
-    success_url = 'report_matching_enter'
+    success_url = 'matching_enter'
 
 
 class MatchingEnterView(

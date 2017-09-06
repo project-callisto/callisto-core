@@ -127,7 +127,7 @@ class MatchReport(models.Model):
     MatchReports--one per perpetrator.
     """
     report = models.ForeignKey('Report', on_delete=models.CASCADE)
-    identifier = models.CharField(blank=False, null=True, max_length=500)
+    identifier = models.CharField(blank=True, null=True, max_length=500)
     added = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(blank=False, default=False)
     encrypted = models.BinaryField(null=False)
