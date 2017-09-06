@@ -59,6 +59,10 @@ class MatchingOptionalViewTest(MatchingHelper):
         self.request()
         self.assertEqual(MatchReport.objects.count(), 0)
 
+    def test_form_valid(self):
+        response = self.request()
+        self.assertTrue(response.context['form'].is_valid())
+
     def test_sends_no_email(self):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
             self.request()
