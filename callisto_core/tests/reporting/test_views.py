@@ -4,7 +4,7 @@ from unittest.mock import call, patch
 from callisto_core.delivery.forms import ReportAccessForm
 from callisto_core.delivery.models import MatchReport, SentFullReport
 from callisto_core.reporting import view_partials
-from callisto_core.reporting.forms import MatchingRequiredForm
+from callisto_core.reporting.forms import ConfirmationForm
 
 from .. import test_base
 from ..utils.api import CustomNotificationApi
@@ -59,9 +59,9 @@ class MatchingOptionalViewTest(MatchingHelper):
         self.request()
         self.assertEqual(MatchReport.objects.count(), 0)
 
-    def test_form_valid(self):
+    def test_empty_form_advances_page(self):
         response = self.request()
-        self.assertTrue(response.context['form'].is_valid())
+        self.assertIsInstance(response.context['form'], ConfirmationForm)
 
     def test_sends_no_email(self):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
