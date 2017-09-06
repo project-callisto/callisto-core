@@ -237,3 +237,7 @@ class FrontendTest(FunctionalTest):
         self.element.done.click()
         self.assertSelectorContains('body', model.page_1_question_1.text)
         self.assertSelectorContains('body', model.page_1_question_2.text)
+        self.assertSelectorContains(
+            'body',
+            view_helpers.SerializedDataHelper.not_answered_text,
+        )

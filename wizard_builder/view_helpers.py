@@ -9,6 +9,14 @@ def is_single_element_list(item):
     return bool(isinstance(item, list)) and (len(item) == 1)
 
 
+def is_unselected_list(answer):
+    return len(answer) == 0
+
+
+def is_empty_text_box(answer):
+    return len(answer) == 1 and not answer[0]
+
+
 class SerializedDataHelper(object):
     # TODO: move the zip functionality to PageForm or FormManager
     conditional_fields = [
@@ -18,6 +26,7 @@ class SerializedDataHelper(object):
     question_id_error_message = 'field_id={} not found in {}'
     choice_id_error_message = 'Choice(pk={}) not found in {}'
     choice_option_id_error_message = 'ChoiceOption(pk={}) not found in {}'
+    not_answered_text = '[ Not Answered ]'
 
     @classmethod
     def get_zipped_data(cls, storage):
@@ -33,98 +42,66 @@ class SerializedDataHelper(object):
             self._cleaned_form_data(page_data, index)
 
     def _cleaned_form_data(self, page_data, index):
-        self._parse_answer_fields(
+        self._parse_all_questions(
             page_data,
-            self._form_questions_serialized(index),
+            self._get_form_questions_serialized(index),
         )
 
-    def _form_questions_serialized(self, index):
+    def _get_form_questions_serialized(self, index):
         return self.storage.view.forms[index].serialized
 
-    def _parse_answer_fields(self, answers, questions):
-        for answer_key, answer_value in answers.items():
-            if answer_key not in self.conditional_fields:
-                question = self._get_question(answer_key, questions)
-                answer = self._question_answer(answers, question)
-                self._parse_answers(questions, question, answers, answer)
+    def _parse_all_questions(self, answer_dict, questions):
+        for question in questions:
+            answer = self._get_question_answer(answer_dict, question)
+            self._parse_answers(question, answer_dict, answer)
 
-    def _parse_answers(self, question_dict, question, answer_dict, answer):
+    def _parse_answers(self, question, answer_dict, answer):
         if question['type'] == 'Singlelinetext':
             self._append_text_answer(answer, question)
         else:
             answer_list = answer if isinstance(answer, list) else [answer]
             self._append_list_answers(answer_dict, answer_list, question)
 
-    def _question_answer(self, answers, question):
-        return answers[question['field_id']]
+    def _get_question_answer(self, answers, question):
+        return answers.get(question['field_id'], '')
 
     def _append_text_answer(self, answer, question):
-        if len(answer) > 0:
-            self.zipped_data.append({
-                question['question_text']: [answer],
-            })
+        self._append_answer(question, [answer])
 
     def _append_list_answers(self, answer_dict, answer_list, question):
-        choice_list = []
-        for answer in answer_list:
-            choice_list.append(self._get_choice_text(
-                answer_dict, answer, question))
+        choice_list = [
+            self._get_choice_text(answer_dict, answer, question)
+            for answer in answer_list
+            if answer
+        ]
+        self._append_answer(question, choice_list)
+
+    def _append_answer(self, question, answer):
+        if is_empty_text_box(answer) or is_unselected_list(answer):
+            answer = [self.not_answered_text]
         self.zipped_data.append({
-            question['question_text']: choice_list,
+            question['question_text']: answer,
         })
 
-    def _get_question(self, answer_key, questions):
-        return self._get_from_serialized_id(
-            stored_id=answer_key,
-            current_objects=questions,
-            id_field='field_id',
-            message=self.question_id_error_message,
-        )
-
     def _get_choice_text(self, answer_dict, answer, question):
-        choice = self._get_from_serialized_id(
-            stored_id=answer,
-            current_objects=question['choices'],
-            id_field='pk',
-            message=self.choice_id_error_message,
-        )
-        choice_text = choice.get('text')
+        choice = self._get_choice(question, answer)
+        choice_text = choice['text']
         if choice.get('extra_info_text') and answer_dict.get('extra_info'):
             choice_text += ': ' + answer_dict['extra_info']
         if choice.get('options') and answer_dict.get('extra_options'):
-            choice_text += ': ' + self._get_choice_option_text(
-                choice, answer_dict)
+            choice_text += ': ' + self._get_option_text(
+                choice, answer_dict['extra_options'])
         return choice_text
 
-    def _get_choice_option_text(self, choice, answer_dict):
-        return self._get_from_serialized_id(
-            stored_id=answer_dict['extra_options'],
-            current_objects=choice['options'],
-            id_field='pk',
-            message=self.choice_option_id_error_message,
-        ).get('text')
+    def _get_choice(self, question, answer):
+        for choice in question['choices']:
+            if str(choice['pk']) == str(answer):
+                return choice
 
-    def _get_from_serialized_id(
-        self,
-        stored_id,
-        current_objects,
-        id_field,
-        message,
-    ):
-        try:
-            related_object = None
-            for _object in current_objects:
-                if str(stored_id) == str(_object[id_field]):
-                    related_object = _object
-            if related_object is not None:
-                return related_object
-            else:
-                raise ValueError(message.format(stored_id, current_objects))
-        except Exception as e:
-            # Catch exceptions raised from data being edited
-            # after the user originally answered them
-            logger.exception(e)
-            return {}
+    def _get_option_text(self, choice, answer):
+        for option in choice['options']:
+            if str(option['pk']) == str(answer):
+                return option['text']
 
 
 class StepsHelper(object):
