@@ -230,3 +230,10 @@ class FrontendTest(FunctionalTest):
         self.element.next.click()
         self.element.done.click()
         self.assertSelectorContains('body', 'text input content!!!')
+
+    def test_unanswered_questions_present_on_done_page(self):
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains('body', model.page_1_question_1.text)
+        self.assertSelectorContains('body', model.page_1_question_2.text)
