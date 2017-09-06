@@ -120,7 +120,7 @@ class ReportPostHelper(object):
                 kwargs={'uuid': self.report.uuid},
             ),
             data={
-                'identifier': 'INVALID',
+                'identifier': '',
             },
             follow=True,
         )
