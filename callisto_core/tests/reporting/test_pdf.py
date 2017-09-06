@@ -2,14 +2,13 @@ from io import BytesIO
 
 import PyPDF2
 
-from wizard_builder import view_helpers as wizard_builer_helpers
-
 from .. import test_base
 from ...reporting import report_delivery
 
 # TODO: generate mock_report_data in wizard builder
 mock_report_data = [
     {'food options': ['vegetables', 'apples: red']},
+    {'eat it now???': ['catte']},
     {'do androids dream of electric sheep?': ['awdad']},
     {'whats on the radios?': ['guitar']},
 ]
@@ -32,7 +31,4 @@ class ReportPDFTest(test_base.ReportFlowHelper):
         self.assertIn('food options', pdf_reader.getPage(0).extractText())
         self.assertIn('vegetables', pdf_reader.getPage(0).extractText())
         self.assertIn('apples: red', pdf_reader.getPage(0).extractText())
-        self.assertIn(
-            wizard_builer_helpers.SerializedDataHelper.not_answered_text,
-            pdf_reader.getPage(0).extractText(),
-        )
+        self.assertIn('eat it now???', pdf_reader.getPage(0).extractText())
