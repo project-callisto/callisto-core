@@ -1,6 +1,11 @@
 History
 -------
 
+1.0.6 (2017-09-06)
+++++++++++++++++++
+
+* show unanswered questions on the review page
+
 1.0.2 (2017-08-22)
 ++++++++++++++++++
 
