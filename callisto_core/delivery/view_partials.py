@@ -42,10 +42,6 @@ class ReportBaseMixin(object):
         kwargs.update({'view': self})
         return kwargs
 
-    def form_invalid(self, form):
-        logger.debug(form, form.errors)
-        return super().form_invalid(form)
-
 
 # TODO: rename all of these to end in Partial, not View
 
