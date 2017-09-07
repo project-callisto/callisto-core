@@ -52,21 +52,11 @@ class WizardViewTemplateHelpers(object):
         return self.storage.form_pk_field
 
 
-class WizardView(
-    WizardViewTemplateHelpers,
+class WizardFormPartial(
     views.edit.FormView,
 ):
-    site_id = None
-    url_name = None
-    template_name = 'wizard_builder/wizard_form.html'
-    done_template_name = 'wizard_builder/review.html'
-    steps_helper = view_helpers.StepsHelper
-    storage_helper = view_helpers.StorageHelper
     form_manager = managers.FormManager
-
-    @property
-    def steps(self):
-        return self.steps_helper(self)
+    storage_helper = view_helpers.StorageHelper
 
     @property
     def storage(self):
@@ -75,15 +65,34 @@ class WizardView(
     def get_forms(self):
         return self.form_manager.get_forms(self)
 
+    def dispatch(self, request, *args, **kwargs):
+        self._dispatch_processing()
+        return super().dispatch(request, *args, **kwargs)
+
+    def _dispatch_processing(self):
+        # TODO: rename to self.wizard_forms
+        self.forms = self.get_forms()
+
+
+class WizardView(
+    WizardFormPartial,
+    WizardViewTemplateHelpers,
+):
+    site_id = None
+    url_name = None
+    template_name = 'wizard_builder/wizard_form.html'
+    done_template_name = 'wizard_builder/review.html'
+    steps_helper = view_helpers.StepsHelper
+
+    @property
+    def steps(self):
+        return self.steps_helper(self)
+
     def get_form(self):
         if isinstance(self.steps.current, int):
             return self.forms[self.steps.current]
         else:
             return None
-
-    def dispatch(self, request, step=None, *args, **kwargs):
-        self._dispatch_processing(step)
-        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.steps.set_from_post()
@@ -127,8 +136,8 @@ class WizardView(
     def render_current(self):
         return HttpResponseRedirect(self.steps.current_url)
 
-    def _dispatch_processing(self, step):
-        if not getattr(self, 'curent_step', None):
+    def _dispatch_processing(self):
+        super()._dispatch_processing()
+        step = self.kwargs.get('step')
+        if step:
             self.curent_step = self.steps.parse_step(step)
-        if not getattr(self, 'forms', None):
-            self.forms = self.get_forms()
