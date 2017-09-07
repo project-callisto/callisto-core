@@ -3,7 +3,7 @@
 History
 -------
 
-0.12.3 (2017-09-06)
+0.12.4 (2017-09-06)
 ++++++++++++++++++
 
 * use updated wizard builder review page in report pdfs
