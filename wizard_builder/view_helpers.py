@@ -158,6 +158,10 @@ class StepsHelper(object):
         return self.url(self.current)
 
     @property
+    def first_url(self):
+        return self.url(0)
+
+    @property
     def last_url(self):
         return self.url(self.last)
 
