@@ -14,7 +14,7 @@
     <script type="text/javascript">
         function extra_display(el) {
             var extra_widget = $('[for="{{ widget.attrs.id }}"] .extra-widget');
-            if(el.checked) {
+            if(el[0].checked) {
                 extra_widget.show();
             } else {
                 extra_widget.hide();
