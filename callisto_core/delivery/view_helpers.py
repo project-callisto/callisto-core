@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from wizard_builder import view_helpers as wizard_builder_view_helpers
 
 
-class SecretKeyStorageHelper(object):
+class _SecretKeyStorageHelper(object):
 
     def __init__(self, view):
         self.view = view
@@ -39,7 +39,7 @@ class ReportStepsHelper(
 
 
 class EncryptedStorageHelper(
-    SecretKeyStorageHelper,
+    _SecretKeyStorageHelper,
     wizard_builder_view_helpers.StorageHelper,
 ):
 

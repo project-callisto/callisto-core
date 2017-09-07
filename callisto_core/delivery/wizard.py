@@ -16,12 +16,11 @@ class EncryptedWizardView(
 ):
     template_name = 'callisto_core/delivery/wizard_form.html'
     done_template_name = 'callisto_core/delivery/review.html'
-    storage_helper = view_helpers.EncryptedStorageHelper
     steps_helper = view_helpers.ReportStepsHelper
 
-    def dispatch(self, request, step=None, *args, **kwargs):
-        self._dispatch_processing(step)
-        return super().dispatch(request, step=step, *args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        self._dispatch_processing()
+        return super().dispatch(request, *args, **kwargs)
 
 
 class WizardActionView(

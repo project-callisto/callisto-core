@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class ReportCreateView(
-    view_partials.ReportBaseMixin,
+    view_partials.ReportBasePartial,
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
@@ -35,7 +35,7 @@ class ReportCreateView(
         return super().form_valid(form)
 
     def _set_key_from_form(self, form):
-        # TODO: move to SecretKeyStorageHelper
+        # TODO: move to _SecretKeyStorageHelper
         if form.data.get('key'):
             self.storage.set_secret_key(form.data['key'])
 
