@@ -7,9 +7,7 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
 from reportlab.pdfgen import canvas
-from reportlab.platypus import (
-    ListFlowable, ListItem, PageBreak, Paragraph, SimpleDocTemplate, Spacer,
-)
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
 from django.conf import settings
 from django.utils import timezone
@@ -243,14 +241,9 @@ class PDFFullReport(PDFReport):
             '''.format(
                 self.report.submitted_to_school,
             )
-        _last_edited = self.report.last_edited or '<i>No Edit Data</i>'
         overview_body = overview_body + '''
             Record Created: {0}<br />
-            Last Edited: {1}<br />
-        '''.format(
-            self.report.added,
-            _last_edited,
-        )
+        '''.format(self.report.added)
 
         MetadataPage.append(Paragraph(overview_body, self.body_style))
 
@@ -282,41 +275,6 @@ class PDFFullReport(PDFReport):
                 self.notes_style,
             ))
 
-        MetadataPage.append(Paragraph("Key", self.section_title_style))
-
-        key = ListFlowable(
-            [
-                ListItem(
-                    Paragraph(
-                        "Unselected option",
-                        self.answers_style,
-                    ),
-                    value=self.unselected,
-                    leftIndent=45,
-                ),
-                ListItem(
-                    Paragraph(
-                        "<b>Selected option</b>",
-                        self.answers_style,
-                    ),
-                    value=self.selected,
-                    leftIndent=45,
-                ),
-                ListItem(
-                    Paragraph(
-                        "Free text response",
-                        self.answers_style,
-                    ),
-                    value=self.free_text,
-                    leftIndent=45,
-                ),
-            ],
-            bulletType='bullet',
-            style=self.answers_list_style)
-
-        MetadataPage.append(key)
-        MetadataPage.append(PageBreak())
-
         return MetadataPage
 
     def generate_pdf_report(
@@ -347,6 +305,9 @@ class PDFFullReport(PDFReport):
         self.pdf_elements.extend(self.get_metadata_page(recipient))
 
         # REPORT
+        self.pdf_elements.extend(
+            [Paragraph("Report Questions", self.section_title_style)],
+        )
         for item in self.report_data:
             question, answers = item.popitem()
             self.render_question(question, answers)

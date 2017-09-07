@@ -28,7 +28,7 @@ class ReportPDFTest(test_base.ReportFlowHelper):
         self.assertIn(
             "Reported by: testing_12",
             pdf_reader.getPage(0).extractText())
-        self.assertIn('food options', pdf_reader.getPage(1).extractText())
-        self.assertIn('vegetables', pdf_reader.getPage(1).extractText())
-        self.assertIn('apples: red', pdf_reader.getPage(1).extractText())
-        self.assertIn('eat it now???', pdf_reader.getPage(1).extractText())
+        self.assertIn('food options', pdf_reader.getPage(0).extractText())
+        self.assertIn('vegetables', pdf_reader.getPage(0).extractText())
+        self.assertIn('apples: red', pdf_reader.getPage(0).extractText())
+        self.assertIn('eat it now???', pdf_reader.getPage(0).extractText())

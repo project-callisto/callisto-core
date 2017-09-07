@@ -10,6 +10,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views import generic as views
 
+from wizard_builder import views as wizard_builder_views
+
 from . import fields, forms, models, view_helpers
 
 logger = logging.getLogger(__name__)
@@ -19,19 +21,17 @@ logger = logging.getLogger(__name__)
 # the intent there being more effective use of django builtin functionality
 
 
-class ReportBaseMixin(object):
+class ReportBasePartial(
+    wizard_builder_views.WizardFormPartial,
+):
     model = models.Report
-    storage_helper = view_helpers.SecretKeyStorageHelper
+    storage_helper = view_helpers.EncryptedStorageHelper
     template_name = 'callisto_core/delivery/form.html'
 
     @property
     def site_id(self):
         # TODO: remove
         return get_current_site(self.request).id
-
-    @property
-    def storage(self):
-        return self.storage_helper(self)
 
     @property
     def decrypted_report(self):
@@ -47,7 +47,7 @@ class ReportBaseMixin(object):
 
 
 class __ReportDetailView(
-    ReportBaseMixin,
+    ReportBasePartial,
     views.detail.DetailView,
 ):
     context_object_name = 'report'
@@ -76,7 +76,7 @@ class __ReportAccessView(
     invalid_access_user_message = 'Invalid (user) access request at {}'
     invalid_access_no_key_message = 'Invalid (no key) access request at {}'
     access_form_class = forms.ReportAccessForm
-    access_template_name = ReportBaseMixin.template_name
+    access_template_name = ReportBasePartial.template_name
 
     @property
     def access_granted(self):
