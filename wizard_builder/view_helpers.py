@@ -36,12 +36,11 @@ class SerializedDataHelper(object):
 
     @classmethod
     def get_zipped_data(cls, storage):
-        return cls(storage).zipped_data
-
-    def __init__(self, storage):
+        self = cls()
         self.storage = storage
         self.zipped_data = []
         self._format_data()
+        return self.zipped_data
 
     def _format_data(self):
         for index, page_data in enumerate(self.storage.form_data['data']):
