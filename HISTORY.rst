@@ -3,6 +3,13 @@
 History
 -------
 
+0.12.3 (2017-09-06)
+++++++++++++++++++
+
+* use updated wizard builder review page in report pdfs
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/263
+
 0.12.2 (2017-09-05)
 ++++++++++++++++++
 
