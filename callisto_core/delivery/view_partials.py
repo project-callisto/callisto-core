@@ -10,9 +10,9 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views import generic as views
 
-from . import fields, forms, models, view_helpers
-
 from wizard_builder import views as wizard_builder_views
+
+from . import fields, forms, models, view_helpers
 
 logger = logging.getLogger(__name__)
 
