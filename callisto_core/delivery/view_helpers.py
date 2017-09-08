@@ -11,6 +11,9 @@ class _SecretKeyStorageHelper(object):
     def set_secret_key(self, key):
         self.view.request.session['secret_key'] = key
 
+    def clear_secret_key(self):
+        del self.view.request.session['secret_key']
+
     @property
     def report(self):
         return self.view.report
@@ -44,7 +47,7 @@ class EncryptedStorageHelper(
 ):
 
     def current_data_from_storage(self):
-        if self.secret_key:
+        if self.secret_key and getattr(self, 'report', None):
             return self.report.decrypted_report(
                 self.secret_key).get('data', {})
         else:

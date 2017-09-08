@@ -6,7 +6,6 @@ from nacl.exceptions import CryptoError
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views import generic as views
 
@@ -180,24 +179,13 @@ class ReportUpdateView(
 class ReportActionView(
     ReportUpdateView,
 ):
+    form_class = forms.ReportAccessForm
 
-    def get(self, request, *args, **kwargs):
-        if self.access_granted:
-            self._report_action()
-            return self._action_response()
-        else:
-            return super().get(request, *args, **kwargs)
+    def form_valid(self, form):
+        output = super().form_valid(form)
+        self.view_action()
+        self.storage.clear_secret_key()
+        return output
 
-    def _report_action(self):
-        # TODO: rename to _view_action
+    def view_action(self):
         pass
-
-    def _action_response(self):
-        # TODO: rename to _view_response
-        return self._redirect_to_done()
-
-    def _redirect_to_done(self):
-        return HttpResponseRedirect(reverse(
-            'report_view',
-            kwargs={'uuid': self.report.uuid},
-        ))

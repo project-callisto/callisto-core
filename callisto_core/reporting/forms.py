@@ -77,7 +77,7 @@ class MatchingBaseForm(
 
     def save(self, commit=True):
         if self.data.get('identifier'):
-            output = super().save(commit=commit)
+            super().save(commit=commit)
 
             report_content = report_delivery.MatchReportContent.from_form(self)
             self.instance.encrypt_match_report(
@@ -85,7 +85,7 @@ class MatchingBaseForm(
                 key=self.view.storage.secret_key,
             )
 
-            return output
+            return self.instance
         else:
             return None
 

@@ -137,7 +137,7 @@ class MatchReport(models.Model):
     encode_prefix = models.CharField(blank=True, max_length=500)
 
     def __str__(self):
-        return "Match report for report {0}".format(self.report.pk)
+        return "MatchReport for report(pk={0})".format(self.report.pk)
 
     @property
     def match_found(self):
