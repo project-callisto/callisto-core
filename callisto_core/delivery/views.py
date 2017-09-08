@@ -9,7 +9,6 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 from django.views import generic as views
 
 from . import forms, view_partials
@@ -44,9 +43,5 @@ class ReportDeleteView(
     view_partials.ReportActionView,
 ):
 
-    def _report_action(self):
-        # TODO: self.action.delete()
+    def view_action(self):
         self.report.delete()
-
-    def _action_response(self):
-        return HttpResponseRedirect(reverse('report_new'))

@@ -23,22 +23,20 @@ class EncryptedWizardView(
         return super().dispatch(request, *args, **kwargs)
 
 
-class WizardActionView(
-    view_partials.ReportActionView,
+class WizardActionPartial(
     EncryptedWizardView,
 ):
-    # NOTE: this is technically a view_partial
 
     def dispatch(self, request, *args, **kwargs):
-        step = view_helpers.ReportStepsHelper.done_name
-        return super().dispatch(request, step=step, *args, **kwargs)
+        self.kwargs['step'] = view_helpers.ReportStepsHelper.done_name
+        return super().dispatch(request, *args, **kwargs)
 
 
 class WizardPDFView(
-    WizardActionView,
+    WizardActionPartial,
 ):
 
-    def _action_response(self):
+    def get(self, *args, **kwargs):
         return self._report_pdf_response()
 
     def _report_pdf_response(self):

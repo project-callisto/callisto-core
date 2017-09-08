@@ -45,7 +45,9 @@ class CallistoCoreMatchingApi(object):
             match_list = [
                 potential
                 for potential in self.get_all_eligible_match_reports(
-                    match_report) if potential.get_match(identifier)]
+                    match_report)
+                if potential.get_match(identifier)
+            ]
             if len(match_list) > 1:
                 seen_match_owners = [
                     match.report.owner for match in match_list if match.seen]

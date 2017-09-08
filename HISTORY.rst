@@ -3,6 +3,13 @@
 History
 -------
 
+0.12.6 (2017-09-08)
+++++++++++++++++++
+
+* fix report action views
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/265
+
 0.12.4 (2017-09-06)
 ++++++++++++++++++
 
@@ -56,7 +63,7 @@ History
 0.9.0 (2017-07-06)
 ++++++++++++++++++
 
-* NotificationApi update, allowing for me effective subclassing
+* NotificationApi update, allowing for more effective subclassing
 
     https://github.com/SexualHealthInnovations/callisto-core/pull/210
 
