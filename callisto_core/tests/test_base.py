@@ -54,14 +54,18 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, [200, 301, 302])
         return response
 
-    def client_get_report_delete(self):
-        response = self.client.get(
+    def client_post_report_delete(self):
+        response = self.client.post(
             reverse(
                 'report_delete',
                 kwargs={
                     'uuid': self.report.uuid,
                 },
             ),
+            data={
+                'key': self.secret_key,
+            },
+            follow=True,
         )
         self.assertIn(response.status_code, [200, 301, 302])
         return response

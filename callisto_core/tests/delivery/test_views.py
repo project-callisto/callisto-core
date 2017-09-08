@@ -95,7 +95,7 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
         self.client_post_report_creation()
         self.assertTrue(self.report.pk)
         self.client_clear_secret_key()
-        self.client_get_report_delete()
+        self.client_post_report_delete()
         self.assertTrue(self.assert_report_exists())
 
     def test_report_action_invalid_key(self):
@@ -103,13 +103,14 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
         self.assertTrue(self.report.pk)
         self.client_clear_secret_key()
         self.secret_key = 'wrong key'
-        self.client_get_report_delete()
+        self.client_post_report_delete()
         self.assertTrue(self.assert_report_exists())
 
     def test_report_delete(self):
         self.client_post_report_creation()
         self.assertTrue(self.report.pk)
-        self.client_get_report_delete()
+        response = self.client_post_report_delete()
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(self.assert_report_exists())
 
     def test_export_returns_pdf(self):
