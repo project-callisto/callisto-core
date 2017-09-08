@@ -24,7 +24,7 @@ class EncryptedWizardView(
 
 
 class WizardActionView(
-    view_partials.ReportActionView,
+    view_partials.ReportUpdateView,
     EncryptedWizardView,
 ):
     # NOTE: this is technically a view_partial
@@ -38,7 +38,7 @@ class WizardPDFView(
     WizardActionView,
 ):
 
-    def _action_response(self):
+    def get(self, *args, **kwargs):
         return self._report_pdf_response()
 
     def _report_pdf_response(self):
