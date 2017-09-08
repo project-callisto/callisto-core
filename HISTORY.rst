@@ -63,7 +63,7 @@ History
 0.9.0 (2017-07-06)
 ++++++++++++++++++
 
-* NotificationApi update, allowing for me effective subclassing
+* NotificationApi update, allowing for more effective subclassing
 
     https://github.com/SexualHealthInnovations/callisto-core/pull/210
 
