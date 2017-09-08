@@ -96,7 +96,7 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
         self.assertTrue(self.report.pk)
         self.client_clear_secret_key()
         self.client_post_report_delete()
-        self.assertTrue(self.assert_report_exists())
+        self.assertFalse(self.assert_report_exists())
 
     def test_report_action_invalid_key(self):
         self.client_post_report_creation()

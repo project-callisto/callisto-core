@@ -105,6 +105,7 @@ class __ReportAccessView(
 
     @property
     def object_form_valid(self):
+        self.object = self.report
         form = self.get_form()
         return form.is_valid()
 
