@@ -113,12 +113,16 @@ class MatchingRequiredForm(
 class ConfirmationForm(
     ReportSubclassBaseForm,
 ):
-    key = delivery_fields.PassphraseField(label='Passphrase')
     confirmation = forms.BooleanField(
         label="Yes, I agree and I understand",
         initial=False,
         required=True,
     )
+    key = delivery_fields.PassphraseField(label='Passphrase')
+    field_order = [
+        'confirmation',
+        'key',
+    ]
 
     def clean_key(self):
         if not self.data.get('key') == self.view.storage.secret_key:

@@ -5,7 +5,7 @@ class PassphraseField(forms.CharField):
     widget = forms.PasswordInput(
         attrs={
             'autocomplete': 'off',
-            'class': 'form-control',
+            'class': 'form-control passphrase-field',
         },
     )
 

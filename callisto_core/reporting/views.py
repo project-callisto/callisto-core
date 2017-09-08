@@ -30,6 +30,7 @@ class ReportingMatchingView(
 class ReportingConfirmationView(
     view_partials.ConfirmationPartial
 ):
+    template_name = 'callisto_core/reporting/submission_confirm.html'
     form_class = forms.ConfirmationForm
     back_url = 'reporting_matching_enter'
     success_url = 'report_view'
