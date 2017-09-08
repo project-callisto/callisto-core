@@ -7,27 +7,35 @@
         the script handles showing / hiding the extra-widgets based on
         whether or not their input option is selected
 
+        script activates on any input change because radio buttons only trigger
+        `change` when they are selected, not when they are un-selected
+
         TODO: scope this jquery include to the following script tag somehow
+        TODO: !!! TESTS !!!
     {% endcomment %}
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script type="text/javascript">
-        function extra_display(el) {
-            var extra_widget = $(el).next('.extra-widget');
-            if(el.checked) {
+
+        function extra_display_{{ widget.attrs.id }}() {
+            var input_element = $('#{{ widget.attrs.id }}')[0];
+            var extra_widget = $('[for="{{ widget.attrs.id }}"] .extra-widget');
+            if(input_element.checked) {
                 extra_widget.show();
             } else {
                 extra_widget.hide();
             }
         }
+
         $(document).ready(function() {
-            $('#{{ widget.attrs.id }}').each(function(index, el) {
-                extra_display(el);
+            extra_display_{{ widget.attrs.id }}();
+            $('form input').each(function(index, el) {
                 $(el).change(function() {
-                    extra_display(el);
+                    extra_display_{{ widget.attrs.id }}();
                 });
             });
         });
+
     </script>
 
 {% endif %}

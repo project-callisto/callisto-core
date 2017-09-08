@@ -1,10 +1,10 @@
 {% if field.label %}
     {% if forloop.counter == 1 %}
-        <h2>{{ field.label }}</h2>
+        <h2>{{ field.label|safe }}</h2>
     {% else %}
-        <p class="help-block">{{ field.label }}</p>
+        <div class="help-block">{{ field.label|safe }}</div>
     {% endif %}
 {% endif %}
 {% if field.help_text %}
-    <p class="help-block">{{ field.help_text }}</p>
+    <div class="help-block">{{ field.help_text|safe }}</div>
 {% endif %}
