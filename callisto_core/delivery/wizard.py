@@ -30,8 +30,8 @@ class WizardActionView(
     # NOTE: this is technically a view_partial
 
     def dispatch(self, request, *args, **kwargs):
-        step = view_helpers.ReportStepsHelper.done_name
-        return super().dispatch(request, step=step, *args, **kwargs)
+        self.kwargs['step'] = view_helpers.ReportStepsHelper.done_name
+        return super().dispatch(request, *args, **kwargs)
 
 
 class WizardPDFView(
