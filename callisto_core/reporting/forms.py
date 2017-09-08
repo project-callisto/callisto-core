@@ -119,6 +119,10 @@ class ConfirmationForm(
         required=True,
     )
     key = delivery_fields.PassphraseField(label='Passphrase')
+    field_order = [
+        'confirmation',
+        'key',
+    ]
 
     def clean_key(self):
         if not self.data.get('key') == self.view.storage.secret_key:
