@@ -3,6 +3,13 @@
 History
 -------
 
+0.12.6 (2017-09-08)
+++++++++++++++++++
+
+* fix report action views
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/265
+
 0.12.4 (2017-09-06)
 ++++++++++++++++++
 
