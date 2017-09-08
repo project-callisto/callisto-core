@@ -3,6 +3,13 @@
 History
 -------
 
+0.12.7 (2017-09-08)
+++++++++++++++++++
+
+* fix delivery migration 0014, add delivery migration 0016
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/266
+
 0.12.6 (2017-09-08)
 ++++++++++++++++++
 
