@@ -42,8 +42,6 @@ class ReportCreateView(
 class ReportDeleteView(
     view_partials.ReportActionView,
 ):
-    form_class = forms.ReportAccessForm
-    success_url = 'report_new'
 
     def view_action(self):
         self.report.delete()

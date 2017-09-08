@@ -179,6 +179,7 @@ class ReportUpdateView(
 class ReportActionView(
     ReportUpdateView,
 ):
+    success_url = '/'
     form_class = forms.ReportAccessForm
 
     def form_valid(self, form):

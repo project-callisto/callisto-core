@@ -61,5 +61,5 @@ class MatchingWithdrawView(
     delivery_view_partials.ReportActionView,
 ):
 
-    def _report_action(self):
+    def view_action(self):
         self.report.withdraw_from_matching()
