@@ -226,7 +226,6 @@ class StepsHelper(object):
 
 class StorageHelper(object):
     data_manager = SerializedDataHelper
-    form_pk_field = 'form_pk_field'
 
     def __init__(self, view):
         self.view = view
@@ -243,22 +242,14 @@ class StorageHelper(object):
         return self.data_manager.get_zipped_data(self)
 
     @property
-    def post_form_pk(self):
-        pk = self.view.request.POST[self.form_pk_field]
-        return self.form_pk(pk)
-
-    @property
     def current_and_post_data(self):
-        current_data = self.current_data_from_key(self.post_form_pk)
+        current_data = self.current_data_from_key(self.view.wizard_current_step)
         current_data.update(self.view.current_step_data)
         return current_data
 
-    def form_pk(self, pk):
-        return '{}_{}'.format(self.form_pk_field, pk)
-
     def update(self):
         data = self.current_data_from_storage()
-        data[self.post_form_pk] = self.current_and_post_data
+        data[self.view.wizard_current_step] = self.current_and_post_data
         self.add_data_to_storage(data)
 
     def current_data_from_pk(self, pk):
