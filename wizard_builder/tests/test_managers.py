@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .. import managers, models
+from .. import forms, managers, models
 
 
 class ManagerTest(TestCase):
@@ -14,3 +14,7 @@ class ManagerTest(TestCase):
             len(self.manager.get_forms({}, 1)),
             len(models.Page.objects.wizard_set(1)),
         )
+
+    def test_returns_page_form(self):
+        for form in self.manager.get_forms({}, 1):
+            self.assertIsInstance(form, forms.PageForm)
