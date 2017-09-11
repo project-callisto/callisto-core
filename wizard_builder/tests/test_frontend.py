@@ -226,10 +226,6 @@ class FrontendTest(FunctionalTest):
         self.element.done.click()
         self.assertSelectorContains('h2', 'Question Review')
 
-    def test_metadata_not_present_on_done_page(self):
-        # WIP
-        pass
-
     def test_choice_dropdown_present_on_done_page(self):
         self.element.extra_dropdown.click()
         self.element.next.click()
