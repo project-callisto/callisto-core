@@ -5,6 +5,13 @@ from django.core.urlresolvers import reverse
 logger = logging.getLogger(__name__)
 
 
+def resolve_list(item):
+    if isinstance(item, list):
+        return item[0]
+    else:
+        return item
+
+
 def is_single_element_list(item):
     return bool(isinstance(item, list)) and (len(item) == 1)
 
@@ -19,7 +26,7 @@ def is_empty_text_box(answer):
 
 def get_by_pk(items, pk):
     for item in items:
-        if str(item['pk']) == str(pk):
+        if str(item['pk']) == str(resolve_list(pk)):
             return item
 
 
@@ -92,7 +99,7 @@ class SerializedDataHelper(object):
         choice = self._get_choice(question, answer)
         choice_text = choice['text']
         if choice.get('extra_info_text') and answer_dict.get('extra_info'):
-            choice_text += ': ' + answer_dict['extra_info']
+            choice_text += ': ' + resolve_list(answer_dict['extra_info'])
         if choice.get('options') and answer_dict.get('extra_options'):
             choice_text += ': ' + self._get_option_text(
                 choice, answer_dict['extra_options'])
