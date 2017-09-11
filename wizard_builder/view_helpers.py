@@ -245,7 +245,6 @@ class StorageHelper(object):
         current_data = self.current_data_from_key(self.post_form_pk)
         post_data = dict(self.view.request.POST)
         post_data = self._data_without_metadata(post_data)
-        post_data = self._data_arrays_resolved(post_data)
         current_data.update(post_data)
         return current_data
 
@@ -277,19 +276,6 @@ class StorageHelper(object):
 
     def add_data_to_storage(self, data):
         self.view.request.session['data'] = data
-
-    def _data_arrays_resolved(self, data):
-        '''
-            resolves
-                data['text'] = ['my text input']
-
-            into
-                data['text'] = 'my text input'
-        '''
-        return {
-            key: value[0] if is_single_element_list(value) else value
-            for key, value in data.items()
-        }
 
     def _data_without_metadata(self, data):
         return {
