@@ -200,6 +200,16 @@ class FrontendTest(FunctionalTest):
         self.assertTrue(self.element.extra_input.is_selected())
         self.assertTrue(self.element.extra_dropdown.is_selected())
 
+    def test_textbox_array_regression(self):
+        self.element.next.click()
+        self.element.text_input.send_keys('text input content!!!')
+        self.element.back.click()
+        self.element.next.click()
+        self.assertNotEqual(
+            ['text input content!!!'],
+            self.element.text_input.get_attribute('value'),
+        )
+
     def test_text_persists_after_changing_page(self):
         self.element.next.click()
         self.element.text_input.send_keys('text input content!!!')
