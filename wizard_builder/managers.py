@@ -5,7 +5,6 @@ from model_utils.managers import InheritanceManager, InheritanceQuerySet
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
@@ -15,15 +14,20 @@ logger = logging.getLogger(__name__)
 class FormManager(object):
 
     @classmethod
-    def get_forms(cls, view):
-        return cls(view).forms
-
-    def __init__(self, view):
+    def get_forms(cls, view, site_id):
+        # TODO: more specific function arg(s)
+        self = cls()
         self.view = view
+        self.site_id = site_id
+        return self.forms
 
-    @property
-    def site_id(self):
-        return get_current_site(self.view.request).id
+    @classmethod
+    def get_form_data(cls, index, data, site_id):
+        self = cls()
+        self.site_id = site_id
+        page = self.pages()[index]
+        form = self._create_form_instance(page, data)
+        return form.cleaned_data
 
     @property
     def section_map(self):
@@ -31,44 +35,39 @@ class FormManager(object):
         from .models import Page
         return {
             section: idx + 1
-            for idx, page in enumerate(self.pages)
+            for idx, page in enumerate(self.pages())
             for section, _ in Page.SECTION_CHOICES
             if page.section == section
         }
 
     @property
     def forms(self):
-        forms = [
-            self._create_form(index, page)
-            for index, page in enumerate(self.pages)
+        return [
+            self._create_form_with_metadata(page)
+            for page in self.pages()
         ]
-        logger.debug(forms)
-        return forms
 
-    @property
     def pages(self):
-        from .models import Page
-        pages = Page.objects.wizard_set(self.site_id)
-        logger.debug(pages)
-        return pages
+        from .models import Page  # TODO: move to top
+        return Page.objects.wizard_set(self.site_id)
 
-    def _create_form(self, index, page):
-        from .forms import PageForm
-        FormClass = PageForm.setup(page)
-        return self._create_form_instance(
-            FormClass, index, page)
-
-    def _create_form_instance(self, FormClass, index, page):
+    def _create_form_with_metadata(self, page):
         data = self._create_form_data(page)
-        form = FormClass(**data)
-        form.full_clean()
+        form = self._create_form_instance(page, data)
         form.page = page
         form.pk = page.pk
         form.section_map = self.section_map
         return form
 
+    def _create_form_instance(self, page, data={}):
+        from .forms import PageForm  # TODO: move to top
+        FormClass = PageForm.setup(page)
+        form = FormClass(data)
+        form.full_clean()
+        return form
+
     def _create_form_data(self, page):
-        return {'data': self.view.storage.current_data_from_pk(page.pk)}
+        return self.view.storage.current_data_from_pk(page.pk)
 
 
 class PageQuerySet(QuerySet):

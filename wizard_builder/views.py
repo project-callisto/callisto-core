@@ -1,3 +1,4 @@
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.views import generic as views
@@ -62,8 +63,16 @@ class WizardFormPartial(
     def storage(self):
         return self.storage_helper(self)
 
+    @property
+    def wizard_form_data(self):
+        return self.form_manager.get_form_data(
+            self.steps.current, self.request.POST, self.get_site_id())
+
+    def get_site_id(self):
+        return get_current_site(self.request).id
+
     def get_forms(self):
-        return self.form_manager.get_forms(self)
+        return self.form_manager.get_forms(self, self.get_site_id())
 
     def dispatch(self, request, *args, **kwargs):
         self._dispatch_processing()
@@ -87,6 +96,10 @@ class WizardView(
     @property
     def steps(self):
         return self.steps_helper(self)
+
+    @property
+    def wizard_form(self):
+        return WizardView.get_form(self)
 
     def get_form(self):
         if isinstance(self.steps.current, int):

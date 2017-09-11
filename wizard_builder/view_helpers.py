@@ -250,17 +250,8 @@ class StorageHelper(object):
     @property
     def current_and_post_data(self):
         current_data = self.current_data_from_key(self.post_form_pk)
-        post_data = dict(self.view.request.POST)
-        post_data = self._data_without_metadata(post_data)
-        current_data.update(post_data)
+        current_data.update(self.view.wizard_form_data)
         return current_data
-
-    @property
-    def metadata_fields(self):
-        return [
-            'csrfmiddlewaretoken',
-            self.form_pk_field,
-        ] + self.view.steps.wizard_form_fields
 
     def form_pk(self, pk):
         return '{}_{}'.format(self.form_pk_field, pk)
@@ -283,10 +274,3 @@ class StorageHelper(object):
 
     def add_data_to_storage(self, data):
         self.view.request.session['data'] = data
-
-    def _data_without_metadata(self, data):
-        return {
-            key: value
-            for key, value in data.items()
-            if key not in self.metadata_fields
-        }
