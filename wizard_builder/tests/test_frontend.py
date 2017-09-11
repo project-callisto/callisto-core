@@ -217,6 +217,13 @@ class FrontendTest(FunctionalTest):
         self.element.done.click()
         self.assertSelectorContains('h2', 'Question Review')
 
+    def test_choice_dropdown_present_on_done_page(self):
+        self.element.extra_dropdown.click()
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains('body', model.dropdown_1.text)
+
     def test_choice_present_on_done_page(self):
         self.element.choice_1.click()
         self.element.next.click()
