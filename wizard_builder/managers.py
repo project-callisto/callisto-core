@@ -56,23 +56,18 @@ class FormManager(object):
         return Page.objects.wizard_set(self.site_id)
 
     def _create_form_with_metadata(self, page):
-        data = self._create_form_data(page)
-        form = self._create_cleaned_form(page, data)
+        form = self._create_cleaned_form(page)
         form.page = page
         form.pk = page.pk
         form.section_map = self.section_map
         return form
 
-    def _create_cleaned_form(self, page, data):
+    def _create_cleaned_form(self, page):
         from .forms import PageForm  # TODO: move to top
         FormClass = PageForm.setup(page)
-        form = FormClass(data)
+        form = FormClass(self.data)
         form.full_clean()
         return form
-
-    def _create_form_data(self, page):
-        key = self.form_pk(page.pk)
-        return self.data.get(key, {})
 
 
 class PageQuerySet(QuerySet):
