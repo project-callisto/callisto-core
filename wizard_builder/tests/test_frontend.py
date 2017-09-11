@@ -100,7 +100,6 @@ class ElementHelper(object):
             '[type="checkbox"]')[number]
 
 
-@override_settings(DEBUG=True)
 class FrontendTest(FunctionalTest):
 
     @property
