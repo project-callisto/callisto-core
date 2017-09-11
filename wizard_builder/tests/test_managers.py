@@ -16,14 +16,11 @@ class ManagerTest(TestCase):
         )
 
     def test_returns_page_form(self):
-        for form in self.manager.get_forms({}, 1):
+        for form in self.manager.get_forms():
             self.assertIsInstance(form, forms.PageForm)
 
     def test_manager_populates_default_data(self):
         text = 'kitten ipsum cottoncloud'
         data = {'question_2': text}
-        form = self.manager.get_forms(data, 1)[1]
-        self.assertEqual(
-            form.cleaned_data['question_2'],
-            text,
-        )
+        form = self.manager.get_forms(data)[1]
+        self.assertEqual(form.cleaned_data, data)

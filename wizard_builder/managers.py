@@ -15,20 +15,11 @@ class FormManager(object):
     form_pk_field = 'form_pk_field'
 
     @classmethod
-    def get_forms(cls, data, site_id):
-        # TODO: more specific function arg(s)
+    def get_forms(cls, data={}, site_id=1):
         self = cls()
-        self.data = data
+        self.data = data  # TODO: remove self.data, pass it down through funcs
         self.site_id = site_id
         return self.forms
-
-    @classmethod
-    def get_cleaned_data(cls, data, site_id, index):
-        self = cls()
-        self.site_id = site_id
-        page = self.pages()[index]
-        form = self._create_cleaned_form(page, data)
-        return form.cleaned_data
 
     @property
     def section_map(self):
@@ -56,16 +47,16 @@ class FormManager(object):
         return Page.objects.wizard_set(self.site_id)
 
     def _create_form_with_metadata(self, page):
-        form = self._create_cleaned_form(page)
+        form = self._create_cleaned_form(page, self.data)
         form.page = page
         form.pk = page.pk
         form.section_map = self.section_map
         return form
 
-    def _create_cleaned_form(self, page):
+    def _create_cleaned_form(self, page, data):
         from .forms import PageForm  # TODO: move to top
         FormClass = PageForm.setup(page)
-        form = FormClass(self.data)
+        form = FormClass(data)
         form.full_clean()
         return form
 

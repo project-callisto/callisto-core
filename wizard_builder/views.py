@@ -64,10 +64,12 @@ class WizardFormPartial(
         return self.storage_helper(self)
 
     @property
-    def wizard_form_data(self):
+    def current_step_data(self):
         site_id = self.get_site_id()
-        return self.form_manager.get_cleaned_data(
-            self.request.POST, site_id, self.steps.current)
+        data = self.request.POST
+        forms = self.form_manager.get_forms(data, site_id)
+        form = forms[self.steps.current]
+        return form.cleaned_data
 
     def get_site_id(self):
         return get_current_site(self.request).id

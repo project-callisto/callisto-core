@@ -250,7 +250,7 @@ class StorageHelper(object):
     @property
     def current_and_post_data(self):
         current_data = self.current_data_from_key(self.post_form_pk)
-        current_data.update(self.view.wizard_form_data)
+        current_data.update(self.view.current_step_data)
         return current_data
 
     def form_pk(self, pk):
