@@ -103,8 +103,6 @@ class ElementHelper(object):
 @override_settings(DEBUG=True)
 class FrontendTest(FunctionalTest):
 
-    # TODO: review screen tests
-
     @property
     def element(self):
         return ElementHelper(self.browser)
@@ -162,9 +160,12 @@ class FrontendTest(FunctionalTest):
     def test_extra_info(self):
         self.assertCss('[placeholder="extra information here"]')
 
-    @skip('unreliable test')
     def test_extra_dropdown(self):
         self.element.extra_dropdown.click()
+        # / really unreliable way to wait for the element to be displayed
+        self.element.next.click()
+        self.element.back.click()
+        # / end
         self.assertSelectorContains('option', model.dropdown_1.text)
         self.assertSelectorContains('option', model.dropdown_2.text)
 
