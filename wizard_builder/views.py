@@ -65,14 +65,17 @@ class WizardFormPartial(
 
     @property
     def wizard_form_data(self):
-        return self.form_manager.get_form_data(
-            self.steps.current, self.request.POST, self.get_site_id())
+        site_id = self.get_site_id()
+        return self.form_manager.get_cleaned_data(
+            self.request.POST, site_id, self.steps.current)
 
     def get_site_id(self):
         return get_current_site(self.request).id
 
     def get_forms(self):
-        return self.form_manager.get_forms(self, self.get_site_id())
+        site_id = self.get_site_id()
+        data = self.storage.current_data_from_storage()
+        return self.form_manager.get_forms(data, site_id)
 
     def dispatch(self, request, *args, **kwargs):
         self._dispatch_processing()

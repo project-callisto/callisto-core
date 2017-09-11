@@ -12,21 +12,22 @@ logger = logging.getLogger(__name__)
 
 
 class FormManager(object):
+    form_pk_field = 'form_pk_field'
 
     @classmethod
-    def get_forms(cls, view, site_id):
+    def get_forms(cls, data, site_id):
         # TODO: more specific function arg(s)
         self = cls()
-        self.view = view
+        self.data = data
         self.site_id = site_id
         return self.forms
 
     @classmethod
-    def get_form_data(cls, index, data, site_id):
+    def get_cleaned_data(cls, data, site_id, index):
         self = cls()
         self.site_id = site_id
         page = self.pages()[index]
-        form = self._create_form_instance(page, data)
+        form = self._create_cleaned_form(page, data)
         return form.cleaned_data
 
     @property
@@ -47,19 +48,22 @@ class FormManager(object):
             for page in self.pages()
         ]
 
+    def form_pk(self, pk):
+        return '{}_{}'.format(self.form_pk_field, pk)
+
     def pages(self):
         from .models import Page  # TODO: move to top
         return Page.objects.wizard_set(self.site_id)
 
     def _create_form_with_metadata(self, page):
         data = self._create_form_data(page)
-        form = self._create_form_instance(page, data)
+        form = self._create_cleaned_form(page, data)
         form.page = page
         form.pk = page.pk
         form.section_map = self.section_map
         return form
 
-    def _create_form_instance(self, page, data={}):
+    def _create_cleaned_form(self, page, data):
         from .forms import PageForm  # TODO: move to top
         FormClass = PageForm.setup(page)
         form = FormClass(data)
@@ -67,7 +71,8 @@ class FormManager(object):
         return form
 
     def _create_form_data(self, page):
-        return self.view.storage.current_data_from_pk(page.pk)
+        key = self.form_pk(page.pk)
+        return self.data.get(key, {})
 
 
 class PageQuerySet(QuerySet):
