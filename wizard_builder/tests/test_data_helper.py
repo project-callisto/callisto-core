@@ -42,7 +42,7 @@ class DataHelperTest(TestCase):
             zipped_data,
         )
 
-    def test_data_multiple_choice_extra_info(self):
+    def test_data_multiple_choice_extra_info_empty(self):
         form = self.manager.get_forms()[0]
         zipped_data = self.data_manager.get_zipped_data(
             data={
@@ -52,5 +52,19 @@ class DataHelperTest(TestCase):
         )
         self.assertIn(
             [{'food options': ['sugar']}],
+            zipped_data,
+        )
+
+    def test_data_multiple_choice_extra_info_filled(self):
+        form = self.manager.get_forms()[0]
+        zipped_data = self.data_manager.get_zipped_data(
+            data={
+                'question_1': ['1'],
+                'extra_info': 'beets'
+            },
+            forms=[form.serialized],
+        )
+        self.assertIn(
+            [{'food options': ['sugar: beets']}],
             zipped_data,
         )

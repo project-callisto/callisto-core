@@ -43,6 +43,7 @@ class SerializedDataHelper(object):
     @classmethod
     def get_zipped_data(cls, data={}, forms={}):
         self = cls()
+        print(data)
         self.data = data
         self.zipped_data = []
         self._parse_forms(forms)
@@ -58,7 +59,7 @@ class SerializedDataHelper(object):
             self._parse_answers(question, answer)
 
     def _parse_answers(self, question, answer):
-        if question['type'] == 'Singlelinetext':
+        if isinstance(answer, str):
             self._append_text_answer(answer, question)
         else:
             self._append_list_answers(answer, question)
