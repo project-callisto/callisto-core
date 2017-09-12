@@ -45,40 +45,32 @@ class SerializedDataHelper(object):
     def get_zipped_data(cls, data={}, forms={}):
         self = cls()
         self.data = data
-        self.forms = forms
         self.zipped_data = []
-        self._format_data()
+        self._parse_forms(forms)
         return self.zipped_data
 
-    def _format_data(self):
-        for index, page_data in enumerate(self.data):
-            self._cleaned_form_data(page_data, index)
+    def _parse_forms(self, forms):
+        for form in forms:
+            self._parse_questions(form)
 
-    def _cleaned_form_data(self, page_data, index):
-        self._parse_all_questions(
-            page_data,
-            self.forms[index],
-        )
+    def _parse_questions(self, form):
+        for question in form:
+            answer = self._get_question_answer(question)
+            self._parse_answers(question, answer)
 
-    def _parse_all_questions(self, answer_dict, questions):
-        for question in questions:
-            answer = self._get_question_answer(answer_dict, question)
-            self._parse_answers(question, answer_dict, answer)
-
-    def _parse_answers(self, question, answer_dict, answer):
+    def _parse_answers(self, question, answer):
         if question['type'] == 'Singlelinetext':
             self._append_text_answer(answer, question)
         else:
-            answer_list = answer if isinstance(answer, list) else [answer]
-            self._append_list_answers(answer_dict, answer_list, question)
+            self._append_list_answers(answer, question)
 
-    def _get_question_answer(self, answers, question):
-        return answers.get(question['field_id'], '')
+    def _get_question_answer(self, question):
+        return self.data.get(question.get('field_id'), '')
 
     def _append_text_answer(self, answer, question):
         self._append_answer(question, [answer])
 
-    def _append_list_answers(self, answer_dict, answer_list, question):
+    def _append_list_answers(self, answer, question):
         choice_list = [
             self._get_choice_text(answer_dict, answer, question)
             for answer in answer_list
