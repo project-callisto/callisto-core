@@ -26,8 +26,10 @@ def is_empty_text_box(answer):
 
 def get_by_pk(items, pk):
     for item in items:
-        if str(item['pk']) == str(resolve_list(pk)):
+        if str(item.get('pk')) == str(resolve_list(pk)):
             return item
+    else:
+        return {}
 
 
 class SerializedDataHelper(object):
@@ -72,9 +74,7 @@ class SerializedDataHelper(object):
 
     def _append_list_answers(self, answer, question):
         choice_list = [
-            self._get_choice_text(answer_dict, answer, question)
-            for answer in answer_list
-            if answer
+            self._get_choice_text(answer, question)
         ]
         self._append_answer(question, choice_list)
 
@@ -85,21 +85,21 @@ class SerializedDataHelper(object):
             question['question_text']: answer,
         })
 
-    def _get_choice_text(self, answer_dict, answer, question):
+    def _get_choice_text(self, answer, question):
         choice = self._get_choice(question, answer)
-        choice_text = choice['text']
-        if choice.get('extra_info_text') and answer_dict.get('extra_info'):
-            choice_text += ': ' + resolve_list(answer_dict['extra_info'])
-        if choice.get('options') and answer_dict.get('extra_options'):
+        choice_text = choice.get('text')
+        if choice.get('extra_info_text') and answer.get('extra_info'):
+            choice_text += ': ' + answer['extra_info']
+        if choice.get('options') and answer.get('extra_options'):
             choice_text += ': ' + self._get_option_text(
-                choice, answer_dict['extra_options'])
+                choice, answer.get('extra_options'))
         return choice_text
 
     def _get_choice(self, question, answer):
-        return get_by_pk(question['choices'], answer)
+        return get_by_pk(question.get('choices'), answer)
 
     def _get_option_text(self, choice, answer):
-        return get_by_pk(choice['options'], answer)['text']
+        return get_by_pk(choice.get('options'), answer).get('text')
 
 
 class StepsHelper(object):
