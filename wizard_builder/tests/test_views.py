@@ -17,13 +17,16 @@ class ViewTest(TestCase):
         settings.SITE_ID = 1
         super().setUpClass()
 
+    def setUp(self):
+        super().setUp()
+        self.step = '1'
+        self.data = {'question_2': 'aloe ipsum speakerbox'}
+        self.storage_data = {self.step: self.data}
+
     def test_storage_receives_post_data(self):
-        step = '1'
-        url = reverse('wizard_update', kwargs={'step': step})
-        data = {'question_2': 'aloe ipsum speakerbox'}
-        storage_data = {step: data}
-        self.client.post(url, data)
+        url = reverse('wizard_update', kwargs={'step': self.step})
+        self.client.post(url, self.data)
         self.assertEqual(
             self.client.session['data'],
-            storage_data,
+            self.storage_data,
         )
