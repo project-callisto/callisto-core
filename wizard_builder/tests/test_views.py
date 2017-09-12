@@ -40,7 +40,7 @@ class ViewTest(TestCase):
             self.data,
         )
 
-    def test_form_data_accurate_when_goto_step_specified(self):
+    def test_form_data_wizard_goto_step_regression(self):
         data_with_goto_step = copy(self.data)
         data_with_goto_step['wizard_goto_step'] = 'Next'
         self.client.post(self.url, data_with_goto_step)
