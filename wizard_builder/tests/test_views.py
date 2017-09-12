@@ -30,3 +30,13 @@ class ViewTest(TestCase):
             self.client.session['data'],
             self.storage_data,
         )
+
+    def test_storage_populates_form_data(self):
+        url = reverse('wizard_update', kwargs={'step': self.step})
+        self.client.post(url, self.data)
+        response = self.client.get(url)
+        form = response.context['form']
+        self.assertEqual(
+            form.data,
+            self.data,
+        )
