@@ -233,10 +233,7 @@ class StorageHelper(object):
 
     @property
     def form_data(self):
-        return {'data': [
-            self.current_data_from_step(form.pk)
-            for form in self.view.forms
-        ]}
+        return self.current_data_from_storage()
 
     @property
     def cleaned_form_data(self):
@@ -245,7 +242,7 @@ class StorageHelper(object):
 
     @property
     def current_and_post_data(self):
-        current_data = self.current_data_from_step()
+        current_data = self.current_data_from_storage()
         current_data.update(self.view.current_step_data)
         return current_data
 
@@ -256,7 +253,6 @@ class StorageHelper(object):
         return data.get(form_key, {})
 
     def update(self):
-        print('StorageHelper.update')
         data = self.current_and_post_data
         self.add_data_to_storage(data)
 
@@ -265,4 +261,3 @@ class StorageHelper(object):
 
     def add_data_to_storage(self, data):
         self.view.request.session[self.session_data_key] = data
-        print('StorageHelper.add_data_to_storage', data)
