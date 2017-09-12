@@ -233,33 +233,31 @@ class StorageHelper(object):
     @property
     def form_data(self):
         return {'data': [
-            self.current_data_from_pk(form.pk)
+            self.current_data_from_step(form.pk)
             for form in self.view.forms
         ]}
 
     @property
     def cleaned_form_data(self):
+        # TODO: this function doesn't belong here
         return self.data_manager.get_zipped_data(self)
 
     @property
     def current_and_post_data(self):
-        current_data = self.current_data_from_key(
-            self.view.wizard_current_step)
+        current_data = self.current_data_from_step()
         current_data.update(self.view.current_step_data)
         return current_data
+
+    def current_data_from_step(self, form_key=None):
+        if not form_key:
+            form_key = self.view.wizard_current_step
+        data = self.current_data_from_storage()
+        return data.get(form_key, {})
 
     def update(self):
         data = self.current_data_from_storage()
         data[self.view.wizard_current_step] = self.current_and_post_data
         self.add_data_to_storage(data)
-
-    def current_data_from_pk(self, pk):
-        key = self.form_pk(pk)
-        return self.current_data_from_key(key)
-
-    def current_data_from_key(self, form_key):
-        data = self.current_data_from_storage()
-        return data.get(form_key, {})
 
     def current_data_from_storage(self):
         return self.view.request.session.get('data', {})

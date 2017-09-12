@@ -47,11 +47,6 @@ class WizardViewTemplateHelpers(object):
     def wizard_back_name(self):
         return self.steps.back_name
 
-    @property
-    def wizard_form_pk_field(self):
-        # TODO: smell this being the only storage attribute accessed in view
-        return self.storage.form_pk_field
-
 
 class WizardFormPartial(
     views.edit.FormView,
