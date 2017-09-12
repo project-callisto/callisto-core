@@ -38,7 +38,7 @@ class DataHelperTest(TestCase):
             forms=[form.serialized],
         )
         self.assertIn(
-            [{'food options': ['sugar']}],
+            {'food options': ['sugar']},
             zipped_data,
         )
 
