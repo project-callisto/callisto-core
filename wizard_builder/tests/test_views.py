@@ -21,19 +21,29 @@ class ViewTest(TestCase):
         super().setUp()
         self.step = '1'
         self.data = {'question_2': 'aloe ipsum speakerbox'}
+        self.url = reverse('wizard_update', kwargs={'step': self.step})
 
     def test_storage_receives_post_data(self):
-        url = reverse('wizard_update', kwargs={'step': self.step})
-        self.client.post(url, self.data)
+        self.client.post(self.url, self.data)
         self.assertEqual(
-            self.client.session['data'],
+            self.client.session[view_helpers.StorageHelper.session_data_key],
             self.data,
         )
 
     def test_storage_populates_form_data(self):
-        url = reverse('wizard_update', kwargs={'step': self.step})
-        self.client.post(url, self.data)
-        response = self.client.get(url)
+        self.client.post(self.url, self.data)
+        response = self.client.get(self.url)
+        form = response.context['form']
+        self.assertEqual(
+            form.data,
+            self.data,
+        )
+
+    def test_form_data_accurate_when_goto_step_specified(self):
+        data = self.data
+        data['wizard_goto_step'] = 'Next'
+        self.client.post(self.url, data)
+        response = self.client.get(self.url)
         form = response.context['form']
         self.assertEqual(
             form.data,

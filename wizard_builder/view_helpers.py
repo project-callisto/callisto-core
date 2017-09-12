@@ -226,6 +226,7 @@ class StepsHelper(object):
 
 class StorageHelper(object):
     data_manager = SerializedDataHelper
+    session_data_key = 'data'  # TODO: 'wizard_form_data'
 
     def __init__(self, view):
         self.view = view
@@ -255,11 +256,13 @@ class StorageHelper(object):
         return data.get(form_key, {})
 
     def update(self):
+        print('StorageHelper.update')
         data = self.current_and_post_data
         self.add_data_to_storage(data)
 
     def current_data_from_storage(self):
-        return self.view.request.session.get('data', {})
+        return self.view.request.session.get(self.session_data_key, {})
 
     def add_data_to_storage(self, data):
-        self.view.request.session['data'] = data
+        self.view.request.session[self.session_data_key] = data
+        print('StorageHelper.add_data_to_storage', data)

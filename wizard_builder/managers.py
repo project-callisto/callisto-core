@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class FormManager(object):
-    form_pk_field = 'form_pk_field'
 
     @classmethod
     def get_forms(cls, data={}, site_id=1):
@@ -38,9 +37,6 @@ class FormManager(object):
             self._create_form_with_metadata(page)
             for page in self.pages()
         ]
-
-    def form_pk(self, pk):
-        return '{}_{}'.format(self.form_pk_field, pk)
 
     def pages(self):
         from .models import Page  # TODO: move to top
