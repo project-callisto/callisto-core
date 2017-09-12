@@ -6,10 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 def resolve_list(item):
-    if isinstance(item, list):
-        return item[0]
-    else:
-        return item
+    return item[0] if is_single_element_list(item) else item
 
 
 def is_single_element_list(item):

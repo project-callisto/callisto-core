@@ -82,3 +82,16 @@ class ViewTest(TestCase):
             {'food options': ['sugar']},
             form_data,
         )
+
+    def test_review_page_choice_extra_info(self):
+        choice_data = {
+            'question_1': ['1'],
+            'extra_info': 'beets',
+        }
+        self.client.post(self.choice_url, self.data)
+        response = self.client.get(self.review_url)
+        form_data = response.context['form_data']
+        self.assertIn(
+            {'food options': ['sugar: beets']},
+            form_data,
+        )
