@@ -21,14 +21,13 @@ class ViewTest(TestCase):
         super().setUp()
         self.step = '1'
         self.data = {'question_2': 'aloe ipsum speakerbox'}
-        self.storage_data = {self.step: self.data}
 
     def test_storage_receives_post_data(self):
         url = reverse('wizard_update', kwargs={'step': self.step})
         self.client.post(url, self.data)
         self.assertEqual(
             self.client.session['data'],
-            self.storage_data,
+            self.data,
         )
 
     def test_storage_populates_form_data(self):

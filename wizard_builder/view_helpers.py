@@ -255,8 +255,7 @@ class StorageHelper(object):
         return data.get(form_key, {})
 
     def update(self):
-        data = self.current_data_from_storage()
-        data[self.view.wizard_current_step] = self.current_and_post_data
+        data = self.current_and_post_data
         self.add_data_to_storage(data)
 
     def current_data_from_storage(self):
