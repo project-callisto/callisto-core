@@ -14,11 +14,12 @@ test-lint: ## lint with isort and flake8
 	isort --check-only --diff --quiet -rc wizard_builder/
 
 test-fast:
-	pytest -vlsx --ff --reuse-db
+	pytest -vlsx --ff --reuse-db --ignore wizard_builder/tests/test_frontend.py
 
 test-local-suite:
 	python manage.py check
-	pytest --cov=wizard_builder -v
+	pytest --cov=wizard_builder -v --ignore wizard_builder/tests/test_frontend.py
+	pytest --cov=wizard_builder -v wizard_builder/tests/test_frontend.py
 
 test-callisto-core:
 	pip install callisto-core --upgrade

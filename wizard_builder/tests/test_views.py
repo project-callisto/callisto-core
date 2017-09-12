@@ -27,7 +27,7 @@ class ViewTest(TestCase):
     def test_storage_receives_post_data(self):
         self.client.post(self.url, self.data)
         self.assertEqual(
-            self.client.session[view_helpers.StorageHelper.session_data_key],
+            self.client.session[view_helpers.StorageHelper.storage_data_key],
             self.data,
         )
 

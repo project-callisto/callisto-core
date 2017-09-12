@@ -174,9 +174,9 @@ class FrontendTest(FunctionalTest):
         self.assertTrue(self.element.extra_input.is_selected())
 
     def assertChoiceText(self):
-        session_data_key = view_helpers.StorageHelper.session_data_key
+        storage_data_key = view_helpers.StorageHelper.storage_data_key
         self.assertEqual(
-            self.client.session[session_data_key]['question_1'],
+            self.client.session[storage_data_key]['question_1'],
             model.page_1_question_1_choice_1.text,
         )
 

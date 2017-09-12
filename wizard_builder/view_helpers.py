@@ -42,25 +42,23 @@ class SerializedDataHelper(object):
     not_answered_text = '[ Not Answered ]'
 
     @classmethod
-    def get_zipped_data(cls, storage):
+    def get_zipped_data(cls, data={}, forms={}):
         self = cls()
-        self.storage = storage
+        self.data = data
+        self.forms = forms
         self.zipped_data = []
         self._format_data()
         return self.zipped_data
 
     def _format_data(self):
-        for index, page_data in enumerate(self.storage.form_data['data']):
+        for index, page_data in enumerate(self.data):
             self._cleaned_form_data(page_data, index)
 
     def _cleaned_form_data(self, page_data, index):
         self._parse_all_questions(
             page_data,
-            self._get_form_questions_serialized(index),
+            self.forms[index],
         )
-
-    def _get_form_questions_serialized(self, index):
-        return self.storage.view.forms[index].serialized
 
     def _parse_all_questions(self, answer_dict, questions):
         for question in questions:
@@ -226,10 +224,13 @@ class StepsHelper(object):
 
 class StorageHelper(object):
     data_manager = SerializedDataHelper
-    session_data_key = 'data'  # TODO: 'wizard_form_data'
+    storage_data_key = 'wizard_form_data'
+    storage_form_key = 'wizard_form_serialized'
 
     def __init__(self, view):
+        # TODO: scope down inputs
         self.view = view
+        self.init_storage()
 
     @property
     def form_data(self):
@@ -237,27 +238,51 @@ class StorageHelper(object):
 
     @property
     def cleaned_form_data(self):
-        # TODO: this function doesn't belong here
-        return self.data_manager.get_zipped_data(self)
+        storage = self.current_data_from_storage()
+        return self.data_manager.get_zipped_data(
+            data=storage[self.storage_data_key],
+            forms=storage[self.storage_form_key],
+        )
+
+    @property
+    def current_data(self):
+        storage = self.current_data_from_storage()
+        return storage[self.storage_data_key]
 
     @property
     def current_and_post_data(self):
-        current_data = self.current_data_from_storage()
-        current_data.update(self.view.current_step_data)
-        return current_data
-
-    def current_data_from_step(self, form_key=None):
-        if not form_key:
-            form_key = self.view.wizard_current_step
-        data = self.current_data_from_storage()
-        return data.get(form_key, {})
+        data = self.current_data
+        data.update(self.view.current_step_data)
+        return data
 
     def update(self):
+        '''
+        primary class functionality method, updates the data in storage
+        '''
         data = self.current_and_post_data
         self.add_data_to_storage(data)
 
     def current_data_from_storage(self):
-        return self.view.request.session.get(self.session_data_key, {})
+        # TODO: base class with NotImplementedError checks
+        session = self.view.request.session
+        return {
+            self.storage_data_key: session.get(self.storage_data_key, {}),
+            self.storage_form_key: session.get(self.storage_form_key, {}),
+        }
 
     def add_data_to_storage(self, data):
-        self.view.request.session[self.session_data_key] = data
+        # TODO: base class with NotImplementedError checks
+        session = self.view.request.session
+        session[self.storage_data_key] = data
+
+    def init_storage(self):
+        # TODO: base class with NotImplementedError checks
+        session = self.view.request.session
+        session.setdefault(
+            self.storage_form_key,
+            self.view.get_serialized_forms(),
+        )
+        session.setdefault(
+            self.storage_data_key,
+            {},
+        )

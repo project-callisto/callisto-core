@@ -20,6 +20,14 @@ class FormManager(object):
         self.site_id = site_id
         return self.forms
 
+    @classmethod
+    def get_serialized_forms(cls, data={}, site_id=1):
+        forms = cls.get_forms(data, site_id)
+        return {
+            form.pk: form.serialized
+            for form in forms
+        }
+
     @property
     def section_map(self):
         # NOTE: function outdated

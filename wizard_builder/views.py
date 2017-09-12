@@ -69,10 +69,16 @@ class WizardFormPartial(
     def get_site_id(self):
         return get_current_site(self.request).id
 
+    def get_serialized_forms(self):
+        return self.form_manager.get_serialized_forms(
+            site_id=self.get_site_id(),
+        )
+
     def get_forms(self):
-        site_id = self.get_site_id()
-        data = self.storage.current_data_from_storage()
-        return self.form_manager.get_forms(data, site_id)
+        return self.form_manager.get_forms(
+            data=self.storage.current_data,
+            site_id=self.get_site_id(),
+        )
 
     def dispatch(self, request, *args, **kwargs):
         self._dispatch_processing()
