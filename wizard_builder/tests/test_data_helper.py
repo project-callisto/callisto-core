@@ -25,9 +25,9 @@ class DataHelperTest(TestCase):
             forms=[form.serialized],
         )
         self.assertIn(
-            [{'do androids dream of electric sheep?':
+            {'do androids dream of electric sheep?':
                 ['owlette ipsum cattree'],
-              }],
+             },
             zipped_data,
         )
 
@@ -51,7 +51,7 @@ class DataHelperTest(TestCase):
             forms=[form.serialized],
         )
         self.assertIn(
-            [{'food options': ['sugar']}],
+            {'food options': ['sugar']},
             zipped_data,
         )
 
@@ -65,6 +65,6 @@ class DataHelperTest(TestCase):
             forms=[form.serialized],
         )
         self.assertIn(
-            [{'food options': ['sugar: beets']}],
+            {'food options': ['sugar: beets']},
             zipped_data,
         )
