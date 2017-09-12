@@ -170,6 +170,20 @@ class FrontendTest(FunctionalTest):
         self.element.extra_input.click()
         self.assertTrue(self.element.extra_input.is_selected())
 
+    def assertChoiceText(self):
+        storage_data_key = view_helpers.StorageHelper.storage_data_key
+        self.assertEqual(
+            self.client.session[storage_data_key]['question_1'],
+            model.page_1_question_1_choice_1.text,
+        )
+
+    def test_session_data_persists_through_page_changes(self):
+        self.element.choice_1.click()
+        self.element.next.click()
+        self.assertChoiceText()
+        self.element.back.click()
+        self.assertChoiceText()
+
     def test_choice_1_persists_after_changing_page(self):
         self.element.extra_input.click()
         self.element.next.click()
