@@ -109,7 +109,6 @@ class WizardView(
 
     def post(self, request, *args, **kwargs):
         print('WizardView.post', request.POST)
-        self.steps.set_from_post()
         output = super().post(request, *args, **kwargs)
         return output
 
@@ -117,7 +116,10 @@ class WizardView(
         print('WizardView.form_valid')
         form.full_clean()
         self.storage.update()
-        print('WizardView.form_valid.session["data"]', self.request.session['data'])
+        self.steps.set_from_post()
+        print(
+            'WizardView.form_valid.session["data"]',
+            self.request.session['data'])
         if self.steps.finished(self.steps.current):
             return self.render_form_done()
         elif self.steps.overflowed(self.steps.current):

@@ -1,3 +1,4 @@
+from copy import copy
 from unittest import mock
 
 from django.conf import settings
@@ -40,9 +41,9 @@ class ViewTest(TestCase):
         )
 
     def test_form_data_accurate_when_goto_step_specified(self):
-        data = self.data
-        data['wizard_goto_step'] = 'Next'
-        self.client.post(self.url, data)
+        data_with_goto_step = copy(self.data)
+        data_with_goto_step['wizard_goto_step'] = 'Next'
+        self.client.post(self.url, data_with_goto_step)
         response = self.client.get(self.url)
         form = response.context['form']
         self.assertEqual(
