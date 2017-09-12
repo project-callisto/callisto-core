@@ -1,3 +1,5 @@
+from unittest import skip
+
 from django.test import TestCase
 
 from .. import forms, managers, view_helpers
@@ -42,6 +44,7 @@ class DataHelperTest(TestCase):
             zipped_data,
         )
 
+    @skip('WIP')
     def test_data_multiple_choice_extra_info_empty(self):
         form = self.manager.get_forms()[0]
         zipped_data = self.data_manager.get_zipped_data(
@@ -55,6 +58,7 @@ class DataHelperTest(TestCase):
             zipped_data,
         )
 
+    @skip('WIP')
     def test_data_multiple_choice_extra_info_filled(self):
         form = self.manager.get_forms()[0]
         zipped_data = self.data_manager.get_zipped_data(

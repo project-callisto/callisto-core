@@ -1,5 +1,5 @@
 from copy import copy
-from unittest import mock
+from unittest import mock, skip
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -75,7 +75,7 @@ class ViewTest(TestCase):
 
     def test_review_page_choice(self):
         choice_data = {'question_1': ['3']}
-        self.client.post(self.choice_url, self.data)
+        self.client.post(self.choice_url, choice_data)
         response = self.client.get(self.review_url)
         form_data = response.context['form_data']
         self.assertIn(
@@ -83,6 +83,7 @@ class ViewTest(TestCase):
             form_data,
         )
 
+    @skip('WIP')
     def test_review_page_choice_extra_info(self):
         choice_data = {
             'question_1': ['1'],

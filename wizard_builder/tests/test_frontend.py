@@ -127,9 +127,6 @@ class FrontendTest(FunctionalTest):
         self.assertCss('[name="{}"]'.format(
             view_helpers.StepsHelper.wizard_goto_name,
         ))
-        self.assertCss('[name="{}"]'.format(
-            view_helpers.StorageHelper.form_pk_field,
-        ))
 
     def test_forwards_and_backwards_navigation(self):
         self.element.next.click()
@@ -240,6 +237,7 @@ class FrontendTest(FunctionalTest):
         self.element.done.click()
         self.assertSelectorContains('h2', 'Question Review')
 
+    @skip('WIP')
     def test_choice_dropdown_present_on_done_page(self):
         self.element.extra_dropdown.click()
         self.element.next.click()

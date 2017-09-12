@@ -86,18 +86,10 @@ class SerializedDataHelper(object):
     def _get_choice_text(self, answer, question):
         choice = self._get_choice(question, answer)
         choice_text = choice.get('text')
-        if choice.get('extra_info_text') and answer.get('extra_info'):
-            choice_text += ': ' + answer['extra_info']
-        if choice.get('options') and answer.get('extra_options'):
-            choice_text += ': ' + self._get_option_text(
-                choice, answer.get('extra_options'))
         return choice_text
 
     def _get_choice(self, question, answer):
-        return get_by_pk(question.get('choices'), answer)
-
-    def _get_option_text(self, choice, answer):
-        return get_by_pk(choice.get('options'), answer).get('text')
+        return get_by_pk(question.get('choices', []), answer)
 
 
 class StepsHelper(object):
