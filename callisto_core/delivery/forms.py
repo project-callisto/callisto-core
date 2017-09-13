@@ -62,11 +62,6 @@ class ReportCreateForm(ReportBaseForm):
         else:
             return key_confirmation
 
-    def save(self, commit=True):
-        output = super().save(commit=commit)
-        self.report.setup(self.data.get("key"))
-        return output
-
 
 class ReportAccessForm(ReportBaseForm):
     # TODO: form.save() should add key to storage?

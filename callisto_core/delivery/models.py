@@ -62,9 +62,6 @@ class Report(models.Model):
         else:
             return None
 
-    def setup(self, secret_key):
-        self.encrypt_report({}, secret_key)
-
     def encrypt_report(self, report_text, secret_key):
         """Encrypts and attaches report text. Generates a random salt
         and stores it in the Report object's encode prefix.
