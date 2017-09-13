@@ -22,7 +22,7 @@ setup(
     python_requires='>=3',
     install_requires=[
         'django-model-utils>=3.0',
-        'django-tinymce4-lite==1.5.0',
+        'django-tinymce4-lite==1.5.1',
         'django-widget-tweaks==1.4.1',
         'django-nested-admin==3.0.20',
     ],
