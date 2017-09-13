@@ -6,7 +6,7 @@ from wizard_builder import view_helpers as wizard_builder_view_helpers
 class _SecretKeyStorageHelper(object):
 
     def __init__(self, view):
-        self.view = view
+        self.view = view  # TODO: remove
 
     def set_secret_key(self, key):
         self.view.request.session['secret_key'] = key
@@ -48,11 +48,29 @@ class EncryptedStorageHelper(
 
     def current_data_from_storage(self):
         if self.secret_key and getattr(self, 'report', None):
-            return self.report.decrypted_report(
-                self.secret_key).get('data', {})
+            self.init_storage()
+            return self.report.decrypted_report(self.secret_key)
         else:
-            return {'data': {}}
+            return {
+                self.storage_data_key: {},
+                self.storage_form_key: {},
+            }
 
     def add_data_to_storage(self, data):
-        data = {'data': data}
-        self.report.encrypt_report(data, self.secret_key)
+        if self.secret_key and getattr(self, 'report', None):
+            storage = self.current_data_from_storage()
+            storage[self.storage_data_key] = data
+            self.report.encrypt_report(storage, self.secret_key)
+
+    def init_storage(self):
+        if (
+            self.secret_key and
+            getattr(self, 'report', None) and
+            not self.report.encrypted
+        ):
+            self.report.encryption_setup(self.secret_key)
+            storage = {
+                self.storage_data_key: {},
+                self.storage_form_key: self.view.get_serialized_forms(),
+            }
+            self.report.encrypt_report(storage, self.secret_key)
