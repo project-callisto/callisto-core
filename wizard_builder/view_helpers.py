@@ -43,7 +43,6 @@ class SerializedDataHelper(object):
     @classmethod
     def get_zipped_data(cls, data={}, forms={}):
         self = cls()
-        print(data)
         self.data = data
         self.zipped_data = []
         self._parse_forms(forms)

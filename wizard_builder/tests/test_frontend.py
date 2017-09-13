@@ -107,23 +107,6 @@ class FunctionalBase(FunctionalTest):
         return ElementHelper(self.browser)
 
 
-class WizardBuilderSessionTest(FunctionalBase):
-
-    def assertChoiceText(self):
-        storage_data_key = view_helpers.StorageHelper.storage_data_key
-        self.assertEqual(
-            self.client.session[storage_data_key]['question_1'],
-            model.page_1_question_1_choice_1.text,
-        )
-
-    def test_session_data_persists_through_page_changes(self):
-        self.element.choice_1.click()
-        self.element.next.click()
-        self.assertChoiceText()
-        self.element.back.click()
-        self.assertChoiceText()
-
-
 class FrontendTest(FunctionalBase):
 
     def test_first_page_text(self):

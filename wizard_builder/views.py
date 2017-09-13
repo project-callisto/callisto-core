@@ -62,7 +62,6 @@ class WizardFormPartial(
     def current_step_data(self):
         site_id = self.get_site_id()
         data = self.request.POST
-        print('POST', self.request.POST)
         forms = self.form_manager.get_forms(data, site_id)
         form = forms[self.steps.current]
         return form.cleaned_data
