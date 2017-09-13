@@ -5,7 +5,6 @@
 
     {% csrf_token %}
     <input type="hidden" name="{{ view.wizard_current_name }}" value="{{ view.wizard_current_step }}"/>
-    <input type="hidden" name="{{ view.wizard_form_pk_field }}" value="{{ form.pk }}"/>
 
     <div class="container-fluid">
         {% include "wizard_builder/wizard_form_fields.html" %}

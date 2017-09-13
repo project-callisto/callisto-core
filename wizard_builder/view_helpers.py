@@ -5,6 +5,10 @@ from django.core.urlresolvers import reverse
 logger = logging.getLogger(__name__)
 
 
+def resolve_list(item):
+    return item[0] if is_single_element_list(item) else item
+
+
 def is_single_element_list(item):
     return bool(isinstance(item, list)) and (len(item) == 1)
 
@@ -19,8 +23,10 @@ def is_empty_text_box(answer):
 
 def get_by_pk(items, pk):
     for item in items:
-        if str(item['pk']) == str(pk):
+        if str(item.get('pk')) == str(resolve_list(pk)):
             return item
+    else:
+        return {}
 
 
 class SerializedDataHelper(object):
@@ -35,49 +41,37 @@ class SerializedDataHelper(object):
     not_answered_text = '[ Not Answered ]'
 
     @classmethod
-    def get_zipped_data(cls, storage):
+    def get_zipped_data(cls, data={}, forms={}):
         self = cls()
-        self.storage = storage
+        self.data = data
         self.zipped_data = []
-        self._format_data()
+        self._parse_forms(forms)
         return self.zipped_data
 
-    def _format_data(self):
-        for index, page_data in enumerate(self.storage.form_data['data']):
-            self._cleaned_form_data(page_data, index)
+    def _parse_forms(self, forms):
+        for form in forms:
+            self._parse_questions(form)
 
-    def _cleaned_form_data(self, page_data, index):
-        self._parse_all_questions(
-            page_data,
-            self._get_form_questions_serialized(index),
-        )
+    def _parse_questions(self, form):
+        for question in form:
+            answer = self._get_question_answer(question)
+            self._parse_answers(question, answer)
 
-    def _get_form_questions_serialized(self, index):
-        return self.storage.view.forms[index].serialized
-
-    def _parse_all_questions(self, answer_dict, questions):
-        for question in questions:
-            answer = self._get_question_answer(answer_dict, question)
-            self._parse_answers(question, answer_dict, answer)
-
-    def _parse_answers(self, question, answer_dict, answer):
-        if question['type'] == 'Singlelinetext':
+    def _parse_answers(self, question, answer):
+        if isinstance(answer, str):
             self._append_text_answer(answer, question)
         else:
-            answer_list = answer if isinstance(answer, list) else [answer]
-            self._append_list_answers(answer_dict, answer_list, question)
+            self._append_list_answers(answer, question)
 
-    def _get_question_answer(self, answers, question):
-        return answers.get(question['field_id'], '')
+    def _get_question_answer(self, question):
+        return self.data.get(question.get('field_id'), '')
 
     def _append_text_answer(self, answer, question):
         self._append_answer(question, [answer])
 
-    def _append_list_answers(self, answer_dict, answer_list, question):
+    def _append_list_answers(self, answer, question):
         choice_list = [
-            self._get_choice_text(answer_dict, answer, question)
-            for answer in answer_list
-            if answer
+            self._get_choice_text(answer, question)
         ]
         self._append_answer(question, choice_list)
 
@@ -88,21 +82,13 @@ class SerializedDataHelper(object):
             question['question_text']: answer,
         })
 
-    def _get_choice_text(self, answer_dict, answer, question):
+    def _get_choice_text(self, answer, question):
         choice = self._get_choice(question, answer)
-        choice_text = choice['text']
-        if choice.get('extra_info_text') and answer_dict.get('extra_info'):
-            choice_text += ': ' + answer_dict['extra_info']
-        if choice.get('options') and answer_dict.get('extra_options'):
-            choice_text += ': ' + self._get_option_text(
-                choice, answer_dict['extra_options'])
+        choice_text = choice.get('text')
         return choice_text
 
     def _get_choice(self, question, answer):
-        return get_by_pk(question['choices'], answer)
-
-    def _get_option_text(self, choice, answer):
-        return get_by_pk(choice['options'], answer)['text']
+        return get_by_pk(question.get('choices', []), answer)
 
 
 class StepsHelper(object):
@@ -219,81 +205,65 @@ class StepsHelper(object):
 
 class StorageHelper(object):
     data_manager = SerializedDataHelper
-    form_pk_field = 'form_pk_field'
+    storage_data_key = 'wizard_form_data'
+    storage_form_key = 'wizard_form_serialized'
 
     def __init__(self, view):
+        # TODO: scope down inputs
         self.view = view
+        self.init_storage()
 
     @property
     def form_data(self):
-        return {'data': [
-            self.current_data_from_pk(form.pk)
-            for form in self.view.forms
-        ]}
+        return self.current_data_from_storage()
 
     @property
     def cleaned_form_data(self):
-        return self.data_manager.get_zipped_data(self)
+        storage = self.current_data_from_storage()
+        return self.data_manager.get_zipped_data(
+            data=storage[self.storage_data_key],
+            forms=storage[self.storage_form_key],
+        )
 
     @property
-    def post_form_pk(self):
-        pk = self.view.request.POST[self.form_pk_field]
-        return self.form_pk(pk)
+    def current_data(self):
+        storage = self.current_data_from_storage()
+        return storage[self.storage_data_key]
 
     @property
     def current_and_post_data(self):
-        current_data = self.current_data_from_key(self.post_form_pk)
-        post_data = dict(self.view.request.POST)
-        post_data = self._data_without_metadata(post_data)
-        post_data = self._data_arrays_resolved(post_data)
-        current_data.update(post_data)
-        return current_data
-
-    @property
-    def metadata_fields(self):
-        return [
-            'csrfmiddlewaretoken',
-            self.form_pk_field,
-        ] + self.view.steps.wizard_form_fields
-
-    def form_pk(self, pk):
-        return '{}_{}'.format(self.form_pk_field, pk)
+        data = self.current_data
+        data.update(self.view.current_step_data)
+        return data
 
     def update(self):
-        data = self.current_data_from_storage()
-        data[self.post_form_pk] = self.current_and_post_data
+        '''
+        primary class functionality method, updates the data in storage
+        '''
+        data = self.current_and_post_data
         self.add_data_to_storage(data)
 
-    def current_data_from_pk(self, pk):
-        key = self.form_pk(pk)
-        return self.current_data_from_key(key)
-
-    def current_data_from_key(self, form_key):
-        data = self.current_data_from_storage()
-        return data.get(form_key, {})
-
     def current_data_from_storage(self):
-        return self.view.request.session.get('data', {})
+        # TODO: base class with NotImplementedError checks
+        session = self.view.request.session
+        return {
+            self.storage_data_key: session.get(self.storage_data_key, {}),
+            self.storage_form_key: session.get(self.storage_form_key, {}),
+        }
 
     def add_data_to_storage(self, data):
-        self.view.request.session['data'] = data
+        # TODO: base class with NotImplementedError checks
+        session = self.view.request.session
+        session[self.storage_data_key] = data
 
-    def _data_arrays_resolved(self, data):
-        '''
-            resolves
-                data['text'] = ['my text input']
-
-            into
-                data['text'] = 'my text input'
-        '''
-        return {
-            key: value[0] if is_single_element_list(value) else value
-            for key, value in data.items()
-        }
-
-    def _data_without_metadata(self, data):
-        return {
-            key: value
-            for key, value in data.items()
-            if key not in self.metadata_fields
-        }
+    def init_storage(self):
+        # TODO: base class with NotImplementedError checks
+        session = self.view.request.session
+        session.setdefault(
+            self.storage_form_key,
+            self.view.get_serialized_forms(),
+        )
+        session.setdefault(
+            self.storage_data_key,
+            {},
+        )

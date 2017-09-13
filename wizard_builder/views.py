@@ -1,3 +1,4 @@
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.views import generic as views
@@ -46,11 +47,6 @@ class WizardViewTemplateHelpers(object):
     def wizard_back_name(self):
         return self.steps.back_name
 
-    @property
-    def wizard_form_pk_field(self):
-        # TODO: smell this being the only storage attribute accessed in view
-        return self.storage.form_pk_field
-
 
 class WizardFormPartial(
     views.edit.FormView,
@@ -62,8 +58,27 @@ class WizardFormPartial(
     def storage(self):
         return self.storage_helper(self)
 
+    @property
+    def current_step_data(self):
+        site_id = self.get_site_id()
+        data = self.request.POST
+        forms = self.form_manager.get_forms(data, site_id)
+        form = forms[self.steps.current]
+        return form.cleaned_data
+
+    def get_site_id(self):
+        return get_current_site(self.request).id
+
+    def get_serialized_forms(self):
+        return self.form_manager.get_serialized_forms(
+            site_id=self.get_site_id(),
+        )
+
     def get_forms(self):
-        return self.form_manager.get_forms(self)
+        return self.form_manager.get_forms(
+            data=self.storage.current_data,
+            site_id=self.get_site_id(),
+        )
 
     def dispatch(self, request, *args, **kwargs):
         self._dispatch_processing()
@@ -88,20 +103,20 @@ class WizardView(
     def steps(self):
         return self.steps_helper(self)
 
+    @property
+    def wizard_form(self):
+        return WizardView.get_form(self)
+
     def get_form(self):
         if isinstance(self.steps.current, int):
             return self.forms[self.steps.current]
         else:
             return None
 
-    def post(self, request, *args, **kwargs):
-        self.steps.set_from_post()
-        output = super().post(request, *args, **kwargs)
-        return output
-
     def form_valid(self, form):
         form.full_clean()
         self.storage.update()
+        self.steps.set_from_post()
         if self.steps.finished(self.steps.current):
             return self.render_form_done()
         elif self.steps.overflowed(self.steps.current):

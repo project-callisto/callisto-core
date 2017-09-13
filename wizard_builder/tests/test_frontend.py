@@ -100,14 +100,14 @@ class ElementHelper(object):
             '[type="checkbox"]')[number]
 
 
-@override_settings(DEBUG=True)
-class FrontendTest(FunctionalTest):
-
-    # TODO: review screen tests
+class FunctionalBase(FunctionalTest):
 
     @property
     def element(self):
         return ElementHelper(self.browser)
+
+
+class FrontendTest(FunctionalBase):
 
     def test_first_page_text(self):
         self.assertSelectorContains('form', model.page_1.infobox)
@@ -129,9 +129,6 @@ class FrontendTest(FunctionalTest):
         ))
         self.assertCss('[name="{}"]'.format(
             view_helpers.StepsHelper.wizard_goto_name,
-        ))
-        self.assertCss('[name="{}"]'.format(
-            view_helpers.StorageHelper.form_pk_field,
         ))
 
     def test_forwards_and_backwards_navigation(self):
@@ -162,9 +159,12 @@ class FrontendTest(FunctionalTest):
     def test_extra_info(self):
         self.assertCss('[placeholder="extra information here"]')
 
-    @skip('unreliable test')
     def test_extra_dropdown(self):
         self.element.extra_dropdown.click()
+        # / really unreliable way to wait for the element to be displayed
+        self.element.next.click()
+        self.element.back.click()
+        # / end
         self.assertSelectorContains('option', model.dropdown_1.text)
         self.assertSelectorContains('option', model.dropdown_2.text)
 
@@ -200,6 +200,16 @@ class FrontendTest(FunctionalTest):
         self.assertTrue(self.element.extra_input.is_selected())
         self.assertTrue(self.element.extra_dropdown.is_selected())
 
+    def test_textbox_array_regression(self):
+        self.element.next.click()
+        self.element.text_input.send_keys('text input content!!!')
+        self.element.back.click()
+        self.element.next.click()
+        self.assertNotEqual(
+            ['text input content!!!'],
+            self.element.text_input.get_attribute('value'),
+        )
+
     def test_text_persists_after_changing_page(self):
         self.element.next.click()
         self.element.text_input.send_keys('text input content!!!')
@@ -215,6 +225,14 @@ class FrontendTest(FunctionalTest):
         self.element.next.click()
         self.element.done.click()
         self.assertSelectorContains('h2', 'Question Review')
+
+    @skip('WIP')
+    def test_choice_dropdown_present_on_done_page(self):
+        self.element.extra_dropdown.click()
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains('body', model.dropdown_1.text)
 
     def test_choice_present_on_done_page(self):
         self.element.choice_1.click()

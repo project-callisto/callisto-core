@@ -1,6 +1,17 @@
 History
 -------
 
+2.0.0 (2017-09-12)
+++++++++++++++++++
+
+* disable WIP conditionals on review page
+* update StorageHelper session interaction functions, that are now:
+    - StorageHelper.current_data_from_storage
+    - StorageHelper.add_data_to_storage
+    - StorageHelper.init_storage
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/164
+
 1.0.6 (2017-09-06)
 ++++++++++++++++++
 
