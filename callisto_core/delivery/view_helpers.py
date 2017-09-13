@@ -38,15 +38,15 @@ class _SecretKeyStorageHelper(object):
             return None
 
     @property
-    def secret_key(self):
+    def secret_key(self) -> str:
         return self.view.request.session.get('secret_key')
 
     @property
-    def decrypted_report(self):
+    def decrypted_report(self) -> dict:
         return self.report.decrypted_report(self.secret_key)
 
     @property
-    def report_and_key_present(self):
+    def report_and_key_present(self) -> bool:
         return bool(self.secret_key and getattr(self, 'report', None))
 
 
@@ -62,12 +62,9 @@ class _LegacyEncryptedStorageHelper(
         else:
             pass  # storage already initialized
 
-    def _report_is_legacy_format(self):
+    def _report_is_legacy_format(self) -> bool:
         decrypted_report = self.report.decrypted_report(self.secret_key)
-        is_legacy = bool(
-            not decrypted_report.get(
-                self.storage_form_key, False))
-        return is_legacy
+        return bool(not decrypted_report.get(self.storage_form_key, False))
 
     def _create_new_report_storage(self):
         self.report.encryption_setup(self.secret_key)
@@ -92,7 +89,7 @@ class EncryptedStorageHelper(
 ):
     storage_data_key = 'data'  # TODO: remove
 
-    def current_data_from_storage(self):
+    def current_data_from_storage(self) -> dict:
         if self.report_and_key_present:
             return self.report.decrypted_report(self.secret_key)
         else:
