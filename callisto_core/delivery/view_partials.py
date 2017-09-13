@@ -185,8 +185,11 @@ class ReportActionView(
 
     def form_valid(self, form):
         output = super().form_valid(form)
+        print('ReportActionView.form_valid.pre')
         self.view_action()
+        print('ReportActionView.form_valid.mid')
         self.storage.clear_secret_key()
+        print('ReportActionView.form_valid.post')
         return output
 
     def view_action(self):
