@@ -90,7 +90,7 @@ class EncryptedStorageHelper(
     _LegacyEncryptedStorageHelper,
     wizard_builder_view_helpers.StorageHelper,
 ):
-    storage_data_key = 'data'
+    storage_data_key = 'data'  # TODO: remove
 
     def current_data_from_storage(self):
         if self.report_and_key_present:
