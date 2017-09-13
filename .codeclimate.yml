@@ -3,23 +3,13 @@ engines:
     enabled: true
     config:
       languages:
-      - ruby
       - javascript
       - python
-      - php
-    exclude_fingerprints:
-      - b8d76df12b3eb510ce860b7e2aff6cd7
-      - c5be6f319b1c15df26a253869fd6eb31
   radon:
     enabled: true
 ratings:
   paths:
-  - "**.inc"
   - "**.js"
-  - "**.jsx"
-  - "**.module"
-  - "**.php"
   - "**.py"
-  - "**.rb"
 exclude_paths:
 - tests/
