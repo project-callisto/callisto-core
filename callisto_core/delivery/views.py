@@ -44,4 +44,5 @@ class ReportDeleteView(
 ):
 
     def view_action(self):
+        print('ReportDeleteView.view_action')
         self.report.delete()

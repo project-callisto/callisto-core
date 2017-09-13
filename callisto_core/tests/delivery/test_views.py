@@ -1,4 +1,5 @@
 from unittest import skip
+from unittest.mock import MagicMock
 
 from django.core import mail
 from django.core.management import call_command
@@ -9,6 +10,28 @@ from wizard_builder.forms import PageForm
 
 from .. import test_base
 from ...delivery import forms, models
+
+
+class LegacyStorageFormatTest(test_base.ReportFlowHelper):
+
+    def setUp(self):
+        super().setUp()
+        self.report = models.Report.objects.create()
+        legacy_storage = {'data': {'catte': 'good'}}
+        self.report.encrypt_report(legacy_storage, self.secret_key)
+        self.client_set_secret_key()
+        self.client_post_answer_question()  # prompt code to initialize storage
+        self.report.refresh_from_db()
+        self.storage = self.report.decrypted_report(self.secret_key)
+
+    def test_form_data_populated(self):
+        self.assertTrue(self.storage.get('wizard_form_serialized', False))
+
+    def test_legacy_data_key_used(self):
+        self.assertTrue(self.storage.get('data', False))
+
+    def test_new_wizard_builder_key_not_used(self):
+        self.assertFalse(self.storage.get('wizard_form_data', False))
 
 
 class NewReportFlowTest(test_base.ReportFlowHelper):

@@ -3,6 +3,20 @@
 History
 -------
 
+0.12.9 (2017-09-13)
+++++++++++++++++++
+
+* create an upgrade path for reports created before django wizard builder 2.0
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/273
+
+0.12.8 (2017-09-12)
+++++++++++++++++++
+
+* update EncryptedStorageHelper for django wizard builder 2.0
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/272
+
 0.12.7 (2017-09-08)
 ++++++++++++++++++
 

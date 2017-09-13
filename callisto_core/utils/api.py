@@ -6,6 +6,15 @@ from django.utils.module_loading import import_string
 logger = logging.getLogger(__name__)
 
 
+def log_api_func(api, func):
+    func_name = getattr(func, '__name__', str(func))
+    if not func_name == '<lambda>':
+        logger.debug('{}.{}'.format(
+            api.__class__.__name__,
+            func_name,
+        ))
+
+
 class Api(type):
     '''
         Used to create overrideable calls
@@ -41,11 +50,7 @@ class Api(type):
         )
         api_instance = import_string(override_class_path)()
         func = getattr(api_instance, attr, lambda: None)
-        func_name = getattr(func, '__name__', str(func))
-        logger.debug('{}.{}'.format(
-            api_instance.__class__.__name__,
-            func_name,
-        ))
+        log_api_func(api_instance, func)
         return func
 
 
