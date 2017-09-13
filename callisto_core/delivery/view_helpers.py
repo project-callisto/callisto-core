@@ -1,3 +1,13 @@
+'''
+
+View helpers contain all the functionality that would be too complex to
+define within a view helper. None of these classes provide full view
+functionality.
+
+docs / reference:
+    - https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/wizard_builder/view_helpers.py
+
+'''
 import logging
 
 from django.core.urlresolvers import reverse
@@ -22,6 +32,9 @@ class ReportStepsHelper(
 
 
 class SecretKeyStorageHelper(object):
+
+    def __init__(self, view):
+        self.view = view  # TODO: scope down input
 
     def set_secret_key(self, key):
         self.view.request.session['secret_key'] = key

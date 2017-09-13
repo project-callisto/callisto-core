@@ -58,7 +58,7 @@ class MatchingEnterView(
 
 
 class MatchingWithdrawView(
-    delivery_view_partials.ReportActionView,
+    delivery_view_partials.ReportActionPartial,
 ):
 
     def view_action(self):

@@ -1,27 +1,34 @@
 '''
 
-These views integrate thoroughly with django class based views
-https://docs.djangoproject.com/en/1.11/topics/class-based-views/
-an understanding of them is required to utilize the views effectively
+Views specific to callisto-core, if you are implementing callisto-core
+you SHOULD NOT be importing these views. Import from view_partials instead.
+All of the classes in this file should represent one of more HTML view.
+
+docs / reference:
+    - https://docs.djangoproject.com/en/1.11/topics/class-based-views/
+
+views should define:
+    - templates
+    - "advanced" redirect urls
+
+and should not define:
+    - "basic" redirect urls, which should be in urls.py
 
 '''
-import logging
-
-from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.views import generic as views
 
-from . import forms, view_partials
+from . import view_partials
 
-User = get_user_model()
-logger = logging.getLogger(__name__)
+################
+# report views #
+################
 
 
 class ReportCreateView(
-    view_partials.ReportBasePartial,
-    views.edit.CreateView,
+    view_partials.ReportCreatePartial,
 ):
-    form_class = forms.ReportCreateForm
+    template_name = 'callisto_core/delivery/form.html'
+    access_template_name = 'callisto_core/delivery/form.html'
 
     def get_success_url(self):
         return reverse(
@@ -29,20 +36,32 @@ class ReportCreateView(
             kwargs={'step': 0, 'uuid': self.object.uuid},
         )
 
-    def form_valid(self, form):
-        self._set_key_from_form(form)
-        return super().form_valid(form)
-
-    def _set_key_from_form(self, form):
-        # TODO: move to _SecretKeyStorageHelper
-        if form.data.get('key'):
-            self.storage.set_secret_key(form.data['key'])
-
 
 class ReportDeleteView(
-    view_partials.ReportActionView,
+    view_partials.ReportDeletePartial,
 ):
+    template_name = 'callisto_core/delivery/form.html'
+    access_template_name = 'callisto_core/delivery/form.html'
 
     def view_action(self):
-        print('ReportDeleteView.view_action')
         self.report.delete()
+
+
+################
+# wizard views #
+################
+
+
+class EncryptedWizardView(
+    view_partials.ReportUpdatePartial,
+):
+    template_name = 'callisto_core/delivery/wizard_form.html'
+    done_template_name = 'callisto_core/delivery/review.html'
+
+
+class WizardPDFView(
+    view_partials.WizardPDFPartial,
+):
+
+    def get(self, *args, **kwargs):
+        return self.report_pdf_response()

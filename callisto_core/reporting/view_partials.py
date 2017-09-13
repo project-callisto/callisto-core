@@ -6,7 +6,7 @@ from ..utils import api
 
 
 class SubmissionPartial(
-    delivery_view_partials.ReportUpdateView,
+    delivery_view_partials.ReportUpdatePartial,
 ):
     template_name = 'callisto_core/reporting/submission.html'
 
