@@ -40,6 +40,7 @@ class ReportAssertionHelper(object):
 
 
 class ReportPostHelper(object):
+    valid_statuses = [200, 301, 302]
 
     def client_post_report_creation(self):
         response = self.client.post(
@@ -51,44 +52,36 @@ class ReportPostHelper(object):
             follow=True,
         )
         self.report = response.context['report']
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertIn(response.status_code, self.valid_statuses)
         return response
 
     def client_post_report_delete(self):
-        response = self.client.post(
-            reverse(
-                'report_delete',
-                kwargs={
-                    'uuid': self.report.uuid,
-                },
-            ),
-            data={
-                'key': self.secret_key,
-            },
-            follow=True,
+        url = reverse(
+            'report_delete',
+            kwargs={'uuid': self.report.uuid},
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        data = {'key': self.secret_key}
+        response = self.client.post(url, data, follow=True)
+        self.assertIn(response.status_code, self.valid_statuses)
         return response
 
     def client_get_report_view_pdf(self):
-        response = self.client.get(
-            reverse(
-                'report_view_pdf',
-                kwargs={
-                    'uuid': self.report.uuid,
-                },
-            ),
+        url = reverse(
+            'report_view_pdf',
+            kwargs={'uuid': self.report.uuid},
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        response = self.client.get(url)
+        self.assertIn(response.status_code, self.valid_statuses)
         return response
 
-    def client_post_question_answer(self, url, answer):
-        response = self.client.post(
-            url,
-            data=answer,
-            follow=True,
+    def client_post_answer_question(self):
+        url = reverse(
+            'report_update',
+            kwargs={'uuid': self.report.uuid, 'step': '0'},
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        data = {'question_3': 'blanket ipsum pillowfight'}
+        response = self.client.post(url, data, follow=True)
+        self.assertIn(response.status_code, self.valid_statuses)
         return response
 
     def client_post_report_access(self, url):
@@ -99,7 +92,7 @@ class ReportPostHelper(object):
             },
             follow=True,
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertIn(response.status_code, self.valid_statuses)
         return response
 
     def client_post_report_prep(self):
@@ -114,7 +107,7 @@ class ReportPostHelper(object):
             },
             follow=True,
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertIn(response.status_code, self.valid_statuses)
         return response
 
     def client_post_matching_enter_empty(self):
@@ -128,7 +121,7 @@ class ReportPostHelper(object):
             },
             follow=True,
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertIn(response.status_code, self.valid_statuses)
         return response
 
     def client_post_matching_enter(self):
@@ -142,7 +135,7 @@ class ReportPostHelper(object):
             },
             follow=True,
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertIn(response.status_code, self.valid_statuses)
         return response
 
     def client_post_reporting_confirmation(self):
@@ -157,7 +150,7 @@ class ReportPostHelper(object):
             },
             follow=True,
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertIn(response.status_code, self.valid_statuses)
         return response
 
 
@@ -199,3 +192,9 @@ class ReportFlowHelper(
             self.client.session.get('secret_key'),
             None,
         )
+
+    def client_set_secret_key(self):
+        session = self.client.session
+        session['secret_key'] = self.secret_key
+        session.save()
+        self.assertTrue(self.client.session.get('secret_key'))
