@@ -6,7 +6,7 @@ from wizard_builder import view_helpers as wizard_builder_view_helpers
 class _SecretKeyStorageHelper(object):
 
     def __init__(self, view):
-        self.view = view
+        self.view = view  # TODO: remove
 
     def set_secret_key(self, key):
         self.view.request.session['secret_key'] = key
@@ -48,7 +48,7 @@ class EncryptedStorageHelper(
 
     def current_data_from_storage(self):
         if self.secret_key and getattr(self, 'report', None):
-            self.init_storage()  # TODO: __init__ should be calling this???
+            self.init_storage()
             return self.report.decrypted_report(self.secret_key)
         else:
             return {
