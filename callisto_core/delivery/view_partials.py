@@ -24,7 +24,7 @@ class ReportBasePartial(
     wizard_builder_views.WizardFormPartial,
 ):
     model = models.Report
-    storage_helper = view_helpers.EncryptedStorageHelper
+    storage_helper = view_helpers.EncryptedReportStorageHelper
     template_name = 'callisto_core/delivery/form.html'
 
     @property
