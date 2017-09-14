@@ -41,10 +41,12 @@ The requirements are the same, you will just want to swap out homebrew for apt-g
 
 ## Running
 
-the tests
+The tests
 
     make test
 
-the demo app
+The demo app
 
     python manage.py runserver
+
+Your local demo application should match the live version present at https://callisto-core.herokuapp.com/
