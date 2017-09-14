@@ -13,20 +13,7 @@ We're working on moving relevant issues from our private bug tracker over to the
 Working on your first open source contribution? We are so excited to have you! You can learn how to make a pull request from this free series [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github)!
 
 ## How to submit
-We need all contributors to sign our [volunteer agreement](https://github.com/SexualHealthInnovations/callisto-core/blob/master/shi-volunteer-agreement.pdf) (PDF) in order to accept contributions. Signed agreements can be submitted to tech@sexualhealthinnovations.org. We can take fixes to documentation without a signed agreement.
-
-#### How to run tests
-````
-git clone git@github.com:SexualHealthInnovations/callisto-core.git # first time only
-cd callisto-core
-# install gpg (first time only) see http://blog.ghostinthemachines.com/2015/03/01/how-to-use-gpg-command-line/
-pip install virtualenv # first time only
-virtualenv venv # localize your dependencies
-source venv/bin/activate
-pip install -r requirements/dev.txt
-make test
-deactivate # exit virtualenv
-````
+We need all contributors to sign our [volunteer agreement](https://github.com/SexualHealthInnovations/callisto-core/blob/master/docs/shi-volunteer-agreement.pdf) (PDF) in order to accept contributions. Signed agreements can be submitted to tech@sexualhealthinnovations.org. We can take fixes to documentation without a signed agreement.
 
 ## How to report a bug
 
@@ -36,7 +23,7 @@ Other bugs or feature requests can be submitted as [GitHub issues](https://githu
 
 ## Code of conduct
 
-This project adheres to a [code of conduct](https://github.com/SexualHealthInnovations/callisto-core/blob/master/CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to tech@sexualhealthinnovations.org.
+This project adheres to a [code of conduct](https://github.com/SexualHealthInnovations/callisto-core/blob/master/docs/CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to tech@sexualhealthinnovations.org.
 
 ## Other questions
 

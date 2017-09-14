@@ -27,14 +27,12 @@ Learn more about information escrows:
 <a href="https://www.youtube.com/watch?v=mYV6_OaZeEs" target="_blank"><img src="https://sexualhealthinnovations.github.io/callisto_marketing/assets/img/pwl-video-still.png" alt="information escrow talk at Papers We Love" width="640"></a>
 
 ### Requirements
-`callisto-core` supports Django 1.11, running on Python 3.3, 3.4, or 3.5.
-
 `callisto-core` is built on top of [`django-wizard-builder`](https://github.com/SexualHealthInnovations/django-wizard-builder), another open source Django package maintained by Sexual Health Innovations. If you're interested in contributing to Callisto, please check out that repo as well.
 
 ### Support us
 
 [Donate](https://www.sexualhealthinnovations.org/donate/) to Sexual Health Innovations, the organization behind Callisto.
 
-[Contribute](https://github.com/SexualHealthInnovations/callisto-core/blob/master/CONTRIBUTING.md) to callisto-core.
+[Contribute](https://github.com/SexualHealthInnovations/callisto-core/blob/master/docs/CONTRIBUTING.md) to callisto-core.
 
 Want to talk about extending the code to other applications, how Callisto works, or schedule a demo of Callisto for your campus? Contact us at [tech@sexualhealthinnovations.org](mailto:tech@sexualhealthinnovations.org).

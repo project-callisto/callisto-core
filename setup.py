@@ -32,7 +32,7 @@ try:
 except (IOError, ImportError, OSError):
     print("Please install PyPandoc to allow conversion of the README")
     readme = open('README.md').read()
-history = open('HISTORY.rst').read().replace('.. :changelog:', '')
+history = open('docs/HISTORY.rst').read().replace('.. :changelog:', '')
 license = open('LICENSE').read()
 
 setup(
