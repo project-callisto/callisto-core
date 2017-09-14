@@ -13,23 +13,23 @@ view_partials should define:
     - models
     - helper classes
     - access checks
-    - anything else that doesn't belong in views.py or urls.py
+    - redirect handlers
 
 and should not define:
     - templates
-    - redirect urls
+    - url names
 
 '''
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from . import forms
-from ..delivery import view_partials as delivery_view_partials
+from ..delivery import view_partials as delivery_partials
 from ..utils import api
 
 
 class SubmissionPartial(
-    delivery_view_partials.ReportUpdatePartial,
+    delivery_partials.ReportUpdatePartial,
 ):
     back_url = None
 
@@ -112,3 +112,11 @@ class ConfirmationPartial(
         output = super().form_valid(form)
         self._send_report_emails()
         return output
+
+
+class MatchingWithdrawPartial(
+    delivery_partials.ReportActionPartial,
+):
+
+    def view_action(self):
+        self.report.withdraw_from_matching()

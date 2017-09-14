@@ -18,7 +18,9 @@ urlpatterns = [
         name='index',
         ),
     url(r'^reports/new/$',
-        delivery_views.ReportCreateView.as_view(),
+        delivery_views.ReportCreateView.as_view(
+            success_url='report_update',
+        ),
         name='report_new',
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/wizard/step/(?P<step>.+)/$',
