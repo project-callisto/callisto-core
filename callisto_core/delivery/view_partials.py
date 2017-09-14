@@ -107,14 +107,6 @@ class ReportCreatePartial(
             kwargs={'step': 0, 'uuid': self.object.uuid},
         )
 
-    def form_valid(self, form):
-        self._set_key_from_form(form)
-        return super().form_valid(form)
-
-    def _set_key_from_form(self, form):
-        if form.data.get('key'):
-            self.storage.set_secret_key(form.data['key'])
-
 
 class _ReportDetailPartial(
     ReportBasePartial,
@@ -151,6 +143,8 @@ class _ReportAccessPartial(
     @property
     def access_granted(self):
         self._check_report_owner()
+        if self.pass_access_through:
+            return True
         if self.storage.secret_key:
             try:
                 self.decrypted_report
@@ -167,8 +161,7 @@ class _ReportAccessPartial(
     def access_form_valid(self):
         form = self._get_access_form()
         if form.is_valid():
-            # TODO: dont hardcode passphrase POST arg
-            self.storage.set_secret_key(self.request.POST.get('key'))
+            form.save()
             return True
         else:
             return False
@@ -198,7 +191,7 @@ class _ReportAccessPartial(
         )
 
     def dispatch(self, request, *args, **kwargs):
-        if self.storage.secret_key or self.pass_access_through:
+        if self.access_granted:
             return super().dispatch(request, *args, **kwargs)
         elif self.access_form_valid:
             return HttpResponseRedirect(self.request.path)
@@ -290,24 +283,25 @@ class EncryptedWizardPartial(
 class WizardActionPartial(
     EncryptedWizardPartial,
 ):
+    access_form_class = forms.ReportAccessForm
 
     def dispatch(self, request, *args, **kwargs):
+        self._dispatch_processing()
         self.kwargs['step'] = view_helpers.ReportStepsHelper.done_name
-        return super().dispatch(request, *args, **kwargs)
+        if self.access_granted:
+            return self.view_action()
+        else:
+            return self._render_access_form()
 
 
 class WizardPDFPartial(
     WizardActionPartial,
 ):
 
-    def get(self, *args, **kwargs):
-        return self.report_pdf_response()
-
-    def report_pdf_response(self):
+    def view_action(self):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = self.content_disposition + \
             '; filename="report.pdf"'
-        # TODO: importing from reporting smells bad
         response.write(report_delivery.report_as_pdf(
             report=self.report,
             data=self.storage.cleaned_form_data,
