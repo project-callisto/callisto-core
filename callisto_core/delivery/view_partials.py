@@ -138,6 +138,7 @@ class _ReportAccessPartial(
     invalid_access_key_message = 'Invalid (key) access request at {}'
     invalid_access_user_message = 'Invalid (user) access request at {}'
     invalid_access_no_key_message = 'Invalid (no key) access request at {}'
+    form_class = forms.ReportAccessForm
     access_form_class = forms.ReportAccessForm
 
     @property
@@ -243,7 +244,6 @@ class ReportActionPartial(
     ReportUpdatePartial,
 ):
     success_url = '/'
-    form_class = forms.ReportAccessForm
 
     def form_valid(self, form):
         output = super().form_valid(form)

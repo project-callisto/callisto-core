@@ -102,8 +102,8 @@ class _LegacyReportStorageHelper(
 
 
 class EncryptedReportStorageHelper(
-    _LegacyReportStorageHelper,
     wizard_builder_view_helpers.StorageHelper,
+    _LegacyReportStorageHelper,
 ):
     storage_data_key = 'data'  # TODO: remove
 

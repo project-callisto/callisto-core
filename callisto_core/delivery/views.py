@@ -53,9 +53,10 @@ class ReportDeleteView(
 
 
 class EncryptedWizardView(
-    view_partials.ReportUpdatePartial,
+    view_partials.EncryptedWizardPartial,
 ):
     template_name = 'callisto_core/delivery/wizard_form.html'
+    access_template_name = 'callisto_core/delivery/form.html'
     done_template_name = 'callisto_core/delivery/review.html'
 
 
