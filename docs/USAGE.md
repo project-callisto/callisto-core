@@ -2,7 +2,8 @@
 
 ## Settings
 
-- (WIP)
+- GPG (WIP)
+- tenant specific (WIP)
 
 ## Views
 
