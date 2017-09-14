@@ -9,14 +9,8 @@ docs / reference:
 
 views should define:
     - templates
-    - "advanced" redirect urls
-
-and should not define:
-    - "basic" redirect urls, which should be in urls.py
 
 '''
-from django.core.urlresolvers import reverse
-
 from . import view_partials
 
 ################
@@ -30,21 +24,12 @@ class ReportCreateView(
     template_name = 'callisto_core/delivery/form.html'
     access_template_name = 'callisto_core/delivery/form.html'
 
-    def get_success_url(self):
-        return reverse(
-            'report_update',
-            kwargs={'step': 0, 'uuid': self.object.uuid},
-        )
-
 
 class ReportDeleteView(
     view_partials.ReportDeletePartial,
 ):
     template_name = 'callisto_core/delivery/form.html'
     access_template_name = 'callisto_core/delivery/form.html'
-
-    def view_action(self):
-        self.report.delete()
 
 
 ################
@@ -64,6 +49,3 @@ class WizardPDFView(
     view_partials.WizardPDFPartial,
 ):
     access_template_name = 'callisto_core/delivery/form.html'
-
-    def get(self, *args, **kwargs):
-        return self.report_pdf_response()

@@ -13,11 +13,11 @@ view_partials should define:
     - models
     - helper classes
     - access checks
-    - anything else that doesn't belong in views.py or urls.py
+    - redirect handlers
 
 and should not define:
     - templates
-    - redirect urls
+    - url names
 
 '''
 import logging
@@ -28,6 +28,7 @@ from nacl.exceptions import CryptoError
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic as views
 
@@ -99,6 +100,12 @@ class ReportCreatePartial(
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
+
+    def get_success_url(self):
+        return reverse(
+            self.success_url,
+            kwargs={'step': 0, 'uuid': self.object.uuid},
+        )
 
     def form_valid(self, form):
         self._set_key_from_form(form)
@@ -233,6 +240,7 @@ class ReportUpdatePartial(
     _ReportAccessPartial,
     views.edit.UpdateView,
 ):
+    back_url = None
 
     @property
     def report(self):
@@ -291,6 +299,9 @@ class WizardActionPartial(
 class WizardPDFPartial(
     WizardActionPartial,
 ):
+
+    def get(self, *args, **kwargs):
+        return self.report_pdf_response()
 
     def report_pdf_response(self):
         response = HttpResponse(content_type='application/pdf')

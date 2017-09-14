@@ -9,19 +9,9 @@ docs / reference:
 
 views should define:
     - templates
-    - "advanced" redirect urls
-
-and should not define:
-    - "basic" redirect urls, which should be in urls.py
 
 '''
-import logging
-
 from . import view_partials
-from ..delivery import view_partials as delivery_view_partials
-
-logger = logging.getLogger(__name__)
-
 
 ##################
 # reporting flow #
@@ -69,10 +59,7 @@ class MatchingEnterView(
 
 
 class MatchingWithdrawView(
-    delivery_view_partials.ReportActionPartial,
+    view_partials.MatchingWithdrawPartial,
 ):
     template_name = 'callisto_core/reporting/submission.html'
     access_template_name = 'callisto_core/delivery/form.html'
-
-    def view_action(self):
-        self.report.withdraw_from_matching()

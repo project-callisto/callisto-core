@@ -40,7 +40,8 @@ class SecretKeyStorageHelper(object):
         self.view.request.session['secret_key'] = key
 
     def clear_secret_key(self):
-        del self.view.request.session['secret_key']
+        if self.view.request.session.get('secret_key'):
+            del self.view.request.session['secret_key']
 
     @property
     def secret_key(self) -> str:
