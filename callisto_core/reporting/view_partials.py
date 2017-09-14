@@ -79,13 +79,13 @@ class MatchingPartial(
 
 
 class OptionalMatchingPartial(
-    SubmissionPartial,
+    MatchingPartial,
 ):
     form_class = forms.MatchingOptionalForm
 
 
 class RequiredMatchingPartial(
-    SubmissionPartial,
+    MatchingPartial,
 ):
     form_class = forms.MatchingRequiredForm
 
