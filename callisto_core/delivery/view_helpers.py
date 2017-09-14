@@ -1,3 +1,13 @@
+'''
+
+View helpers contain all the functionality that would be too complex to
+define within a view helper. None of these classes provide full view
+functionality.
+
+docs / reference:
+    - https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/wizard_builder/view_helpers.py
+
+'''
 import logging
 
 from django.core.urlresolvers import reverse
@@ -21,13 +31,25 @@ class ReportStepsHelper(
         )
 
 
-class _SecretKeyStorageHelper(object):
+class SecretKeyStorageHelper(object):
+
+    def __init__(self, view):
+        self.view = view  # TODO: scope down input
 
     def set_secret_key(self, key):
         self.view.request.session['secret_key'] = key
 
     def clear_secret_key(self):
         del self.view.request.session['secret_key']
+
+    @property
+    def secret_key(self) -> str:
+        return self.view.request.session.get('secret_key')
+
+
+class _ReportStorageHelper(
+    SecretKeyStorageHelper,
+):
 
     @property
     def report(self):
@@ -38,10 +60,6 @@ class _SecretKeyStorageHelper(object):
             return None
 
     @property
-    def secret_key(self) -> str:
-        return self.view.request.session.get('secret_key')
-
-    @property
     def decrypted_report(self) -> dict:
         return self.report.decrypted_report(self.secret_key)
 
@@ -50,8 +68,8 @@ class _SecretKeyStorageHelper(object):
         return bool(self.secret_key and getattr(self, 'report', None))
 
 
-class _LegacyEncryptedStorageHelper(
-    _SecretKeyStorageHelper,
+class _LegacyReportStorageHelper(
+    _ReportStorageHelper,
 ):
 
     def _initialize_storage(self):
@@ -83,9 +101,9 @@ class _LegacyEncryptedStorageHelper(
         self.report.encrypt_report(storage, self.secret_key)
 
 
-class EncryptedStorageHelper(
-    _LegacyEncryptedStorageHelper,
+class EncryptedReportStorageHelper(
     wizard_builder_view_helpers.StorageHelper,
+    _LegacyReportStorageHelper,
 ):
     storage_data_key = 'data'  # TODO: remove
 
