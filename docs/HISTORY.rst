@@ -3,6 +3,13 @@
 History
 -------
 
+0.13.1 (2017-09-14)
+++++++++++++++++++
+
+* Fix some view issues introduced in v0.13.0
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/277
+
 0.13.0 (2017-09-14)
 ++++++++++++++++++
 
