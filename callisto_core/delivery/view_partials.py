@@ -305,7 +305,8 @@ class WizardPDFPartial(
 
     def report_pdf_response(self):
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename="report.pdf"'
+        response['Content-Disposition'] = self.content_disposition + \
+            '; filename="report.pdf"'
         # TODO: importing from reporting smells bad
         response.write(report_delivery.report_as_pdf(
             report=self.report,
@@ -313,3 +314,15 @@ class WizardPDFPartial(
             recipient=None,
         ))
         return response
+
+
+class ViewPDFPartial(
+    WizardPDFPartial,
+):
+    content_disposition = 'inline'
+
+
+class DownloadPDFPartial(
+    WizardPDFPartial,
+):
+    content_disposition = 'attachment'

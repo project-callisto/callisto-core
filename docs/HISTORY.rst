@@ -3,6 +3,13 @@
 History
 -------
 
+0.13.2 (2017-09-14)
+++++++++++++++++++
+
+* Add distinct view and download PDF options
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/278
+
 0.13.1 (2017-09-14)
 ++++++++++++++++++
 

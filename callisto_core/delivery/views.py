@@ -45,7 +45,13 @@ class EncryptedWizardView(
     done_template_name = 'callisto_core/delivery/review.html'
 
 
-class WizardPDFView(
-    view_partials.WizardPDFPartial,
+class ViewPDFView(
+    view_partials.ViewPDFPartial,
+):
+    access_template_name = 'callisto_core/delivery/form.html'
+
+
+class DownloadPDFView(
+    view_partials.DownloadPDFPartial,
 ):
     access_template_name = 'callisto_core/delivery/form.html'
