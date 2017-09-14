@@ -2,10 +2,24 @@
 
 Guidance for using callisto-core in your own unique downstream application
 
+## Tenant Configuration
+
+You are likely starting out with 1 tenant, and so will want to lock your SITE_ID to 1 via one of both of these methods
+
+```bash
+export SITE_ID=1
+```
+
+```python
+# settings.py
+SITE_ID = 1
+```
+
 ## Settings
 
 django settings.py minimum requirements
 
+```python
     # the defaults, wizard builder and its requirements, the callisto-core apps
     INSTALLED_APPS = [
         'django.contrib.admin',
@@ -58,6 +72,7 @@ django settings.py minimum requirements
     # apis, see api section below
     CALLISTO_MATCHING_API
     CALLISTO_NOTIFICATION_API
+```
 
 - GPG (WIP)
 - tenant specific (WIP)
