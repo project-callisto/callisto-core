@@ -36,7 +36,7 @@ Other bugs or feature requests can be submitted as [GitHub issues](https://githu
 
 ## Code of conduct
 
-This project adheres to a [code of conduct](https://github.com/SexualHealthInnovations/callisto-core/blob/master/CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to tech@sexualhealthinnovations.org.
+This project adheres to a [code of conduct](https://github.com/SexualHealthInnovations/callisto-core/blob/master/docs/CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to tech@sexualhealthinnovations.org.
 
 ## Other questions
 
