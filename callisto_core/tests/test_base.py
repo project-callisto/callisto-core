@@ -65,9 +65,9 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
-    def client_get_report_view_pdf(self):
+    def client_get_report_pdf_view(self):
         url = reverse(
-            'report_view_pdf',
+            'report_pdf_view',
             kwargs={'uuid': self.report.uuid},
         )
         response = self.client.get(url)
