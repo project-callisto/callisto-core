@@ -3,6 +3,14 @@
 History
 -------
 
+0.13.0 (2017-09-14)
+++++++++++++++++++
+
+* Clarified urls.py views.py vs view_partials.py vs view_helpers.py
+* Moved view functions around to account for the above. See the respective files for an explaination
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/274
+
 0.12.9 (2017-09-13)
 ++++++++++++++++++
 
