@@ -33,6 +33,12 @@ Learn more about information escrows:
 
 [Donate](https://www.sexualhealthinnovations.org/donate/) to Sexual Health Innovations, the organization behind Callisto.
 
-[Contribute](https://github.com/SexualHealthInnovations/callisto-core/blob/master/docs/CONTRIBUTING.md) to callisto-core.
+Our current list of issues is available here https://github.com/SexualHealthInnovations/callisto-core/issues
+
+There's documentation on [running a developement version](https://github.com/SexualHealthInnovations/callisto-core/blob/master/docs/DEVELOPEMENT.md) of this repository, and on [using callisto-core as a python package](https://github.com/SexualHealthInnovations/callisto-core/blob/master/docs/USAGE.md).
+
+Finally there's a live heroku testing application to give you a feeling for how Callisto operates https://callisto-core.herokuapp.com/
+
+Read more about this on our [contribution guide](https://github.com/SexualHealthInnovations/callisto-core/blob/master/docs/CONTRIBUTING.md).
 
 Want to talk about extending the code to other applications, how Callisto works, or schedule a demo of Callisto for your campus? Contact us at [tech@sexualhealthinnovations.org](mailto:tech@sexualhealthinnovations.org).
