@@ -7,6 +7,7 @@ Guidance for using callisto-core in your own unique downstream application
 You are likely starting out with 1 tenant, and so will want to lock your SITE_ID to 1 via one of both of these methods
 
 ```bash
+# bash profile, or similar
 export SITE_ID=1
 ```
 
