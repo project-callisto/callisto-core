@@ -63,6 +63,7 @@ class EncryptedWizardView(
 class WizardPDFView(
     view_partials.WizardPDFPartial,
 ):
+    access_template_name = 'callisto_core/delivery/form.html'
 
     def get(self, *args, **kwargs):
         return self.report_pdf_response()

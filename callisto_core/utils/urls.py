@@ -42,29 +42,46 @@ urlpatterns = [
         ),
     # reporting flow
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/prep/$',
-        reporting_views.ReportingPrepView.as_view(),
+        reporting_views.ReportingPrepView.as_view(
+            back_url='report_view',
+            success_url='reporting_matching_enter',
+        ),
         name="reporting_prep",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/matching/$',
-        reporting_views.ReportingMatchingView.as_view(),
+        reporting_views.ReportingMatchingView.as_view(
+            back_url='reporting_prep',
+            success_url='reporting_confirmation',
+        ),
         name="reporting_matching_enter",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/confirmation/$',
-        reporting_views.ReportingConfirmationView.as_view(),
+        reporting_views.ReportingConfirmationView.as_view(
+            back_url='reporting_matching_enter',
+            success_url='report_view',
+        ),
         name="reporting_confirmation",
         ),
     # /end reporting flow
     # matching flow
     url(r'^reports/uuid/(?P<uuid>.+)/matching/prep/$',
-        reporting_views.MatchingPrepView.as_view(),
+        reporting_views.MatchingPrepView.as_view(
+            back_url='report_view',
+            success_url='matching_enter',
+        ),
         name="report_matching_prep",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/matching/enter/$',
-        reporting_views.MatchingEnterView.as_view(),
+        reporting_views.MatchingEnterView.as_view(
+            back_url='report_matching_prep',
+            success_url='report_view',
+        ),
         name="matching_enter",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/matching/withdraw/$',
-        reporting_views.MatchingWithdrawView.as_view(),
+        reporting_views.MatchingWithdrawView.as_view(
+            success_url='report_view',
+        ),
         name="report_matching_withdraw",
         ),
     # /end matching flow

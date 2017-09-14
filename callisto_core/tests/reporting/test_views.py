@@ -34,7 +34,7 @@ class SubmissionViewTest(ReportingHelper):
         response = self.request()
         self.assertTemplateUsed(
             response,
-            view_partials.SubmissionPartial.template_name,
+            'callisto_core/reporting/submission.html',
         )
 
     def test_recovers_from_no_secret_key(self):

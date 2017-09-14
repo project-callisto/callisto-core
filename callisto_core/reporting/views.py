@@ -1,6 +1,23 @@
+'''
+
+Views specific to callisto-core, if you are implementing callisto-core
+you SHOULD NOT be importing these views. Import from view_partials instead.
+All of the classes in this file should represent one of more HTML view.
+
+docs / reference:
+    - https://docs.djangoproject.com/en/1.11/topics/class-based-views/
+
+views should define:
+    - templates
+    - "advanced" redirect urls
+
+and should not define:
+    - "basic" redirect urls, which should be in urls.py
+
+'''
 import logging
 
-from . import forms, view_partials
+from . import view_partials
 from ..delivery import view_partials as delivery_view_partials
 
 logger = logging.getLogger(__name__)
@@ -12,28 +29,24 @@ logger = logging.getLogger(__name__)
 
 
 class ReportingPrepView(
-    view_partials.SubmissionPartial
+    view_partials.PrepPartial
 ):
-    form_class = forms.PrepForm
-    back_url = 'report_view'
-    success_url = 'reporting_matching_enter'
+    template_name = 'callisto_core/reporting/submission.html'
+    access_template_name = 'callisto_core/delivery/form.html'
 
 
 class ReportingMatchingView(
-    view_partials.MatchingPartial
+    view_partials.OptionalMatchingPartial
 ):
-    form_class = forms.MatchingOptionalForm
-    back_url = 'reporting_prep'
-    success_url = 'reporting_confirmation'
+    template_name = 'callisto_core/reporting/submission.html'
+    access_template_name = 'callisto_core/delivery/form.html'
 
 
 class ReportingConfirmationView(
     view_partials.ConfirmationPartial
 ):
     template_name = 'callisto_core/reporting/submission_confirm.html'
-    form_class = forms.ConfirmationForm
-    back_url = 'reporting_matching_enter'
-    success_url = 'report_view'
+    access_template_name = 'callisto_core/delivery/form.html'
 
 
 #################
@@ -42,24 +55,24 @@ class ReportingConfirmationView(
 
 
 class MatchingPrepView(
-    view_partials.SubmissionPartial
+    view_partials.PrepPartial
 ):
-    form_class = forms.PrepForm
-    back_url = 'report_view'
-    success_url = 'matching_enter'
+    template_name = 'callisto_core/reporting/submission.html'
+    access_template_name = 'callisto_core/delivery/form.html'
 
 
 class MatchingEnterView(
-    view_partials.MatchingPartial
+    view_partials.RequiredMatchingPartial
 ):
-    form_class = forms.MatchingRequiredForm
-    back_url = 'report_matching_prep'
-    success_url = 'report_view'
+    template_name = 'callisto_core/reporting/submission.html'
+    access_template_name = 'callisto_core/delivery/form.html'
 
 
 class MatchingWithdrawView(
     delivery_view_partials.ReportActionPartial,
 ):
+    template_name = 'callisto_core/reporting/submission.html'
+    access_template_name = 'callisto_core/delivery/form.html'
 
     def view_action(self):
         self.report.withdraw_from_matching()
