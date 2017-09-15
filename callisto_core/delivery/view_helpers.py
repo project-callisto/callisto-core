@@ -12,13 +12,13 @@ import logging
 
 from django.core.urlresolvers import reverse
 
-from wizard_builder import view_helpers as wizard_builder_view_helpers
+from wizard_builder import view_helpers as wizard_builder_helpers
 
 logger = logging.getLogger(__name__)
 
 
 class ReportStepsHelper(
-    wizard_builder_view_helpers.StepsHelper,
+    wizard_builder_helpers.StepsHelper,
 ):
 
     def url(self, step):
@@ -103,7 +103,7 @@ class _LegacyReportStorageHelper(
 
 
 class EncryptedReportStorageHelper(
-    wizard_builder_view_helpers.StorageHelper,
+    wizard_builder_helpers.StorageHelper,
     _LegacyReportStorageHelper,
 ):
     storage_data_key = 'data'  # TODO: remove

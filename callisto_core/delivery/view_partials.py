@@ -7,6 +7,7 @@ functionality required for a full HTML view.
 
 docs / reference:
     - https://docs.djangoproject.com/en/1.11/topics/class-based-views/
+    - https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/wizard_builder/view_partials.py
 
 view_partials should define:
     - forms
@@ -32,7 +33,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic as views
 
-from wizard_builder import views as wizard_builder_views
+from wizard_builder import views as wizard_builder_partials
 
 from . import fields, forms, models, view_helpers
 from ..reporting import report_delivery
@@ -74,7 +75,7 @@ class KeyResetTemplatePartial(
 
 
 class ReportBasePartial(
-    wizard_builder_views.WizardFormPartial,
+    wizard_builder_partials.WizardFormPartial,
 ):
     model = models.Report
     storage_helper = view_helpers.EncryptedReportStorageHelper
@@ -271,7 +272,7 @@ class ReportDeletePartial(
 
 class EncryptedWizardPartial(
     ReportUpdatePartial,
-    wizard_builder_views.WizardView,
+    wizard_builder_partials.WizardPartial,
 ):
     steps_helper = view_helpers.ReportStepsHelper
 
