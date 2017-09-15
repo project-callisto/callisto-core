@@ -3,9 +3,9 @@ from mock import patch
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
+from django.core.urlresolvers import reverse
 
 from ..models import Page, SingleLineText
-from ..views import NewWizardView
 
 
 class TempSiteID():
@@ -79,5 +79,5 @@ class SiteRequestTest(TestCase):
     @patch('wizard_builder.managers.PageManager.on_site')
     def test_site_passed_to_question_page_manager(self, mock_on_site):
         mock_on_site.return_value = Page.objects.filter(id=self.page.id)
-        self.client.get(NewWizardView.url)
+        self.client.get(reverse('wizard_new'))
         mock_on_site.assert_called_with(self.site.id)
