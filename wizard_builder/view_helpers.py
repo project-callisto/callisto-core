@@ -267,3 +267,39 @@ class StorageHelper(object):
             self.storage_data_key,
             {},
         )
+
+
+class WizardViewTemplateHelpers(object):
+    # TODO: these sould all be context variables instead
+
+    @property
+    def wizard_prev_step_exists(self):
+        return self.steps.current
+
+    @property
+    def wizard_next_is_done(self):
+        return self.steps.next_is_done
+
+    @property
+    def wizard_current_step(self):
+        return self.steps.current
+
+    @property
+    def wizard_goto_name(self):
+        return self.steps.wizard_goto_name
+
+    @property
+    def wizard_current_name(self):
+        return self.steps.wizard_current_name
+
+    @property
+    def wizard_review_name(self):
+        return self.steps.review_name
+
+    @property
+    def wizard_next_name(self):
+        return self.steps.next_name
+
+    @property
+    def wizard_back_name(self):
+        return self.steps.back_name
