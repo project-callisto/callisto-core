@@ -2,7 +2,6 @@ from mock import patch
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings
 
 from ..models import Page, SingleLineText
@@ -62,22 +61,3 @@ class SiteIDTest(TestCase):
             self.assertNotEqual(page.sites.first().id, settings.SITE_ID)
 
         self.assertEqual(page.sites.first().id, site_2.id)
-
-
-class SiteRequestTest(TestCase):
-
-    def setUp(self):
-        super(SiteRequestTest, self).setUp()
-        self.site = Site.objects.get(id=1)
-        self.site.domain = 'testserver'
-        self.site.save()
-        self.page = Page.objects.create()
-        self.page.sites.add(self.site.id)
-        self.question = SingleLineText.objects.create(
-            text="first question", page=self.page)
-
-    @patch('wizard_builder.managers.PageManager.on_site')
-    def test_site_passed_to_question_page_manager(self, mock_on_site):
-        mock_on_site.return_value = Page.objects.filter(id=self.page.id)
-        self.client.get(reverse('wizard_new'))
-        mock_on_site.assert_called_with(self.site.id)

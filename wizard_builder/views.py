@@ -8,6 +8,7 @@ views should define:
 
 '''
 from . import view_partials
+from .view_partials import WizardFormPartial  # NOQA, legacy support
 
 
 class NewWizardView(
