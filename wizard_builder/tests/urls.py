@@ -17,6 +17,5 @@ urlpatterns = [
         name='wizard_update',
         ),
     url(r'^nested_admin/', include('nested_admin.urls')),
-    url(r'^tinymce/', include('tinymce.urls')),
     url(r'^admin/', admin.site.urls),
 ]

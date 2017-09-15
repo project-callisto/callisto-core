@@ -1,7 +1,5 @@
 import logging
 
-from tinymce import HTMLField
-
 from django import forms
 from django.contrib.sites.models import Site
 from django.db import models
@@ -29,7 +27,7 @@ class Page(models.Model):
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
-    infobox = HTMLField(blank=True)
+    infobox = models.TextField(blank=True)
 
     objects = PageManager()
 
@@ -82,8 +80,8 @@ class Page(models.Model):
 
 # TODO: rename to Question when downcasting is removed
 class FormQuestion(models.Model):
-    text = HTMLField(blank=True)
-    descriptive_text = HTMLField(blank=True)
+    text = models.TextField(blank=True)
+    descriptive_text = models.TextField(blank=True)
     page = models.ForeignKey(
         Page,
         editable=True,
