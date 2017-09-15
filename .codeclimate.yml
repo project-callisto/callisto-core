@@ -6,8 +6,6 @@ engines:
         python:
           mass_threshold: 20 # default is 32
           python_version: 3
-  fixme:
-    enabled: true
   radon:
     enabled: true
     config:
