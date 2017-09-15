@@ -5,6 +5,7 @@ History
 ++++++++++++++++++
 
 * views / view_partials / view_helpers cleanup
+* WizardFormPartial moved from views.py to view_partials.py
 
     https://github.com/SexualHealthInnovations/django-wizard-builder/pull/169
 
