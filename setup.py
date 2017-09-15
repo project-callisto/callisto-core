@@ -52,7 +52,7 @@ setup(
         'django',
         'django-polymorphic>=1.0',
         'django-ratelimit>=1.0',
-        'django-wizard-builder>=2.0,<3.0',
+        'django-wizard-builder>=2.2,<2.3',
         'PyNaCl>=1.0',
         'python-gnupg>=0.4',
         'pytz>=2017',
