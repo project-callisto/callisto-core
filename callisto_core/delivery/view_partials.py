@@ -33,7 +33,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic as views
 
-from wizard_builder import views as wizard_builder_partials
+from wizard_builder import view_partials as wizard_builder_partials
 
 from . import fields, forms, models, view_helpers
 from ..reporting import report_delivery
