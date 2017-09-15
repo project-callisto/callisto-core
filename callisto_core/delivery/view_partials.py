@@ -134,7 +134,6 @@ class _ReportLimitedDetailPartial(
 class _ReportAccessPartial(
     _ReportLimitedDetailPartial,
 ):
-    valid_access_message = 'Valid access request at {}'
     invalid_access_key_message = 'Invalid (key) access request at {}'
     invalid_access_user_message = 'Invalid (user) access request at {}'
     invalid_access_no_key_message = 'Invalid (no key) access request at {}'
@@ -149,7 +148,6 @@ class _ReportAccessPartial(
         if self.storage.secret_key:
             try:
                 self.decrypted_report
-                self._log_info(self.valid_access_message)
                 return True
             except CryptoError:
                 self._log_warn(self.invalid_access_key_message)
