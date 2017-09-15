@@ -39,6 +39,11 @@ class ReportBaseForm(
     def report(self):
         return self.instance
 
+    def save(self, *args, **kwargs):
+        if self.data.get("key"):
+            self.view.storage.set_secret_key(self.data['key'])
+        return super().save(*args, **kwargs)
+
     class Meta:
         model = models.Report
         fields = []
@@ -64,8 +69,7 @@ class ReportCreateForm(ReportBaseForm):
 
 
 class ReportAccessForm(ReportBaseForm):
-    # TODO: form.save() should add key to storage?
-    message_key_error = 'invalid secret key'
+    message_key_error = 'Invalid passphrase'
     message_key_error_log = 'decryption failure on {}'
 
     def clean_key(self):

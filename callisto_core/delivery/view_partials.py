@@ -7,6 +7,7 @@ functionality required for a full HTML view.
 
 docs / reference:
     - https://docs.djangoproject.com/en/1.11/topics/class-based-views/
+    - https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/wizard_builder/view_partials.py
 
 view_partials should define:
     - forms
@@ -32,7 +33,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic as views
 
-from wizard_builder import views as wizard_builder_views
+from wizard_builder import view_partials as wizard_builder_partials
 
 from . import fields, forms, models, view_helpers
 from ..reporting import report_delivery
@@ -74,7 +75,7 @@ class KeyResetTemplatePartial(
 
 
 class ReportBasePartial(
-    wizard_builder_views.WizardFormPartial,
+    wizard_builder_partials.WizardFormPartial,
 ):
     model = models.Report
     storage_helper = view_helpers.EncryptedReportStorageHelper
@@ -107,14 +108,6 @@ class ReportCreatePartial(
             kwargs={'step': 0, 'uuid': self.object.uuid},
         )
 
-    def form_valid(self, form):
-        self._set_key_from_form(form)
-        return super().form_valid(form)
-
-    def _set_key_from_form(self, form):
-        if form.data.get('key'):
-            self.storage.set_secret_key(form.data['key'])
-
 
 class _ReportDetailPartial(
     ReportBasePartial,
@@ -141,7 +134,6 @@ class _ReportLimitedDetailPartial(
 class _ReportAccessPartial(
     _ReportLimitedDetailPartial,
 ):
-    valid_access_message = 'Valid access request at {}'
     invalid_access_key_message = 'Invalid (key) access request at {}'
     invalid_access_user_message = 'Invalid (user) access request at {}'
     invalid_access_no_key_message = 'Invalid (no key) access request at {}'
@@ -151,10 +143,11 @@ class _ReportAccessPartial(
     @property
     def access_granted(self):
         self._check_report_owner()
+        if self.pass_access_through:
+            return True
         if self.storage.secret_key:
             try:
                 self.decrypted_report
-                self._log_info(self.valid_access_message)
                 return True
             except CryptoError:
                 self._log_warn(self.invalid_access_key_message)
@@ -167,8 +160,7 @@ class _ReportAccessPartial(
     def access_form_valid(self):
         form = self._get_access_form()
         if form.is_valid():
-            # TODO: dont hardcode passphrase POST arg
-            self.storage.set_secret_key(self.request.POST.get('key'))
+            form.save()
             return True
         else:
             return False
@@ -198,7 +190,7 @@ class _ReportAccessPartial(
         )
 
     def dispatch(self, request, *args, **kwargs):
-        if self.storage.secret_key or self.pass_access_through:
+        if self.access_granted:
             return super().dispatch(request, *args, **kwargs)
         elif self.access_form_valid:
             return HttpResponseRedirect(self.request.path)
@@ -278,7 +270,7 @@ class ReportDeletePartial(
 
 class EncryptedWizardPartial(
     ReportUpdatePartial,
-    wizard_builder_views.WizardView,
+    wizard_builder_partials.WizardPartial,
 ):
     steps_helper = view_helpers.ReportStepsHelper
 
@@ -290,24 +282,25 @@ class EncryptedWizardPartial(
 class WizardActionPartial(
     EncryptedWizardPartial,
 ):
+    access_form_class = forms.ReportAccessForm
 
     def dispatch(self, request, *args, **kwargs):
+        self._dispatch_processing()
         self.kwargs['step'] = view_helpers.ReportStepsHelper.done_name
-        return super().dispatch(request, *args, **kwargs)
+        if self.access_granted:
+            return self.view_action()
+        else:
+            return self._render_access_form()
 
 
 class WizardPDFPartial(
     WizardActionPartial,
 ):
 
-    def get(self, *args, **kwargs):
-        return self.report_pdf_response()
-
-    def report_pdf_response(self):
+    def view_action(self):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = self.content_disposition + \
             '; filename="report.pdf"'
-        # TODO: importing from reporting smells bad
         response.write(report_delivery.report_as_pdf(
             report=self.report,
             data=self.storage.cleaned_form_data,
