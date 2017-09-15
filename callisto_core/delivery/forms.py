@@ -42,7 +42,7 @@ class ReportBaseForm(
     def save(self, *args, **kwargs):
         if self.data.get("key"):
             self.view.storage.set_secret_key(self.data['key'])
-        super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     class Meta:
         model = models.Report
