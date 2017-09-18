@@ -2,54 +2,8 @@ from unittest import skip
 
 from django.test import override_settings
 
-from .. import models, view_helpers
+from .. import view_helpers
 from .base import FunctionalTest
-
-
-class Model(object):
-
-    @property
-    def page_1(self):
-        return models.Page.objects.all()[0]
-
-    @property
-    def page_2(self):
-        return models.Page.objects.all()[1]
-
-    @property
-    def page_3(self):
-        return models.Page.objects.all()[2]
-
-    @property
-    def page_1_question_1(self):
-        return self.page_1.questions[0]
-
-    @property
-    def page_1_question_2(self):
-        return self.page_1.questions[1]
-
-    @property
-    def page_1_question_1_choice_1(self):
-        return self.page_1_question_1.choices[0]
-
-    @property
-    def page_1_question_1_choice_2(self):
-        return self.page_1_question_1.choices[1]
-
-    @property
-    def page_1_question_1_choice_3(self):
-        return self.page_1_question_1.choices[2]
-
-    @property
-    def dropdown_1(self):
-        return self.page_1_question_1_choice_2.options[0]
-
-    @property
-    def dropdown_2(self):
-        return self.page_1_question_1_choice_2.options[1]
-
-
-model = Model()
 
 
 class ElementHelper(object):
@@ -110,16 +64,16 @@ class FunctionalBase(FunctionalTest):
 class FrontendTest(FunctionalBase):
 
     def test_first_page_text(self):
-        self.assertSelectorContains('form', model.page_1.infobox)
+        self.assertSelectorContains('form', 'a breakfast')
 
     def test_second_page_text(self):
         self.element.next.click()
-        self.assertSelectorContains('form', model.page_2.infobox)
+        self.assertSelectorContains('form', 'the big one')
 
     def test_third_page_text(self):
         self.element.next.click()
         self.element.next.click()
-        self.assertSelectorContains('form', model.page_3.infobox)
+        self.assertSelectorContains('form', 'evening playlist')
         self._assert_page_contents()
 
     def _assert_page_contents(self):
@@ -134,27 +88,22 @@ class FrontendTest(FunctionalBase):
     def test_forwards_and_backwards_navigation(self):
         self.element.next.click()
         self.element.back.click()
-        self.assertSelectorContains('form', model.page_1.infobox)
+        self.assertSelectorContains('form', 'a breakfast')
         self.element.next.click()
         self.element.next.click()
         self.element.back.click()
-        self.assertSelectorContains('form', model.page_2.infobox)
+        self.assertSelectorContains('form', 'the big one')
 
     def test_first_page_questions(self):
-        self.assertSelectorContains('form', model.page_1_question_1.text)
-        self.assertSelectorContains(
-            'form', model.page_1_question_1.descriptive_text)
-        self.assertSelectorContains('form', model.page_1_question_2.text)
-        self.assertSelectorContains(
-            'form', model.page_1_question_2.descriptive_text)
+        self.assertSelectorContains('form', 'food options')
+        self.assertSelectorContains('form', 'choose some!')
+        self.assertSelectorContains('form', 'eat it now???')
+        self.assertSelectorContains('form', '')
 
     def test_first_page_choices(self):
-        self.assertSelectorContains(
-            'form', model.page_1_question_1_choice_1.text)
-        self.assertSelectorContains(
-            'form', model.page_1_question_1_choice_2.text)
-        self.assertSelectorContains(
-            'form', model.page_1_question_1_choice_3.text)
+        self.assertSelectorContains('form', 'vegetables')
+        self.assertSelectorContains('form', 'apples')
+        self.assertSelectorContains('form', 'sugar')
 
     def test_extra_info(self):
         self.assertCss('[placeholder="extra information here"]')
@@ -165,8 +114,8 @@ class FrontendTest(FunctionalBase):
         self.element.next.click()
         self.element.back.click()
         # / end
-        self.assertSelectorContains('option', model.dropdown_1.text)
-        self.assertSelectorContains('option', model.dropdown_2.text)
+        self.assertSelectorContains('option', 'green')
+        self.assertSelectorContains('option', 'red')
 
     def test_can_select_choice(self):
         self.assertFalse(self.element.extra_input.is_selected())
@@ -232,15 +181,14 @@ class FrontendTest(FunctionalBase):
         self.element.next.click()
         self.element.next.click()
         self.element.done.click()
-        self.assertSelectorContains('body', model.dropdown_1.text)
+        self.assertSelectorContains('body', 'green')
 
     def test_choice_present_on_done_page(self):
         self.element.choice_1.click()
         self.element.next.click()
         self.element.next.click()
         self.element.done.click()
-        self.assertSelectorContains(
-            'body', model.page_1_question_1_choice_1.text)
+        self.assertSelectorContains('body', 'vegetables')
 
     def test_text_input_present_on_done_page(self):
         self.element.next.click()
@@ -253,9 +201,6 @@ class FrontendTest(FunctionalBase):
         self.element.next.click()
         self.element.next.click()
         self.element.done.click()
-        self.assertSelectorContains('body', model.page_1_question_1.text)
-        self.assertSelectorContains('body', model.page_1_question_2.text)
-        self.assertSelectorContains(
-            'body',
-            view_helpers.SerializedDataHelper.not_answered_text,
-        )
+        self.assertSelectorContains('body', 'food options')
+        self.assertSelectorContains('body', 'do androids dream of electric sheep?')
+        self.assertSelectorContains('body', '[ Not Answered ]')
