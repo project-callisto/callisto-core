@@ -64,35 +64,27 @@ class FunctionalBase(FunctionalTest):
 class FrontendTest(FunctionalBase):
 
     def test_first_page_text(self):
-        self.assertSelectorContains('form', 'a breakfast')
+        self.assertSelectorContains('form', 'food options')
 
     def test_second_page_text(self):
         self.element.next.click()
-        self.assertSelectorContains('form', 'the big one')
+        self.assertSelectorContains(
+            'form', 'do androids dream of electric sheep?')
 
     def test_third_page_text(self):
         self.element.next.click()
         self.element.next.click()
-        self.assertSelectorContains('form', 'evening playlist')
-        self._assert_page_contents()
-
-    def _assert_page_contents(self):
-        self.assertCss('[type="submit"]')
-        self.assertCss('[name="{}"]'.format(
-            view_helpers.StepsHelper.wizard_current_name,
-        ))
-        self.assertCss('[name="{}"]'.format(
-            view_helpers.StepsHelper.wizard_goto_name,
-        ))
+        self.assertSelectorContains('form', 'whats on the radios?')
 
     def test_forwards_and_backwards_navigation(self):
         self.element.next.click()
         self.element.back.click()
-        self.assertSelectorContains('form', 'a breakfast')
+        self.assertSelectorContains('form', 'food options')
         self.element.next.click()
         self.element.next.click()
         self.element.back.click()
-        self.assertSelectorContains('form', 'the big one')
+        self.assertSelectorContains(
+            'form', 'do androids dream of electric sheep?')
 
     def test_first_page_questions(self):
         self.assertSelectorContains('form', 'food options')
@@ -202,5 +194,6 @@ class FrontendTest(FunctionalBase):
         self.element.next.click()
         self.element.done.click()
         self.assertSelectorContains('body', 'food options')
-        self.assertSelectorContains('body', 'do androids dream of electric sheep?')
+        self.assertSelectorContains(
+            'body', 'do androids dream of electric sheep?')
         self.assertSelectorContains('body', '[ Not Answered ]')
