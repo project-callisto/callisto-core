@@ -5,6 +5,7 @@ History
 ++++++++++++++++++
 
 * update tests for callisto's use case
+* remove infobox
 
     https://github.com/SexualHealthInnovations/django-wizard-builder/pull/176
 

@@ -26,9 +26,7 @@ class DumpdataHackTest(TestCase):
 
     def test_dumpdata_hack(self):
         Page.objects.using('dumpdata_db').delete()
-        Page.objects.using('dumpdata_db').get_or_create(
-            infobox='dumpdata hack question',
-        )
+        Page.objects.using('dumpdata_db').get_or_create(id=1)
         subprocess.check_call('''
             DJANGO_SETTINGS_MODULE='wizard_builder.tests.test_app.ops_settings' \
                 python manage.py dumpdata \

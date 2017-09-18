@@ -29,10 +29,6 @@ class PageTest1(TestCase):
         self.assertEqual(Page.objects.get(pk=who_page.pk).section, Page.WHO)
         self.assertEqual(Page.objects.get(pk=when_page.pk).section, Page.WHEN)
 
-    def test_page_infobox_can_be_specified(self):
-        Page.objects.create(infobox="More information")
-        self.assertEqual(Page.objects.last().infobox, "More information")
-
     def test_position_not_overriden_on_save(self):
         page = Page.objects.create()
         starting_position = page.position

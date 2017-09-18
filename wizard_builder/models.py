@@ -27,7 +27,6 @@ class Page(models.Model):
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
-    infobox = models.TextField(blank=True)
 
     objects = PageManager()
 
