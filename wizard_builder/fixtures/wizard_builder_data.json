@@ -5,7 +5,6 @@
     "fields": {
       "position": 1,
       "section": 1,
-      "infobox": "a breakfast",
       "sites": [
         1
       ]
@@ -17,7 +16,6 @@
     "fields": {
       "position": 2,
       "section": 1,
-      "infobox": "the big one",
       "sites": [
         1
       ]
@@ -29,7 +27,6 @@
     "fields": {
       "position": 3,
       "section": 1,
-      "infobox": "evening playlist",
       "sites": [
         1
       ]
