@@ -8,7 +8,7 @@ History
 
     https://github.com/SexualHealthInnovations/django-wizard-builder/pull/176
 
-2.2.0 (2017-09-15)
+2.2.1 (2017-09-15)
 ++++++++++++++++++
 
 * remove tinymce
