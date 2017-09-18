@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.test import override_settings
 
 from .. import view_helpers
@@ -166,14 +164,6 @@ class FrontendTest(FunctionalBase):
         self.element.next.click()
         self.element.done.click()
         self.assertSelectorContains('h2', 'Question Review')
-
-    @skip('WIP')
-    def test_choice_dropdown_present_on_done_page(self):
-        self.element.extra_dropdown.click()
-        self.element.next.click()
-        self.element.next.click()
-        self.element.done.click()
-        self.assertSelectorContains('body', 'green')
 
     def test_choice_present_on_done_page(self):
         self.element.choice_1.click()
