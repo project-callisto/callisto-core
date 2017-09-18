@@ -6,6 +6,8 @@ History
 
 * update tests for callisto's use case
 
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/176
+
 2.2.0 (2017-09-15)
 ++++++++++++++++++
 
