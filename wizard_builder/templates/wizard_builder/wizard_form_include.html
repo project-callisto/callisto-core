@@ -1,8 +1,4 @@
 <form method="post" enctype="multipart/form-data">
-    {% if form.page.infobox %}
-        <div><p>{{ form.page.infobox }}</p></div>
-    {% endif %}
-
     {% csrf_token %}
     <input type="hidden" name="{{ view.wizard_current_name }}" value="{{ view.wizard_current_step }}"/>
 
