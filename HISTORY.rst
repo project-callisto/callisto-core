@@ -1,7 +1,7 @@
 History
 -------
 
-2.2.1 (2017-09-18)
+2.2.2 (2017-09-18)
 ++++++++++++++++++
 
 * update tests for callisto's use case
