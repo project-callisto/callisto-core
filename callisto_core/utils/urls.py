@@ -50,14 +50,14 @@ urlpatterns = [
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/prep/$',
         reporting_views.ReportingPrepView.as_view(
             back_url='report_view',
-            success_url='reporting_matching_enter',
+            reporting_success_url='reporting_matching_enter',
         ),
         name="reporting_prep",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/matching/$',
         reporting_views.ReportingMatchingView.as_view(
             back_url='reporting_prep',
-            success_url='reporting_confirmation',
+            reporting_success_url='reporting_confirmation',
         ),
         name="reporting_matching_enter",
         ),
@@ -73,7 +73,7 @@ urlpatterns = [
     url(r'^reports/uuid/(?P<uuid>.+)/matching/prep/$',
         reporting_views.MatchingPrepView.as_view(
             back_url='report_view',
-            success_url='matching_enter',
+            reporting_success_url='matching_enter',
         ),
         name="report_matching_prep",
         ),

@@ -32,12 +32,19 @@ class SubmissionPartial(
     delivery_partials.ReportUpdatePartial,
 ):
     back_url = None
+    reporting_success_url = None
 
-    def get_success_url(self):
+    def get_reporting_success_url(self):
         return reverse(
             self.success_url,
             kwargs={'uuid': self.report.uuid},
         )
+
+    def get_success_url(self):
+        if self.reporting_success_url:
+            return self.get_reporting_success_url()
+        else:
+            return super().get_success_url()
 
 
 class PrepPartial(
