@@ -46,7 +46,7 @@ class ReportSubclassPartial(
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update({'instance': None})
+        kwargs.update({'instance': None})  # TODO: remove
         return kwargs
 
 
