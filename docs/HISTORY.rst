@@ -3,6 +3,13 @@
 History
 -------
 
+0.14.0 (2017-09-19)
+++++++++++++++++++
+
+* add `reporting_success_url` and `get_reporting_success_url`
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/###
+
 0.13.3 (2017-09-14)
 ++++++++++++++++++
 
