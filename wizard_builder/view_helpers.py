@@ -42,7 +42,6 @@ class SerializedDataHelper(object):
 
     @classmethod
     def get_zipped_data(cls, data={}, forms={}):
-        logger.error('REVIEWISSUEFIX get_zipped_data')
         self = cls()
         self.data = data
         self.zipped_data = []
@@ -59,9 +58,6 @@ class SerializedDataHelper(object):
             self._parse_answers(question, answer)
 
     def _parse_answers(self, question, answer):
-        logger.error('REVIEWISSUEFIX')
-        logger.error('REVIEWISSUEFIX question: ', question)
-        logger.error('REVIEWISSUEFIX answer: ', answer)
         if question.get('type') == 'Singlelinetext':
             self._append_text_answer(answer, question)
         else:
