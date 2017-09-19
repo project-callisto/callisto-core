@@ -1,8 +1,7 @@
 '''
 
-View helpers contain all the functionality that would be too complex to
-define within a view helper. None of these classes provide full view
-functionality.
+View helpers contain functionality shared between several view partials.
+None of these classes provide full view functionality.
 
 docs / reference:
     - https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/wizard_builder/view_helpers.py

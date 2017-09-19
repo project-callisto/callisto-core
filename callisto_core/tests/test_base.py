@@ -42,20 +42,35 @@ class ReportAssertionHelper(object):
 class ReportPostHelper(object):
     valid_statuses = [200, 301, 302]
 
+    def client_get_report_creation(self):
+        url = reverse('report_new')
+        response = self.client.get(url)
+        self.assertIn(response.status_code, self.valid_statuses)
+        return response
+
     def client_post_report_creation(self):
-        response = self.client.post(
-            reverse('report_new'),
-            data={
-                'key': self.secret_key,
-                'key_confirmation': self.secret_key,
-            },
-            follow=True,
-        )
+        self.client_get_report_creation()
+        url = reverse('report_new')
+        data = {
+            'key': self.secret_key,
+            'key_confirmation': self.secret_key,
+        }
+        response = self.client.post(url, data, follow=True)
         self.report = response.context['report']
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
+    def client_get_report_delete(self):
+        url = reverse(
+            'report_delete',
+            kwargs={'uuid': self.report.uuid},
+        )
+        response = self.client.get(url)
+        self.assertIn(response.status_code, self.valid_statuses)
+        return response
+
     def client_post_report_delete(self):
+        self.client_get_report_delete()
         url = reverse(
             'report_delete',
             kwargs={'uuid': self.report.uuid},
@@ -110,31 +125,42 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
-    def client_post_matching_enter_empty(self):
-        response = self.client.post(
-            reverse(
-                'reporting_matching_enter',
-                kwargs={'uuid': self.report.uuid},
-            ),
-            data={
-                'identifier': '',
-            },
-            follow=True,
+    def client_get_matching_enter_empty(self):
+        url = reverse(
+            'reporting_matching_enter',
+            kwargs={'uuid': self.report.uuid},
         )
+        response = self.client.get(url)
+        self.assertIn(response.status_code, self.valid_statuses)
+        return response
+
+    def client_post_matching_enter_empty(self):
+        self.client_get_matching_enter_empty()
+        url = reverse(
+            'reporting_matching_enter',
+            kwargs={'uuid': self.report.uuid},
+        )
+        data = {'identifier': ''}
+        response = self.client.post(url, data, follow=True)
+        self.assertIn(response.status_code, self.valid_statuses)
+        return response
+
+    def client_get_matching_enter(self):
+        url = reverse(
+            'matching_enter',
+            kwargs={'uuid': self.report.uuid},
+        )
+        response = self.client.get(url)
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
     def client_post_matching_enter(self):
-        response = self.client.post(
-            reverse(
-                'matching_enter',
-                kwargs={'uuid': self.report.uuid},
-            ),
-            data={
-                'identifier': 'https://www.facebook.com/callistoorg',
-            },
-            follow=True,
+        url = reverse(
+            'matching_enter',
+            kwargs={'uuid': self.report.uuid},
         )
+        data = {'identifier': 'https://www.facebook.com/callistoorg'}
+        response = self.client.post(url, data, follow=True)
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
