@@ -58,7 +58,7 @@ class SerializedDataHelper(object):
             self._parse_answers(question, answer)
 
     def _parse_answers(self, question, answer):
-        if isinstance(answer, str):
+        if question.get('type') == 'Singlelinetext':
             self._append_text_answer(answer, question)
         else:
             self._append_list_answers(answer, question)
@@ -70,6 +70,8 @@ class SerializedDataHelper(object):
         self._append_answer(question, [answer])
 
     def _append_list_answers(self, answer, question):
+        if isinstance(answer, str):
+            answer = [answer]
         choice_list = [
             self._get_choice_text(answer, question)
         ]

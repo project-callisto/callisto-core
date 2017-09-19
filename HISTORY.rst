@@ -1,6 +1,13 @@
 History
 -------
 
+2.2.3 (2017-09-19)
+++++++++++++++++++
+
+* fix a bug with incorrectly formatted review page answers
+
+    https://github.com/SexualHealthInnovations/django-wizard-builder/pull/177
+
 2.2.2 (2017-09-18)
 ++++++++++++++++++
 
