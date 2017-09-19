@@ -64,7 +64,7 @@ urlpatterns = [
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/confirmation/$',
         reporting_views.ReportingConfirmationView.as_view(
             back_url='reporting_matching_enter',
-            success_url='report_view',
+            reporting_success_url='report_view',
         ),
         name="reporting_confirmation",
         ),
@@ -80,13 +80,13 @@ urlpatterns = [
     url(r'^reports/uuid/(?P<uuid>.+)/matching/enter/$',
         reporting_views.MatchingEnterView.as_view(
             back_url='report_matching_prep',
-            success_url='report_view',
+            reporting_success_url='report_view',
         ),
         name="matching_enter",
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/matching/withdraw/$',
         reporting_views.MatchingWithdrawView.as_view(
-            success_url='report_view',
+            reporting_success_url='report_view',
         ),
         name="report_matching_withdraw",
         ),
