@@ -74,6 +74,9 @@ class MatchIntegratedTest(
         self.secret_key = 'user 1 secret'
         self.client.login(username="test1", password="test")
         self.client_post_report_creation()
+        # we pass in the default arg to client_post_matching_enter
+        # just to make it totally clear that the same identifier
+        # is being input twice
         self.client_post_matching_enter('https://www.facebook.com/callistoorg')
 
         self.secret_key = 'user 2 secret'
