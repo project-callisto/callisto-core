@@ -155,7 +155,7 @@ class ReportPostHelper(object):
         return response
 
     def client_post_matching_enter(
-        self, identifier='https://www.facebook.com/callistoorg'):
+            self, identifier='https://www.facebook.com/callistoorg'):
         url = reverse(
             'matching_enter',
             kwargs={'uuid': self.report.uuid},

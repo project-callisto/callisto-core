@@ -7,10 +7,10 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
+from .. import test_base
 from ...delivery.models import MatchReport
 from ...utils.api import MatchingApi
 from .base import MatchSetup
-from .. import test_base
 
 User = get_user_model()
 
