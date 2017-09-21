@@ -144,7 +144,7 @@ class MatchReport(models.Model):
         self,
         report_text: str,  # MatchReportContent as a string of json
         identifier: str,  # MatchReport is encrypted with the identifier
-    ):
+    ) -> None:
         """
         Encrypts and attaches report text. Generates a random salt and
         stores it in an encode prefix on the MatchReport object.
