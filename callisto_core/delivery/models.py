@@ -150,7 +150,6 @@ class MatchReport(models.Model):
           key (str): the secret key
 
         """
-        print('encrypt_text', key)
         if self.salt:
             self.salt = None
         hasher = hashers.get_hasher()
@@ -177,7 +176,6 @@ class MatchReport(models.Model):
             str or None: returns the decrypted report as a string
                 if the identifier matches, or None otherwise.
         """
-        print('decrypt_text', identifier)
         decrypted_report = None
 
         prefix, stretched_identifier = hashers.make_key(
