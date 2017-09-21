@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # # disabled, EmailNotification has been moved to notification
         # migrations.CreateModel(
         #     name='EmailNotification',
         #     fields=[

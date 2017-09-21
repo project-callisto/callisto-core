@@ -29,6 +29,7 @@ class Migration(migrations.Migration):
     ]
 
     database_operations = [
+        # # disabled, EmailNotification has been moved to notification
         # migrations.AlterModelTable(
         #     'EmailNotification',
         #     'notification_emailnotification',
@@ -36,10 +37,12 @@ class Migration(migrations.Migration):
     ]
 
     state_operations = [
+        # # disabled, EmailNotification has been moved to notification
         # migrations.DeleteModel('EmailNotification'),
     ]
 
     operations = [
+        # # disabled, EmailNotification has been moved to notification
         # migrations.SeparateDatabaseAndState(
         #     database_operations=database_operations,
         #     state_operations=state_operations,
