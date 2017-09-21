@@ -62,29 +62,27 @@ class Report(models.Model):
         else:
             return None
 
-    def encrypt_report(self, report_text, secret_key):
-        """Encrypts and attaches report text. Generates a random salt
+    def encrypt_report(
+        self,
+        report_text: str,  # the report questions, as a string of json
+        secret_key: str,  # secret key aka passphrase
+    ) -> None:
+        """
+        Encrypts and attaches report text. Generates a random salt
         and stores it in the Report object's encode prefix.
-
-        Args:
-          report_text (str): the full text of the report
-          secret_key (str): the secret key
         """
         stretched_key = self.encryption_setup(secret_key)
         json_report_text = json.dumps(report_text)
         self.encrypted = security.encrypt_text(stretched_key, json_report_text)
         self.save()
 
-    def decrypted_report(self, key):
+    def decrypted_report(
+        self,
+        key: str,  # aka secret key aka passphrase
+    ) -> dict or str:
         """
         Decrypts the report text.
         Uses the salt from the encode prefix stored on the Report object.
-
-        Args:
-          key (str): the secret key
-
-        Returns:
-          str: the decrypted report as a string
 
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
@@ -120,8 +118,9 @@ class Report(models.Model):
 
 
 class MatchReport(models.Model):
-    """A report that indicates the user wants to submit if a match is found. A single report can have multiple
-    MatchReports--one per perpetrator.
+    """
+    A report that indicates the user wants to submit if a match is found.
+    A single report can have multiple MatchReports--one per perpetrator.
     """
     report = models.ForeignKey('Report', on_delete=models.CASCADE)
     identifier = models.CharField(blank=True, null=True, max_length=500)
@@ -141,21 +140,24 @@ class MatchReport(models.Model):
         self.report.refresh_from_db()
         return self.report.match_found
 
-    def encrypt_match_report(self, report_text, key):
-        """Encrypts and attaches report text. Generates a random salt and stores it in an encode prefix on the
-        MatchReport object.
+    def encrypt_match_report(
+        self,
+        report_text: str,  # MatchReportContent as a string of json
+        identifier: str,  # MatchReport is encrypted with the identifier
+    ):
+        """
+        Encrypts and attaches report text. Generates a random salt and
+        stores it in an encode prefix on the MatchReport object.
 
-        Args:
-          report_text (str): the full text of the report
-          key (str): the secret key
-
+        MatchReports are encrypted with the identifier, whereas Reports
+        are encrypted with the secret key
         """
         if self.salt:
             self.salt = None
         hasher = hashers.get_hasher()
         salt = get_random_string()
 
-        encoded = hasher.encode(key, salt)
+        encoded = hasher.encode(identifier, salt)
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
 
         self.encrypted = security.pepper(
@@ -163,18 +165,13 @@ class MatchReport(models.Model):
         )
         self.save()
 
-    def get_match(self, identifier):
+    def get_match(
+        self,
+        identifier: str,  # MatchReport is encrypted with the identifier
+    ) -> str or None:
         """
         Checks if the given identifier triggers a match on this report.
         Returns report text if so.
-
-        Args:
-          identifier (str): the identifier provided by the user
-            when entering matching.
-
-        Returns:
-            str or None: returns the decrypted report as a string
-                if the identifier matches, or None otherwise.
         """
         decrypted_report = None
 
