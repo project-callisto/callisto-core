@@ -3,6 +3,13 @@
 History
 -------
 
+0.XX.XX (2017-XX-XX)
+++++++++++++++++++
+
+* removed EmailNotification from delivery migrations
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/288
+
 0.14.1 (2017-09-20)
 ++++++++++++++++++
 
