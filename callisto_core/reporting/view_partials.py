@@ -21,23 +21,17 @@ and should not define:
 
 '''
 from django.conf import settings
-from django.core.urlresolvers import reverse
 
-from . import forms
+from . import forms, view_helpers
 from ..delivery import view_partials as delivery_partials
 from ..utils import api
 
 
 class SubmissionPartial(
+    view_helpers.ReportingSuccessUrlMixin,
     delivery_partials.ReportUpdatePartial,
 ):
     back_url = None
-
-    def get_success_url(self):
-        return reverse(
-            self.success_url,
-            kwargs={'uuid': self.report.uuid},
-        )
 
 
 class PrepPartial(
@@ -52,7 +46,7 @@ class ReportSubclassPartial(
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update({'instance': None})
+        kwargs.update({'instance': None})  # TODO: remove
         return kwargs
 
 
@@ -115,6 +109,7 @@ class ConfirmationPartial(
 
 
 class MatchingWithdrawPartial(
+    view_helpers.ReportingSuccessUrlMixin,
     delivery_partials.ReportActionPartial,
 ):
 

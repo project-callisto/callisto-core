@@ -3,6 +3,20 @@
 History
 -------
 
+0.14.1 (2017-09-20)
+++++++++++++++++++
+
+* fix matching form, update model encryption docs
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/287
+
+0.14.0 (2017-09-19)
+++++++++++++++++++
+
+* add `reporting_success_url` and `get_reporting_success_url`
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/284
+
 0.13.3 (2017-09-14)
 ++++++++++++++++++
 
