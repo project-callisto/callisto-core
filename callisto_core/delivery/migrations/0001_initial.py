@@ -14,14 +14,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='EmailNotification',
-            fields=[
-                ('name', models.CharField(primary_key=True, max_length=50, serialize=False)),
-                ('subject', models.CharField(max_length=77)),
-                ('body', models.TextField()),
-            ],
-        ),
+        # migrations.CreateModel(
+        #     name='EmailNotification',
+        #     fields=[
+        #         ('name', models.CharField(primary_key=True, max_length=50, serialize=False)),
+        #         ('subject', models.CharField(max_length=77)),
+        #         ('body', models.TextField()),
+        #     ],
+        # ),
         migrations.CreateModel(
             name='MatchReport',
             fields=[

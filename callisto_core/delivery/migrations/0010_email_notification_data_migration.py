@@ -29,21 +29,23 @@ class Migration(migrations.Migration):
     ]
 
     database_operations = [
-        migrations.AlterModelTable(
-            'EmailNotification',
-            'notification_emailnotification')]
+        # migrations.AlterModelTable(
+        #     'EmailNotification',
+        #     'notification_emailnotification',
+        # ),
+    ]
 
     state_operations = [
-        migrations.DeleteModel('EmailNotification')
+        # migrations.DeleteModel('EmailNotification'),
     ]
 
     operations = [
-        migrations.SeparateDatabaseAndState(
-            database_operations=database_operations,
-            state_operations=state_operations,
-        ),
-        migrations.RunPython(
-            update_content_types_forward,
-            update_content_types_reverse,
-        ),
+        # migrations.SeparateDatabaseAndState(
+        #     database_operations=database_operations,
+        #     state_operations=state_operations,
+        # ),
+        # migrations.RunPython(
+        #     update_content_types_forward,
+        #     update_content_types_reverse,
+        # ),
     ]
