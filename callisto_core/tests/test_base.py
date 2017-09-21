@@ -154,12 +154,13 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
-    def client_post_matching_enter(self):
+    def client_post_matching_enter(
+            self, identifier='https://www.facebook.com/callistoorg'):
         url = reverse(
             'matching_enter',
             kwargs={'uuid': self.report.uuid},
         )
-        data = {'identifier': 'https://www.facebook.com/callistoorg'}
+        data = {'identifier': identifier}
         response = self.client.post(url, data, follow=True)
         self.assertIn(response.status_code, self.valid_statuses)
         return response

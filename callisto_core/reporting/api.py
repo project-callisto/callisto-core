@@ -42,18 +42,22 @@ class CallistoCoreMatchingApi(object):
         """
         for match_report in match_reports_to_check:
             identifier = match_report.identifier
+            eligible_reports = self.get_all_eligible_match_reports(
+                match_report)
             match_list = [
-                potential
-                for potential in self.get_all_eligible_match_reports(
-                    match_report)
-                if potential.get_match(identifier)
+                potential_match_report
+                for potential_match_report in eligible_reports
+                if potential_match_report.get_match(identifier)
             ]
             if len(match_list) > 1:
                 seen_match_owners = [
-                    match.report.owner for match in match_list if match.seen]
+                    match.report.owner for match in match_list
+                    if match.seen
+                ]
                 new_match_owners = [
                     match.report.owner for match in match_list
-                    if not match.seen]
+                    if not match.seen
+                ]
                 # filter out multiple reports made by the same person
                 if len(set(seen_match_owners + new_match_owners)) > 1:
                     # only send notifications if new matches are submitted by

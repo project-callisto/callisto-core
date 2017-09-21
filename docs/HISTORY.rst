@@ -3,6 +3,13 @@
 History
 -------
 
+0.14.1 (2017-09-20)
+++++++++++++++++++
+
+* fix matching form, update model encryption docs
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/287
+
 0.14.0 (2017-09-19)
 ++++++++++++++++++
 

@@ -7,6 +7,7 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
+from .. import test_base
 from ...delivery.models import MatchReport
 from ...utils.api import MatchingApi
 from .base import MatchSetup
@@ -57,6 +58,32 @@ class MatchDiscoveryTest(MatchSetup):
         self.create_match(self.user2, 'test1')
         self.create_match(self.user3, 'test1')
         self.create_match(self.user4, 'test1')
+        self.assert_matches_found_true()
+
+
+class MatchIntegratedTest(
+    MatchSetup,
+    test_base.ReportPostHelper,
+):
+    fixtures = [
+        'wizard_builder_data',
+        'callisto_core_notification_data',
+    ]
+
+    def test_two_match_post_requests_trigger_matching(self):
+        self.secret_key = 'user 1 secret'
+        self.client.login(username="test1", password="test")
+        self.client_post_report_creation()
+        # we pass in the default arg to client_post_matching_enter
+        # just to make it totally clear that the same identifier
+        # is being input twice
+        self.client_post_matching_enter('https://www.facebook.com/callistoorg')
+
+        self.secret_key = 'user 2 secret'
+        self.client.login(username="tset22", password="test")
+        self.client_post_report_creation()
+        self.client_post_matching_enter('https://www.facebook.com/callistoorg')
+
         self.assert_matches_found_true()
 
 
