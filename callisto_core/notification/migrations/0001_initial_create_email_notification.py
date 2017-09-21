@@ -8,10 +8,9 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('delivery', '0010_email_notification_data_migration')
     ]
 
-    state_operations = [
+    operations = [
         migrations.CreateModel(
             name='EmailNotification',
             fields=[
@@ -23,8 +22,4 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
         )
-    ]
-
-    operations = [
-        migrations.SeparateDatabaseAndState(state_operations=state_operations),
     ]
