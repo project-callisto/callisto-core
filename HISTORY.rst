@@ -33,7 +33,7 @@ History
 ++++++++++++++++++
 
 * disable WIP conditionals on review page
-* update StorageHelper session interaction functions, that are now:
+* update StorageHelper session api, which is now
     - StorageHelper.current_data_from_storage
     - StorageHelper.add_data_to_storage
     - StorageHelper.init_storage
