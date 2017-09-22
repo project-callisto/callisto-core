@@ -131,7 +131,7 @@ class CallistoCoreNotificationApi(object):
 
         self.context = {
             'notification_name': 'match_notification',
-            'to_addresses': [match_report.contact_email],
+            'to_addresses': [match_report.report.contact_email],
             'site_id': self.user_site_id(user),
             'from_email': from_email,
             'report': match_report.report,

@@ -158,7 +158,8 @@ class MatchReport(models.Model):
         salt = get_random_string()
 
         encoded = hasher.encode(identifier, salt)
-        self.encode_prefix, stretched_identifier = hasher.split_encoded(encoded)
+        self.encode_prefix, stretched_identifier = hasher.split_encoded(
+            encoded)
 
         self.encrypted = security.pepper(
             security.encrypt_text(stretched_identifier, report_text),
