@@ -131,6 +131,7 @@ class MatchNotificationTest(MatchSetup):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
             self.create_match(self.user1, 'test1')
             self.create_match(self.user2, 'test1')
+            self.assert_matches_found_true()
             self.assertEqual(api_logging.call_count, 2)
 
     def test_multiple_email_case(self):
@@ -139,6 +140,7 @@ class MatchNotificationTest(MatchSetup):
             self.create_match(self.user2, 'test1')
             self.create_match(self.user3, 'test1')
             self.create_match(self.user4, 'test1')
+            self.assert_matches_found_true()
             self.assertEqual(api_logging.call_count, 4)
 
     def test_users_are_deduplicated(self):
@@ -147,6 +149,7 @@ class MatchNotificationTest(MatchSetup):
             self.create_match(self.user1, 'test1')
             self.assertFalse(api_logging.called)
             self.create_match(self.user2, 'test1')
+            self.assert_matches_found_true()
             self.assertEqual(api_logging.call_count, 2)
 
     def test_doesnt_notify_on_reported_reports(self):
