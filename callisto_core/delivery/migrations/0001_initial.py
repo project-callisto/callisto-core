@@ -26,7 +26,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MatchReport',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        primary_key=True, serialize=False, auto_created=True)),
                 ('contact_phone', models.CharField(max_length=256)),
                 ('contact_voicemail', models.TextField(null=True, blank=True)),
                 ('contact_name', models.TextField(null=True, blank=True)),
@@ -41,15 +42,18 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Report',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        primary_key=True, serialize=False, auto_created=True)),
                 ('encrypted', models.BinaryField()),
                 ('added', models.DateTimeField(auto_now_add=True)),
                 ('last_edited', models.DateTimeField(null=True, blank=True)),
                 ('salt', models.CharField(max_length=256)),
                 ('submitted_to_school', models.DateTimeField(null=True, blank=True)),
-                ('contact_phone', models.CharField(null=True, max_length=256, blank=True)),
+                ('contact_phone', models.CharField(
+                    null=True, max_length=256, blank=True)),
                 ('contact_voicemail', models.TextField(null=True, blank=True)),
-                ('contact_email', models.EmailField(null=True, max_length=256, blank=True)),
+                ('contact_email', models.EmailField(
+                    null=True, max_length=256, blank=True)),
                 ('contact_notes', models.TextField(null=True, blank=True)),
                 ('contact_name', models.TextField(null=True, blank=True)),
                 ('match_found', models.BooleanField(default=False)),
@@ -62,7 +66,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SentReport',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        primary_key=True, serialize=False, auto_created=True)),
                 ('sent', models.DateTimeField(auto_now_add=True)),
                 ('to_address', models.EmailField(max_length=256)),
             ],
@@ -73,8 +78,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SentFullReport',
             fields=[
-                ('sentreport_ptr', models.OneToOneField(to='delivery.SentReport', primary_key=True, auto_created=True, serialize=False, parent_link=True)),
-                ('report', models.ForeignKey(to='delivery.Report', blank=True, on_delete=django.db.models.deletion.SET_NULL, null=True)),
+                ('sentreport_ptr',
+                 models.OneToOneField(to='delivery.SentReport',
+                                      primary_key=True,
+                                      auto_created=True,
+                                      serialize=False,
+                                      parent_link=True)),
+                ('report', models.ForeignKey(to='delivery.Report', blank=True,
+                                             on_delete=django.db.models.deletion.SET_NULL, null=True)),
             ],
             options={
                 'abstract': False,
@@ -84,7 +95,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SentMatchReport',
             fields=[
-                ('sentreport_ptr', models.OneToOneField(to='delivery.SentReport', primary_key=True, auto_created=True, serialize=False, parent_link=True)),
+                ('sentreport_ptr',
+                 models.OneToOneField(to='delivery.SentReport',
+                                      primary_key=True,
+                                      auto_created=True,
+                                      serialize=False,
+                                      parent_link=True)),
             ],
             options={
                 'abstract': False,
@@ -94,7 +110,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sentreport',
             name='polymorphic_ctype',
-            field=models.ForeignKey(to='contenttypes.ContentType', null=True, related_name='polymorphic_delivery.sentreport_set+', editable=False),
+            field=models.ForeignKey(
+                to='contenttypes.ContentType',
+                null=True,
+                related_name='polymorphic_delivery.sentreport_set+',
+                editable=False),
         ),
         migrations.AddField(
             model_name='matchreport',

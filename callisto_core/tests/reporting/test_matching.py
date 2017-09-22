@@ -1,5 +1,7 @@
 import json
 
+from callisto_core.tests.utils.api import CustomNotificationApi
+from callisto_core.utils.api import MatchingApi
 from mock import call, patch
 
 from django.contrib.auth import get_user_model
@@ -10,9 +12,6 @@ from django.utils import timezone
 from .. import test_base
 from ...delivery.models import MatchReport
 from .base import MatchSetup
-
-from callisto_core.utils.api import MatchingApi
-from callisto_core.tests.utils.api import CustomNotificationApi
 
 User = get_user_model()
 
@@ -138,10 +137,11 @@ class MatchNotificationTest(MatchSetup):
 
     def test_multiple_email_case(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
-            self.create_match(self.user1, 'test1') # 1 email
-            self.create_match(self.user2, 'test1') # 3 emails (+1 user, +1 authority)
-            self.create_match(self.user3, 'test1') # 5 emails
-            self.create_match(self.user4, 'test1') # 7 emails
+            self.create_match(self.user1, 'test1')  # 1 email
+            # 3 emails (+1 user, +1 authority)
+            self.create_match(self.user2, 'test1')
+            self.create_match(self.user3, 'test1')  # 5 emails
+            self.create_match(self.user4, 'test1')  # 7 emails
             self.assert_matches_found_true()
             self.assertEqual(api_logging.call_count, 7)
 
