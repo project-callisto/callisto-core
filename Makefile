@@ -37,6 +37,7 @@ release: ## package and upload a release
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 	python setup.py tag
+	make clean
 
 app-setup: ## setup the test application environment
 	python manage.py flush --noinput
