@@ -132,16 +132,18 @@ class MatchNotificationTest(MatchSetup):
             self.create_match(self.user1, 'test1')
             self.create_match(self.user2, 'test1')
             self.assert_matches_found_true()
-            self.assertEqual(api_logging.call_count, 2)
+            # 2 emails for the 2 users
+            # 1 email for the reporting authority
+            self.assertEqual(api_logging.call_count, 3)
 
     def test_multiple_email_case(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
-            self.create_match(self.user1, 'test1')
-            self.create_match(self.user2, 'test1')
-            self.create_match(self.user3, 'test1')
-            self.create_match(self.user4, 'test1')
+            self.create_match(self.user1, 'test1') # 1 email
+            self.create_match(self.user2, 'test1') # 3 emails
+            self.create_match(self.user3, 'test1') # 5 emails
+            self.create_match(self.user4, 'test1') # 7 emails
             self.assert_matches_found_true()
-            self.assertEqual(api_logging.call_count, 4)
+            self.assertEqual(api_logging.call_count, 7)
 
     def test_users_are_deduplicated(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
@@ -150,7 +152,7 @@ class MatchNotificationTest(MatchSetup):
             self.assertFalse(api_logging.called)
             self.create_match(self.user2, 'test1')
             self.assert_matches_found_true()
-            self.assertEqual(api_logging.call_count, 2)
+            self.assertEqual(api_logging.call_count, 3)
 
     def test_doesnt_notify_on_reported_reports(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
@@ -159,4 +161,4 @@ class MatchNotificationTest(MatchSetup):
             match_report.report.submitted_to_school = timezone.now()
             match_report.report.save()
             MatchingApi.run_matching()
-            self.assertEqual(api_logging.call_count, 1)
+            self.assertEqual(api_logging.call_count, 2)
