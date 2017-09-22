@@ -139,7 +139,7 @@ class MatchNotificationTest(MatchSetup):
     def test_multiple_email_case(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
             self.create_match(self.user1, 'test1') # 1 email
-            self.create_match(self.user2, 'test1') # 3 emails
+            self.create_match(self.user2, 'test1') # 3 emails (+1 user, +1 authority)
             self.create_match(self.user3, 'test1') # 5 emails
             self.create_match(self.user4, 'test1') # 7 emails
             self.assert_matches_found_true()
