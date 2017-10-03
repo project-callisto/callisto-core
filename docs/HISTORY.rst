@@ -3,7 +3,7 @@
 History
 -------
 
-XXX (XXX)
+0.15.2 (2017-10-03)
 ++++++++++++++++++
 
 * added a hook for using different types of validators in the matching flow
