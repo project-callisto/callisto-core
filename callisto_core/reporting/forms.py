@@ -76,11 +76,15 @@ class MatchingBaseForm(
         widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
     )
 
-    def __init__(self, *args, matching_validators=ValidatorClass(), **kwargs):
+    def __init__(self, *args, matching_validators=None, **kwargs):
         super().__init__(*args, **kwargs)
+        if not matching_validators:
+            self.matching_validators = ValidatorClass()
+        else:
+            self.matching_validators = matching_validators
         self.fields['identifier'] = fields.MatchIdentifierField(
             required=self.matching_field_required,
-            matching_validators=matching_validators,
+            matching_validators=self.matching_validators,
         )
 
     def save(self, commit=True):
