@@ -8,6 +8,8 @@ XXX (XXX)
 
 * added a hook for using different types of validators in the matching flow
 
+    https://github.com/project-callisto/callisto-core/pull/295
+
 0.15.1 (2017-09-22)
 ++++++++++++++++++
 
