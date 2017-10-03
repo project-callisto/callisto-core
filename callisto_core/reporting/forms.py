@@ -75,9 +75,13 @@ class MatchingBaseForm(
         widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
     )
 
-    def __init__(self, *args, validators=None, **kwargs):
+    def __init__(self, *args, validators, **kwargs):
         super().__init__(*args, **kwargs)
         self.validators = validators
+        self.fields['identifier'] = fields.MatchIdentifierField(
+            required=self.matching_field_required,
+            validators=self.validators,
+        )
 
     def save(self, commit=True):
         if self.data.get('identifier'):
@@ -97,7 +101,7 @@ class MatchingBaseForm(
 class MatchingOptionalForm(
     MatchingBaseForm,
 ):
-    identifier = fields.MatchIdentifierField(required=False)
+    matching_field_required = False
 
     class Meta:
         model = delivery_models.MatchReport
@@ -107,7 +111,7 @@ class MatchingOptionalForm(
 class MatchingRequiredForm(
     MatchingBaseForm,
 ):
-    identifier = fields.MatchIdentifierField(required=True)
+    matching_field_required = True
 
     class Meta:
         model = delivery_models.MatchReport
