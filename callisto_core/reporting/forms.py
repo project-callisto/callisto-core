@@ -75,6 +75,10 @@ class MatchingBaseForm(
         widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
     )
 
+    def __init__(self, *args, validators=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.validators = validators
+
     def save(self, commit=True):
         if self.data.get('identifier'):
             super().save(commit=commit)
