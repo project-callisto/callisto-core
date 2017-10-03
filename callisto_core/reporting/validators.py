@@ -169,9 +169,6 @@ class Validators(object):
             facebook_only,
         )
 
-    def value(self):
-        return self.validators.values()
-
     def invalid(self):
         return 'Please enter a valid ' + join_list_with_or(
             list(self.validators))

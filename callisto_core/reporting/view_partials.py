@@ -60,7 +60,7 @@ class MatchingPartial(
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update({'validators': self.get_matching_validators()})
+        kwargs.update({'matching_validators': self.get_matching_validators()})
         return kwargs
 
     def form_valid(self, form):

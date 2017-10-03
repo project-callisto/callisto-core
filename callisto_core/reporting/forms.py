@@ -9,6 +9,7 @@ from ..delivery import (
     fields as delivery_fields, forms as delivery_forms,
     models as delivery_models,
 )
+from .validators import Validators as ValidatorClass
 
 logger = logging.getLogger(__name__)
 
@@ -75,12 +76,11 @@ class MatchingBaseForm(
         widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
     )
 
-    def __init__(self, *args, validators, **kwargs):
+    def __init__(self, *args, matching_validators=ValidatorClass(), **kwargs):
         super().__init__(*args, **kwargs)
-        self.validators = validators
         self.fields['identifier'] = fields.MatchIdentifierField(
             required=self.matching_field_required,
-            validators=self.validators,
+            matching_validators=matching_validators,
         )
 
     def save(self, commit=True):
