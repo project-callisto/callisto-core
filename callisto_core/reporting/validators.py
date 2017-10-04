@@ -162,33 +162,25 @@ def join_list_with_or(lst):
 
 class Validators(object):
 
-    @classmethod
-    def validators(cls):
-        return getattr(
+    def __init__(self):
+        self.validators = getattr(
             settings,
             'CALLISTO_IDENTIFIER_DOMAINS',
             facebook_only,
         )
 
-    @classmethod
-    def value(cls):
-        return cls.validators().values()
-
-    @classmethod
-    def invalid(cls):
+    def invalid(self):
         return 'Please enter a valid ' + join_list_with_or(
-            list(cls.validators()))
+            list(self.validators))
 
-    @classmethod
-    def titled(cls):
+    def titled(self):
         return "Perpetrator's " + join_list_with_or([
             identifier.title()
-            for identifier in list(cls.validators())
+            for identifier in list(self.validators)
         ])
 
-    @classmethod
-    def examples(cls):
+    def examples(self):
         return 'ex. ' + join_list_with_or([
             identifier_info['example']
-            for identifier_info in cls.validators().values()
+            for identifier_info in self.validators.values()
         ])

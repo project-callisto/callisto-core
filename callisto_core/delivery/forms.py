@@ -26,6 +26,8 @@ class FormViewExtensionMixin(object):
 
     def __init__(self, *args, **kwargs):
         self.view = kwargs.pop('view')  # TODO: pass in something more specific
+        if kwargs.get('matching_validators'):
+            kwargs.pop('matching_validators')  # TODO: remove
         super().__init__(*args, **kwargs)
 
 

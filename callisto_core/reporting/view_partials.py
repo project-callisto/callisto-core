@@ -22,7 +22,7 @@ and should not define:
 '''
 from django.conf import settings
 
-from . import forms, view_helpers
+from . import forms, validators, view_helpers
 from ..delivery import view_partials as delivery_partials
 from ..utils import api
 
@@ -53,13 +53,15 @@ class ReportSubclassPartial(
 class MatchingPartial(
     ReportSubclassPartial,
 ):
+    matching_validator_class = validators.Validators
 
-    def _send_match_email(self):
-        api.NotificationApi.send_confirmation(
-            email_type='match_confirmation',
-            to_addresses=[self.report.contact_email],
-            site_id=self.site_id,
-        )
+    def get_matching_validators(self, *args, **kwargs):
+        return self.matching_validator_class()
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'matching_validators': self.get_matching_validators()})
+        return kwargs
 
     def form_valid(self, form):
         output = super().form_valid(form)
@@ -70,6 +72,13 @@ class MatchingPartial(
                     match_reports_to_check=[form.instance],
                 )
         return output
+
+    def _send_match_email(self):
+        api.NotificationApi.send_confirmation(
+            email_type='match_confirmation',
+            to_addresses=[self.report.contact_email],
+            site_id=self.site_id,
+        )
 
 
 class OptionalMatchingPartial(
