@@ -3,6 +3,14 @@
 History
 -------
 
+0.15.3 (2017-10-04)
+++++++++++++++++++
+
+* remove Report.autosaved
+* update Report.last_edited on save
+
+    https://github.com/project-callisto/callisto-core/pull/296
+
 0.15.2 (2017-10-03)
 ++++++++++++++++++
 
