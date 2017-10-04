@@ -7,6 +7,7 @@ from polymorphic.models import PolymorphicModel
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 from . import hashers, security
@@ -23,7 +24,6 @@ class Report(models.Model):
         on_delete=models.CASCADE,
         null=True)
     added = models.DateTimeField(auto_now_add=True)
-    autosaved = models.BooleanField(null=False, default=False)
     last_edited = models.DateTimeField(blank=True, null=True)
 
     # DEPRECIATED: only kept to decrypt old entries before upgrade
@@ -110,8 +110,10 @@ class Report(models.Model):
         self.save()
         return stretched_key
 
-    def delete(self, *args, **kwargs):
-        return super().delete(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps '''
+        self.last_edited = timezone.now()
+        return super().save(*args, **kwargs)
 
     class Meta:
         ordering = ('-added',)
