@@ -65,11 +65,6 @@ Welcome to the Callisto Product Team! Here's a list of things you'll need to get
 ::
 
     $ brew install git pyenv postgres
-
-
-
-::
-
     $ pip install -r requirements.txt --upgrade
     $ make app-setup
 
