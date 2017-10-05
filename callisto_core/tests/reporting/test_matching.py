@@ -1,5 +1,7 @@
 import json
 
+from callisto_core.tests.utils.api import CustomNotificationApi
+from callisto_core.utils.api import MatchingApi
 from mock import call, patch
 
 from django.contrib.auth import get_user_model
@@ -9,7 +11,6 @@ from django.utils import timezone
 
 from .. import test_base
 from ...delivery.models import MatchReport
-from ...utils.api import MatchingApi
 from .base import MatchSetup
 
 User = get_user_model()
@@ -123,33 +124,43 @@ class MatchAlertingTest(MatchSetup):
         self.assertFalse(mock_process.called)
 
 
-@override_settings(CALLISTO_MATCHING_API=MatchingApi.DEFAULT_CLASS_PATH)
-@patch('callisto_core.notification.api.CallistoCoreNotificationApi.send_match_notification')
 class MatchNotificationTest(MatchSetup):
 
-    def test_basic_email_case(self, mock_send_email):
-        self.create_match(self.user1, 'test1')
-        self.create_match(self.user2, 'test1')
-        self.assertEqual(mock_send_email.call_count, 2)
+    def test_basic_email_case(self):
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self.create_match(self.user1, 'test1')
+            self.assertEqual(api_logging.call_count, 0)
+            self.create_match(self.user2, 'test1')
+            self.assert_matches_found_true()
+            # 2 emails for the 2 users
+            # 1 email for the reporting authority
+            self.assertEqual(api_logging.call_count, 3)
 
-    def test_multiple_email_case(self, mock_send_email):
-        self.create_match(self.user1, 'test1')
-        self.create_match(self.user2, 'test1')
-        self.create_match(self.user3, 'test1')
-        self.create_match(self.user4, 'test1')
-        self.assertEqual(mock_send_email.call_count, 4)
+    def test_multiple_email_case(self):
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self.create_match(self.user1, 'test1')  # 0
+            self.create_match(self.user2, 'test1')  # 3 emails
+            self.create_match(self.user3, 'test1')  # 7 emails
+            self.create_match(self.user4, 'test1')  # 12 emails
+            self.assert_matches_found_true()
+            self.assertNotEqual(api_logging.call_count, 7)  # old behavior
+            self.assertEqual(api_logging.call_count, 12)  # new behavior
 
-    def test_users_are_deduplicated(self, mock_send_email):
-        self.create_match(self.user1, 'test1')
-        self.create_match(self.user1, 'test1')
-        self.assertFalse(mock_send_email.called)
-        self.create_match(self.user2, 'test1')
-        self.assertEqual(mock_send_email.call_count, 2)
+    def test_users_are_deduplicated(self):
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self.create_match(self.user1, 'test1')
+            self.create_match(self.user1, 'test1')
+            self.assertFalse(api_logging.called)
+            self.create_match(self.user2, 'test1')
+            self.assert_matches_found_true()
+            self.assertEqual(api_logging.call_count, 3)
 
-    def test_doesnt_notify_on_reported_reports(self, mock_send_email):
-        self.create_match(self.user1, 'test1')
-        match_report = self.create_match(self.user2, 'test1', alert=False)
-        match_report.report.submitted_to_school = timezone.now()
-        match_report.report.save()
-        MatchingApi.run_matching()
-        self.assertEqual(mock_send_email.call_count, 1)
+    def test_does_notify_on_reported_reports(self):
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self.create_match(self.user1, 'test1')
+            match_report = self.create_match(self.user2, 'test1', alert=False)
+            match_report.report.submitted_to_school = timezone.now()
+            match_report.report.save()
+            MatchingApi.run_matching()
+            self.assertNotEqual(api_logging.call_count, 2)  # old behavior
+            self.assertEqual(api_logging.call_count, 3)  # new behavior

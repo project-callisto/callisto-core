@@ -3,6 +3,42 @@
 History
 -------
 
+0.15.4 (2017-10-05)
+++++++++++++++++++
+
+* the system now sends an email to all parties whenever a match is found
+
+    https://github.com/project-callisto/callisto-core/pull/297
+
+0.15.3 (2017-10-04)
+++++++++++++++++++
+
+* remove Report.autosaved
+* update Report.last_edited on save
+
+    https://github.com/project-callisto/callisto-core/pull/296
+
+0.15.2 (2017-10-03)
+++++++++++++++++++
+
+* added a hook for using different types of validators in the matching flow
+
+    https://github.com/project-callisto/callisto-core/pull/295
+
+0.15.1 (2017-09-22)
+++++++++++++++++++
+
+* fix match report notifications
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/292
+
+0.15.0 (2017-09-21)
+++++++++++++++++++
+
+* removed EmailNotification from delivery migrations
+
+    https://github.com/SexualHealthInnovations/callisto-core/pull/289
+
 0.14.1 (2017-09-20)
 ++++++++++++++++++
 
