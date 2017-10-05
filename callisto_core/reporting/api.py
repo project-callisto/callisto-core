@@ -87,12 +87,8 @@ class CallistoCoreMatchingApi(object):
         owners_notified = []
         for match_report in matches:
             owner = match_report.report.owner
-            # only send notification emails to new matches
-            if (
-                owner not in owners_notified
-                and not match_report.report.match_found
-                and not match_report.report.submitted_to_school
-            ):
+            # dont notify report owners twice for a single match
+            if owner not in owners_notified:
                 NotificationApi.send_match_notification(owner, match_report)
                 owners_notified.append(owner)
         # send report to school
