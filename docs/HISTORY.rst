@@ -3,6 +3,13 @@
 History
 -------
 
+0.15.5 (2017-10-05)
+++++++++++++++++++
+
+* all pdf datetimes now display in a human readable format
+
+    https://github.com/project-callisto/callisto-core/pull/298
+
 0.15.4 (2017-10-05)
 ++++++++++++++++++
 
