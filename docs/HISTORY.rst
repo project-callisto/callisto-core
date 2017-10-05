@@ -3,6 +3,13 @@
 History
 -------
 
+0.15.4 (2017-10-05)
+++++++++++++++++++
+
+* the system now sends an email to all parties whenever a match is found
+
+    https://github.com/project-callisto/callisto-core/pull/297
+
 0.15.3 (2017-10-04)
 ++++++++++++++++++
 
