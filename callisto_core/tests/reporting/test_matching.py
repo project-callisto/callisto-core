@@ -143,7 +143,8 @@ class MatchNotificationTest(MatchSetup):
             self.create_match(self.user3, 'test1')  # 7 emails
             self.create_match(self.user4, 'test1')  # 12 emails
             self.assert_matches_found_true()
-            self.assertEqual(api_logging.call_count, 12)
+            self.assertNotEqual(api_logging.call_count, 7)  # old behavior
+            self.assertEqual(api_logging.call_count, 12)  # new behavior
 
     def test_users_are_deduplicated(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
