@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'nested_admin',
-    'tinymce',
     'widget_tweaks',
     'wizard_builder',
     'callisto_core.delivery',
