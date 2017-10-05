@@ -129,6 +129,7 @@ class MatchNotificationTest(MatchSetup):
     def test_basic_email_case(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
             self.create_match(self.user1, 'test1')
+            self.assertEqual(api_logging.call_count, 0)
             self.create_match(self.user2, 'test1')
             self.assert_matches_found_true()
             # 2 emails for the 2 users
@@ -137,13 +138,12 @@ class MatchNotificationTest(MatchSetup):
 
     def test_multiple_email_case(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
-            self.create_match(self.user1, 'test1')  # 1 email
-            # 3 emails (+1 user, +1 authority)
-            self.create_match(self.user2, 'test1')
-            self.create_match(self.user3, 'test1')  # 5 emails
-            self.create_match(self.user4, 'test1')  # 7 emails
+            self.create_match(self.user1, 'test1')  # 0
+            self.create_match(self.user2, 'test1')  # 3 emails
+            self.create_match(self.user3, 'test1')  # 7 emails
+            self.create_match(self.user4, 'test1')  # 12 emails
             self.assert_matches_found_true()
-            self.assertEqual(api_logging.call_count, 7)
+            self.assertEqual(api_logging.call_count, 12)
 
     def test_users_are_deduplicated(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
