@@ -66,22 +66,6 @@ class MatchingViewTest(MatchingHelper):
 
         self.assertEqual(api_logging.call_count, 0)
 
-    def test_multiple_emails_not_sent_with_key_in_form(self):
-        url = reverse(
-            'matching_enter',
-            kwargs={'uuid': self.report.uuid},
-        )
-        data = {
-            'identifier': 'https://www.facebook.com/callistoorg',
-            'key': self.secret_key,
-        }
-
-        self.client_clear_secret_key()
-        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
-            self.client.post(url, data, follow=True)
-
-        self.assertEqual(api_logging.call_count, 1)
-
 
 class MatchingOptionalViewTest(MatchingHelper):
 
@@ -147,16 +131,6 @@ class ConfirmationViewTest(ReportingHelper):
 
     def test_sends_emails(self):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
-            self.request()
-
-        api_logging.assert_has_calls([
-            call(notification_name='submit_confirmation'),
-            call(notification_name='report_delivery'),
-        ], any_order=True)
-
-    def test_accepts_secret_key_in_form(self):
-        with patch.object(CustomNotificationApi, '_logging') as api_logging:
-            self.client_clear_secret_key()
             self.request()
 
         api_logging.assert_has_calls([
