@@ -6,6 +6,8 @@ from callisto_core.delivery.models import MatchReport, SentFullReport
 from callisto_core.reporting import view_partials
 from callisto_core.reporting.forms import ConfirmationForm
 
+from django.core.urlresolvers import reverse
+
 from .. import test_base
 from ..utils.api import CustomNotificationApi
 
@@ -47,6 +49,38 @@ class MatchingHelper(ReportingHelper):
         self.assertEqual(SentFullReport.objects.count(), 0)
         self.request()
         self.assertEqual(SentFullReport.objects.count(), 0)
+
+
+class MatchingViewTest(MatchingHelper):
+
+    def test_multiple_emails_not_sent(self):
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self.client_post_matching_enter()
+
+        self.assertEqual(api_logging.call_count, 1)
+
+    def test_emails_not_sent_when_no_key(self):
+        self.client_clear_secret_key()
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self.client_post_matching_enter()
+
+        self.assertEqual(api_logging.call_count, 0)
+
+    def test_multiple_emails_not_sent_with_key_in_form(self):
+        url = reverse(
+            'matching_enter',
+            kwargs={'uuid': self.report.uuid},
+        )
+        data = {
+            'identifier': 'https://www.facebook.com/callistoorg',
+            'key': self.secret_key,
+        }
+
+        self.client_clear_secret_key()
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self.client.post(url, data, follow=True)
+
+        self.assertEqual(api_logging.call_count, 1)
 
 
 class MatchingOptionalViewTest(MatchingHelper):
