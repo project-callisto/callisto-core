@@ -329,7 +329,10 @@ class PDFMatchReport(PDFReport):
 
     def __init__(self, matches, identifier):
         super(PDFMatchReport, self).__init__()
-        self.matches = sorted(matches, key=lambda m: m.added.strftime("%Y-%m-%d %H:%M"), reverse=True)
+        self.matches = sorted(
+            matches,
+            key=lambda m: m.added.strftime("%Y-%m-%d %H:%M"),
+            reverse=True)
         self.identifier = identifier
 
     def generate_match_report(self, report_id):
