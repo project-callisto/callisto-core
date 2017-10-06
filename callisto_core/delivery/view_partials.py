@@ -35,7 +35,7 @@ from django.views import generic as views
 
 from wizard_builder import view_partials as wizard_builder_partials
 
-from . import fields, forms, models, view_helpers
+from . import forms, models, view_helpers
 from ..reporting import report_delivery
 
 logger = logging.getLogger(__name__)
@@ -134,26 +134,24 @@ class _ReportLimitedDetailPartial(
 class _ReportAccessPartial(
     _ReportLimitedDetailPartial,
 ):
-    invalid_access_key_message = 'Invalid (key) access request at {}'
-    invalid_access_user_message = 'Invalid (user) access request at {}'
-    invalid_access_no_key_message = 'Invalid (no key) access request at {}'
+    invalid_access_key_message = 'Invalid key in access request'
+    invalid_access_user_message = 'Invalid user in access request'
+    invalid_access_no_key_message = 'No key in access request'
     form_class = forms.ReportAccessForm
     access_form_class = forms.ReportAccessForm
 
     @property
     def access_granted(self):
         self._check_report_owner()
-        if self.pass_access_through:
-            return True
         if self.storage.secret_key:
             try:
                 self.decrypted_report
                 return True
             except CryptoError:
-                self._log_warn(self.invalid_access_key_message)
+                logger.warn(self.invalid_access_key_message)
                 return False
         else:
-            self._log_info(self.invalid_access_no_key_message)
+            logger.info(self.invalid_access_no_key_message)
             return False
 
     @property
@@ -164,30 +162,6 @@ class _ReportAccessPartial(
             return True
         else:
             return False
-
-    @property
-    def object_form_valid(self):
-        self.object = self.report
-        form = self.get_form()
-        return form.is_valid()
-
-    @property
-    def object_form_has_passphrase(self):
-        form = self.get_form()
-        for field_name, field_object in form.fields.items():
-            if (
-                field_name == 'key' and
-                isinstance(field_object, fields.PassphraseField)
-            ):
-                return True
-
-    @property
-    def pass_access_through(self):
-        return bool(
-            self.access_form_valid and
-            self.object_form_valid and
-            self.object_form_has_passphrase
-        )
 
     def dispatch(self, request, *args, **kwargs):
         if self.access_granted:
@@ -211,21 +185,8 @@ class _ReportAccessPartial(
     def _check_report_owner(self):
         if settings.CALLISTO_CHECK_REPORT_OWNER:
             if not self.report.owner == self.request.user:
-                self._log_warn(self.invalid_access_user_message)
+                logger.warn(self.invalid_access_user_message)
                 raise PermissionDenied
-
-    def _log_info(self, msg):
-        # TODO: remove
-        self._log(msg, logger.info)
-
-    def _log_warn(self, msg):
-        # TODO: remove
-        self._log(msg, logger.warn)
-
-    def _log(self, msg, log):
-        # TODO: remove
-        path = self.request.get_full_path()
-        log(msg.format(path))
 
 
 class ReportUpdatePartial(
