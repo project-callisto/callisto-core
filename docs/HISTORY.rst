@@ -3,6 +3,13 @@
 History
 -------
 
+0.15.6 (2017-10-06)
+++++++++++++++++++
+
+* fix form error displaying in submission flow
+
+    https://github.com/project-callisto/callisto-core/pull/299
+
 0.15.5 (2017-10-05)
 ++++++++++++++++++
 
