@@ -1,6 +1,5 @@
 wheel
 autopep8
-pypandoc
 django-extensions
 ptipython
 dj-database-url==0.4.2

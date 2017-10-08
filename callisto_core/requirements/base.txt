@@ -1,3 +1,4 @@
+pypandoc
 argon2_cffi==16.3.0
 django==1.11.6
 django-polymorphic==1.3
