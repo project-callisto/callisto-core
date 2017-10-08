@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import pypandoc
 
 from callisto_core import __version__ as version
 
@@ -25,10 +26,8 @@ if sys.argv[-1] == 'tag':
     os.system("git push --tags")
     sys.exit()
 
-try:
-    import pypandoc
-    readme = pypandoc.convert_file('README.md', 'rst')
-    history = pypandoc.convert_file('docs/HISTORY.md', 'rst')
+readme = pypandoc.convert_file('README.md', 'rst')
+history = pypandoc.convert_file('docs/HISTORY.md', 'rst')
 license = open('LICENSE').read()
 
 setup(
