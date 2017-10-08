@@ -28,11 +28,7 @@ if sys.argv[-1] == 'tag':
 try:
     import pypandoc
     readme = pypandoc.convert_file('README.md', 'rst')
-    print("Converting README from markdown to restructured text")
-except (IOError, ImportError, OSError):
-    print("Please install PyPandoc to allow conversion of the README")
-    readme = open('README.md').read()
-history = open('docs/HISTORY.rst').read().replace('.. :changelog:', '')
+    history = pypandoc.convert_file('docs/HISTORY.md', 'rst')
 license = open('LICENSE').read()
 
 setup(
