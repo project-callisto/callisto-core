@@ -31,7 +31,7 @@ Learn more about information escrows:
 
 ### Support us
 
-[Donate](https://www.sexualhealthinnovations.org/donate/) to Sexual Health Innovations, the organization behind Callisto.
+[Donate](https://www.projectcallisto.org/donate/) to Sexual Health Innovations, the organization behind Callisto.
 
 Our current list of issues is available here https://github.com/SexualHealthInnovations/callisto-core/issues
 
