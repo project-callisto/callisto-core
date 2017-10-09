@@ -26,15 +26,19 @@ if sys.argv[-1] == 'tag':
     os.system("git push --tags")
     sys.exit()
 
-readme = pypandoc.convert_file('README.md', 'rst')
-history = pypandoc.convert_file('docs/HISTORY.md', 'rst')
+try:
+    long_description = pypandoc.convert_file('README.md', 'rst') + \
+        pypandoc.convert_file('docs/HISTORY.md', 'rst')
+except BaseException:
+    long_description = ''
+
 license = open('LICENSE').read()
 
 setup(
     name='callisto-core',
     version=version,
     description='Report intake, escrow, matching and secure delivery code for Callisto, an online reporting system for sexual assault.',
-    long_description=readme + '\n\n' + history,
+    long_description=long_description,
     license=license,
     author='Project Callisto',
     author_email='tech@projectcallisto.org',
