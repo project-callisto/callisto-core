@@ -13,7 +13,7 @@ class EmailNotificationAdmin(admin.ModelAdmin):
     }
 
     list_display = ['name', 'sitenames']
-    search_fields = ['url', 'title']
+    search_fields = ['name', 'subject', 'body']
     list_filter = ['sites']
 
 

@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.15.7 (2017-10-08)
+
+* fix email notification admin (s/o [@lisac](https://github.com/lisac))
+
+    https://github.com/project-callisto/callisto-core/pull/301
+
 ## 0.15.6 (2017-10-06)
 
 * fix form error displaying in submission flow
