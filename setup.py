@@ -3,7 +3,6 @@
 import os
 import re
 import sys
-import pypandoc
 
 from callisto_core import __version__ as version
 
@@ -27,6 +26,7 @@ if sys.argv[-1] == 'tag':
     sys.exit()
 
 try:
+    import pypandoc
     long_description = pypandoc.convert_file('README.md', 'rst') + \
         pypandoc.convert_file('docs/HISTORY.md', 'rst')
 except BaseException:
