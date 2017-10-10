@@ -9,10 +9,12 @@ class RecordDataUtil(object):
         return isinstance(data, list)
 
     @classmethod
-    def transform(cls, data: dict or list) -> dict:
+    def transform_if_old_format(cls, data: dict or list) -> dict:
         '''transforms the data input, if its in the old format'''
         if cls.data_is_old_format(data):
             return cls.transform_data_to_new_format(data)
+        else:
+            return data
 
     @classmethod
     def transform_data_to_new_format(cls, data: list) -> dict:
