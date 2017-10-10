@@ -1,5 +1,5 @@
 EXAMPLE_1A = EXAMPLE_SINGLE_QUESTION_Q1_2017 = [
-    { # page 1 question 1
+    {  # page 1 question 1
         'answer': '6',
         'choices': [
             {'choice_text': 'radio choice 1', 'id': 1},
@@ -13,7 +13,7 @@ EXAMPLE_1A = EXAMPLE_SINGLE_QUESTION_Q1_2017 = [
 ]
 
 EXAMPLE_1B = EXAMPLE_RECORD_Q1_2017 = [
-    { # page 1 question 1
+    {  # page 1 question 1
         'answer': '6',
         'choices': [
             {'choice_text': 'radio choice 1', 'id': 1},
@@ -24,14 +24,14 @@ EXAMPLE_1B = EXAMPLE_RECORD_Q1_2017 = [
         'section': 1,
         'type': 'RadioButton',
     },
-    { # page 1 question 2
+    {  # page 1 question 2
         'answer': 'lynncyrin',
         'id': 1,
         'question_text': 'single line text?',
         'section': 1,
         'type': 'SingleLineText',
     },
-    { # page 2 question 3
+    {  # page 2 question 3
         'answer': ['7', '12'],
         'choices': [
             {'choice_text': 'radio choice 3', 'id': 2},
@@ -43,21 +43,21 @@ EXAMPLE_1B = EXAMPLE_RECORD_Q1_2017 = [
         'section': 2,
         'type': 'Checkbox',
     },
-    { # page 2 question 4
+    {  # page 2 question 4
         'answer': '',
         'id': 4,
         'question_text': 'multi line text?',
         'section': 3,
         'type': 'MultiLineText',
     },
-    { # page 3 question 5
+    {  # page 3 question 5
         'answer': '',
         'id': 5,
         'question_text': 'date field?',
         'section': 4,
         'type': 'Date',
     },
-    { # page 4 question 6
+    {  # page 4 question 6
         'answers': [
             [
                 {
@@ -102,11 +102,13 @@ EXAMPLE_2A = EXAMPLE_SINGLE_QUESTION_Q4_2017 = {
         'question_7': '6',
     },
     'wizard_form_serialized': [
-        [ # step 0 / 1st page
-            { # question 1
+        [  # step 0 / 1st page
+            {  # question 1
                 'choices': [
-                    {'extra_info_text': '', 'options': [], 'pk': 1, 'position': 0, 'text': 'radio choice 1'},
-                    {'extra_info_text': '', 'options': [], 'pk': 6, 'position': 1, 'text': 'radio choice 2'},
+                    {'extra_info_text': '', 'options': [], 'pk': 1,
+                        'position': 0, 'text': 'radio choice 1'},
+                    {'extra_info_text': '', 'options': [], 'pk': 6,
+                        'position': 1, 'text': 'radio choice 2'},
                 ],
                 'field_id': 'question_7',
                 'id': 7,
@@ -129,11 +131,13 @@ EXAMPLE_2B = EXAMPLE_RECORD_Q4_2017 = {
         'question_954': '',
     },
     'wizard_form_serialized': [
-        [ # step 0 / 1st page
-            { # question 1
+        [  # step 0 / 1st page
+            {  # question 1
                 'choices': [
-                    {'extra_info_text': '', 'options': [], 'pk': 1, 'position': 0, 'text': 'radio choice 1'},
-                    {'extra_info_text': '', 'options': [], 'pk': 6, 'position': 1, 'text': 'radio choice 2'},
+                    {'extra_info_text': '', 'options': [], 'pk': 1,
+                        'position': 0, 'text': 'radio choice 1'},
+                    {'extra_info_text': '', 'options': [], 'pk': 6,
+                        'position': 1, 'text': 'radio choice 2'},
                 ],
                 'field_id': 'question_7',
                 'id': 7,
@@ -141,7 +145,7 @@ EXAMPLE_2B = EXAMPLE_RECORD_Q4_2017 = {
                 'section': 1,
                 'type': 'RadioButton',
             },
-            { # question 2
+            {  # question 2
                 'field_id': 'question_1',
                 'id': 1,
                 'question_text': '<p>single line text?</p>',
@@ -149,11 +153,13 @@ EXAMPLE_2B = EXAMPLE_RECORD_Q4_2017 = {
                 'type': 'SingleLineText',
             },
         ],
-        [ # step 1 / 2nd page
-            { # question 3
+        [  # step 1 / 2nd page
+            {  # question 3
                 'choices': [
-                    {'extra_info_text': '', 'options': [], 'pk': 2411, 'position': 0, 'text': 'Other'},
-                    {'extra_info_text': '', 'options': [], 'pk': 2406, 'position': 1, 'text': 'This school year (since August)'},
+                    {'extra_info_text': '', 'options': [],
+                        'pk': 2411, 'position': 0, 'text': 'Other'},
+                    {'extra_info_text': '', 'options': [], 'pk': 2406,
+                        'position': 1, 'text': 'This school year (since August)'},
                 ],
                 'field_id': 'question_7',
                 'id': 7,
@@ -161,7 +167,7 @@ EXAMPLE_2B = EXAMPLE_RECORD_Q4_2017 = {
                 'section': 1,
                 'type': 'Radiobutton'
             },
-            { # question 4
+            {  # question 4
                 'field_id': 'question_1',
                 'id': 952,
                 'question_text': '<p>If you know the exact date, please place it here. (MM/DD/YYYY)</p>',
