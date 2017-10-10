@@ -10,3 +10,7 @@ class DataTransformationTest(TestCase):
     def test_single_question_example(self):
         data = RecordDataUtil.transform(record_data.EXAMPLE_1A)
         self.assertEqual(data, record_data.EXAMPLE_2A)
+
+    def test_new_data_not_transformed(self):
+        data = RecordDataUtil.transform(record_data.EXAMPLE_2A)
+        self.assertEqual(data, record_data.EXAMPLE_2A)
