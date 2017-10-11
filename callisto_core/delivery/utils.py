@@ -1,3 +1,4 @@
+from copy import copy
 from .view_helpers import EncryptedReportStorageHelper
 
 
@@ -32,10 +33,35 @@ class RecordDataUtil(object):
             self._set_question_form(question)
 
     def _set_question_answer(self, question: dict):
-        new_answer = self.new_data.get(self.answer_key)
+        new_answer = self.new_data.get(self.answer_key, {})
         pk = question.get('id')
-        new_answer[f'question_{pk}'] = question.get('answer')
+        new_answer[f'question_{pk}'] = question.get('answer', '')
         self.new_data[self.answer_key] = new_answer
 
     def _set_question_form(self, question: dict):
-        pass
+        new_form = self.new_data.get(self.form_key, {})
+        new_form['section'] = question.get('section')
+        new_form['type'] = question.get('type')
+        new_form['id'] = question.get('id')
+        question_text = question.get('question_text', '')
+        new_form['question_text'] = f'<p>{question_text}</p>'
+        pk = question.get('id')
+        new_form['field_id'] = f'question_{pk}'
+        if question.get('choices'):
+            new_form['choices'] = self._get_choices(question.get('choices'))
+        self.new_data[self.form_key] = new_form
+
+    def _get_choices(self, choices: list) -> list:
+        return [
+            self._get_choice(choice)
+            for choice in choices
+        ]
+
+    def _get_choice(self, choice: dict) -> dict:
+        return {
+            'extra_info_text': '',
+            'options': [],
+            'position': 0,
+            'pk': choice.get('id'),
+            'text': choice.get('choice_text'),
+        }

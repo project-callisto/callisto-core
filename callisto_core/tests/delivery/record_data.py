@@ -1,3 +1,30 @@
+EXAMPLE_1C = [
+    {  # page 1 question 1
+        'answer': '6',
+        'id': 7,
+        'question_text': 'single page single line text?',
+        'section': 1,
+        'type': 'SingleLineText',
+    },
+]
+
+EXAMPLE_2C = {
+    'data': {
+        'question_7': '6',
+    },
+    'wizard_form_serialized': [
+        [  # step 0 / 1st page
+            {  # question 1
+                'field_id': 'question_7',
+                'id': 7,
+                'question_text': '<p>single page single line text?</p>',
+                'section': 1,
+                'type': 'SingleLineText',
+            },
+        ]
+    ]
+}
+
 EXAMPLE_1A = EXAMPLE_SINGLE_QUESTION_Q1_2017 = [
     {  # page 1 question 1
         'answer': '6',
