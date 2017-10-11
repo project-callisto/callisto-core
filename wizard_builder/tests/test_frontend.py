@@ -139,6 +139,15 @@ class FrontendTest(FunctionalBase):
         self.assertTrue(self.element.extra_input.is_selected())
         self.assertTrue(self.element.extra_dropdown.is_selected())
 
+    def test_mulitple_answers_reflected_on_review_page(self):
+        self.element.extra_input.click()
+        self.element.extra_dropdown.click()
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains('body', 'apples')
+        self.assertSelectorContains('body', 'vegetables')
+
     def test_textbox_array_regression(self):
         self.element.next.click()
         self.element.text_input.send_keys('text input content!!!')
