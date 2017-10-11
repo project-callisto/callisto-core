@@ -12,6 +12,29 @@ EXAMPLE_1A = EXAMPLE_SINGLE_QUESTION_Q1_2017 = [
     },
 ]
 
+EXAMPLE_2A = EXAMPLE_SINGLE_QUESTION_Q4_2017 = {
+    'data': {
+        'question_7': '6',
+    },
+    'wizard_form_serialized': [
+        [  # step 0 / 1st page
+            {  # question 1
+                'choices': [
+                    {'extra_info_text': '', 'options': [], 'pk': 1,
+                        'position': 0, 'text': 'radio choice 1'},
+                    {'extra_info_text': '', 'options': [], 'pk': 6,
+                        'position': 1, 'text': 'radio choice 2'},
+                ],
+                'field_id': 'question_7',
+                'id': 7,
+                'question_text': '<p>which radio choice?</p>',
+                'section': 1,
+                'type': 'RadioButton',
+            },
+        ]
+    ]
+}
+
 EXAMPLE_1B = EXAMPLE_RECORD_Q1_2017 = [
     {  # page 1 question 1
         'answer': '6',
@@ -96,29 +119,6 @@ EXAMPLE_1B = EXAMPLE_RECORD_Q1_2017 = [
         'type': 'FormSet',
     },
 ]
-
-EXAMPLE_2A = EXAMPLE_SINGLE_QUESTION_Q4_2017 = {
-    'data': {
-        'question_7': '6',
-    },
-    'wizard_form_serialized': [
-        [  # step 0 / 1st page
-            {  # question 1
-                'choices': [
-                    {'extra_info_text': '', 'options': [], 'pk': 1,
-                        'position': 0, 'text': 'radio choice 1'},
-                    {'extra_info_text': '', 'options': [], 'pk': 6,
-                        'position': 1, 'text': 'radio choice 2'},
-                ],
-                'field_id': 'question_7',
-                'id': 7,
-                'question_text': '<p>which radio choice?</p>',
-                'section': 1,
-                'type': 'RadioButton',
-            },
-        ]
-    ]
-}
 
 EXAMPLE_2B = EXAMPLE_RECORD_Q4_2017 = {
     'data': {
