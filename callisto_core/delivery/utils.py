@@ -1,4 +1,3 @@
-from copy import copy
 from .view_helpers import EncryptedReportStorageHelper
 
 
@@ -28,28 +27,42 @@ class RecordDataUtil(object):
         return self.new_data
 
     def _parse_old_data(self):
+        self._create_page_arrays()
         for question in self.old_data:
-            self._set_question_answer(question)
-            self._set_question_form(question)
+            self._add_question_answer(question)
+            self._add_question_form(question)
 
-    def _set_question_answer(self, question: dict):
+    def _create_page_arrays(self):
+        page_array = []
+        for _ in range(self._section_count()):
+            page_array.append([])
+        self.new_data[self.form_key] = page_array
+
+    def _section_count(self):
+        max_sections = 1
+        for question in self.old_data:
+            max_sections = max([max_sections, question.get('section', 0)])
+        return max_sections
+
+    def _add_question_answer(self, question: dict):
         new_answer = self.new_data.get(self.answer_key, {})
         pk = question.get('id')
         new_answer[f'question_{pk}'] = question.get('answer', '')
         self.new_data[self.answer_key] = new_answer
 
-    def _set_question_form(self, question: dict):
-        new_form = self.new_data.get(self.form_key, {})
-        new_form['section'] = question.get('section')
-        new_form['type'] = question.get('type')
-        new_form['id'] = question.get('id')
-        question_text = question.get('question_text', '')
-        new_form['question_text'] = f'<p>{question_text}</p>'
-        pk = question.get('id')
-        new_form['field_id'] = f'question_{pk}'
+    def _add_question_form(self, question: dict):
+        new_form = {
+            'section': question.get('section', 1),
+            'type': question.get('type'),
+            'id': question.get('id'),
+            'question_text': '<p>{}</p>'.format(
+                question.get('question_text', '')),
+            'field_id': 'question_{}'.format(question.get('id')),
+        }
         if question.get('choices'):
             new_form['choices'] = self._get_choices(question.get('choices'))
-        self.new_data[self.form_key] = new_form
+        section_index = new_form['section'] - 1
+        self.new_data[self.form_key][section_index].append(new_form)
 
     def _get_choices(self, choices: list) -> list:
         return [

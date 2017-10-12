@@ -10,8 +10,8 @@ class DataTransformationTest(TestCase):
     def test_single_line_text_form(self):
         data = RecordDataUtil.transform_if_old_format(record_data.EXAMPLE_1C)
         self.assertEqual(
-            data['wizard_form_serialized'],
-            record_data.EXAMPLE_2C['wizard_form_serialized'],
+            data['wizard_form_serialized'][0][0],
+            record_data.EXAMPLE_2C['wizard_form_serialized'][0][0],
         )
 
     def test_single_question_answers(self):
