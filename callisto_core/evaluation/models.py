@@ -124,8 +124,8 @@ class EvalRow(models.Model):
                     label = question.evaluationfield.label
                     eval_location[label] = question_dict['answer']
                     if isinstance(question, MultipleChoice):
-                        eval_location[label +
-                                      "_choices"] = question.serialize_choices()
+                        eval_location[
+                            label + "_choices"] = question.serialize_choices()
                         if 'extra' in question_dict:
                             eval_location[label +
                                           "_extra"] = question_dict['extra']['answer']
