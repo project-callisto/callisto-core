@@ -2,8 +2,8 @@
 
 | Status | Support |
 | --- | --- |
-| [![Build Status][build-image]][build-url] | ![python 3.6][python36] |
-| [![PyPI Version][pypi-image]][pypi-url] | ![django 1.11][django111] |
+| [![Build Status][build-img]][build-url] | ![python 3.6][python36] |
+| [![PyPI Version][pypi-img]][pypi-url] | ![django 1.11][django111] |
 
 [build-img]: https://travis-ci.org/SexualHealthInnovations/django-wizard-builder.png?branch=master
 [build-url]: https://travis-ci.org/SexualHealthInnovations/django-wizard-builder
