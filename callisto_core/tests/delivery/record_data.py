@@ -50,7 +50,7 @@ EXAMPLE_2A = EXAMPLE_SINGLE_QUESTION_Q4_2017 = {
                     {'extra_info_text': '', 'options': [], 'pk': 1,
                         'position': 0, 'text': 'radio choice 1'},
                     {'extra_info_text': '', 'options': [], 'pk': 6,
-                        'position': 1, 'text': 'radio choice 2'},
+                        'position': 0, 'text': 'radio choice 2'},
                 ],
                 'field_id': 'question_7',
                 'id': 7,

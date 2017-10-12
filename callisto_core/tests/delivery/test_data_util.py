@@ -21,8 +21,8 @@ class DataTransformationTest(TestCase):
     def test_single_question_form(self):
         data = RecordDataUtil.transform_if_old_format(record_data.EXAMPLE_1A)
         self.assertEqual(
-            data['wizard_form_serialized'],
-            record_data.EXAMPLE_2A['wizard_form_serialized'],
+            data['wizard_form_serialized'][0][0],
+            record_data.EXAMPLE_2A['wizard_form_serialized'][0][0],
         )
 
     def test_single_question_both(self):
@@ -32,3 +32,7 @@ class DataTransformationTest(TestCase):
     def test_new_data_not_transformed(self):
         data = RecordDataUtil.transform_if_old_format(record_data.EXAMPLE_2A)
         self.assertEqual(data, record_data.EXAMPLE_2A)
+
+    def test_full_example(self):
+        data = RecordDataUtil.transform_if_old_format(record_data.EXAMPLE_1B)
+        self.assertEqual(data, record_data.EXAMPLE_2B)
