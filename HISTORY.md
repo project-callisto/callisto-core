@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 2.2.4 (2017-10-12)
+
+* fix multiple choice answer display on review page (s/o [@scattermagic](https://github.com/scattermagic))
+
+    https://github.com/project-callisto/django-wizard-builder/pull/187
+
 ## 2.2.3 (2017-09-19)
 
 * fix a bug with incorrectly formatted review page answers
