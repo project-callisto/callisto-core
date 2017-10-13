@@ -6,6 +6,19 @@ from django.test import TestCase
 
 from . import record_data
 
+from callisto_core.delivery.models import Report
+
+
+class RecordIntegrationTest(TestCase):
+    secret_key = 'seekritaf'
+
+    def test_record_functionality(self):
+        report = Report.objects.create()
+        report.encrypt_report(record_data.EXAMPLE_SINGLE_LINE, self.secret_key)
+        report.refresh_from_db()
+        report_data = report.decrypted_report(self.secret_key)
+        self.assertEqual(report_data, record_data.EXPECTED_SINGLE_LINE)
+
 
 class DataTransformationTest(TestCase):
 
