@@ -45,12 +45,23 @@ class RecordDataUtil(object):
         return max_sections
 
     def _add_question_answer(self, question: dict):
-        new_answer = self.new_data.get(self.answer_key, {})
         pk = question.get('id')
-        new_answer[f'question_{pk}'] = question.get('answer', '')
-        self.new_data[self.answer_key] = new_answer
+        self.new_data[self.answer_key] = {
+            f'question_{pk}': question.get('answer', '')
+        }
 
     def _add_question_form(self, question: dict):
+        if question.get('answers'):
+            self._add_prep_questions(question)
+        else:
+            new_form = self._add_form_fields({}, question)
+            self._add_form_to_pages(new_form)
+
+    def _add_form_to_pages(self, form: dict):
+        section_index = form['section'] - 1
+        self.new_data[self.form_key][section_index].append(form)
+
+    def _add_form_fields(self, form: dict, question: dict, extra={}) -> dict:
         new_form = {
             'section': question.get('section', 1),
             'type': question.get('type'),
@@ -58,11 +69,20 @@ class RecordDataUtil(object):
             'question_text': '<p>{}</p>'.format(
                 question.get('question_text', '')),
             'field_id': 'question_{}'.format(question.get('id')),
+            **extra,
         }
         if question.get('choices'):
             new_form['choices'] = self._get_choices(question.get('choices'))
-        section_index = new_form['section'] - 1
-        self.new_data[self.form_key][section_index].append(new_form)
+        return new_form
+
+    def _add_prep_questions(self, question: dict) -> dict:
+        prep_forms = question.get('answers', [])
+        for prep_questions in prep_forms:
+            for perp_question in prep_questions:
+                self._add_question_answer(perp_question)
+                new_perp_form = self._add_form_fields(
+                    {}, perp_question, {'group': 'FormSet'})
+                self._add_form_to_pages(new_perp_form)
 
     def _get_choices(self, choices: list) -> list:
         return [
