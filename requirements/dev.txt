@@ -1,8 +1,9 @@
 # pypi
 wheel
+pypandoc
 
 # linting
-autopep8==1.3.2
+autopep8==1.3.3
 
 # dev tools
 django-extensions
