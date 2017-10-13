@@ -38,7 +38,7 @@ urls.py
 
 setup
 
-    $ pip install -r requirements.txt --upgrade
+    $ pip install -r requirements/dev.txt --upgrade
     $ make app-setup
 
 
