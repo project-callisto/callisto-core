@@ -4,14 +4,20 @@ from wizard_builder import __version__ as version
 
 from setuptools import setup, find_packages
 
-readme = open('README.rst').read()
-history = open('HISTORY.rst').read().replace('.. :changelog:', '')
+
+try:
+    import pypandoc
+    long_description = pypandoc.convert_file('README.md', 'rst') + \
+        pypandoc.convert_file('HISTORY.md', 'rst')
+except BaseException:
+    long_description = ''
+
 
 setup(
     name='django-wizard-builder',
     version=version,
     description='Create multi-page forms from the Django admin',
-    long_description=readme + '\n\n' + history,
+    long_description=long_description,
     license="BSD",
     author='Project Callisto',
     author_email='tech@projectcallisto.org',

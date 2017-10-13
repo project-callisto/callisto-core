@@ -7,7 +7,6 @@ from django.db import migrations
 # import tinymce.models
 
 
-
 class Migration(migrations.Migration):
 
     dependencies = [
