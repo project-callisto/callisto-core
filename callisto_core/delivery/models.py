@@ -10,7 +10,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
-from . import hashers, security
+from . import hashers, security, utils
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,8 @@ class Report(models.Model):
         _, stretched_key = hashers.make_key(self.encode_prefix, key, self.salt)
         report_text = security.decrypt_text(stretched_key, self.encrypted)
         try:
-            return json.loads(report_text)
+            decrypted_data = json.loads(report_text)
+            return self._return_or_transform(decrypted_data, key)
         except json.decoder.JSONDecodeError:
             logger.info('decrypting legacy report')
             return report_text
@@ -114,6 +115,24 @@ class Report(models.Model):
         ''' On save, update timestamps '''
         self.last_edited = timezone.now()
         return super().save(*args, **kwargs)
+
+    def _return_or_transform(
+        self,
+        data: list or dict,
+        key: str,  # aka secret key aka passphrase
+    ) -> dict:
+        '''
+        given a set of data in old list or new dict format, return
+        the data in the new dict format.
+
+        and save the new data if it was in the old list format
+        '''
+        if isinstance(data, list):
+            new_data = utils.RecordDataUtil.transform_if_old_format(data)
+            self.encrypt_report(new_data, key)
+            return new_data
+        else:
+            return data
 
     class Meta:
         ordering = ('-added',)

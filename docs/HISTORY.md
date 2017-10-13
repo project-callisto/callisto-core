@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.15.8 (2017-10-13)
+
+* add functionality for updating the data format of records
+
+    https://github.com/project-callisto/callisto-core/pull/303
+
 ## 0.15.7 (2017-10-08)
 
 * fix email notification admin (s/o [@lisac](https://github.com/lisac))
