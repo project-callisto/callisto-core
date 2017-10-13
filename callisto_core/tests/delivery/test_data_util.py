@@ -1,12 +1,11 @@
 from pprint import pprint
 
+from callisto_core.delivery.models import Report
 from callisto_core.delivery.utils import RecordDataUtil
 
 from django.test import TestCase
 
 from . import record_data
-
-from callisto_core.delivery.models import Report
 
 
 class RecordIntegrationTest(TestCase):
