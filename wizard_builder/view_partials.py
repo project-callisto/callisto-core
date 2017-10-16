@@ -15,6 +15,7 @@ and should not define:
     - url names
 
 '''
+from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseRedirect
@@ -53,7 +54,10 @@ class WizardFormPartial(
         return form.cleaned_data
 
     def get_site_id(self):
-        return get_current_site(self.request).id
+        try:
+            return get_current_site(self.request).id
+        except Site.DoesNotExist:
+            return 1
 
     def get_serialized_forms(self):
         return self.form_manager.get_serialized_forms(

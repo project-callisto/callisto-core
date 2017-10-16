@@ -68,7 +68,10 @@ class FormManager(object):
 class PageQuerySet(QuerySet):
 
     def on_site(self, site_id=None):
-        site_id = site_id or Site.objects.get_current().id
+        try:
+            site_id = site_id or Site.objects.get_current().id
+        except Site.DoesNotExist:
+            site_id = 1
         return self.filter(
             sites__id__in=[site_id],
         )
