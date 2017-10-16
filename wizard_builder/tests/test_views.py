@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from .. import view_helpers
+from .. import view_helpers, models
 
 
 class StoragePersistenceTest(TestCase):
@@ -16,6 +16,7 @@ class StoragePersistenceTest(TestCase):
 
     def setUp(self):
         super().setUp()
+        self.data = {'question_2': 'aloe ipsum speakerbox'}
         self.wizard_url = reverse(
             'wizard_update',
             kwargs={'step': '0'},
@@ -27,6 +28,28 @@ class StoragePersistenceTest(TestCase):
         self.client.get(self.wizard_url)
         form_after = self.client.session[self.form_key]
         self.assertEqual(form_before, form_after)
+
+    def test_user_form_identical_when_backend_form_changed(self):
+        form_before = self.client.session[self.form_key]
+        question_text = form_before[0][0]['question_text']
+        question_pk = form_before[0][0]['id']
+        question = models.FormQuestion.objects.filter(pk=question_pk)
+        question.update(text='text should be persistent')
+        self.client.get(self.wizard_url)
+        form_after = self.client.session[self.form_key]
+        self.assertEqual(form_before, form_after)
+        self.assertEqual(question_text, form_after[0][0]['question_text'])
+
+    def test_when_changed_and_post(self):
+        form_before = self.client.session[self.form_key]
+        question_text = form_before[0][0]['question_text']
+        question_pk = form_before[0][0]['id']
+        question = models.FormQuestion.objects.filter(pk=question_pk)
+        question.update(text='text should be persistent')
+        self.client.post(self.wizard_url, self.data)
+        form_after = self.client.session[self.form_key]
+        self.assertEqual(form_before, form_after)
+        self.assertEqual(question_text, form_after[0][0]['question_text'])
 
 
 class ViewTest(TestCase):
