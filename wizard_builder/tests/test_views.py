@@ -8,7 +8,7 @@ from django.test import TestCase
 from .. import view_helpers, models
 
 
-class StoragePersistenceTest(TestCase):
+class FormPersistenceTest(TestCase):
     fixtures = [
         'wizard_builder_data',
     ]
@@ -21,7 +21,7 @@ class StoragePersistenceTest(TestCase):
             'wizard_update',
             kwargs={'step': '0'},
         )
-        self.client.get(self.wizard_url)
+        self.initial_response = self.client.get(self.wizard_url)
 
     def test_session_forms_identical_between_requests(self):
         form_before = self.client.session[self.form_key]
@@ -50,6 +50,12 @@ class StoragePersistenceTest(TestCase):
         form_after = self.client.session[self.form_key]
         self.assertEqual(form_before, form_after)
         self.assertEqual(question_text, form_after[0][0]['question_text'])
+
+    def test_response_forms_identical(self):
+        form_before = self.initial_response.context['form'].serialized
+        response = self.client.get(self.wizard_url)
+        form_after = response.context['form'].serialized
+        self.assertEqual(form_before, form_after)
 
 
 class ViewTest(TestCase):
