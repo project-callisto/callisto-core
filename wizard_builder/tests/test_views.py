@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from .. import view_helpers, models
+from .. import models, view_helpers
 
 
 class FormPersistenceTest(TestCase):
@@ -23,6 +23,10 @@ class FormPersistenceTest(TestCase):
         )
         self.initial_response = self.client.get(self.wizard_url)
 
+    def _change_form_text(self, form):
+        question = models.FormQuestion.objects.filter(pk=form['id'])
+        question.update(text='text should be persistent')
+
     def test_session_forms_identical_between_requests(self):
         form_before = self.client.session[self.form_key]
         self.client.get(self.wizard_url)
@@ -31,10 +35,8 @@ class FormPersistenceTest(TestCase):
 
     def test_user_form_identical_when_backend_form_changed(self):
         form_before = self.client.session[self.form_key]
-        question_text = form_before[0][0]['question_text']
-        question_pk = form_before[0][0]['id']
-        question = models.FormQuestion.objects.filter(pk=question_pk)
-        question.update(text='text should be persistent')
+        question_text = form[0][0]['question_text']
+        self._change_form_text(form_before[0][0])
         self.client.get(self.wizard_url)
         form_after = self.client.session[self.form_key]
         self.assertEqual(form_before, form_after)
@@ -49,12 +51,27 @@ class FormPersistenceTest(TestCase):
         self.client.post(self.wizard_url, self.data)
         form_after = self.client.session[self.form_key]
         self.assertEqual(form_before, form_after)
+        self.assertNotEqual(
+            'text should be persistent',
+            form_after[0][0]['question_text'],
+        )
         self.assertEqual(question_text, form_after[0][0]['question_text'])
 
     def test_response_forms_identical(self):
         form_before = self.initial_response.context['form'].serialized
         response = self.client.get(self.wizard_url)
         form_after = response.context['form'].serialized
+        self.assertEqual(form_before, form_after)
+
+    def test_response_forms_identical_when_form_changed(self):
+        form_before = self.initial_response.context['form'].serialized
+        self._change_form_text(form_before[0])
+        response = self.client.get(self.wizard_url)
+        form_after = response.context['form'].serialized
+        self.assertNotEqual(
+            'text should be persistent',
+            form_after[0]['question_text'],
+        )
         self.assertEqual(form_before, form_after)
 
 
