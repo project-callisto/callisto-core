@@ -8,15 +8,31 @@ from django.test import TestCase
 from .. import view_helpers
 
 
+class StoragePersistenceTest(TestCase):
+    fixtures = [
+        'wizard_builder_data',
+    ]
+    form_key = view_helpers.StorageHelper.storage_form_key
+
+    def setUp(self):
+        super().setUp()
+        self.wizard_url = reverse(
+            'wizard_update',
+            kwargs={'step': '0'},
+        )
+        self.client.get(self.wizard_url)
+
+    def test_session_forms_identical_between_requests(self):
+        form_before = self.client.session[self.form_key]
+        self.client.get(self.wizard_url)
+        form_after = self.client.session[self.form_key]
+        self.assertEqual(form_before, form_after)
+
+
 class ViewTest(TestCase):
     fixtures = [
         'wizard_builder_data',
     ]
-
-    @classmethod
-    def setUpClass(cls):
-        settings.SITE_ID = 1
-        super().setUpClass()
 
     def setUp(self):
         super().setUp()
