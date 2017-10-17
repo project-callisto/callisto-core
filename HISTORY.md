@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 2.3.0 (2017-10-12)
+
+* add TextArea question type (s/o [@scattermagic](https://github.com/scattermagic))
+
+    https://github.com/project-callisto/django-wizard-builder/pull/191
+
 ## 2.2.4 (2017-10-12)
 
 * fix multiple choice answer display on review page (s/o [@scattermagic](https://github.com/scattermagic))
