@@ -156,6 +156,7 @@ class SingleLineText(FormQuestion):
             required=False,
         )
 
+
 class TextArea(FormQuestion):
 
     def make_field(self):
@@ -164,6 +165,7 @@ class TextArea(FormQuestion):
             label=self.get_label(),
             required=False,
         )
+
 
 class MultipleChoice(FormQuestion):
     objects = FormQuestionManager()

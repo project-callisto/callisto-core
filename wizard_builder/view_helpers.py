@@ -58,9 +58,7 @@ class SerializedDataHelper(object):
             self._parse_answers(question, answer)
 
     def _parse_answers(self, question, answer):
-        if question.get('type') == 'Singlelinetext':
-            self._append_text_answer(answer, question)
-        if question.get('type') == 'Textarea':
+        if question.get('type') in ['Singlelinetext', 'Textarea']:
             self._append_text_answer(answer, question)
         else:
             self._append_list_answers(answer, question)
