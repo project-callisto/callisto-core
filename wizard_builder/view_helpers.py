@@ -69,11 +69,12 @@ class SerializedDataHelper(object):
     def _append_text_answer(self, answer, question):
         self._append_answer(question, [answer])
 
-    def _append_list_answers(self, answer, question):
-        if isinstance(answer, str):
-            answer = [answer]
+    def _append_list_answers(self, answers, question):
+        if not isinstance(answers, list):
+            answers = [answers]
         choice_list = [
             self._get_choice_text(answer, question)
+            for answer in answers
         ]
         self._append_answer(question, choice_list)
 

@@ -44,6 +44,24 @@ class DataHelperTest(TestCase):
             zipped_data,
         )
 
+    def test_data_non_does_not_raise_error(self):
+        form = self.manager.get_forms()[0]
+        zipped_data = self.data_manager.get_zipped_data(
+            data={'question_1': None},
+            forms=[form.serialized],
+        )
+
+    def test_data_multiple_choice_multiple_options(self):
+        form = self.manager.get_forms()[0]
+        zipped_data = self.data_manager.get_zipped_data(
+            data={'question_1': ['1', '2']},
+            forms=[form.serialized],
+        )
+        self.assertIn(
+            {'food options': ['vegetables', 'apples']},
+            zipped_data,
+        )
+
     def test_data_multiple_choice_string(self):
         form = self.manager.get_forms()[0]
         zipped_data = self.data_manager.get_zipped_data(
