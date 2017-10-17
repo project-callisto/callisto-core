@@ -118,10 +118,11 @@ class ViewTest(TestCase):
         data_with_goto_step['wizard_goto_step'] = 'Next'
         self.client.post(self.url, data_with_goto_step)
         response = self.client.get(self.url)
-        form = response.context['form']
+        form_data = response.context['form'].data
+        expected_data = self.data
         self.assertEqual(
-            form.data,
-            self.data,
+            form_data,
+            expected_data,
         )
 
     def test_review_page_textbox(self):
