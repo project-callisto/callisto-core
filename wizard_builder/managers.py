@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class FormManager(object):
 
     @classmethod
-    def get_forms(cls, data={}, site_id=1):
+    def get_form_models(cls, data={}, site_id=1):
         self = cls()
         self.data = data  # TODO: remove self.data, pass it down through funcs
         self.site_id = site_id
@@ -22,7 +22,7 @@ class FormManager(object):
 
     @classmethod
     def get_serialized_forms(cls, data={}, site_id=1):
-        forms = cls.get_forms(data, site_id)
+        forms = cls.get_form_models(data, site_id)
         return [
             form.serialized
             for form in forms
