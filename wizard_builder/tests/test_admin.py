@@ -3,7 +3,7 @@ from django.test import override_settings
 
 from ..models import (
     Checkbox, Choice, FormQuestion, MultipleChoice, Page, RadioButton,
-    SingleLineText,
+    SingleLineText, TextArea,
 )
 from .base import FunctionalTest
 
@@ -42,6 +42,7 @@ class AdminFunctionalTest(FunctionalTest):
             Checkbox,
             RadioButton,
             Choice,
+            TextArea,
         ]
         for Model in wizard_builder_models:
             self.assertIn(

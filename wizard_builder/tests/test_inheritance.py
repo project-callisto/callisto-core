@@ -3,7 +3,7 @@ import subprocess
 
 from django.test import TestCase
 
-from ..models import Choice, MultipleChoice, Page, SingleLineText
+from ..models import Choice, MultipleChoice, Page, SingleLineText, TextArea
 
 
 class InheritanceTest(TestCase):
@@ -13,6 +13,12 @@ class InheritanceTest(TestCase):
         SingleLineText.objects.create(page_id=page.id)
         question = Page.objects.first().formquestion_set.first()
         self.assertIsInstance(question, SingleLineText)
+
+    def test_page_form_question_textarea_instance(self):
+        page = Page.objects.create()
+        TextArea.objects.create(page_id=page.id)
+        question = Page.objects.first().formquestion_set.first()
+        self.assertIsInstance(question, TextArea)
 
     def test_choice_multiple_choice_instance(self):
         page = Page.objects.create()
