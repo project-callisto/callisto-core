@@ -11,7 +11,7 @@ class ManagerTest(TestCase):
 
     def _change_form_text(self, form):
         question = models.FormQuestion.objects.filter(pk=form['id'])
-        question.update(text='text should be persistent')
+        question.update(text='this text is not persistent')
 
     def _serialize(self, forms):
         return [
@@ -38,10 +38,11 @@ class ManagerTest(TestCase):
     def test_manager_persists_form_data(self):
         form_data_before = self.manager.get_serialized_forms()
         self._change_form_text(form_data_before[0][0])
-        form_data_after = self._serialize(self.manager.get_form_models(
-            form_data=form_data_before))
+        form_data_after = self._serialize(
+            self.manager.get_form_models(form_data=form_data_before),
+        )
         self.assertNotEqual(
-            'text should be persistent',
+            'this text is not persistent',
             form_data_after[0][0]['question_text'],
         )
         self.assertEqual(form_data_before, form_data_after)

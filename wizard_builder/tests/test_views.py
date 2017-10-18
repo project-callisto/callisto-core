@@ -25,7 +25,7 @@ class FormPersistenceTest(TestCase):
 
     def _change_form_text(self, form):
         question = models.FormQuestion.objects.filter(pk=form['id'])
-        question.update(text='text should be persistent')
+        question.update(text='this text is not persistent')
 
     def test_session_forms_identical_between_requests(self):
         form_before = self.client.session[self.form_key]
@@ -47,12 +47,12 @@ class FormPersistenceTest(TestCase):
         question_text = form_before[0][0]['question_text']
         question_pk = form_before[0][0]['id']
         question = models.FormQuestion.objects.filter(pk=question_pk)
-        question.update(text='text should be persistent')
+        question.update(text='this text is not persistent')
         self.client.post(self.wizard_url, self.data)
         form_after = self.client.session[self.form_key]
         self.assertEqual(form_before, form_after)
         self.assertNotEqual(
-            'text should be persistent',
+            'this text is not persistent',
             form_after[0][0]['question_text'],
         )
         self.assertEqual(question_text, form_after[0][0]['question_text'])
@@ -69,7 +69,7 @@ class FormPersistenceTest(TestCase):
         response = self.client.get(self.wizard_url)
         form_after = response.context['form'].serialized
         self.assertNotEqual(
-            'text should be persistent',
+            'this text is not persistent',
             form_after[0]['question_text'],
         )
         self.assertEqual(form_before, form_after)
