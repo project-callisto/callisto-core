@@ -33,6 +33,6 @@ class MockQuestion(object):
         field_generator = getattr(
             fields.QuestionField,  # from the QuestionFields object
             self.type.lower(),  # get the field that correspond to the question type
-            QuestionFields.singlelinetext,  # otherwise get a singlelinetext field
+            fields.QuestionField.singlelinetext,  # otherwise get a singlelinetext field
         )
         return field_generator(self)

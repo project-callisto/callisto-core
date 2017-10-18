@@ -149,7 +149,7 @@ class SingleLineText(FormQuestion):
     def make_field(self):
         # TODO: sync up with django default field creation more effectively
         return forms.CharField(
-            label=self.get_label(),
+            label=mark_safe(self.text),
             required=False,
         )
 
@@ -159,7 +159,7 @@ class TextArea(FormQuestion):
     def make_field(self):
         return forms.CharField(
             widget=forms.Textarea,
-            label=self.get_label(),
+            label=mark_safe(self.text),
             required=False,
         )
 
