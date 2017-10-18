@@ -8,6 +8,8 @@ from django.contrib.sites.models import Site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
+from . import forms, models
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,11 +34,10 @@ class FormManager(object):
     @property
     def section_map(self):
         # NOTE: function outdated
-        from .models import Page
         return {
             section: idx + 1
             for idx, page in enumerate(self.pages())
-            for section, _ in Page.SECTION_CHOICES
+            for section, _ in models.Page.SECTION_CHOICES
             if page.section == section
         }
 
@@ -48,8 +49,10 @@ class FormManager(object):
         ]
 
     def pages(self):
-        from .models import Page  # TODO: move to top
-        return Page.objects.wizard_set(self.site_id)
+        if not self.form_data:
+            return models.Page.objects.wizard_set(self.site_id)
+        else:
+            return self._pages_from_form_data()
 
     def _create_form_with_metadata(self, page):
         form = self._create_cleaned_form(page, self.answer_data)
@@ -59,11 +62,13 @@ class FormManager(object):
         return form
 
     def _create_cleaned_form(self, page, data):
-        from .forms import PageForm  # TODO: move to top
-        FormClass = PageForm.setup(page)
+        FormClass = forms.PageForm.setup(page)
         form = FormClass(data)
         form.full_clean()
         return form
+
+    def _pages_from_form_data(self):
+        return []
 
 
 class PageQuerySet(QuerySet):
