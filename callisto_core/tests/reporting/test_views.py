@@ -6,6 +6,8 @@ from callisto_core.delivery.models import MatchReport, SentFullReport
 from callisto_core.reporting import view_partials
 from callisto_core.reporting.forms import ConfirmationForm
 
+from django.core.urlresolvers import reverse
+
 from .. import test_base
 from ..utils.api import CustomNotificationApi
 
@@ -47,6 +49,22 @@ class MatchingHelper(ReportingHelper):
         self.assertEqual(SentFullReport.objects.count(), 0)
         self.request()
         self.assertEqual(SentFullReport.objects.count(), 0)
+
+
+class MatchingViewTest(MatchingHelper):
+
+    def test_multiple_emails_not_sent(self):
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self.client_post_matching_enter()
+
+        self.assertEqual(api_logging.call_count, 1)
+
+    def test_emails_not_sent_when_no_key(self):
+        self.client_clear_secret_key()
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self.client_post_matching_enter()
+
+        self.assertEqual(api_logging.call_count, 0)
 
 
 class MatchingOptionalViewTest(MatchingHelper):
@@ -113,16 +131,6 @@ class ConfirmationViewTest(ReportingHelper):
 
     def test_sends_emails(self):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
-            self.request()
-
-        api_logging.assert_has_calls([
-            call(notification_name='submit_confirmation'),
-            call(notification_name='report_delivery'),
-        ], any_order=True)
-
-    def test_accepts_secret_key_in_form(self):
-        with patch.object(CustomNotificationApi, '_logging') as api_logging:
-            self.client_clear_secret_key()
             self.request()
 
         api_logging.assert_has_calls([
