@@ -32,16 +32,6 @@ class FormManager(object):
         ]
 
     @property
-    def section_map(self):
-        # NOTE: function outdated
-        return {
-            section: idx + 1
-            for idx, page in enumerate(self.pages())
-            for section, _ in models.Page.SECTION_CHOICES
-            if page.section == section
-        }
-
-    @property
     def forms(self):
         return [
             self._create_form_with_metadata(page)
@@ -58,7 +48,6 @@ class FormManager(object):
         form = self._create_cleaned_form(page, self.answer_data)
         form.page = page
         form.pk = page.pk
-        form.section_map = self.section_map
         return form
 
     def _create_cleaned_form(self, page, data):
