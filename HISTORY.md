@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 2.4.0 (2017-10-17)
+
+* question fields are now generated from session data, rather than being pulled from the database on each request
+
+    https://github.com/project-callisto/django-wizard-builder/pull/192
+
 ## 2.3.0 (2017-10-12)
 
 * add TextArea question type (s/o [@scattermagic](https://github.com/scattermagic))
