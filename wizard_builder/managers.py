@@ -8,36 +8,28 @@ from django.contrib.sites.models import Site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
+from . import forms, mocks, models
+
 logger = logging.getLogger(__name__)
 
 
 class FormManager(object):
 
     @classmethod
-    def get_forms(cls, data={}, site_id=1):
+    def get_form_models(cls, form_data={}, answer_data={}, site_id=1):
         self = cls()
-        self.data = data  # TODO: remove self.data, pass it down through funcs
+        self.form_data = form_data
+        self.answer_data = answer_data
         self.site_id = site_id
         return self.forms
 
     @classmethod
-    def get_serialized_forms(cls, data={}, site_id=1):
-        forms = cls.get_forms(data, site_id)
+    def get_serialized_forms(cls, site_id=1):
+        forms = cls.get_form_models(site_id=site_id)
         return [
             form.serialized
             for form in forms
         ]
-
-    @property
-    def section_map(self):
-        # NOTE: function outdated
-        from .models import Page
-        return {
-            section: idx + 1
-            for idx, page in enumerate(self.pages())
-            for section, _ in Page.SECTION_CHOICES
-            if page.section == section
-        }
 
     @property
     def forms(self):
@@ -47,28 +39,38 @@ class FormManager(object):
         ]
 
     def pages(self):
-        from .models import Page  # TODO: move to top
-        return Page.objects.wizard_set(self.site_id)
+        if not self.form_data:
+            return models.Page.objects.wizard_set(self.site_id)
+        else:
+            return self._pages_via_form_data()
 
     def _create_form_with_metadata(self, page):
-        form = self._create_cleaned_form(page, self.data)
+        form = self._create_cleaned_form(page, self.answer_data)
         form.page = page
         form.pk = page.pk
-        form.section_map = self.section_map
         return form
 
     def _create_cleaned_form(self, page, data):
-        from .forms import PageForm  # TODO: move to top
-        FormClass = PageForm.setup(page)
+        FormClass = forms.PageForm.setup(page)
         form = FormClass(data)
         form.full_clean()
         return form
+
+    def _pages_via_form_data(self):
+        pages = []
+        for page_questions in self.form_data:
+            page = mocks.MockPage(page_questions)
+            pages.append(page)
+        return pages
 
 
 class PageQuerySet(QuerySet):
 
     def on_site(self, site_id=None):
-        site_id = site_id or Site.objects.get_current().id
+        try:
+            site_id = site_id or Site.objects.get_current().id
+        except Site.DoesNotExist:
+            site_id = 1
         return self.filter(
             sites__id__in=[site_id],
         )

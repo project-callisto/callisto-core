@@ -121,22 +121,20 @@ class FormQuestion(models.Model):
         else:
             return None
 
-    def get_label(self):
-        return mark_safe(self.text)
-
-    def set_question_page(self):
-        if not self.page:
-            self.page = Page.objects.latest('position')
-
     @property
     def serialized(self):
         return {
             'id': self.pk,
             'question_text': self.text,
+            'descriptive_text': self.descriptive_text,
             'type': self._meta.model_name.capitalize(),
             'section': self.section,
             'field_id': self.field_id,
         }
+
+    def set_question_page(self):
+        if not self.page:
+            self.page = Page.objects.latest('position')
 
     def save(self, *args, **kwargs):
         self.set_question_page()
@@ -152,7 +150,7 @@ class SingleLineText(FormQuestion):
     def make_field(self):
         # TODO: sync up with django default field creation more effectively
         return forms.CharField(
-            label=self.get_label(),
+            label=mark_safe(self.text),
             required=False,
         )
 
@@ -162,7 +160,7 @@ class TextArea(FormQuestion):
     def make_field(self):
         return forms.CharField(
             widget=forms.Textarea,
-            label=self.get_label(),
+            label=mark_safe(self.text),
             required=False,
         )
 
