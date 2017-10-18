@@ -1,4 +1,5 @@
 import logging
+from copy import copy
 
 from django.core.urlresolvers import reverse
 
@@ -230,13 +231,18 @@ class StorageHelper(object):
         )
 
     @property
-    def current_data_from_step(self):
+    def answers_for_current_step(self):
+        # get the current data
         data = self.current_data_from_storage()
-        data[self.storage_data_key] = self.view.request.POST
-        forms = self.get_form_models(data)
-        self.view.forms = forms  # needed for finding steps
-        form = forms[self.view.steps.current]
-        return form.cleaned_data
+        # create a set of form models from form storage + post data
+        new_data = copy(data)
+        new_data[self.storage_data_key] = self.view.request.POST
+        forms = self.get_form_models(new_data)
+        # get the cleaned data from those form models, add it to answer data
+        form = forms[self.view.curent_step]
+        data[self.storage_data_key].update(form.cleaned_data)
+        # return answer data
+        return data[self.storage_data_key]
 
     @property
     def serialized_forms(self):
@@ -255,7 +261,7 @@ class StorageHelper(object):
         '''
         primary class functionality method, updates the data in storage
         '''
-        self.add_data_to_storage(self.current_data_from_step)
+        self.add_data_to_storage(self.answers_for_current_step)
 
     def current_data_from_storage(self):
         # TODO: base class with NotImplementedError checks
