@@ -8,7 +8,7 @@ from django.contrib.sites.models import Site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
-from . import forms, models
+from . import forms, mocks, models
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class FormManager(object):
         if not self.form_data:
             return models.Page.objects.wizard_set(self.site_id)
         else:
-            return self._pages_from_form_data()
+            return self._pages_via_form_data()
 
     def _create_form_with_metadata(self, page):
         form = self._create_cleaned_form(page, self.answer_data)
@@ -67,8 +67,12 @@ class FormManager(object):
         form.full_clean()
         return form
 
-    def _pages_from_form_data(self):
-        return []
+    def _pages_via_form_data(self):
+        pages = []
+        for page_questions in self.form_data:
+            page = mocks.MockPage(page_questions)
+            pages.append(page)
+        return pages
 
 
 class PageQuerySet(QuerySet):

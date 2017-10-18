@@ -121,13 +121,6 @@ class FormQuestion(models.Model):
         else:
             return None
 
-    def get_label(self):
-        return mark_safe(self.text)
-
-    def set_question_page(self):
-        if not self.page:
-            self.page = Page.objects.latest('position')
-
     @property
     def serialized(self):
         return {
@@ -137,6 +130,10 @@ class FormQuestion(models.Model):
             'section': self.section,
             'field_id': self.field_id,
         }
+
+    def set_question_page(self):
+        if not self.page:
+            self.page = Page.objects.latest('position')
 
     def save(self, *args, **kwargs):
         self.set_question_page()
