@@ -27,8 +27,7 @@ class QuestionField(object):
         return forms.MultipleChoiceField(
             choices=question.choices_field_display,
             label=question.text,
-            # TODO: serialize descriptive_text
-            help_text=getattr(question, 'descriptive_text', ''),
+            help_text=question.descriptive_text,
             required=False,
             widget=wizard_builder_widgets.CheckboxExtraSelectMultiple,
         )
@@ -42,8 +41,7 @@ class QuestionField(object):
         return forms.ChoiceField(
             choices=question.choices_field_display,
             label=question.text,
-            # TODO: serialize descriptive_text
-            help_text=getattr(question, 'descriptive_text', ''),
+            help_text=question.descriptive_text,
             required=False,
             widget=widget,
         )

@@ -126,6 +126,7 @@ class FormQuestion(models.Model):
         return {
             'id': self.pk,
             'question_text': self.text,
+            'descriptive_text': self.descriptive_text,
             'type': self._meta.model_name.capitalize(),
             'section': self.section,
             'field_id': self.field_id,

@@ -23,6 +23,7 @@ class MockQuestion(object):
         self.pk = self.id = data.get('id')
         self.text = data.get('question_text')
         self.type = data.get('type')
+        self.descriptive_text = data.get('descriptive_text')
         self.section = data.get('section')
         self.position = data.get('position', 0)
         self.serialized = data
