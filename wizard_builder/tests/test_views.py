@@ -35,7 +35,7 @@ class FormPersistenceTest(TestCase):
 
     def test_user_form_identical_when_backend_form_changed(self):
         form_before = self.client.session[self.form_key]
-        question_text = form[0][0]['question_text']
+        question_text = form_before[0][0]['question_text']
         self._change_form_text(form_before[0][0])
         self.client.get(self.wizard_url)
         form_after = self.client.session[self.form_key]
