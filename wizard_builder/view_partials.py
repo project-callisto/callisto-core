@@ -21,7 +21,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.views import generic as views
 
-from . import managers, view_helpers
+from . import view_helpers
 
 
 class WizardRedirectPartial(
@@ -38,20 +38,11 @@ class WizardRedirectPartial(
 class WizardFormPartial(
     views.edit.FormView,
 ):
-    form_manager = managers.FormManager
     storage_helper = view_helpers.StorageHelper
 
     @property
     def storage(self):
         return self.storage_helper(self)
-
-    @property
-    def current_step_data(self):
-        site_id = self.get_site_id()
-        data = self.request.POST
-        forms = self.form_manager.get_form_models(data, site_id)
-        form = forms[self.steps.current]
-        return form.cleaned_data
 
     def get_site_id(self):
         try:
@@ -59,16 +50,11 @@ class WizardFormPartial(
         except Site.DoesNotExist:
             return 1
 
-    def get_serialized_forms(self):
-        return self.form_manager.get_serialized_forms(
-            site_id=self.get_site_id(),
-        )
-
     def get_forms(self):
-        return self.form_manager.get_form_models(
-            data=self.storage.current_data,
-            site_id=self.get_site_id(),
-        )
+        return self.storage.get_form_models()
+
+    def get_serialized_forms(self):
+        return self.storage.serialized_forms
 
     def dispatch(self, request, *args, **kwargs):
         self._dispatch_processing()

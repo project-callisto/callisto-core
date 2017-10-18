@@ -14,15 +14,16 @@ logger = logging.getLogger(__name__)
 class FormManager(object):
 
     @classmethod
-    def get_form_models(cls, data={}, site_id=1):
+    def get_form_models(cls, form_data={}, answer_data={}, site_id=1):
         self = cls()
-        self.data = data  # TODO: remove self.data, pass it down through funcs
+        self.form_data = form_data
+        self.answer_data = answer_data
         self.site_id = site_id
         return self.forms
 
     @classmethod
-    def get_serialized_forms(cls, data={}, site_id=1):
-        forms = cls.get_form_models(data, site_id)
+    def get_serialized_forms(cls, site_id=1):
+        forms = cls.get_form_models(site_id=site_id)
         return [
             form.serialized
             for form in forms
@@ -51,7 +52,7 @@ class FormManager(object):
         return Page.objects.wizard_set(self.site_id)
 
     def _create_form_with_metadata(self, page):
-        form = self._create_cleaned_form(page, self.data)
+        form = self._create_cleaned_form(page, self.answer_data)
         form.page = page
         form.pk = page.pk
         form.section_map = self.section_map

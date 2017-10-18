@@ -2,6 +2,8 @@ import logging
 
 from django.core.urlresolvers import reverse
 
+from . import managers
+
 logger = logging.getLogger(__name__)
 
 
@@ -208,17 +210,16 @@ class StepsHelper(object):
 
 class StorageHelper(object):
     data_manager = SerializedDataHelper
+    form_manager = managers.FormManager
     storage_data_key = 'wizard_form_data'
     storage_form_key = 'wizard_form_serialized'
 
     def __init__(self, view):
         # TODO: scope down inputs
         self.view = view
+        self.site_id = view.get_site_id()
+        self.session = view.request.session
         self.init_storage()
-
-    @property
-    def form_data(self):
-        return self.current_data_from_storage()
 
     @property
     def cleaned_form_data(self):
@@ -229,44 +230,51 @@ class StorageHelper(object):
         )
 
     @property
-    def current_data(self):
-        storage = self.current_data_from_storage()
-        return storage[self.storage_data_key]
+    def current_data_from_step(self):
+        data = self.current_data_from_storage()
+        data[self.storage_data_key] = self.view.request.POST
+        forms = self.get_form_models(data)
+        self.view.forms = forms  # needed for finding steps
+        form = forms[self.view.steps.current]
+        return form.cleaned_data
 
     @property
-    def current_and_post_data(self):
-        data = self.current_data
-        data.update(self.view.current_step_data)
-        return data
+    def serialized_forms(self):
+        return self.form_manager.get_serialized_forms(site_id=self.site_id)
+
+    def get_form_models(self, data=None):
+        if not data:
+            data = self.current_data_from_storage()
+        return self.form_manager.get_form_models(
+            form_data=data[self.storage_form_key],
+            answer_data=data[self.storage_data_key],
+            site_id=self.site_id,
+        )
 
     def update(self):
         '''
         primary class functionality method, updates the data in storage
         '''
-        data = self.current_and_post_data
-        self.add_data_to_storage(data)
+        self.add_data_to_storage(self.current_data_from_step)
 
     def current_data_from_storage(self):
         # TODO: base class with NotImplementedError checks
-        session = self.view.request.session
         return {
-            self.storage_data_key: session.get(self.storage_data_key, {}),
-            self.storage_form_key: session.get(self.storage_form_key, {}),
+            self.storage_data_key: self.session.get(self.storage_data_key, {}),
+            self.storage_form_key: self.session.get(self.storage_form_key, {}),
         }
 
-    def add_data_to_storage(self, data):
+    def add_data_to_storage(self, answer_data):
         # TODO: base class with NotImplementedError checks
-        session = self.view.request.session
-        session[self.storage_data_key] = data
+        self.session[self.storage_data_key] = answer_data
 
     def init_storage(self):
         # TODO: base class with NotImplementedError checks
-        session = self.view.request.session
-        session.setdefault(
+        self.session.setdefault(
             self.storage_form_key,
-            self.view.get_serialized_forms(),
+            self.serialized_forms,
         )
-        session.setdefault(
+        self.session.setdefault(
             self.storage_data_key,
             {},
         )
