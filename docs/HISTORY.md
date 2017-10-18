@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.15.10 (2017-10-17)
+
+* bump version support to `django-wizard-builder>=2.4,<2.5`
+
 ## 0.15.9 (2017-10-17)
 
 * bump version support to `django-wizard-builder>=2.3,<2.4`
