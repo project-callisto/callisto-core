@@ -1,5 +1,8 @@
 from django import forms
+from django.forms import widgets as django_widgets
 from django.utils.safestring import mark_safe
+
+from . import widgets as wizard_builder_widgets
 
 
 class QuestionField(object):
@@ -21,8 +24,26 @@ class QuestionField(object):
 
     @classmethod
     def checkbox(cls, question):
-        pass
+        return forms.MultipleChoiceField(
+            choices=question.choices_field_display,
+            label=question.text,
+            # TODO: serialize descriptive_text
+            help_text=getattr(question, 'descriptive_text', ''),
+            required=False,
+            widget=wizard_builder_widgets.CheckboxExtraSelectMultiple,
+        )
 
     @classmethod
     def radiobutton(cls, question):
-        pass
+        if getattr(question, 'is_dropdown', False):
+            widget = django_widgets.Select
+        else:
+            widget = wizard_builder_widgets.RadioExtraSelect
+        return forms.ChoiceField(
+            choices=question.choices_field_display,
+            label=question.text,
+            # TODO: serialize descriptive_text
+            help_text=getattr(question, 'descriptive_text', ''),
+            required=False,
+            widget=widget,
+        )

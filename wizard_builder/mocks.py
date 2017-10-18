@@ -3,6 +3,7 @@ from . import fields
 
 class MockPage(object):
     pk = None
+    id = None
 
     def __init__(self, data):
         self.section = data[0].get('section', 1)
@@ -19,15 +20,27 @@ class MockPage(object):
 class MockQuestion(object):
 
     def __init__(self, data):
-        self.id = data.get('id')
+        self.pk = self.id = data.get('id')
         self.text = data.get('question_text')
         self.type = data.get('type')
         self.section = data.get('section')
-        # TODO: choices
+        self.position = data.get('position', 0)
+        self.serialized = data
+        self.choices = [
+            MockChoice(choice_data)
+            for choice_data in data.get('choices', [])
+        ]
 
     @property
     def field_id(self):
         return 'question_' + str(self.id)
+
+    @property
+    def choices_field_display(self):
+        return [
+            (choice.pk, choice.text)
+            for choice in self.choices
+        ]
 
     def make_field(self):
         field_generator = getattr(
@@ -36,3 +49,11 @@ class MockQuestion(object):
             fields.QuestionField.singlelinetext,  # otherwise get a singlelinetext field
         )
         return field_generator(self)
+
+
+class MockChoice(object):
+
+    def __init__(self, data):
+        self.pk = self.id = data.get('pk')
+        self.text = data.get('text')
+        self.position = data.get('position', 0)
