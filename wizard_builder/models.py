@@ -120,6 +120,7 @@ class FormQuestion(models.Model):
 
     @property
     def serialized(self):
+        # TODO use: from django.forms.models import model_to_dict
         return {
             'id': self.pk,
             'question_text': self.text,
