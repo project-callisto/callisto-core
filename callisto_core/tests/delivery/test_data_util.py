@@ -97,5 +97,7 @@ class DataTransformationTest(TestCase):
             data=data['data'],
             forms=data['wizard_form_serialized'],
         ))
+        self.assertIn('1 example data', formatted_data_string)
+        self.assertIn('2 example data', formatted_data_string)
         self.assertIn('USF Undergraduate student', formatted_data_string)
         self.assertIn('Friend or visitor on campus', formatted_data_string)
