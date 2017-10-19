@@ -33,7 +33,7 @@ class MockQuestion(object):
         self.descriptive_text = data.get('descriptive_text')
         self.section = data.get('section')
         self.position = data.get('position', 0)
-        self.serialized = data
+        self.serialized = self.data = data
         self.choices = [
             MockChoice(choice_data)
             for choice_data in data.get('choices', [])

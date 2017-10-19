@@ -34,7 +34,7 @@ class QuestionField(object):
 
     @classmethod
     def radiobutton(cls, question):
-        if getattr(question, 'is_dropdown', False):
+        if question.data.get('is_dropdown'):
             widget = django_widgets.Select
         else:
             widget = wizard_builder_widgets.RadioExtraSelect

@@ -96,7 +96,6 @@ class FormQuestion(models.Model):
         else:
             return "{} {}".format(self.short_str, type_str)
 
-    # TODO: I feel like there is a django model option for this
     @property
     def field_id(self):
         return "question_{}".format(self.pk)
@@ -177,6 +176,12 @@ class Checkbox(MultipleChoice):
 
 class RadioButton(MultipleChoice):
     is_dropdown = models.BooleanField(default=False)
+
+    @property
+    def serialized(self):
+        data = super().serialized
+        data.update({'is_dropdown': self.is_dropdown})
+        return data
 
 
 class Choice(models.Model):
