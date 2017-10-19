@@ -61,10 +61,10 @@ class SerializedDataHelper(object):
             self._parse_answers(question, answer)
 
     def _parse_answers(self, question, answer):
-        if question.get('type').lower() in ['singlelinetext', 'textarea']:
-            self._append_text_answer(answer, question)
-        else:
+        if question.get('type').lower() in ['checkbox', 'radiobutton']:
             self._append_list_answers(answer, question)
+        else:
+            self._append_text_answer(answer, question)
 
     def _get_question_answer(self, question):
         return self.data.get(question.get('field_id'), '')
