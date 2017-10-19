@@ -16,45 +16,33 @@ logger = logging.getLogger(__name__)
 class FormManager(object):
 
     @classmethod
-    def get_form_models(cls, form_data={}, answer_data={}, site_id=1):
-        self = cls()
-        self.form_data = form_data
-        self.answer_data = answer_data
-        self.site_id = site_id
-        return self.forms
-
-    @classmethod
     def get_serialized_forms(cls, site_id=1):
-        forms = cls.get_form_models(site_id=site_id)
         return [
             form.serialized
-            for form in forms
+            for form in cls.get_form_models(site_id=site_id)
         ]
 
-    @property
-    def forms(self):
+    @classmethod
+    def get_form_models(cls, form_data={}, answer_data={}, site_id=1):
+        self = cls()
+        self.site_id = site_id
+        self.answer_data = answer_data
+        self.form_data = form_data
+        if not form_data:
+            self.form_data = self._get_form_data_from_db()
+        return self._create_forms_via_data()
+
+    def _get_form_data_from_db(self):
         return [
-            self._create_form_with_metadata(page)
-            for page in self.pages()
+            page.serialized_questions
+            for page in models.Page.objects.wizard_set(self.site_id)
         ]
 
-    def pages(self):
-        if not self.form_data:
-            return models.Page.objects.wizard_set(self.site_id)
-        else:
-            return self._pages_via_form_data()
-
-    def _create_form_with_metadata(self, page):
-        form = self._create_cleaned_form(page, self.answer_data)
-        form.page = page
-        form.pk = page.pk
-        return form
-
-    def _create_cleaned_form(self, page, data):
-        FormClass = forms.PageForm.setup(page)
-        form = FormClass(data)
-        form.full_clean()
-        return form
+    def _create_forms_via_data(self):
+        return [
+            self._transform_page_to_form(page)
+            for page in self._pages_via_form_data()
+        ]
 
     def _pages_via_form_data(self):
         pages = []
@@ -62,6 +50,13 @@ class FormManager(object):
             page = mocks.MockPage(page_questions)
             pages.append(page)
         return pages
+
+    def _transform_page_to_form(self, page):
+        FormClass = forms.PageForm.setup(page)
+        form = FormClass(self.answer_data)
+        form.full_clean()
+        form.page = page
+        return form
 
 
 class PageQuerySet(QuerySet):

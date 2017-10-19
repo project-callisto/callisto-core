@@ -21,11 +21,7 @@ class PageForm(forms.Form):
 
     @property
     def serialized(self):
-        # TODO: serialize all the data required to generate questions
-        return [
-            question.serialized
-            for question in self.page.questions
-        ]
+        return self.page.serialized_questions
 
     def _clean_fields(self):
         for name, field in self.fields.items():

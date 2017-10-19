@@ -1,7 +1,14 @@
-from . import fields
+'''
+mocks are fake models, used in place of actual models when rendering forms
+'''
+
+from . import fields, model_helpers
 
 
-class MockPage(object):
+class MockPage(
+    model_helpers.SerializedQuestionMixin,
+    object,
+):
     pk = None
     id = None
 
@@ -26,7 +33,7 @@ class MockQuestion(object):
         self.descriptive_text = data.get('descriptive_text')
         self.section = data.get('section')
         self.position = data.get('position', 0)
-        self.serialized = data
+        self.serialized = self.data = data
         self.choices = [
             MockChoice(choice_data)
             for choice_data in data.get('choices', [])

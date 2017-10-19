@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 2.4.1 (2017-10-17)
+
+* move field generating code out of the models
+
+    https://github.com/project-callisto/django-wizard-builder/pull/196
+
 ## 2.4.0 (2017-10-17)
 
 * question fields are now generated from session data, rather than being pulled from the database on each request
