@@ -6,7 +6,10 @@ class MockPage(object):
     id = None
 
     def __init__(self, data):
-        self.section = data[0].get('section', 1)
+        try:
+            self.section = data[0].get('section', 1)
+        except BaseException:
+            self.section = 1
         self.questions = self._create_questions(data)
 
     def _create_questions(self, data):
