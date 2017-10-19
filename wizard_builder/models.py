@@ -153,13 +153,7 @@ class SingleLineText(FormQuestion):
 
 
 class TextArea(FormQuestion):
-
-    def make_field(self):
-        return forms.CharField(
-            widget=forms.Textarea,
-            label=mark_safe(self.text),
-            required=False,
-        )
+    pass
 
 
 class MultipleChoice(FormQuestion):
@@ -170,13 +164,6 @@ class MultipleChoice(FormQuestion):
         return list(self.choice_set.all().order_by('position'))
 
     @property
-    def choices_field_display(self):
-        return [
-            (choice.pk, choice.text)
-            for choice in self.choices
-        ]
-
-    @property
     def serialized(self):
         data = super().serialized
         data.update({'choices': self.serialized_choices})
@@ -185,33 +172,6 @@ class MultipleChoice(FormQuestion):
     @property
     def serialized_choices(self):
         return [choice.data for choice in self.choices]
-
-    @property
-    def widget(self):
-        # TODO: merge into a more versatile feild creation function that
-            # works entirely off of checking variables on the instance
-            # (instead of self._meta.model)
-            # and move this function to FormQuestion
-        if getattr(self, 'is_dropdown', False):
-            return Select
-        elif self._meta.model == RadioButton:
-            return RadioExtraSelect
-        elif self._meta.model == Checkbox:
-            return CheckboxExtraSelectMultiple
-
-    def make_field(self):
-        # TODO: sync up with django default field creation more effectively
-        if self._meta.model == RadioButton:
-            _Field = ChoiceField
-        elif self._meta.model == Checkbox:
-            _Field = MultipleChoiceField
-        return _Field(
-            choices=self.choices_field_display,
-            label=self.text,
-            help_text=self.descriptive_text,
-            required=False,
-            widget=self.widget,
-        )
 
 
 class Checkbox(MultipleChoice):
