@@ -23,6 +23,13 @@ class RecordIntegrationTest(TestCase):
 
 class DataTransformationTest(TestCase):
 
+    def assertListItemsUnique(self, items):
+        items_set = set(items)
+        self.assertEqual(
+            len(set(items)),
+            len(items),
+        )
+
     def test_single_line_text_form(self):
         data = RecordDataUtil.transform_if_old_format(
             record_data.EXAMPLE_SINGLE_LINE)
@@ -79,12 +86,18 @@ class DataTransformationTest(TestCase):
             data=data['data'],
             forms=data['wizard_form_serialized'],
         )
-        from pprint import pprint
-        print()
-        pprint(data)
-        print()
-        pprint(formatted_data)
-        print()
         for item in formatted_data:
             answer = list(item.values())[0][0]
             self.assertNotEqual(answer, SerializedDataHelper.not_answered_text)
+
+    def test_full_dataset_questions_are_unique(self):
+        data = RecordDataUtil.transform_if_old_format(
+            record_data.EXAMPLE_FULL_DATASET)
+        formatted_data = SerializedDataHelper.get_zipped_data(
+            data=data['data'],
+            forms=data['wizard_form_serialized'],
+        )
+        self.assertListItemsUnique([
+            list(item.keys())[0]
+            for item in formatted_data
+        ])
