@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 2.4.2 (2017-10-19)
+
+* answer display updates for [callisto-core data persistence PR](https://github.com/project-callisto/callisto-core/pull/311)
+
+    https://github.com/project-callisto/django-wizard-builder/pull/197
+
 ## 2.4.1 (2017-10-17)
 
 * move field generating code out of the models
