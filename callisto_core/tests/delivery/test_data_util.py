@@ -5,6 +5,8 @@ from callisto_core.delivery.utils import RecordDataUtil
 
 from django.test import TestCase
 
+from wizard_builder.view_helpers import SerializedDataHelper
+
 from . import record_data
 
 
@@ -69,3 +71,14 @@ class DataTransformationTest(TestCase):
         for index, transformed_page in enumerate(
                 data['wizard_form_serialized']):
             expected_page = record_data.EXPECTED_FORMSET['wizard_form_serialized'][index]
+
+    def test_full_dataset_all_answered(self):
+        data = RecordDataUtil.transform_if_old_format(
+            record_data.EXAMPLE_FULL_DATASET)
+        formatted_data = SerializedDataHelper.get_zipped_data(
+            data=data['data'],
+            forms=data['wizard_form_serialized'],
+        )
+        for item in formatted_data:
+            answer = list(item.values())[0][0]
+            self.assertNotEqual(answer, SerializedDataHelper.not_answered_text)
