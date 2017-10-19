@@ -91,7 +91,9 @@ class RecordDataUtil(object):
                 self._add_question_form(question)
 
     def _uniquify_perp_question(self, question: dict, index: int) -> dict:
-        question['id'] = str(question.get('id', 0)) + '_perp_' + str(index)
+        pk = str(question.get('id', 0))
+        if not pk.startswith('perp_'):
+            question['id'] = f'perp_{index}_{pk}'
         return question
 
     def _get_choices(self, choices: list) -> list:
