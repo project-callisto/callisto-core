@@ -1,14 +1,9 @@
 import logging
 
-from django import forms
 from django.contrib.sites.models import Site
 from django.db import models
-from django.forms.fields import ChoiceField, MultipleChoiceField
-from django.forms.widgets import Select
-from django.utils.safestring import mark_safe
 
 from . import managers, model_helpers
-from .widgets import CheckboxExtraSelectMultiple, RadioExtraSelect
 
 logger = logging.getLogger(__name__)
 
