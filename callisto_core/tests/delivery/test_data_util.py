@@ -79,6 +79,12 @@ class DataTransformationTest(TestCase):
             data=data['data'],
             forms=data['wizard_form_serialized'],
         )
+        from pprint import pprint
+        print()
+        pprint(data)
+        print()
+        pprint(formatted_data)
+        print()
         for item in formatted_data:
             answer = list(item.values())[0][0]
             self.assertNotEqual(answer, SerializedDataHelper.not_answered_text)

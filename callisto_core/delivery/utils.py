@@ -27,30 +27,36 @@ class RecordDataUtil(object):
         return self.new_data
 
     def _parse_old_data(self):
+        print('_parse_old_data')
         self._create_page_arrays()
         for question in self.old_data:
             self._add_question_answer(question)
             self._add_question_form(question)
 
     def _create_page_arrays(self):
+        print('_create_page_arrays')
         page_array = []
         for _ in range(self._section_count()):
             page_array.append([])
         self.new_data[self.form_key] = page_array
 
     def _section_count(self):
+        print('_section_count')
         max_sections = 1
         for question in self.old_data:
             max_sections = max([max_sections, question.get('section', 0)])
         return max_sections
 
     def _add_question_answer(self, question: dict):
+        print('_add_question_answer', question)
         pk = question.get('id')
-        self.new_data[self.answer_key] = {
-            f'question_{pk}': question.get('answer', '')
-        }
+        if pk:
+            self.new_data[self.answer_key].update({
+                f'question_{pk}': question.get('answer', '')
+            })
 
     def _add_question_form(self, question: dict):
+        print('_add_question_form', question)
         if question.get('answers'):
             self._add_prep_questions(question)
         else:
@@ -58,10 +64,12 @@ class RecordDataUtil(object):
             self._add_form_to_pages(new_form)
 
     def _add_form_to_pages(self, form: dict):
+        print('_add_form_to_pages', form)
         section_index = form['section'] - 1
         self.new_data[self.form_key][section_index].append(form)
 
     def _add_form_fields(self, form: dict, question: dict, extra={}) -> dict:
+        print('_add_form_fields', form, question, extra)
         new_form = {
             'section': question.get('section', 1),
             'type': question.get('type'),
@@ -76,6 +84,7 @@ class RecordDataUtil(object):
         return new_form
 
     def _add_prep_questions(self, question: dict) -> dict:
+        print('_add_prep_questions', question)
         prep_forms = question.get('answers', [])
         for prep_questions in prep_forms:
             for perp_question in prep_questions:
@@ -85,12 +94,14 @@ class RecordDataUtil(object):
                 self._add_form_to_pages(new_perp_form)
 
     def _get_choices(self, choices: list) -> list:
+        print('_get_choices', choices)
         return [
             self._get_choice(choice)
             for choice in choices
         ]
 
     def _get_choice(self, choice: dict) -> dict:
+        print('_get_choice', choice)
         return {
             'extra_info_text': '',
             'options': [],
