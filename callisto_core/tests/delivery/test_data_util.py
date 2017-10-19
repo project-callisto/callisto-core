@@ -89,15 +89,3 @@ class DataTransformationTest(TestCase):
         for item in formatted_data:
             answer = list(item.values())[0][0]
             self.assertNotEqual(answer, SerializedDataHelper.not_answered_text)
-
-    def test_full_dataset_questions_are_unique(self):
-        data = RecordDataUtil.transform_if_old_format(
-            record_data.EXAMPLE_FULL_DATASET)
-        formatted_data = SerializedDataHelper.get_zipped_data(
-            data=data['data'],
-            forms=data['wizard_form_serialized'],
-        )
-        self.assertListItemsUnique([
-            list(item.keys())[0]
-            for item in formatted_data
-        ])
