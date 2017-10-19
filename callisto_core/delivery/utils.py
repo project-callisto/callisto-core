@@ -31,12 +31,20 @@ class RecordDataUtil(object):
         for question in self.old_data:
             self._add_question_answer(question)
             self._add_question_form(question)
+        self._clean_empty_page_arrays()
 
     def _create_page_arrays(self):
         page_array = []
-        for _ in range(self._section_count()):
+        for _ in range(self._section_count() + 1):
             page_array.append([])
         self.new_data[self.form_key] = page_array
+
+    def _clean_empty_page_arrays(self):
+        cleaned_data = []
+        for data in self.new_data[self.form_key]:
+            if not data == []:
+                cleaned_data.append(data)
+        self.new_data[self.form_key] = cleaned_data
 
     def _section_count(self):
         max_sections = 1
@@ -46,22 +54,23 @@ class RecordDataUtil(object):
 
     def _add_question_answer(self, question: dict):
         pk = question.get('id')
-        self.new_data[self.answer_key] = {
-            f'question_{pk}': question.get('answer', '')
-        }
+        if pk:
+            self.new_data[self.answer_key].update({
+                f'question_{pk}': question.get('answer', '')
+            })
 
     def _add_question_form(self, question: dict):
         if question.get('answers'):
-            self._add_prep_questions(question)
+            self._add_perp_questions(question)
         else:
-            new_form = self._add_form_fields({}, question)
+            new_form = self._add_form_fields(question)
             self._add_form_to_pages(new_form)
 
     def _add_form_to_pages(self, form: dict):
-        section_index = form['section'] - 1
+        section_index = form['section']
         self.new_data[self.form_key][section_index].append(form)
 
-    def _add_form_fields(self, form: dict, question: dict, extra={}) -> dict:
+    def _add_form_fields(self, question: dict, extra={}) -> dict:
         new_form = {
             'section': question.get('section', 1),
             'type': question.get('type'),
@@ -75,14 +84,19 @@ class RecordDataUtil(object):
             new_form['choices'] = self._get_choices(question.get('choices'))
         return new_form
 
-    def _add_prep_questions(self, question: dict) -> dict:
+    def _add_perp_questions(self, question: dict) -> dict:
         prep_forms = question.get('answers', [])
-        for prep_questions in prep_forms:
-            for perp_question in prep_questions:
-                self._add_question_answer(perp_question)
-                new_perp_form = self._add_form_fields(
-                    {}, perp_question, {'group': 'FormSet'})
-                self._add_form_to_pages(new_perp_form)
+        for index, perp_questions in enumerate(prep_forms):
+            for question in perp_questions:
+                question = self._uniquify_perp_question(question, index)
+                self._add_question_answer(question)
+                self._add_question_form(question)
+
+    def _uniquify_perp_question(self, question: dict, index: int) -> dict:
+        pk = str(question.get('id', 0))
+        if not pk.startswith('perp_'):
+            question['id'] = f'perp_{index}_{pk}'
+        return question
 
     def _get_choices(self, choices: list) -> list:
         return [
