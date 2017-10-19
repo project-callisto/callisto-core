@@ -89,3 +89,13 @@ class DataTransformationTest(TestCase):
         for item in formatted_data:
             answer = list(item.values())[0][0]
             self.assertNotEqual(answer, SerializedDataHelper.not_answered_text)
+
+    def test_full_dataset_formset_answers_not_lost(self):
+        data = RecordDataUtil.transform_if_old_format(
+            record_data.EXAMPLE_FULL_DATASET)
+        formatted_data_string = str(SerializedDataHelper.get_zipped_data(
+            data=data['data'],
+            forms=data['wizard_form_serialized'],
+        ))
+        self.assertIn('USF Undergraduate student', formatted_data_string)
+        self.assertIn('Friend or visitor on campus', formatted_data_string)
