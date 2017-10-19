@@ -79,6 +79,11 @@ class DataTransformationTest(TestCase):
                 data['wizard_form_serialized']):
             expected_page = record_data.EXPECTED_FORMSET['wizard_form_serialized'][index]
 
+    def test_full_data_first_page_not_empty(self):
+        data = RecordDataUtil.transform_if_old_format(
+            record_data.EXAMPLE_FULL_DATASET)
+        self.assertNotEqual(data['wizard_form_serialized'][0], [])
+
     def test_full_dataset_all_answered(self):
         data = RecordDataUtil.transform_if_old_format(
             record_data.EXAMPLE_FULL_DATASET)

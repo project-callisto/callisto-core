@@ -64,7 +64,7 @@ class RecordDataUtil(object):
 
     def _add_form_to_pages(self, form: dict):
         # print('_add_form_to_pages', form)
-        section_index = form['section'] - 1
+        section_index = form['section'] - 2
         self.new_data[self.form_key][section_index].append(form)
 
     def _add_form_fields(self, question: dict, extra={}) -> dict:
