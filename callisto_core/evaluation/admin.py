@@ -6,6 +6,7 @@ from wizard_builder.admin import (
 )
 from wizard_builder.models import (
     Checkbox, FormQuestion, MultipleChoice, RadioButton, SingleLineText,
+    TextArea,
 )
 
 from .models import EvaluationField
@@ -40,9 +41,11 @@ class MultipleChoiceChildWithEvalAdmin(WithEval, MultipleChoiceChildAdmin):
 
 admin.site.unregister(FormQuestion)
 admin.site.unregister(SingleLineText)
+admin.site.unregister(TextArea)
 
 admin.site.register(FormQuestion, FormQuestionParentWithEvalAdmin)
 admin.site.register(SingleLineText, FormQuestionChildWithEvalAdmin)
+admin.site.register(TextArea, FormQuestionChildWithEvalAdmin)
 
 admin.site.unregister(MultipleChoice)
 admin.site.unregister(Checkbox)

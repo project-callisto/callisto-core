@@ -29,7 +29,6 @@ django settings.py minimum requirements
         'django.contrib.contenttypes',
         'django.contrib.sessions',
         'nested_admin',
-        'tinymce',
         'widget_tweaks',
         'wizard_builder',
         'callisto_core.delivery',

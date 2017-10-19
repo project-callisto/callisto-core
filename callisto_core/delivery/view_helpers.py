@@ -107,14 +107,18 @@ class EncryptedReportStorageHelper(
 ):
     storage_data_key = 'data'  # TODO: remove
 
+    @classmethod
+    def empty_storage(cls) -> dict:
+        return {
+            cls.storage_data_key: {},
+            cls.storage_form_key: {},
+        }
+
     def current_data_from_storage(self) -> dict:
         if self.report_and_key_present:
             return self.report.decrypted_report(self.secret_key)
         else:
-            return {
-                self.storage_data_key: {},
-                self.storage_form_key: {},
-            }
+            return self.empty_storage()
 
     def add_data_to_storage(self, data):
         if self.report_and_key_present:
