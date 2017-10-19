@@ -27,28 +27,32 @@ class RecordDataUtil(object):
         return self.new_data
 
     def _parse_old_data(self):
-        # print('_parse_old_data')
         self._create_page_arrays()
         for question in self.old_data:
             self._add_question_answer(question)
             self._add_question_form(question)
+        self._clean_empty_page_arrays()
 
     def _create_page_arrays(self):
-        # print('_create_page_arrays')
         page_array = []
-        for _ in range(self._section_count()):
+        for _ in range(self._section_count() + 1):
             page_array.append([])
         self.new_data[self.form_key] = page_array
 
+    def _clean_empty_page_arrays(self):
+        cleaned_data = []
+        for data in self.new_data[self.form_key]:
+            if not data == []:
+                cleaned_data.append(data)
+        self.new_data[self.form_key] = cleaned_data
+
     def _section_count(self):
-        # print('_section_count')
         max_sections = 1
         for question in self.old_data:
             max_sections = max([max_sections, question.get('section', 0)])
         return max_sections
 
     def _add_question_answer(self, question: dict):
-        print('_add_question_answer', question)
         pk = question.get('id')
         if pk:
             self.new_data[self.answer_key].update({
@@ -63,12 +67,10 @@ class RecordDataUtil(object):
             self._add_form_to_pages(new_form)
 
     def _add_form_to_pages(self, form: dict):
-        # print('_add_form_to_pages', form)
-        section_index = form['section'] - 2
+        section_index = form['section']
         self.new_data[self.form_key][section_index].append(form)
 
     def _add_form_fields(self, question: dict, extra={}) -> dict:
-        # print('_add_form_fields', question, extra)
         new_form = {
             'section': question.get('section', 1),
             'type': question.get('type'),
@@ -97,14 +99,12 @@ class RecordDataUtil(object):
         return question
 
     def _get_choices(self, choices: list) -> list:
-        # print('_get_choices', choices)
         return [
             self._get_choice(choice)
             for choice in choices
         ]
 
     def _get_choice(self, choice: dict) -> dict:
-        # print('_get_choice', choice)
         return {
             'extra_info_text': '',
             'options': [],
