@@ -7,13 +7,16 @@ from django.forms.fields import ChoiceField, MultipleChoiceField
 from django.forms.widgets import Select
 from django.utils.safestring import mark_safe
 
-from .managers import FormQuestionManager, PageManager
+from . import managers, model_helpers
 from .widgets import CheckboxExtraSelectMultiple, RadioExtraSelect
 
 logger = logging.getLogger(__name__)
 
 
-class Page(models.Model):
+class Page(
+    model_helpers.SerializedQuestionMixin,
+    models.Model,
+):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -28,7 +31,7 @@ class Page(models.Model):
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
 
-    objects = PageManager()
+    objects = managers.PageManager()
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
@@ -88,7 +91,7 @@ class FormQuestion(models.Model):
         on_delete=models.SET_NULL,
     )
     position = models.PositiveSmallIntegerField("position", default=0)
-    objects = FormQuestionManager()
+    objects = managers.FormQuestionManager()
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
@@ -146,13 +149,7 @@ class FormQuestion(models.Model):
 
 
 class SingleLineText(FormQuestion):
-
-    def make_field(self):
-        # TODO: sync up with django default field creation more effectively
-        return forms.CharField(
-            label=mark_safe(self.text),
-            required=False,
-        )
+    pass
 
 
 class TextArea(FormQuestion):
@@ -166,7 +163,7 @@ class TextArea(FormQuestion):
 
 
 class MultipleChoice(FormQuestion):
-    objects = FormQuestionManager()
+    objects = managers.FormQuestionManager()
 
     @property
     def choices(self):

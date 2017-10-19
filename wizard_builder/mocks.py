@@ -1,7 +1,10 @@
-from . import fields
+from . import fields, model_helpers
 
 
-class MockPage(object):
+class MockPage(
+    model_helpers.SerializedQuestionMixin,
+    object,
+):
     pk = None
     id = None
 
