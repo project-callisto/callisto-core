@@ -2,6 +2,7 @@ import logging
 
 from django.contrib.sites.models import Site
 from django.db import models
+from django.forms.models import model_to_dict
 
 from . import managers, model_helpers
 
@@ -121,14 +122,13 @@ class FormQuestion(models.Model):
     @property
     def serialized(self):
         # TODO use: from django.forms.models import model_to_dict
-        return {
-            'id': self.pk,
+        data = model_to_dict(self)
+        data.update({
             'question_text': self.text,
-            'descriptive_text': self.descriptive_text,
             'type': self._meta.model_name.capitalize(),
-            'section': self.section,
             'field_id': self.field_id,
-        }
+        })
+        return data
 
     def set_question_page(self):
         if not self.page:
@@ -155,10 +155,6 @@ class MultipleChoice(FormQuestion):
     objects = managers.FormQuestionManager()
 
     @property
-    def choices(self):
-        return list(self.choice_set.all().order_by('position'))
-
-    @property
     def serialized(self):
         data = super().serialized
         data.update({'choices': self.serialized_choices})
@@ -167,6 +163,10 @@ class MultipleChoice(FormQuestion):
     @property
     def serialized_choices(self):
         return [choice.data for choice in self.choices]
+
+    @property
+    def choices(self):
+        return list(self.choice_set.all().order_by('position'))
 
 
 class Checkbox(MultipleChoice):
@@ -177,12 +177,6 @@ class Checkbox(MultipleChoice):
 
 class RadioButton(MultipleChoice):
     is_dropdown = models.BooleanField(default=False)
-
-    @property
-    def serialized(self):
-        data = super().serialized
-        data.update({'is_dropdown': self.is_dropdown})
-        return data
 
 
 class Choice(models.Model):
