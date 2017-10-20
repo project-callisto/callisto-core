@@ -40,7 +40,6 @@ class SerializedDataHelper(object):
     ]
     question_id_error_message = 'field_id={} not found in {}'
     choice_id_error_message = 'Choice(pk={}) not found in {}'
-    choice_option_id_error_message = 'ChoiceOption(pk={}) not found in {}'
     not_answered_text = '[ Not Answered ]'
 
     @classmethod
