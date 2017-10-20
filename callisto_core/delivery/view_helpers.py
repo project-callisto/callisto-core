@@ -96,7 +96,7 @@ class _LegacyReportStorageHelper(
     def _create_storage(self, data):
         storage = {
             self.storage_data_key: data,
-            self.storage_form_key: self.view.get_serialized_forms(),
+            self.storage_form_key: self.serialized_forms,
         }
         self.report.encrypt_report(storage, self.secret_key)
 
