@@ -27,7 +27,6 @@ urlpatterns = [
         delivery_views.EncryptedWizardView.as_view(),
         name='report_update',
         ),
-    # TODO: a /review url that redirects here
     url(r'^reports/uuid/(?P<uuid>.+)/wizard/step/done/$',
         delivery_views.EncryptedWizardView.as_view(),
         name="report_view",
