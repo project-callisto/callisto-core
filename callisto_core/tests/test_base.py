@@ -213,15 +213,16 @@ class ReportFlowHelper(
 
     def client_clear_passphrase(self):
         session = self.client.session
-        session['passphrase'] = None
+        session['passphrases'] = {}
         session.save()
         self.assertEqual(
-            self.client.session.get('passphrase'),
-            None,
+            self.client.session.get('passphrases'),
+            {},
         )
 
     def client_set_passphrase(self):
         session = self.client.session
-        session['passphrase'] = self.passphrase
+        passphrases = session.get('passphrases', {})
+        passphrases[str(self.report.uuid)] = self.passphrase
+        session['passphrases'] = passphrases
         session.save()
-        self.assertTrue(self.client.session.get('passphrase'))

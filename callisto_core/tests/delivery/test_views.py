@@ -25,13 +25,16 @@ class LegacyStorageFormatTest(test_base.ReportFlowHelper):
         self.storage = self.report.decrypted_report(self.passphrase)
 
     def test_form_data_populated(self):
-        self.assertTrue(self.storage.get('wizard_form_serialized', False))
+        storage = self.storage
+        self.assertTrue(storage.get('wizard_form_serialized', False))
 
     def test_legacy_data_key_used(self):
-        self.assertTrue(self.storage.get('data', False))
+        storage = self.storage
+        self.assertTrue(storage.get('data', False))
 
     def test_new_wizard_builder_key_not_used(self):
-        self.assertFalse(self.storage.get('wizard_form_data', False))
+        storage = self.storage
+        self.assertFalse(storage.get('wizard_form_data', False))
 
 
 class NewReportFlowTest(test_base.ReportFlowHelper):
@@ -56,13 +59,13 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
 
     def test_report_creation_adds_key_to_session(self):
         self.assertEqual(
-            self.client.session.get('passphrase'),
+            self.client.session.get('passphrases'),
             None,
         )
         self.client_post_report_creation()
         self.assertEqual(
-            self.client.session.get('passphrase'),
-            self.passphrase,
+            self.client.session.get('passphrases'),
+            {str(self.report.uuid): self.passphrase},
         )
 
     def test_access_form_rendered_when_no_key_in_session(self):
