@@ -1,3 +1,5 @@
+from unittest import skip
+
 from django.test import override_settings
 
 from .. import view_helpers
@@ -27,12 +29,12 @@ class ElementHelper(object):
     @property
     def extra_input(self):
         return self.browser.find_element_by_css_selector(
-            '.extra-widget-text input')
+            '#id_question_1_0')
 
     @property
     def extra_dropdown(self):
         return self.browser.find_element_by_css_selector(
-            '.extra-widget-dropdown input')
+            '#id_question_1_1')
 
     @property
     def choice_1(self):
@@ -95,9 +97,11 @@ class FrontendTest(FunctionalBase):
         self.assertSelectorContains('form', 'apples')
         self.assertSelectorContains('form', 'sugar')
 
+    @skip('TEMP_CONDITIONALS_DISABLE')
     def test_extra_info(self):
         self.assertCss('[placeholder="extra information here"]')
 
+    @skip('TEMP_CONDITIONALS_DISABLE')
     def test_extra_dropdown(self):
         self.element.extra_dropdown.click()
         # / really unreliable way to wait for the element to be displayed
