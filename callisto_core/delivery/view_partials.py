@@ -7,7 +7,7 @@ functionality required for a full HTML view.
 
 docs / reference:
     - https://docs.djangoproject.com/en/1.11/topics/class-based-views/
-    - https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/wizard_builder/view_partials.py
+    - https://github.com/project-callisto/django-wizard-builder/blob/master/wizard_builder/view_partials.py
 
 view_partials should define:
     - forms

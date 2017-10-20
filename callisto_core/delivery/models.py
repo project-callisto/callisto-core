@@ -214,8 +214,6 @@ class MatchReport(models.Model):
 
 class SentReport(PolymorphicModel):
     """Report of one or more incidents, sent to the monitoring organization"""
-    # TODO: store link to s3 backup
-    # https://github.com/SexualHealthInnovations/callisto-core/issues/14
     sent = models.DateTimeField(auto_now_add=True)
     to_address = models.CharField(blank=False, null=False, max_length=4096)
 

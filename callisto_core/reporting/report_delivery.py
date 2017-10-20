@@ -291,8 +291,6 @@ class PDFFullReport(PDFReport):
         )
 
         # COVER PAGE
-        # TODO:
-        # https://github.com/SexualHealthInnovations/callisto-core/issues/150
         self.pdf_elements.extend(
             NotificationApi.get_cover_page(
                 self,
@@ -357,8 +355,6 @@ class PDFMatchReport(PDFReport):
                                 rightMargin=72, leftMargin=72,
                                 topMargin=72, bottomMargin=72)
         # COVER PAGE
-        # TODO:
-        # https://github.com/SexualHealthInnovations/callisto-core/issues/150
         self.pdf_elements.extend(
             NotificationApi.get_cover_page(
                 self,
