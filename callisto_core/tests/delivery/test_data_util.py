@@ -5,6 +5,8 @@ from callisto_core.delivery.utils import RecordDataUtil
 
 from django.test import TestCase
 
+from wizard_builder.view_helpers import SerializedDataHelper
+
 from . import record_data
 
 
@@ -20,6 +22,13 @@ class RecordIntegrationTest(TestCase):
 
 
 class DataTransformationTest(TestCase):
+
+    def assertListItemsUnique(self, items):
+        items_set = set(items)
+        self.assertEqual(
+            len(set(items)),
+            len(items),
+        )
 
     def test_single_line_text_form(self):
         data = RecordDataUtil.transform_if_old_format(
@@ -69,3 +78,36 @@ class DataTransformationTest(TestCase):
         for index, transformed_page in enumerate(
                 data['wizard_form_serialized']):
             expected_page = record_data.EXPECTED_FORMSET['wizard_form_serialized'][index]
+
+    def test_full_data_first_page_not_empty(self):
+        data = RecordDataUtil.transform_if_old_format(
+            record_data.EXAMPLE_FULL_DATASET)
+        self.assertNotEqual(data['wizard_form_serialized'][0], [])
+
+    def test_full_data_last_page_not_empty(self):
+        data = RecordDataUtil.transform_if_old_format(
+            record_data.EXAMPLE_FULL_DATASET)
+        self.assertNotEqual(data['wizard_form_serialized'][-1], [])
+
+    def test_full_dataset_all_answered(self):
+        data = RecordDataUtil.transform_if_old_format(
+            record_data.EXAMPLE_FULL_DATASET)
+        formatted_data = SerializedDataHelper.get_zipped_data(
+            data=data['data'],
+            forms=data['wizard_form_serialized'],
+        )
+        for item in formatted_data:
+            answer = list(item.values())[0][0]
+            self.assertNotEqual(answer, SerializedDataHelper.not_answered_text)
+
+    def test_full_dataset_formset_answers_not_lost(self):
+        data = RecordDataUtil.transform_if_old_format(
+            record_data.EXAMPLE_FULL_DATASET)
+        formatted_data_string = str(SerializedDataHelper.get_zipped_data(
+            data=data['data'],
+            forms=data['wizard_form_serialized'],
+        ))
+        self.assertIn('1 example data', formatted_data_string)
+        self.assertIn('2 example data', formatted_data_string)
+        self.assertIn('USF Undergraduate student', formatted_data_string)
+        self.assertIn('Friend or visitor on campus', formatted_data_string)

@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.15.11 (2017-10-19)
+
+* bugfixing record data updating (added in v0.15.8)
+
+    https://github.com/project-callisto/callisto-core/pull/311
+
 ## 0.15.10 (2017-10-17)
 
 * bump version support to `django-wizard-builder>=2.4,<2.5`
