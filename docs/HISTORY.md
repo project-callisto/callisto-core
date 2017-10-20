@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.16.0 (2017-10-19)
+
+* `KeyResetTemplatePartial` => `PassphraseResetTemplatePartial`
+
+    https://github.com/project-callisto/callisto-core/pull/313
+
 ## 0.15.11 (2017-10-19)
 
 * bugfixing record data updating (added in v0.15.8)
