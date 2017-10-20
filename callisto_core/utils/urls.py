@@ -85,6 +85,7 @@ urlpatterns = [
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/matching/withdraw/$',
         reporting_views.MatchingWithdrawView.as_view(
+            back_url='report_view',
             reporting_success_url='report_view',
         ),
         name="report_matching_withdraw",
