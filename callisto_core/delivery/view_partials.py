@@ -7,7 +7,7 @@ functionality required for a full HTML view.
 
 docs / reference:
     - https://docs.djangoproject.com/en/1.11/topics/class-based-views/
-    - https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/wizard_builder/view_partials.py
+    - https://github.com/project-callisto/django-wizard-builder/blob/master/wizard_builder/view_partials.py
 
 view_partials should define:
     - forms
@@ -46,23 +46,23 @@ logger = logging.getLogger(__name__)
 #######################
 
 
-class SecretKeyTemplatePartial(
+class _PassphrasePartial(
     views.base.TemplateView,
 ):
-    storage_helper = view_helpers.SecretKeyStorageHelper
+    storage_helper = view_helpers.ReportStorageHelper
 
     @property
     def storage(self):
         return self.storage_helper(self)
 
 
-class KeyResetTemplatePartial(
-    SecretKeyTemplatePartial,
+class PassphraseClearingPartial(
+    _PassphrasePartial,
 ):
 
-    def dispatch(self, request, *args, **kwargs):
-        self.storage.clear_secret_key()
-        return super().dispatch(request, *args, **kwargs)
+    def get(self, request, *args, **kwargs):
+        self.storage.clear_passphrases()
+        return super().get(request, *args, **kwargs)
 
 
 ###################
@@ -87,7 +87,7 @@ class ReportBasePartial(
 
     @property
     def decrypted_report(self):
-        return self.report.decrypted_report(self.storage.secret_key)
+        return self.report.decrypted_report(self.storage.passphrase)
 
     def get_form_kwargs(self):
         # TODO: remove
@@ -143,7 +143,7 @@ class _ReportAccessPartial(
     @property
     def access_granted(self):
         self._check_report_owner()
-        if self.storage.secret_key:
+        if self.storage.passphrase:
             try:
                 self.decrypted_report
                 return True
@@ -209,7 +209,6 @@ class ReportActionPartial(
     def form_valid(self, form):
         output = super().form_valid(form)
         self.view_action()
-        self.storage.clear_secret_key()
         return output
 
     def view_action(self):

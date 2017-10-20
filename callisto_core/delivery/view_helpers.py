@@ -4,7 +4,7 @@ View helpers contain functionality shared between several view partials.
 None of these classes provide full view functionality.
 
 docs / reference:
-    - https://github.com/SexualHealthInnovations/django-wizard-builder/blob/master/wizard_builder/view_helpers.py
+    - https://github.com/project-callisto/django-wizard-builder/blob/master/wizard_builder/view_helpers.py
 
 '''
 import logging
@@ -14,6 +14,10 @@ from django.core.urlresolvers import reverse
 from wizard_builder import view_helpers as wizard_builder_helpers
 
 logger = logging.getLogger(__name__)
+
+
+class _MockReport:
+    uuid = None
 
 
 class ReportStepsHelper(
@@ -30,46 +34,43 @@ class ReportStepsHelper(
         )
 
 
-class SecretKeyStorageHelper(object):
+class ReportStorageHelper(
+    object,
+):
 
     def __init__(self, view):
         self.view = view  # TODO: scope down input
 
-    def set_secret_key(self, key):
-        self.view.request.session['secret_key'] = key
-
-    def clear_secret_key(self):
-        if self.view.request.session.get('secret_key'):
-            del self.view.request.session['secret_key']
-
     @property
-    def secret_key(self) -> str:
-        return self.view.request.session.get('secret_key')
-
-
-class _ReportStorageHelper(
-    SecretKeyStorageHelper,
-):
+    def passphrase(self) -> str:
+        passphrases = self.view.request.session.get('passphrases', {})
+        return passphrases.get(str(self.report.uuid), '')
 
     @property
     def report(self):
         try:
             return self.view.report
         except BaseException:
-            # TODO: catch models.Report.DoesNotExist ?
-            return None
+            return _MockReport
 
     @property
     def decrypted_report(self) -> dict:
-        return self.report.decrypted_report(self.secret_key)
+        return self.report.decrypted_report(self.passphrase)
 
-    @property
-    def report_and_key_present(self) -> bool:
-        return bool(self.secret_key and getattr(self, 'report', None))
+    def set_passphrase(self, key, report=None):
+        if not report:
+            report = self.report
+        passphrases = self.view.request.session.get('passphrases', {})
+        passphrases[str(report.uuid)] = key
+        self.view.request.session['passphrases'] = passphrases
+
+    def clear_passphrases(self):
+        if self.view.request.session.get('passphrases'):
+            del self.view.request.session['passphrases']
 
 
 class _LegacyReportStorageHelper(
-    _ReportStorageHelper,
+    ReportStorageHelper,
 ):
 
     def _initialize_storage(self):
@@ -81,24 +82,24 @@ class _LegacyReportStorageHelper(
             pass  # storage already initialized
 
     def _report_is_legacy_format(self) -> bool:
-        decrypted_report = self.report.decrypted_report(self.secret_key)
+        decrypted_report = self.report.decrypted_report(self.passphrase)
         return bool(not decrypted_report.get(self.storage_form_key, False))
 
     def _create_new_report_storage(self):
-        self.report.encryption_setup(self.secret_key)
+        self.report.encryption_setup(self.passphrase)
         self._create_storage({})
 
     def _translate_legacy_report_storage(self):
-        decrypted_report = self.report.decrypted_report(self.secret_key)
+        decrypted_report = self.report.decrypted_report(self.passphrase)
         self._create_storage(decrypted_report[self.storage_data_key])
         logger.debug('translated legacy report storage')
 
     def _create_storage(self, data):
         storage = {
             self.storage_data_key: data,
-            self.storage_form_key: self.view.get_serialized_forms(),
+            self.storage_form_key: self.serialized_forms,
         }
-        self.report.encrypt_report(storage, self.secret_key)
+        self.report.encrypt_report(storage, self.passphrase)
 
 
 class EncryptedReportStorageHelper(
@@ -115,17 +116,17 @@ class EncryptedReportStorageHelper(
         }
 
     def current_data_from_storage(self) -> dict:
-        if self.report_and_key_present:
-            return self.report.decrypted_report(self.secret_key)
+        if self.passphrase:
+            return self.report.decrypted_report(self.passphrase)
         else:
             return self.empty_storage()
 
     def add_data_to_storage(self, data):
-        if self.report_and_key_present:
+        if self.passphrase:
             storage = self.current_data_from_storage()
             storage[self.storage_data_key] = data
-            self.report.encrypt_report(storage, self.secret_key)
+            self.report.encrypt_report(storage, self.passphrase)
 
     def init_storage(self):
-        if self.report_and_key_present:
+        if self.passphrase:
             self._initialize_storage()

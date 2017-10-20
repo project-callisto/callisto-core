@@ -42,7 +42,7 @@ class ReportAccessFormTest(test_base.ReportFlowHelper):
     def test_right_key_accepted(self):
         self.client_post_report_creation()
         form = forms.ReportAccessForm(
-            data={'key': self.secret_key},
+            data={'key': self.passphrase},
             instance=self.report,
             view=MagicMock(),
         )

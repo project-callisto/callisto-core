@@ -137,7 +137,7 @@ class ConfirmationForm(
     ]
 
     def clean_key(self):
-        if not self.data.get('key') == self.view.storage.secret_key:
+        if not self.data.get('key') == self.view.storage.passphrase:
             forms.ValidationError('Invalid key')
 
     def save(self, commit=True):

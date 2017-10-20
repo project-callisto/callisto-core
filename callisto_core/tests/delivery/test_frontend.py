@@ -6,13 +6,13 @@ User = get_user_model()
 
 
 class EncryptedFrontendTest(wizard_builder_tests.FrontendTest):
-    secret_key = 'soooooo seekrit'
+    passphrase = 'soooooo seekrit'
 
     def setUp(self):
         super().setUp()
         self.browser.find_element_by_css_selector(
-            '[name="key"]').send_keys(self.secret_key)
+            '[name="key"]').send_keys(self.passphrase)
         self.browser.find_element_by_css_selector(
-            '[name="key_confirmation"]').send_keys(self.secret_key)
+            '[name="key_confirmation"]').send_keys(self.passphrase)
         self.browser.find_element_by_css_selector(
             '[type="submit"]').click()

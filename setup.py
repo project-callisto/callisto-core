@@ -42,7 +42,7 @@ setup(
     license=license,
     author='Project Callisto',
     author_email='tech@projectcallisto.org',
-    url='https://github.com/SexualHealthInnovations/callisto-core',
+    url='https://github.com/project-callisto/callisto-core',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,

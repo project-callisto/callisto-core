@@ -50,8 +50,6 @@ def twitter_validation_function(value):
     except ValidationError:
         if value.startswith('@'):
             path = value[1:]
-    # TODO: validate against allowed username characters
-    # https://github.com/SexualHealthInnovations/callisto-core/issues/181
     if not path or path == "" or len(
             path) > 15 or path in generic_twitter_urls:
         return None
@@ -101,7 +99,7 @@ def facebook_validation_function(url):
             path = url_parts[2].strip('/').split('/')[2].lower()
 
         # TODO: validate against allowed username characteristics
-        # https://github.com/SexualHealthInnovations/callisto-core/issues/181
+        # https://github.com/project-callisto/callisto-core/issues/181
         if not path or path == "" or path.endswith(
                 '.php') or path in generic_fb_urls:
             return None
