@@ -18,8 +18,8 @@ class ReportingHelper(test_base.ReportFlowHelper):
         super().setUp()
         self.client_post_report_creation()
 
-    def recovers_from_no_secret_key(self):
-        self.client_clear_secret_key()
+    def recovers_from_no_passphrase(self):
+        self.client_clear_passphrase()
         response = self.request()
         self.assertIsInstance(response.context['form'], ReportAccessForm)
 
@@ -39,8 +39,8 @@ class SubmissionViewTest(ReportingHelper):
             'callisto_core/reporting/submission.html',
         )
 
-    def test_recovers_from_no_secret_key(self):
-        self.recovers_from_no_secret_key()
+    def test_recovers_from_no_passphrase(self):
+        self.recovers_from_no_passphrase()
 
 
 class MatchingHelper(ReportingHelper):
@@ -60,7 +60,7 @@ class MatchingViewTest(MatchingHelper):
         self.assertEqual(api_logging.call_count, 1)
 
     def test_emails_not_sent_when_no_key(self):
-        self.client_clear_secret_key()
+        self.client_clear_passphrase()
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
             self.client_post_matching_enter()
 
@@ -90,8 +90,8 @@ class MatchingOptionalViewTest(MatchingHelper):
     def test_does_not_create_a_full_report(self):
         self.does_not_create_a_full_report()
 
-    def test_recovers_from_no_secret_key(self):
-        self.recovers_from_no_secret_key()
+    def test_recovers_from_no_passphrase(self):
+        self.recovers_from_no_passphrase()
 
 
 class MatchingRequiredViewTest(MatchingHelper):
@@ -115,8 +115,8 @@ class MatchingRequiredViewTest(MatchingHelper):
     def test_does_not_create_a_full_report(self):
         self.does_not_create_a_full_report()
 
-    def test_recovers_from_no_secret_key(self):
-        self.recovers_from_no_secret_key()
+    def test_recovers_from_no_passphrase(self):
+        self.recovers_from_no_passphrase()
 
 
 class ConfirmationViewTest(ReportingHelper):

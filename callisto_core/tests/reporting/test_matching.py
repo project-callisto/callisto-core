@@ -72,7 +72,7 @@ class MatchIntegratedTest(
     ]
 
     def test_two_match_post_requests_trigger_matching(self):
-        self.secret_key = 'user 1 secret'
+        self.passphrase = 'user 1 secret'
         self.client.login(username="test1", password="test")
         self.client_post_report_creation()
         # we pass in the default arg to client_post_matching_enter
@@ -80,7 +80,7 @@ class MatchIntegratedTest(
         # is being input twice
         self.client_post_matching_enter('https://www.facebook.com/callistoorg')
 
-        self.secret_key = 'user 2 secret'
+        self.passphrase = 'user 2 secret'
         self.client.login(username="tset22", password="test")
         self.client_post_report_creation()
         self.client_post_matching_enter('https://www.facebook.com/callistoorg')

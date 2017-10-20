@@ -16,6 +16,10 @@ from wizard_builder import view_helpers as wizard_builder_helpers
 logger = logging.getLogger(__name__)
 
 
+class _UnboundReport:
+    uuid = None
+
+
 class ReportStepsHelper(
     wizard_builder_helpers.StepsHelper,
 ):
@@ -48,7 +52,7 @@ class ReportStorageHelper(
             return self.view.report
         except BaseException:
             # TODO: catch models.Report.DoesNotExist ?
-            return None
+            return _UnboundReport
 
     @property
     def decrypted_report(self) -> dict:

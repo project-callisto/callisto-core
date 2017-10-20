@@ -65,13 +65,13 @@ class Report(models.Model):
     def encrypt_report(
         self,
         report_text: str,  # the report questions, as a string of json
-        secret_key: str,  # secret key aka passphrase
+        passphrase: str,  # secret key aka passphrase
     ) -> None:
         """
         Encrypts and attaches report text. Generates a random salt
         and stores it in the Report object's encode prefix.
         """
-        stretched_key = self.encryption_setup(secret_key)
+        stretched_key = self.encryption_setup(passphrase)
         json_report_text = json.dumps(report_text)
         self.encrypted = security.encrypt_text(stretched_key, json_report_text)
         self.save()
@@ -102,11 +102,11 @@ class Report(models.Model):
         self.match_found = False
         self.save()
 
-    def encryption_setup(self, secret_key):
+    def encryption_setup(self, passphrase):
         if self.salt:
             self.salt = None
         hasher = hashers.get_hasher()
-        encoded = hasher.encode(secret_key, get_random_string())
+        encoded = hasher.encode(passphrase, get_random_string())
         self.encode_prefix, stretched_key = hasher.split_encoded(encoded)
         self.save()
         return stretched_key

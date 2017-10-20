@@ -52,8 +52,8 @@ class ReportPostHelper(object):
         self.client_get_report_creation()
         url = reverse('report_new')
         data = {
-            'key': self.secret_key,
-            'key_confirmation': self.secret_key,
+            'key': self.passphrase,
+            'key_confirmation': self.passphrase,
         }
         response = self.client.post(url, data, follow=True)
         self.report = response.context['report']
@@ -75,7 +75,7 @@ class ReportPostHelper(object):
             'report_delete',
             kwargs={'uuid': self.report.uuid},
         )
-        data = {'key': self.secret_key}
+        data = {'key': self.passphrase}
         response = self.client.post(url, data, follow=True)
         self.assertIn(response.status_code, self.valid_statuses)
         return response
@@ -103,7 +103,7 @@ class ReportPostHelper(object):
         response = self.client.post(
             url,
             data={
-                'key': self.secret_key,
+                'key': self.passphrase,
             },
             follow=True,
         )
@@ -173,7 +173,7 @@ class ReportPostHelper(object):
             ),
             data={
                 'confirmation': True,
-                'key': self.secret_key,
+                'key': self.passphrase,
             },
             follow=True,
         )
@@ -186,7 +186,7 @@ class ReportFlowHelper(
     ReportPostHelper,
     ReportAssertionHelper,
 ):
-    secret_key = 'super secret'
+    passphrase = 'super secret'
     fixtures = [
         'wizard_builder_data',
         'callisto_core_notification_data',
@@ -211,17 +211,17 @@ class ReportFlowHelper(
         self.site.domain = 'testserver'
         self.site.save()
 
-    def client_clear_secret_key(self):
+    def client_clear_passphrase(self):
         session = self.client.session
-        session['secret_key'] = None
+        session['passphrase'] = None
         session.save()
         self.assertEqual(
-            self.client.session.get('secret_key'),
+            self.client.session.get('passphrase'),
             None,
         )
 
-    def client_set_secret_key(self):
+    def client_set_passphrase(self):
         session = self.client.session
-        session['secret_key'] = self.secret_key
+        session['passphrase'] = self.passphrase
         session.save()
-        self.assertTrue(self.client.session.get('secret_key'))
+        self.assertTrue(self.client.session.get('passphrase'))

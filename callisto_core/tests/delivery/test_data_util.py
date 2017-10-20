@@ -11,13 +11,13 @@ from . import record_data
 
 
 class RecordIntegrationTest(TestCase):
-    secret_key = 'seekritaf'
+    passphrase = 'seekritaf'
 
     def test_record_functionality(self):
         report = Report.objects.create()
-        report.encrypt_report(record_data.EXAMPLE_SINGLE_LINE, self.secret_key)
+        report.encrypt_report(record_data.EXAMPLE_SINGLE_LINE, self.passphrase)
         report.refresh_from_db()
-        report_data = report.decrypted_report(self.secret_key)
+        report_data = report.decrypted_report(self.passphrase)
         self.assertEqual(report_data, record_data.EXPECTED_SINGLE_LINE)
 
 
