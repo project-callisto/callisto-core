@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 2.4.3 (2017-10-20)
+
+* partially disable conditionals
+
+    https://github.com/project-callisto/django-wizard-builder/pull/198
+
 ## 2.4.2 (2017-10-19)
 
 * answer display updates for [callisto-core data persistence PR](https://github.com/project-callisto/callisto-core/pull/311)
