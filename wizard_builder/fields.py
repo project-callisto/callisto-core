@@ -2,8 +2,6 @@ from django import forms
 from django.forms import widgets as django_widgets
 from django.utils.safestring import mark_safe
 
-from . import widgets as wizard_builder_widgets
-
 
 class QuestionField(object):
 
@@ -29,7 +27,7 @@ class QuestionField(object):
             label=question.text,
             help_text=question.descriptive_text,
             required=False,
-            widget=wizard_builder_widgets.CheckboxExtraSelectMultiple,
+            widget=django_widgets.CheckboxSelectMultiple,
         )
 
     @classmethod
@@ -37,7 +35,7 @@ class QuestionField(object):
         if question.data.get('is_dropdown'):
             widget = django_widgets.Select
         else:
-            widget = wizard_builder_widgets.RadioExtraSelect
+            widget = django_widgets.RadioSelect
         return forms.ChoiceField(
             choices=question.choices_field_display,
             label=question.text,
