@@ -16,7 +16,7 @@ from wizard_builder import view_helpers as wizard_builder_helpers
 logger = logging.getLogger(__name__)
 
 
-class _UnboundReport:
+class _MockReport:
     uuid = None
 
 
@@ -44,23 +44,24 @@ class ReportStorageHelper(
     @property
     def passphrase(self) -> str:
         passphrases = self.view.request.session.get('passphrases', {})
-        return passphrases.get(self.report.uuid, '')
+        return passphrases.get(str(self.report.uuid), '')
 
     @property
     def report(self):
         try:
             return self.view.report
         except BaseException:
-            # TODO: catch models.Report.DoesNotExist ?
-            return _UnboundReport
+            return _MockReport
 
     @property
     def decrypted_report(self) -> dict:
         return self.report.decrypted_report(self.passphrase)
 
-    def set_passphrase(self, key):
+    def set_passphrase(self, key, report=None):
+        if not report:
+            report = self.report
         passphrases = self.view.request.session.get('passphrases', {})
-        passphrases[self.report.uuid] = key
+        passphrases[str(report.uuid)] = key
         self.view.request.session['passphrases'] = passphrases
 
     def clear_passphrases(self):

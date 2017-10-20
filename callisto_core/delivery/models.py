@@ -65,7 +65,7 @@ class Report(models.Model):
     def encrypt_report(
         self,
         report_text: str,  # the report questions, as a string of json
-        passphrase: str,  # secret key aka passphrase
+        passphrase: str,
     ) -> None:
         """
         Encrypts and attaches report text. Generates a random salt
@@ -78,7 +78,7 @@ class Report(models.Model):
 
     def decrypted_report(
         self,
-        key: str,  # aka secret key aka passphrase
+        passphrase: str,  # aka secret key aka passphrase
     ) -> dict or str:
         """
         Decrypts the report text.
@@ -87,11 +87,12 @@ class Report(models.Model):
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
-        _, stretched_key = hashers.make_key(self.encode_prefix, key, self.salt)
+        _, stretched_key = hashers.make_key(
+            self.encode_prefix, passphrase, self.salt)
         report_text = security.decrypt_text(stretched_key, self.encrypted)
         try:
             decrypted_data = json.loads(report_text)
-            return self._return_or_transform(decrypted_data, key)
+            return self._return_or_transform(decrypted_data, passphrase)
         except json.decoder.JSONDecodeError:
             logger.info('decrypting legacy report')
             return report_text

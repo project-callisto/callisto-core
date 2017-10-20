@@ -42,9 +42,10 @@ class ReportBaseForm(
         return self.instance
 
     def save(self, *args, **kwargs):
+        report = super().save(*args, **kwargs)
         if self.data.get("key"):
-            self.view.storage.set_passphrase(self.data['key'])
-        return super().save(*args, **kwargs)
+            self.view.storage.set_passphrase(self.data['key'], report=report)
+        return report
 
     class Meta:
         model = models.Report

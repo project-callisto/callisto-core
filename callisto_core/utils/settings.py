@@ -1,7 +1,7 @@
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-passphrase = os.getenv("passphrase", default='secret key')
+SECRET_KEY = os.getenv("passphrase", default='secret key')
 DEBUG = True
 
 ROOT_URLCONF = "callisto_core.utils.urls"
