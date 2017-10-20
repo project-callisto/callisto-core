@@ -2,7 +2,14 @@
 
 ## 0.16.0 (2017-10-19)
 
-* `KeyResetTemplatePartial` => `PassphraseResetTemplatePartial`
+* better support for multiple records
+* scope stored passphrase to current report uuid
+* rename various view methods
+    * `KeyResetTemplatePartial` => `PassphraseClearingPartial`
+    * `clear_secret_key` => `clear_passphrases`
+    * `set_secret_key` => `set_passphrase`
+    * `secret_key` => `passphrase`
+* remove `report_and_key_present`, as `passphrase` needs a report now
 
     https://github.com/project-callisto/callisto-core/pull/313
 
