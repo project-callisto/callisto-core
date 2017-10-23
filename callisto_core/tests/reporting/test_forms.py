@@ -13,7 +13,7 @@ class MatchingRequiredFormTest(TestCase):
     @property
     def mock_view(self):
         mock = MagicMock()
-        mock.report = models.Report()
+        mock.report = models.Record()
         return mock
 
     def get_cleaned_identifier(self, url):

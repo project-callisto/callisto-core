@@ -15,7 +15,7 @@ User = get_user_model()
 class ReportAssertionHelper(object):
 
     def assert_report_exists(self):
-        return bool(models.Report.objects.filter(pk=self.report.pk).count())
+        return bool(models.Record.objects.filter(pk=self.report.pk).count())
 
     def match_report_email_assertions(self):
         self.assertEqual(len(mail.outbox), 3)
