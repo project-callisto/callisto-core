@@ -1,5 +1,5 @@
 from callisto_core.delivery.models import (
-    MatchReport, Report, SentFullReport, SentMatchReport,
+    MatchReport, Record, SentFullReport, SentMatchReport,
 )
 
 from django.contrib.auth import get_user_model
@@ -13,13 +13,13 @@ User = get_user_model()
 class ReportModelTest(test_base.ReportFlowHelper):
 
     def test_reports_have_owners(self):
-        report = Report()
+        report = Record()
         report.owner = self.user
         report.save()
-        self.assertIn(report, self.user .report_set.all())
+        self.assertIn(report, self.user.record_set.all())
 
     def test_can_encrypt_report(self):
-        report = Report(owner=self.user)
+        report = Record(owner=self.user)
         report.encrypt_report(
             "this text should be encrypted",
             'this is my key',
@@ -30,13 +30,13 @@ class ReportModelTest(test_base.ReportFlowHelper):
         self.assertTrue(len(report.encrypted) > 0)
 
     def test_can_decrypt_report(self):
-        report = Report(owner=self.user)
+        report = Record(owner=self.user)
         report.encrypt_report(
             "this text should be encrypted, yes it should by golly!",
             'this is my key',
         )
         report.save()
-        saved_report = Report.objects.first()
+        saved_report = Record.objects.first()
         self.assertEqual(
             saved_report.decrypted_report('this is my key'),
             "this text should be encrypted, yes it should by golly!",
@@ -48,37 +48,37 @@ class ReportModelTest(test_base.ReportFlowHelper):
             "this text should be encrypted otherwise bad things",
             key='this is my key',
         )
-        report = Report(
+        report = Record(
             owner=self.user,
             encrypted=legacy_report.encrypted,
             salt=legacy_report.salt,
         )
         report.save()
-        saved_report = Report.objects.first()
+        saved_report = Record.objects.first()
         self.assertEqual(
             saved_report.decrypted_report('this is my key'),
             "this text should be encrypted otherwise bad things",
         )
 
     def test_no_times_by_default(self):
-        report = Report(owner=self.user)
+        report = Record(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
-        self.assertIsNone(Report.objects.first().submitted_to_school)
-        self.assertIsNone(Report.objects.first().entered_into_matching)
+        self.assertIsNone(Record.objects.first().submitted_to_school)
+        self.assertIsNone(Record.objects.first().entered_into_matching)
 
     def test_can_withdraw_from_matching(self):
-        report = Report(owner=self.user)
+        report = Record(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
         MatchReport.objects.create(report=report, identifier='dummy')
-        self.assertIsNotNone(Report.objects.first().entered_into_matching)
+        self.assertIsNotNone(Record.objects.first().entered_into_matching)
         report.match_found = True
         report.save()
         report.withdraw_from_matching()
         report.save()
-        self.assertIsNone(Report.objects.first().entered_into_matching)
-        self.assertFalse(Report.objects.first().match_found)
+        self.assertIsNone(Record.objects.first().entered_into_matching)
+        self.assertFalse(Record.objects.first().match_found)
 
 
 class MatchReportTest(test_base.ReportFlowHelper):
@@ -92,15 +92,15 @@ class MatchReportTest(test_base.ReportFlowHelper):
         match_report.save()
 
     def test_entered_into_matching_property_is_set(self):
-        self.assertIsNotNone(Report.objects.first().entered_into_matching)
+        self.assertIsNotNone(Record.objects.first().entered_into_matching)
 
     def test_entered_into_matching_is_blank_before_entering_into_matching(
             self):
-        report = Report(owner=self.user)
+        report = Record(owner=self.user)
         report.encrypt_report("test non-matching report", "key")
         report.save()
         self.assertIsNone(
-            Report.objects.get(
+            Record.objects.get(
                 pk=report.id).entered_into_matching)
 
     def test_can_encrypt_match_report(self):
@@ -125,7 +125,7 @@ class MatchReportTest(test_base.ReportFlowHelper):
         legacy_report.encrypt_report(
             "this text should be encrypted otherwise bad things",
             key='this is my key')
-        report = Report(
+        report = Record(
             owner=self.user,
             encrypted=legacy_report.encrypted,
             salt=legacy_report.salt)
@@ -161,9 +161,9 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         self.client_post_report_creation()
 
     def test_can_delete_report(self):
-        self.assertEqual(Report.objects.count(), 1)
+        self.assertEqual(Record.objects.count(), 1)
         self.report.delete()
-        self.assertEqual(Report.objects.count(), 0)
+        self.assertEqual(Record.objects.count(), 0)
         self.assertEqual(User.objects.first(), self.user)
 
     def test_deleted_report_deletes_match_report(self):
@@ -180,7 +180,7 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         self.assertIsNotNone(self.report.sentfullreport_set.first())
         self.assertEqual(self.report, SentFullReport.objects.first().report)
         self.report.delete()
-        self.assertEqual(Report.objects.count(), 0)
+        self.assertEqual(Record.objects.count(), 0)
         self.assertEqual(SentFullReport.objects.first(), sent_report)
 
     def test_deleted_report_doesnt_delete_sent_match_report(self):
@@ -188,7 +188,7 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         match_report.encrypt_match_report("test match report", 'dummy')
         match_report.save()
         user2 = User.objects.create_user(username="dummy2", password="dummy")
-        report2 = Report(owner=user2)
+        report2 = Record(owner=user2)
         report2.encrypt_report("test report 2", "key")
         report2.save()
         match_report2 = MatchReport(report=report2, identifier='dummy')
@@ -209,14 +209,14 @@ class DeleteReportTest(test_base.ReportFlowHelper):
             match_report2,
             SentMatchReport.objects.first().reports.all()[1])
         self.report.delete()
-        self.assertEqual(Report.objects.count(), 1)
+        self.assertEqual(Record.objects.count(), 1)
         self.assertEqual(MatchReport.objects.count(), 1)
         self.assertEqual(SentMatchReport.objects.first(), sent_match_report)
         self.assertEqual(SentMatchReport.objects.first().reports.count(), 1)
         self.assertEqual(
             SentMatchReport.objects.first().reports.first(),
             match_report2)
-        self.assertTrue(Report.objects.first().match_found)
+        self.assertTrue(Record.objects.first().match_found)
         report2.delete()
-        self.assertEqual(Report.objects.count(), 0)
+        self.assertEqual(Record.objects.count(), 0)
         self.assertEqual(SentMatchReport.objects.first(), sent_match_report)

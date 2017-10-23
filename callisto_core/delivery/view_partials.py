@@ -77,7 +77,7 @@ class PassphraseClearingPartial(
 class ReportBasePartial(
     wizard_builder_partials.WizardFormPartial,
 ):
-    model = models.Report
+    model = models.Record
     storage_helper = view_helpers.EncryptedReportStorageHelper
 
     @property

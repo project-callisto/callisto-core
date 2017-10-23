@@ -14,9 +14,10 @@ from wizard_builder.models import (
     Checkbox, Choice, Page, RadioButton, SingleLineText,
 )
 
-from ...delivery.models import Report
-from ...evaluation.models import EvalRow, EvaluationField
-from ...utils.api import MatchingApi
+from callisto_core.delivery.models import Record
+from callisto_core.evaluation.models import EvalRow, EvaluationField
+from callisto_core.utils.api import MatchingApi
+
 from ..reporting.base import MatchSetup
 from .test_keypair import private_test_key, public_test_key
 
@@ -48,7 +49,7 @@ class EvalRowTest(TestCase):
     @skip('eval temporarily disabled')
     def test_can_hash_on_user_id(self):
         user = User.objects.create_user(username="test", password="test")
-        report = Report.objects.create(owner=user, encrypted=b'first report')
+        report = Record.objects.create(owner=user, encrypted=b'first report')
         self.save_row_for_report(report)
         self.assertEqual(EvalRow.objects.count(), 1)
         self.assertNotEqual(EvalRow.objects.first().user_identifier, user.id)
@@ -59,11 +60,11 @@ class EvalRowTest(TestCase):
     @skip('eval temporarily disabled')
     def test_user_hashes_correctly(self):
         user1 = User.objects.create_user(username="test", password="test")
-        report1 = Report.objects.create(owner=user1, encrypted=b'first report')
+        report1 = Record.objects.create(owner=user1, encrypted=b'first report')
         user2 = User.objects.create_user(username="test1", password="test")
-        report2 = Report.objects.create(
+        report2 = Record.objects.create(
             owner=user2, encrypted=b'second report')
-        report3 = Report.objects.create(owner=user1, encrypted=b'third report')
+        report3 = Record.objects.create(owner=user1, encrypted=b'third report')
         row1 = self.save_row_for_report(report1)
         row2 = self.save_row_for_report(report2)
         row3 = self.save_row_for_report(report3)
@@ -76,11 +77,11 @@ class EvalRowTest(TestCase):
     @skip('eval temporarily disabled')
     def test_report_hashes_correctly(self):
         user1 = User.objects.create_user(username="test", password="test")
-        report1 = Report.objects.create(owner=user1, encrypted=b'first report')
+        report1 = Record.objects.create(owner=user1, encrypted=b'first report')
         user2 = User.objects.create_user(username="test1", password="test")
-        report2 = Report.objects.create(
+        report2 = Record.objects.create(
             owner=user2, encrypted=b'second report')
-        report3 = Report.objects.create(owner=user1, encrypted=b'third report')
+        report3 = Record.objects.create(owner=user1, encrypted=b'third report')
         row1 = self.save_row_for_report(report1)
         row2 = self.save_row_for_report(report2)
         row3 = self.save_row_for_report(report3)
@@ -101,7 +102,7 @@ class EvalRowTest(TestCase):
     @skip('eval temporarily disabled')
     def test_can_encrypt_a_row(self):
         user = User.objects.create_user(username="test", password="test")
-        report = Report.objects.create(owner=user, encrypted=b'first report')
+        report = Record.objects.create(owner=user, encrypted=b'first report')
         row = EvalRow(action=EvalRow.CREATE)
         row.set_identifiers(report)
         test_row = "{'test_field': 'test_answer'}"
@@ -118,7 +119,7 @@ class EvalRowTest(TestCase):
         test_key = gpg.import_keys(private_test_key)
         self.addCleanup(delete_test_key, gpg, test_key.fingerprints[0])
         user = User.objects.create_user(username="test", password="test")
-        report = Report.objects.create(owner=user, encrypted=b'first report')
+        report = Record.objects.create(owner=user, encrypted=b'first report')
         row = EvalRow(action=EvalRow.CREATE)
         row.set_identifiers(report)
         test_row = "{'test_field': 'test_answer'}"
@@ -136,7 +137,7 @@ class EvalRowTest(TestCase):
     @skip('eval temporarily disabled')
     def test_make_eval_row(self):
         user = User.objects.create_user(username="test", password="test")
-        report = Report.objects.create(owner=user, encrypted=b'first report')
+        report = Record.objects.create(owner=user, encrypted=b'first report')
         EvalRow.store_eval_row(EvalRow.CREATE, report=report)
         self.assertEqual(EvalRow.objects.count(), 1)
 
@@ -640,7 +641,7 @@ class ExtractAnswersTest(TestCase):
         self.set_up_simple_report_scenario()
 
         user = User.objects.create_user(username="test", password="test")
-        report = Report.objects.create(owner=user, encrypted=b'test report')
+        report = Record.objects.create(owner=user, encrypted=b'test report')
 
         gpg = gnupg.GPG()
         test_key = gpg.import_keys(private_test_key)

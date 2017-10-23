@@ -47,7 +47,7 @@ class PrepForm(
     )
 
     class Meta:
-        model = delivery_models.Report
+        model = delivery_models.Record
         fields = [
             'contact_name',
             'contact_email',

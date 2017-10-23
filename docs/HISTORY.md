@@ -1,5 +1,16 @@
 # History / Changelog
 
+## 0.17.0 (2017-10-21)
+
+* Clarify "report" versus "record". A set of answered questions is a "record". A "record" becomes a "report" when it is delivered.
+* rename various models
+    * `Report` => `Record`
+    * `SentFullReport` => `Report`
+    * `MatchReport` => `MatchRecord`
+    * `SentMatchReport` => `MatchReport`
+* remove django-polymorphic
+* remove `SentReport` model
+
 ## 0.16.0 (2017-10-19)
 
 * better support for multiple records

@@ -15,7 +15,7 @@ from . import hashers, security, utils
 logger = logging.getLogger(__name__)
 
 
-class Report(models.Model):
+class Record(models.Model):
     """The full text of a reported incident."""
     uuid = models.UUIDField(default=uuid.uuid4)
     encrypted = models.BinaryField(blank=False)
@@ -29,7 +29,7 @@ class Report(models.Model):
     # DEPRECIATED: only kept to decrypt old entries before upgrade
     salt = models.CharField(null=True, max_length=256)
 
-    # accept blank values for now, as old reports won't have them
+    # accept blank values for now, as old records won't have them
     # <algorithm>$<iterations>$<salt>$
     encode_prefix = models.CharField(blank=True, max_length=500)
 
@@ -42,13 +42,13 @@ class Report(models.Model):
     match_found = models.BooleanField(default=False)
 
     def __str__(self):
-        return 'Report(uuid={})'.format(self.uuid)
+        return 'Record(uuid={})'.format(self.uuid)
 
     @property
     def entered_into_matching(self):
-        first_match_report = self.matchreport_set.first()
-        if first_match_report:
-            return first_match_report.added
+        first_match_record = self.matchreport_set.first()
+        if first_match_record:
+            return first_match_record.added
         else:
             return None
 
@@ -144,7 +144,7 @@ class MatchReport(models.Model):
     A report that indicates the user wants to submit if a match is found.
     A single report can have multiple MatchReports--one per perpetrator.
     """
-    report = models.ForeignKey('Report', on_delete=models.CASCADE)
+    report = models.ForeignKey(Record, on_delete=models.CASCADE)
     identifier = models.CharField(blank=True, null=True, max_length=500)
     added = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(blank=False, default=False)
@@ -227,7 +227,7 @@ class SentReport(PolymorphicModel):
 class SentFullReport(SentReport):
     """Report of a single incident since to the monitoring organization"""
     report = models.ForeignKey(
-        Report,
+        Record,
         blank=True,
         null=True,
         on_delete=models.SET_NULL)

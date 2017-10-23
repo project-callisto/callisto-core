@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from callisto_core.delivery.models import Report
+from callisto_core.delivery.models import Record
 from callisto_core.delivery.utils import RecordDataUtil
 
 from django.test import TestCase
@@ -14,7 +14,7 @@ class RecordIntegrationTest(TestCase):
     passphrase = 'seekritaf'
 
     def test_record_functionality(self):
-        report = Report.objects.create()
+        report = Record.objects.create()
         report.encrypt_report(record_data.EXAMPLE_SINGLE_LINE, self.passphrase)
         report.refresh_from_db()
         report_data = report.decrypted_report(self.passphrase)

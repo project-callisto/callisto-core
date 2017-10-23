@@ -48,7 +48,7 @@ class ReportBaseForm(
         return report
 
     class Meta:
-        model = models.Report
+        model = models.Record
         fields = []
 
 
