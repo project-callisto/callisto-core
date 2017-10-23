@@ -3,6 +3,9 @@ from unittest import skip
 
 import gnupg
 import six
+from callisto_core.delivery.models import Record
+from callisto_core.evaluation.models import EvalRow, EvaluationField
+from callisto_core.utils.api import MatchingApi
 from mock import ANY, call, patch
 
 from django.contrib.auth import get_user_model
@@ -13,10 +16,6 @@ from django.test import TestCase
 from wizard_builder.models import (
     Checkbox, Choice, Page, RadioButton, SingleLineText,
 )
-
-from callisto_core.delivery.models import Record
-from callisto_core.evaluation.models import EvalRow, EvaluationField
-from callisto_core.utils.api import MatchingApi
 
 from ..reporting.base import MatchSetup
 from .test_keypair import private_test_key, public_test_key
