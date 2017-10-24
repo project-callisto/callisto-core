@@ -6,6 +6,12 @@ from django.utils.safestring import mark_safe
 
 
 def get_field_options():
+    '''
+    Turns the field generating functions on QuestionField into a series
+    of options
+
+    Formatted to be consumed by Question.type.choices
+    '''
     inspected_funcs = inspect.getmembers(
         QuestionField, predicate=inspect.ismethod)
     field_names = [
