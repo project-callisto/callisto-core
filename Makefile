@@ -71,6 +71,11 @@ shell: ## manage.py shell_plus with dev settings
 load-fixture: ## load fixture from file
 	python manage.py loaddata $(DATA_FILE)
 
-create-fixture: ## create fixture from db
+update-fixture: ## update fixture with migrations added on the local branch
+	git checkout master
+	python manage.py flush --noinput
+	python manage.py loaddata $(DATA_FILE) -i
+	git checkout @{-1}
+	python manage.py migrate
 	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
 	npx json -f $(DATA_FILE) -I
