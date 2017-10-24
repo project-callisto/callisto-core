@@ -4,7 +4,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.forms.models import model_to_dict
 
-from . import managers, model_helpers
+from . import managers, model_helpers, fields
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +88,10 @@ class FormQuestion(models.Model):
     )
     position = models.PositiveSmallIntegerField("position", default=0)
     objects = managers.FormQuestionManager()
+    type = models.TextField(
+        choices=fields.get_field_options(),
+        blank=False,
+        null=True)
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
@@ -121,7 +125,6 @@ class FormQuestion(models.Model):
 
     @property
     def serialized(self):
-        # TODO use: from django.forms.models import model_to_dict
         data = model_to_dict(self)
         data.update({
             'question_text': self.text,
