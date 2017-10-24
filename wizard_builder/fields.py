@@ -1,6 +1,17 @@
+import inspect
+
 from django import forms
 from django.forms import widgets as django_widgets
 from django.utils.safestring import mark_safe
+
+
+def get_field_options():
+    inspected_funcs = inspect.getmembers(QuestionField, predicate=inspect.ismethod)
+    field_names = [
+        item[0]
+        for item in inspected_funcs
+    ]
+    return field_names
 
 
 class QuestionField(object):
