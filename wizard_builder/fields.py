@@ -6,7 +6,8 @@ from django.utils.safestring import mark_safe
 
 
 def get_field_options():
-    inspected_funcs = inspect.getmembers(QuestionField, predicate=inspect.ismethod)
+    inspected_funcs = inspect.getmembers(
+        QuestionField, predicate=inspect.ismethod)
     field_names = [
         (item[0], item[0])
         for item in inspected_funcs

@@ -15,6 +15,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='formquestion',
             name='type',
-            field=models.TextField(choices=[('checkbox', 'checkbox'), ('radiobutton', 'radiobutton'), ('singlelinetext', 'singlelinetext'), ('textarea', 'textarea')], null=True),
+            field=models.TextField(
+                choices=[
+                    ('checkbox',
+                     'checkbox'),
+                    ('radiobutton',
+                     'radiobutton'),
+                    ('singlelinetext',
+                     'singlelinetext'),
+                    ('textarea',
+                     'textarea')],
+                null=True),
         ),
     ]

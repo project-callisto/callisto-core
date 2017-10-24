@@ -74,3 +74,46 @@ class PageIDMigrationTest(MigrationTest):
         new_page_ids = self._get_attrs(NewPage, 'id')
 
         self.assertCountEqual(old_page_ids, new_page_ids)
+
+
+class PopulateTypeMigrationTest(MigrationTest):
+
+    app_name = 'wizard_builder'
+    before = '0028_formquestion_type'
+    after = '0029_populate_type'
+
+    def test_type_populated(self):
+        FormQuestion = self.get_model_before('wizard_builder.FormQuestion')
+        RadioButton = self.get_model_before('wizard_builder.RadioButton')
+        Checkbox = self.get_model_before('wizard_builder.Checkbox')
+        TextArea = self.get_model_before('wizard_builder.TextArea')
+        SingleLineText = self.get_model_before('wizard_builder.SingleLineText')
+
+        formquestion = FormQuestion.objects.create()
+        radiobutton = RadioButton.objects.create()
+        checkbox = Checkbox.objects.create()
+        textarea = TextArea.objects.create()
+        singlelinetext = SingleLineText.objects.create()
+
+        self.run_migration()
+
+        self.assertEqual(
+            FormQuestion.objects.get(id=formquestion.id).type,
+            None,
+        )
+        self.assertEqual(
+            FormQuestion.objects.get(id=radiobutton.id).type,
+            'radiobutton',
+        )
+        self.assertEqual(
+            FormQuestion.objects.get(id=checkbox.id).type,
+            'checkbox',
+        )
+        self.assertEqual(
+            FormQuestion.objects.get(id=textarea.id).type,
+            'textarea',
+        )
+        self.assertEqual(
+            FormQuestion.objects.get(id=singlelinetext.id).type,
+            'singlelinetext',
+        )

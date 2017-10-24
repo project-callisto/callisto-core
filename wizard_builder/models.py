@@ -4,7 +4,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.forms.models import model_to_dict
 
-from . import managers, model_helpers, fields
+from . import fields, managers, model_helpers
 
 logger = logging.getLogger(__name__)
 
