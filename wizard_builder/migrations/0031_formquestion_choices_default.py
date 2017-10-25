@@ -15,6 +15,17 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='formquestion',
             name='type',
-            field=models.TextField(choices=[('checkbox', 'checkbox'), ('radiobutton', 'radiobutton'), ('singlelinetext', 'singlelinetext'), ('textarea', 'textarea')], default='singlelinetext', null=True),
+            field=models.TextField(
+                choices=[
+                    ('checkbox',
+                     'checkbox'),
+                    ('radiobutton',
+                     'radiobutton'),
+                    ('singlelinetext',
+                     'singlelinetext'),
+                    ('textarea',
+                     'textarea')],
+                default='singlelinetext',
+                null=True),
         ),
     ]

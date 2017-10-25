@@ -150,28 +150,58 @@ class FormQuestion(models.Model):
         ordering = ['position']
 
 
-class SingleLineText(FormQuestion):
-    pass
+class SingleLineText(
+    model_helpers.ProxyQuestion,
+    FormQuestion,
+):
+    proxy_name = 'singlelinetext'
+
+    class Meta:
+        proxy = True
 
 
-class TextArea(FormQuestion):
-    pass
+class TextArea(
+    model_helpers.ProxyQuestion,
+    FormQuestion,
+):
+    proxy_name = 'textarea'
+
+    class Meta:
+        proxy = True
 
 
 class MultipleChoice(FormQuestion):
-    pass
+
+    class Meta:
+        proxy = True
 
 
-class Checkbox(MultipleChoice):
-    pass
+class Checkbox(
+    model_helpers.ProxyQuestion,
+    MultipleChoice,
+):
+    proxy_name = 'checkbox'
+
+    class Meta:
+        proxy = True
 
 
-class RadioButton(MultipleChoice):
-    pass
+class RadioButton(
+    model_helpers.ProxyQuestion,
+    MultipleChoice,
+):
+    proxy_name = 'radiobutton'
+
+    class Meta:
+        proxy = True
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(MultipleChoice, on_delete=models.CASCADE)
+    question = models.ForeignKey(
+        FormQuestion,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='example2')
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
     extra_info_text = models.TextField(blank=True)
