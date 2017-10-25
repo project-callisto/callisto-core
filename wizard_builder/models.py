@@ -1,19 +1,18 @@
 import logging
 
-from django import forms
 from django.contrib.sites.models import Site
 from django.db import models
-from django.forms.fields import ChoiceField, MultipleChoiceField
-from django.forms.widgets import Select
-from django.utils.safestring import mark_safe
+from django.forms.models import model_to_dict
 
-from .managers import FormQuestionManager, PageManager
-from .widgets import CheckboxExtraSelectMultiple, RadioExtraSelect
+from . import managers, model_helpers
 
 logger = logging.getLogger(__name__)
 
 
-class Page(models.Model):
+class Page(
+    model_helpers.SerializedQuestionMixin,
+    models.Model,
+):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -28,7 +27,7 @@ class Page(models.Model):
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
     sites = models.ManyToManyField(Site)
 
-    objects = PageManager()
+    objects = managers.PageManager()
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
@@ -88,7 +87,7 @@ class FormQuestion(models.Model):
         on_delete=models.SET_NULL,
     )
     position = models.PositiveSmallIntegerField("position", default=0)
-    objects = FormQuestionManager()
+    objects = managers.FormQuestionManager()
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
@@ -98,7 +97,6 @@ class FormQuestion(models.Model):
         else:
             return "{} {}".format(self.short_str, type_str)
 
-    # TODO: I feel like there is a django model option for this
     @property
     def field_id(self):
         return "question_{}".format(self.pk)
@@ -121,22 +119,20 @@ class FormQuestion(models.Model):
         else:
             return None
 
-    def get_label(self):
-        return mark_safe(self.text)
+    @property
+    def serialized(self):
+        # TODO use: from django.forms.models import model_to_dict
+        data = model_to_dict(self)
+        data.update({
+            'question_text': self.text,
+            'type': self._meta.model_name.capitalize(),
+            'field_id': self.field_id,
+        })
+        return data
 
     def set_question_page(self):
         if not self.page:
             self.page = Page.objects.latest('position')
-
-    @property
-    def serialized(self):
-        return {
-            'id': self.pk,
-            'question_text': self.text,
-            'type': self._meta.model_name.capitalize(),
-            'section': self.section,
-            'field_id': self.field_id,
-        }
 
     def save(self, *args, **kwargs):
         self.set_question_page()
@@ -148,28 +144,15 @@ class FormQuestion(models.Model):
 
 
 class SingleLineText(FormQuestion):
+    pass
 
-    def make_field(self):
-        # TODO: sync up with django default field creation more effectively
-        return forms.CharField(
-            label=self.get_label(),
-            required=False,
-        )
+
+class TextArea(FormQuestion):
+    pass
 
 
 class MultipleChoice(FormQuestion):
-    objects = FormQuestionManager()
-
-    @property
-    def choices(self):
-        return list(self.choice_set.all().order_by('position'))
-
-    @property
-    def choices_field_display(self):
-        return [
-            (choice.pk, choice.text)
-            for choice in self.choices
-        ]
+    objects = managers.FormQuestionManager()
 
     @property
     def serialized(self):
@@ -182,31 +165,8 @@ class MultipleChoice(FormQuestion):
         return [choice.data for choice in self.choices]
 
     @property
-    def widget(self):
-        # TODO: merge into a more versatile feild creation function that
-            # works entirely off of checking variables on the instance
-            # (instead of self._meta.model)
-            # and move this function to FormQuestion
-        if getattr(self, 'is_dropdown', False):
-            return Select
-        elif self._meta.model == RadioButton:
-            return RadioExtraSelect
-        elif self._meta.model == Checkbox:
-            return CheckboxExtraSelectMultiple
-
-    def make_field(self):
-        # TODO: sync up with django default field creation more effectively
-        if self._meta.model == RadioButton:
-            _Field = ChoiceField
-        elif self._meta.model == Checkbox:
-            _Field = MultipleChoiceField
-        return _Field(
-            choices=self.choices_field_display,
-            label=self.text,
-            help_text=self.descriptive_text,
-            required=False,
-            widget=self.widget,
-        )
+    def choices(self):
+        return list(self.choice_set.all().order_by('position'))
 
 
 class Checkbox(MultipleChoice):

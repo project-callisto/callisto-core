@@ -1,6 +1,9 @@
 import logging
+from copy import copy
 
 from django.core.urlresolvers import reverse
+
+from . import managers
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +40,6 @@ class SerializedDataHelper(object):
     ]
     question_id_error_message = 'field_id={} not found in {}'
     choice_id_error_message = 'Choice(pk={}) not found in {}'
-    choice_option_id_error_message = 'ChoiceOption(pk={}) not found in {}'
     not_answered_text = '[ Not Answered ]'
 
     @classmethod
@@ -58,10 +60,10 @@ class SerializedDataHelper(object):
             self._parse_answers(question, answer)
 
     def _parse_answers(self, question, answer):
-        if question.get('type') == 'Singlelinetext':
-            self._append_text_answer(answer, question)
-        else:
+        if question.get('type').lower() in ['checkbox', 'radiobutton']:
             self._append_list_answers(answer, question)
+        else:
+            self._append_text_answer(answer, question)
 
     def _get_question_answer(self, question):
         return self.data.get(question.get('field_id'), '')
@@ -69,11 +71,12 @@ class SerializedDataHelper(object):
     def _append_text_answer(self, answer, question):
         self._append_answer(question, [answer])
 
-    def _append_list_answers(self, answer, question):
-        if isinstance(answer, str):
-            answer = [answer]
+    def _append_list_answers(self, answers, question):
+        if not isinstance(answers, list):
+            answers = [answers]
         choice_list = [
             self._get_choice_text(answer, question)
+            for answer in answers
         ]
         self._append_answer(question, choice_list)
 
@@ -207,17 +210,16 @@ class StepsHelper(object):
 
 class StorageHelper(object):
     data_manager = SerializedDataHelper
+    form_manager = managers.FormManager
     storage_data_key = 'wizard_form_data'
     storage_form_key = 'wizard_form_serialized'
 
     def __init__(self, view):
         # TODO: scope down inputs
         self.view = view
+        self.site_id = view.get_site_id()
+        self.session = view.request.session
         self.init_storage()
-
-    @property
-    def form_data(self):
-        return self.current_data_from_storage()
 
     @property
     def cleaned_form_data(self):
@@ -228,44 +230,56 @@ class StorageHelper(object):
         )
 
     @property
-    def current_data(self):
-        storage = self.current_data_from_storage()
-        return storage[self.storage_data_key]
+    def answers_for_current_step(self):
+        # get the current data
+        data = self.current_data_from_storage()
+        # create a set of form models from form storage + post data
+        new_data = copy(data)
+        new_data[self.storage_data_key] = self.view.request.POST
+        forms = self.get_form_models(new_data)
+        # get the cleaned data from those form models, add it to answer data
+        form = forms[self.view.curent_step]
+        data[self.storage_data_key].update(form.cleaned_data)
+        # return answer data
+        return data[self.storage_data_key]
 
     @property
-    def current_and_post_data(self):
-        data = self.current_data
-        data.update(self.view.current_step_data)
-        return data
+    def serialized_forms(self):
+        return self.form_manager.get_serialized_forms(site_id=self.site_id)
+
+    def get_form_models(self, data=None):
+        if not data:
+            data = self.current_data_from_storage()
+        return self.form_manager.get_form_models(
+            form_data=data[self.storage_form_key],
+            answer_data=data[self.storage_data_key],
+            site_id=self.site_id,
+        )
 
     def update(self):
         '''
         primary class functionality method, updates the data in storage
         '''
-        data = self.current_and_post_data
-        self.add_data_to_storage(data)
+        self.add_data_to_storage(self.answers_for_current_step)
 
     def current_data_from_storage(self):
         # TODO: base class with NotImplementedError checks
-        session = self.view.request.session
         return {
-            self.storage_data_key: session.get(self.storage_data_key, {}),
-            self.storage_form_key: session.get(self.storage_form_key, {}),
+            self.storage_data_key: self.session.get(self.storage_data_key, {}),
+            self.storage_form_key: self.session.get(self.storage_form_key, {}),
         }
 
-    def add_data_to_storage(self, data):
+    def add_data_to_storage(self, answer_data):
         # TODO: base class with NotImplementedError checks
-        session = self.view.request.session
-        session[self.storage_data_key] = data
+        self.session[self.storage_data_key] = answer_data
 
     def init_storage(self):
         # TODO: base class with NotImplementedError checks
-        session = self.view.request.session
-        session.setdefault(
+        self.session.setdefault(
             self.storage_form_key,
-            self.view.get_serialized_forms(),
+            self.serialized_forms,
         )
-        session.setdefault(
+        self.session.setdefault(
             self.storage_data_key,
             {},
         )

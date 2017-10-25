@@ -3,6 +3,7 @@ import json
 from django import forms
 from django.test import TestCase
 
+from .. import mocks
 from ..models import (
     Checkbox, Choice, ChoiceOption, FormQuestion, Page, RadioButton,
     SingleLineText,
@@ -105,26 +106,21 @@ class RadioButtonTestCase(ItemTestCase):
             "This is choice 0")
 
     def test_generates_radio_button(self):
-        self.assertEqual(len(self.question.make_field().choices), 5)
-        self.assertEqual(
-            self.question.make_field().choices[4][1],
-            "This is choice 4")
-        self.assertIsInstance(
-            self.question.make_field().widget,
-            forms.RadioSelect)
+        field = mocks.MockQuestion(self.question.serialized).make_field()
+        self.assertEqual(len(field.choices), 5)
+        self.assertEqual(field.choices[4][1], "This is choice 4")
+        self.assertIsInstance(field.widget, forms.RadioSelect)
 
     def test_can_make_dropdown(self):
-        dropdown = RadioButton.objects.create(
+        model = RadioButton.objects.create(
             text="this is a dropdown question", is_dropdown=True)
         for i in range(5):
-            Choice.objects.create(
-                text="This is choice %i" %
-                i, question=dropdown)
-        self.assertEqual(len(dropdown.make_field().choices), 5)
-        self.assertEqual(
-            dropdown.make_field().choices[3][1],
-            "This is choice 3")
-        self.assertIsInstance(dropdown.make_field().widget, forms.Select)
+            Choice.objects.create(text=f"choice {i}", question=model)
+        mock = mocks.MockQuestion(model.serialized)
+        field = mock.make_field()
+        self.assertEqual(len(field.choices), 5)
+        self.assertEqual(field.choices[3][1], "choice 3")
+        self.assertIsInstance(field.widget, forms.Select)
 
     def test_choices_serialized(self):
         object_ids = [choice.pk for choice in self.question.choice_set.all()]
@@ -174,10 +170,7 @@ class CheckboxTestCase(ItemTestCase):
             "This is choice 0")
 
     def test_generates_checkbox(self):
-        self.assertEqual(len(self.question.make_field().choices), 5)
-        self.assertEqual(
-            self.question.make_field().choices[4][1],
-            "This is choice 4")
-        self.assertIsInstance(
-            self.question.make_field().widget,
-            forms.CheckboxSelectMultiple)
+        field = mocks.MockQuestion(self.question.serialized).make_field()
+        self.assertEqual(len(field.choices), 5)
+        self.assertEqual(field.choices[4][1], "This is choice 4")
+        self.assertIsInstance(field.widget, forms.CheckboxSelectMultiple)
