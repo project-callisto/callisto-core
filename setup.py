@@ -27,23 +27,22 @@ if sys.argv[-1] == 'tag':
 
 try:
     import pypandoc
-    readme = pypandoc.convert_file('README.md', 'rst')
-    print("Converting README from markdown to restructured text")
-except (IOError, ImportError, OSError):
-    print("Please install PyPandoc to allow conversion of the README")
-    readme = open('README.md').read()
-history = open('docs/HISTORY.rst').read().replace('.. :changelog:', '')
+    long_description = pypandoc.convert_file('README.md', 'rst') + \
+        pypandoc.convert_file('docs/HISTORY.md', 'rst')
+except BaseException:
+    long_description = ''
+
 license = open('LICENSE').read()
 
 setup(
     name='callisto-core',
     version=version,
     description='Report intake, escrow, matching and secure delivery code for Callisto, an online reporting system for sexual assault.',
-    long_description=readme + '\n\n' + history,
+    long_description=long_description,
     license=license,
     author='Project Callisto',
     author_email='tech@projectcallisto.org',
-    url='https://github.com/SexualHealthInnovations/callisto-core',
+    url='https://github.com/project-callisto/callisto-core',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,

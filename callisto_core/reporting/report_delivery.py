@@ -243,7 +243,7 @@ class PDFFullReport(PDFReport):
             )
         overview_body = overview_body + '''
             Record Created: {0}<br />
-        '''.format(self.report.added)
+        '''.format(self.report.added.strftime("%Y-%m-%d %H:%M"))
 
         MetadataPage.append(Paragraph(overview_body, self.body_style))
 
@@ -291,8 +291,6 @@ class PDFFullReport(PDFReport):
         )
 
         # COVER PAGE
-        # TODO:
-        # https://github.com/SexualHealthInnovations/callisto-core/issues/150
         self.pdf_elements.extend(
             NotificationApi.get_cover_page(
                 self,
@@ -329,7 +327,10 @@ class PDFMatchReport(PDFReport):
 
     def __init__(self, matches, identifier):
         super(PDFMatchReport, self).__init__()
-        self.matches = sorted(matches, key=lambda m: m.added, reverse=True)
+        self.matches = sorted(
+            matches,
+            key=lambda m: m.added.strftime("%Y-%m-%d %H:%M"),
+            reverse=True)
         self.identifier = identifier
 
     def generate_match_report(self, report_id):
@@ -354,8 +355,6 @@ class PDFMatchReport(PDFReport):
                                 rightMargin=72, leftMargin=72,
                                 topMargin=72, bottomMargin=72)
         # COVER PAGE
-        # TODO:
-        # https://github.com/SexualHealthInnovations/callisto-core/issues/150
         self.pdf_elements.extend(
             NotificationApi.get_cover_page(
                 self,
@@ -421,8 +420,8 @@ class PDFMatchReport(PDFReport):
             '''.format(
                 match_report_content.perp_name or "<i>None provided</i>",
                 self.get_user_identifier(user),
-                match_report.added,
-                report.added,
+                match_report.added.strftime("%Y-%m-%d %H:%M"),
+                report.added.strftime("%Y-%m-%d %H:%M"),
                 is_submitted,
             ).replace('\n', '<br />\n')
 

@@ -9,6 +9,7 @@ from ..delivery import (
     fields as delivery_fields, forms as delivery_forms,
     models as delivery_models,
 )
+from .validators import Validators as ValidatorClass
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +76,17 @@ class MatchingBaseForm(
         widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
     )
 
+    def __init__(self, *args, matching_validators=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not matching_validators:
+            self.matching_validators = ValidatorClass()
+        else:
+            self.matching_validators = matching_validators
+        self.fields['identifier'] = fields.MatchIdentifierField(
+            required=self.matching_field_required,
+            matching_validators=self.matching_validators,
+        )
+
     def save(self, commit=True):
         if self.data.get('identifier'):
             super().save(commit=commit)
@@ -93,7 +105,7 @@ class MatchingBaseForm(
 class MatchingOptionalForm(
     MatchingBaseForm,
 ):
-    identifier = fields.MatchIdentifierField(required=False)
+    matching_field_required = False
 
     class Meta:
         model = delivery_models.MatchReport
@@ -103,7 +115,7 @@ class MatchingOptionalForm(
 class MatchingRequiredForm(
     MatchingBaseForm,
 ):
-    identifier = fields.MatchIdentifierField(required=True)
+    matching_field_required = True
 
     class Meta:
         model = delivery_models.MatchReport
@@ -125,7 +137,7 @@ class ConfirmationForm(
     ]
 
     def clean_key(self):
-        if not self.data.get('key') == self.view.storage.secret_key:
+        if not self.data.get('key') == self.view.storage.passphrase:
             forms.ValidationError('Invalid key')
 
     def save(self, commit=True):

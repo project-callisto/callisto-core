@@ -64,7 +64,6 @@ class ReportModelTest(test_base.ReportFlowHelper):
         report = Report(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
-        self.assertIsNone(Report.objects.first().last_edited)
         self.assertIsNone(Report.objects.first().submitted_to_school)
         self.assertIsNone(Report.objects.first().entered_into_matching)
 

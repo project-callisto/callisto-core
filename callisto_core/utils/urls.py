@@ -27,7 +27,6 @@ urlpatterns = [
         delivery_views.EncryptedWizardView.as_view(),
         name='report_update',
         ),
-    # TODO: a /review url that redirects here
     url(r'^reports/uuid/(?P<uuid>.+)/wizard/step/done/$',
         delivery_views.EncryptedWizardView.as_view(),
         name="report_view",
@@ -86,12 +85,12 @@ urlpatterns = [
         ),
     url(r'^reports/uuid/(?P<uuid>.+)/review/matching/withdraw/$',
         reporting_views.MatchingWithdrawView.as_view(
+            back_url='report_view',
             reporting_success_url='report_view',
         ),
         name="report_matching_withdraw",
         ),
     # /end matching flow
     url(r'^nested_admin/', include('nested_admin.urls')),
-    url(r'^tinymce/', include('tinymce.urls')),
     url(r'^admin/', admin.site.urls),
 ]

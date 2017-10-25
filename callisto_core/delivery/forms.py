@@ -26,6 +26,8 @@ class FormViewExtensionMixin(object):
 
     def __init__(self, *args, **kwargs):
         self.view = kwargs.pop('view')  # TODO: pass in something more specific
+        if kwargs.get('matching_validators'):
+            kwargs.pop('matching_validators')  # TODO: remove
         super().__init__(*args, **kwargs)
 
 
@@ -40,9 +42,10 @@ class ReportBaseForm(
         return self.instance
 
     def save(self, *args, **kwargs):
+        report = super().save(*args, **kwargs)
         if self.data.get("key"):
-            self.view.storage.set_secret_key(self.data['key'])
-        return super().save(*args, **kwargs)
+            self.view.storage.set_passphrase(self.data['key'], report=report)
+        return report
 
     class Meta:
         model = models.Report

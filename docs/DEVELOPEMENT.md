@@ -26,7 +26,7 @@ The requirements are the same, you will just want to swap out homebrew for apt-g
 
 ### Local Environment Setup
 
-    git clone git@github.com:SexualHealthInnovations/callisto-core.git # first time only
+    git clone git@github.com:project-callisto/callisto-core.git # first time only
     cd callisto-core
     export PYTHON_VERSION=`cat runtime.txt | sed -e 's/python-//'`
     pyenv install $PYTHON_VERSION -s

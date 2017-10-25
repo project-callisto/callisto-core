@@ -4,7 +4,7 @@ import nacl.utils
 from django.conf import settings
 
 
-def encrypt_text(secret_key, sensitive_text):
+def encrypt_text(key, sensitive_text):
     """
     Encrypts a report using the given secret key.
     Requires a stretched key with a length of 32 bytes.
@@ -14,13 +14,13 @@ def encrypt_text(secret_key, sensitive_text):
       bytes: the encrypted bytes of the sensitive_text
 
     """
-    box = nacl.secret.SecretBox(secret_key)
+    box = nacl.secret.SecretBox(key)
     message = sensitive_text.encode('utf-8')
     nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
     return box.encrypt(message, nonce)
 
 
-def decrypt_text(secret_key, encrypted_text):
+def decrypt_text(key, encrypted_text):
     """Decrypts an encrypted report.
 
     Returns:
@@ -30,7 +30,7 @@ def decrypt_text(secret_key, encrypted_text):
       CryptoError: In case of a failure to decrypt the encrypted_text
 
     """
-    box = nacl.secret.SecretBox(secret_key)
+    box = nacl.secret.SecretBox(key)
     # need to force to bytes bc BinaryField can return as memoryview
     decrypted = box.decrypt(bytes(encrypted_text)).decode('utf-8')
     return decrypted

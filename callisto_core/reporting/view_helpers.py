@@ -7,7 +7,7 @@ None of these classes provide full view functionality.
 from django.core.urlresolvers import reverse
 
 
-class ReportingSuccessUrlMixin(object):
+class ReportingSuccessUrlMixin:
     reporting_success_url = None
 
     def get_reporting_success_url(self):

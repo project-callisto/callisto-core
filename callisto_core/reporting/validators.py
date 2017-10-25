@@ -50,8 +50,6 @@ def twitter_validation_function(value):
     except ValidationError:
         if value.startswith('@'):
             path = value[1:]
-    # TODO: validate against allowed username characters
-    # https://github.com/SexualHealthInnovations/callisto-core/issues/181
     if not path or path == "" or len(
             path) > 15 or path in generic_twitter_urls:
         return None
@@ -101,7 +99,7 @@ def facebook_validation_function(url):
             path = url_parts[2].strip('/').split('/')[2].lower()
 
         # TODO: validate against allowed username characteristics
-        # https://github.com/SexualHealthInnovations/callisto-core/issues/181
+        # https://github.com/project-callisto/callisto-core/issues/181
         if not path or path == "" or path.endswith(
                 '.php') or path in generic_fb_urls:
             return None
@@ -162,33 +160,25 @@ def join_list_with_or(lst):
 
 class Validators(object):
 
-    @classmethod
-    def validators(cls):
-        return getattr(
+    def __init__(self):
+        self.validators = getattr(
             settings,
             'CALLISTO_IDENTIFIER_DOMAINS',
             facebook_only,
         )
 
-    @classmethod
-    def value(cls):
-        return cls.validators().values()
-
-    @classmethod
-    def invalid(cls):
+    def invalid(self):
         return 'Please enter a valid ' + join_list_with_or(
-            list(cls.validators()))
+            list(self.validators))
 
-    @classmethod
-    def titled(cls):
+    def titled(self):
         return "Perpetrator's " + join_list_with_or([
             identifier.title()
-            for identifier in list(cls.validators())
+            for identifier in list(self.validators)
         ])
 
-    @classmethod
-    def examples(cls):
+    def examples(self):
         return 'ex. ' + join_list_with_or([
             identifier_info['example']
-            for identifier_info in cls.validators().values()
+            for identifier_info in self.validators.values()
         ])

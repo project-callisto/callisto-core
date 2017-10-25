@@ -72,7 +72,7 @@ class MatchIntegratedTest(
     ]
 
     def test_two_match_post_requests_trigger_matching(self):
-        self.secret_key = 'user 1 secret'
+        self.passphrase = 'user 1 secret'
         self.client.login(username="test1", password="test")
         self.client_post_report_creation()
         # we pass in the default arg to client_post_matching_enter
@@ -80,7 +80,7 @@ class MatchIntegratedTest(
         # is being input twice
         self.client_post_matching_enter('https://www.facebook.com/callistoorg')
 
-        self.secret_key = 'user 2 secret'
+        self.passphrase = 'user 2 secret'
         self.client.login(username="tset22", password="test")
         self.client_post_report_creation()
         self.client_post_matching_enter('https://www.facebook.com/callistoorg')
@@ -129,6 +129,7 @@ class MatchNotificationTest(MatchSetup):
     def test_basic_email_case(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
             self.create_match(self.user1, 'test1')
+            self.assertEqual(api_logging.call_count, 0)
             self.create_match(self.user2, 'test1')
             self.assert_matches_found_true()
             # 2 emails for the 2 users
@@ -137,13 +138,13 @@ class MatchNotificationTest(MatchSetup):
 
     def test_multiple_email_case(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
-            self.create_match(self.user1, 'test1')  # 1 email
-            # 3 emails (+1 user, +1 authority)
-            self.create_match(self.user2, 'test1')
-            self.create_match(self.user3, 'test1')  # 5 emails
-            self.create_match(self.user4, 'test1')  # 7 emails
+            self.create_match(self.user1, 'test1')  # 0
+            self.create_match(self.user2, 'test1')  # 3 emails
+            self.create_match(self.user3, 'test1')  # 7 emails
+            self.create_match(self.user4, 'test1')  # 12 emails
             self.assert_matches_found_true()
-            self.assertEqual(api_logging.call_count, 7)
+            self.assertNotEqual(api_logging.call_count, 7)  # old behavior
+            self.assertEqual(api_logging.call_count, 12)  # new behavior
 
     def test_users_are_deduplicated(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
@@ -154,11 +155,12 @@ class MatchNotificationTest(MatchSetup):
             self.assert_matches_found_true()
             self.assertEqual(api_logging.call_count, 3)
 
-    def test_doesnt_notify_on_reported_reports(self):
+    def test_does_notify_on_reported_reports(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
             self.create_match(self.user1, 'test1')
             match_report = self.create_match(self.user2, 'test1', alert=False)
             match_report.report.submitted_to_school = timezone.now()
             match_report.report.save()
             MatchingApi.run_matching()
-            self.assertEqual(api_logging.call_count, 2)
+            self.assertNotEqual(api_logging.call_count, 2)  # old behavior
+            self.assertEqual(api_logging.call_count, 3)  # new behavior

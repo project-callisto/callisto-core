@@ -1,7 +1,7 @@
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SECRET_KEY = os.getenv("SECRET_KEY", default='secret key')
+SECRET_KEY = os.getenv("passphrase", default='secret key')
 DEBUG = True
 
 ROOT_URLCONF = "callisto_core.utils.urls"
@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'nested_admin',
-    'tinymce',
     'widget_tweaks',
     'wizard_builder',
     'callisto_core.delivery',
