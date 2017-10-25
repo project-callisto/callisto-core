@@ -117,3 +117,30 @@ class PopulateTypeMigrationTest(MigrationTest):
             FormQuestion.objects.get(id=singlelinetext.id).type,
             'singlelinetext',
         )
+
+class PopulateDropdownMigrationTest(MigrationTest):
+
+    app_name = 'wizard_builder'
+    before = '0031_formquestion_choices_default'
+    after = '0032_move_question_dropdown'
+
+    def test_type_populated(self):
+        RadioButton = self.get_model_before('wizard_builder.RadioButton')
+
+        yes_dropdown = RadioButton.objects.create(is_dropdown=True)
+        no_dropdown = RadioButton.objects.create()
+
+        self.run_migration()
+
+        FormQuestion = self.get_model_after('wizard_builder.FormQuestion')
+        yes_question_id = yes_dropdown.formquestion_ptr.id
+        no_question_id = no_dropdown.formquestion_ptr.id
+
+        self.assertEqual(
+            FormQuestion.objects.get(id=yes_question_id).is_dropdown,
+            True,
+        )
+        self.assertEqual(
+            FormQuestion.objects.get(id=no_question_id).is_dropdown,
+            False,
+        )

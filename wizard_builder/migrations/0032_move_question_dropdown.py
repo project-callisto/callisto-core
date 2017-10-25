@@ -7,6 +7,11 @@ from django.db import migrations, models
 
 def move_dropdown(apps, schema_editor):
     current_database = schema_editor.connection.alias
+    RadioButton = apps.get_model('wizard_builder.RadioButton')
+    for radiobutton in RadioButton.objects.using(current_database):
+        formquestion = radiobutton.formquestion_ptr
+        formquestion.is_dropdown = radiobutton.is_dropdown
+        formquestion.save()
 
 
 class Migration(migrations.Migration):
