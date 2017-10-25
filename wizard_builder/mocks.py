@@ -32,7 +32,6 @@ class MockQuestion(object):
     def __init__(self, data):
         self.pk = self.id = data.get('id')
         self.text = data.get('question_text')
-        self.type = data.get('type')
         self.descriptive_text = data.get('descriptive_text')
         self.section = data.get('section')
         self.position = data.get('position', 0)
@@ -41,6 +40,13 @@ class MockQuestion(object):
             MockChoice(choice_data)
             for choice_data in data.get('choices', [])
         ]
+
+    @property
+    def type(self):
+        try:
+            return self.data.get('type').lower()
+        except BaseException:
+            return ''
 
     @property
     def field_id(self):
@@ -56,7 +62,7 @@ class MockQuestion(object):
     def make_field(self):
         field_generator = getattr(
             fields.QuestionField,  # from the QuestionFields object
-            self.type.lower(),  # get the field that correspond to the question type
+            self.type,  # get the field that corresponds to the question type
             fields.QuestionField.singlelinetext,  # otherwise get a singlelinetext field
         )
         return field_generator(self)

@@ -62,7 +62,7 @@ class Page(
             Page.position defaults to 0, but we take 0 to mean "not set"
             so when there are no pages, Page.position is set to 1
 
-            otherwise we Page.position to the position of the latest
+            otherwise we set Page.position to the position of the latest
             object that isn't self, +1
         '''
         cls = self.__class__
@@ -84,14 +84,16 @@ class FormQuestion(models.Model):
         Page,
         editable=True,
         null=True,
+        blank=False,
         on_delete=models.SET_NULL,
     )
     position = models.PositiveSmallIntegerField("position", default=0)
+    is_dropdown = models.BooleanField(default=False)
     objects = managers.FormQuestionManager()
     type = models.TextField(
         choices=fields.get_field_options(),
-        blank=False,
-        null=True)
+        null=True,
+        default='singlelinetext')
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
@@ -128,22 +130,24 @@ class FormQuestion(models.Model):
         data = model_to_dict(self)
         data.update({
             'question_text': self.text,
-            'type': self._meta.model_name.capitalize(),
             'field_id': self.field_id,
+            'choices': self.serialized_choices,
         })
         return data
 
-    def set_question_page(self):
-        if not self.page:
-            self.page = Page.objects.latest('position')
+    @property
+    def serialized_choices(self):
+        return [choice.data for choice in self.choices]
 
-    def save(self, *args, **kwargs):
-        self.set_question_page()
-        super(FormQuestion, self).save(*args, **kwargs)
+    @property
+    def choices(self):
+        try:
+            return list(self.choice_set.all().order_by('position'))
+        except BaseException:
+            return []
 
     class Meta:
         ordering = ['position']
-        verbose_name = 'question'
 
 
 class SingleLineText(FormQuestion):
@@ -155,31 +159,15 @@ class TextArea(FormQuestion):
 
 
 class MultipleChoice(FormQuestion):
-    objects = managers.FormQuestionManager()
-
-    @property
-    def serialized(self):
-        data = super().serialized
-        data.update({'choices': self.serialized_choices})
-        return data
-
-    @property
-    def serialized_choices(self):
-        return [choice.data for choice in self.choices]
-
-    @property
-    def choices(self):
-        return list(self.choice_set.all().order_by('position'))
+    pass
 
 
 class Checkbox(MultipleChoice):
-
-    class Meta:
-        verbose_name_plural = "checkboxes"
+    pass
 
 
 class RadioButton(MultipleChoice):
-    is_dropdown = models.BooleanField(default=False)
+    pass
 
 
 class Choice(models.Model):
