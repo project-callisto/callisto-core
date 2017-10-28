@@ -161,23 +161,27 @@ class TextArea(
     proxy_name = 'textarea'
 
 
-class Checkbox(
+class MultipleChoice(
     model_helpers.ProxyQuestion,
     FormQuestion,
+):
+    pass
+
+
+class Checkbox(
+    MultipleChoice,
 ):
     proxy_name = 'checkbox'
 
 
 class RadioButton(
-    model_helpers.ProxyQuestion,
-    FormQuestion,
+    MultipleChoice,
 ):
     proxy_name = 'radiobutton'
 
 
 class Dropdown(
-    model_helpers.ProxyQuestion,
-    FormQuestion,
+    MultipleChoice,
 ):
     proxy_name = 'dropdown'
 
