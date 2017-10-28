@@ -168,15 +168,9 @@ class TextArea(
         proxy = True
 
 
-class MultipleChoice(FormQuestion):
-
-    class Meta:
-        proxy = True
-
-
 class Checkbox(
     model_helpers.ProxyQuestion,
-    MultipleChoice,
+    FormQuestion,
 ):
     proxy_name = 'checkbox'
 
@@ -186,7 +180,7 @@ class Checkbox(
 
 class RadioButton(
     model_helpers.ProxyQuestion,
-    MultipleChoice,
+    FormQuestion,
 ):
     proxy_name = 'radiobutton'
 
