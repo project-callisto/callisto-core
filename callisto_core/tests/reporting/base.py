@@ -50,7 +50,7 @@ class MatchSetup(TestCase):
     ):
         report = Record(owner=user)
         report.encrypt_report("test report 1", "key")
-        match_report = MatchReport(report=report, identifier=identifier)
+        match_report = MatchReport(record=report, identifier=identifier)
 
         if match_report_content:
             match_report_object = match_report_content

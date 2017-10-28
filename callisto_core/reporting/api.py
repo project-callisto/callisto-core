@@ -51,11 +51,11 @@ class CallistoCoreMatchingApi(object):
             ]
             if len(match_list) > 1:
                 seen_match_owners = [
-                    match.report.owner for match in match_list
+                    match.record.owner for match in match_list
                     if match.seen
                 ]
                 new_match_owners = [
-                    match.report.owner for match in match_list
+                    match.record.owner for match in match_list
                     if not match.seen
                 ]
                 # filter out multiple reports made by the same person
@@ -66,8 +66,8 @@ class CallistoCoreMatchingApi(object):
                             set(seen_match_owners)):
                         self.process_new_matches(match_list, identifier)
                     for matched_report in match_list:
-                        matched_report.report.match_found = True
-                        matched_report.report.save()
+                        matched_report.record.match_found = True
+                        matched_report.record.save()
             for match in match_list:
                 match.seen = True
                 # delete identifier, which should only be filled for newly
@@ -86,7 +86,7 @@ class CallistoCoreMatchingApi(object):
         logger.info("new match found")
         owners_notified = []
         for match_report in matches:
-            owner = match_report.report.owner
+            owner = match_report.record.owner
             # dont notify report owners twice for a single match
             if owner not in owners_notified:
                 NotificationApi.send_match_notification(owner, match_report)

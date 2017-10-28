@@ -71,7 +71,7 @@ class ReportModelTest(test_base.ReportFlowHelper):
         report = Record(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
-        MatchReport.objects.create(report=report, identifier='dummy')
+        MatchReport.objects.create(record=report, identifier='dummy')
         self.assertIsNotNone(Record.objects.first().entered_into_matching)
         report.match_found = True
         report.save()
@@ -86,7 +86,7 @@ class MatchReportTest(test_base.ReportFlowHelper):
     def setUp(self):
         super().setUp()
         self.client_post_report_creation()
-        match_report = MatchReport(report=self.report, identifier='dummy')
+        match_report = MatchReport(record=self.report, identifier='dummy')
         match_report.encrypt_match_report(
             "test match report", match_report.identifier)
         match_report.save()
@@ -132,7 +132,7 @@ class MatchReportTest(test_base.ReportFlowHelper):
         report.save()
 
         new_match_report = MatchReport(
-            report=report,
+            record=report,
             encrypted=legacy_match_report.encrypted,
             salt=legacy_match_report.salt,
             identifier="dumbo")
@@ -167,7 +167,7 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         self.assertEqual(User.objects.first(), self.user)
 
     def test_deleted_report_deletes_match_report(self):
-        match_report = MatchReport(report=self.report, identifier='dummy')
+        match_report = MatchReport(record=self.report, identifier='dummy')
         match_report.encrypt_match_report(
             "test match report", match_report.identifier)
         match_report.save()
@@ -176,26 +176,26 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         self.assertEqual(MatchReport.objects.count(), 0)
 
     def test_deleted_report_doesnt_delete_sent_report(self):
-        sent_report = SentFullReport.objects.create(report=self.report)
+        sent_report = SentFullReport.objects.create(record=self.report)
         self.assertIsNotNone(self.report.sentfullreport_set.first())
-        self.assertEqual(self.report, SentFullReport.objects.first().report)
+        self.assertEqual(self.report, SentFullReport.objects.first().record)
         self.report.delete()
         self.assertEqual(Record.objects.count(), 0)
         self.assertEqual(SentFullReport.objects.first(), sent_report)
 
     def test_deleted_report_doesnt_delete_sent_match_report(self):
-        match_report = MatchReport(report=self.report, identifier='dummy')
+        match_report = MatchReport(record=self.report, identifier='dummy')
         match_report.encrypt_match_report("test match report", 'dummy')
         match_report.save()
         user2 = User.objects.create_user(username="dummy2", password="dummy")
         report2 = Record(owner=user2)
         report2.encrypt_report("test report 2", "key")
         report2.save()
-        match_report2 = MatchReport(report=report2, identifier='dummy')
+        match_report2 = MatchReport(record=report2, identifier='dummy')
         match_report2.encrypt_match_report("test match report 2", 'dummy')
         match_report2.save()
         sent_match_report = SentMatchReport.objects.create()
-        sent_match_report.reports.add(match_report, match_report2)
+        sent_match_report.records.add(match_report, match_report2)
         self.report.match_found = True
         self.report.save()
         report2.match_found = True
@@ -204,17 +204,17 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         self.assertIsNotNone(match_report2.sentmatchreport_set.first())
         self.assertEqual(
             match_report,
-            SentMatchReport.objects.first().reports.all()[0])
+            SentMatchReport.objects.first().records.all()[0])
         self.assertEqual(
             match_report2,
-            SentMatchReport.objects.first().reports.all()[1])
+            SentMatchReport.objects.first().records.all()[1])
         self.report.delete()
         self.assertEqual(Record.objects.count(), 1)
         self.assertEqual(MatchReport.objects.count(), 1)
         self.assertEqual(SentMatchReport.objects.first(), sent_match_report)
-        self.assertEqual(SentMatchReport.objects.first().reports.count(), 1)
+        self.assertEqual(SentMatchReport.objects.first().records.count(), 1)
         self.assertEqual(
-            SentMatchReport.objects.first().reports.first(),
+            SentMatchReport.objects.first().records.first(),
             match_report2)
         self.assertTrue(Record.objects.first().match_found)
         report2.delete()

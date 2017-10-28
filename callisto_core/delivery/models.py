@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class Record(models.Model):
-    """The full text of a reported incident."""
+    '''The full text of an incident'''
     uuid = models.UUIDField(default=uuid.uuid4)
     encrypted = models.BinaryField(blank=False)
     owner = models.ForeignKey(
@@ -54,7 +54,7 @@ class Record(models.Model):
 
     @property
     def get_submitted_report_id(self):
-        """Return the ID of the first time a FullReport was submitted."""
+        '''Return the ID of the first time a FullReport was submitted.'''
         if self.submitted_to_school:
             sent_report = self.sentfullreport_set.first()
             report_id = sent_report.get_report_id() if sent_report else None
@@ -67,10 +67,10 @@ class Record(models.Model):
         report_text: str,  # the report questions, as a string of json
         passphrase: str,
     ) -> None:
-        """
+        '''
         Encrypts and attaches report text. Generates a random salt
         and stores it in the Report object's encode prefix.
-        """
+        '''
         stretched_key = self.encryption_setup(passphrase)
         json_report_text = json.dumps(report_text)
         self.encrypted = security.encrypt_text(stretched_key, json_report_text)
@@ -80,13 +80,13 @@ class Record(models.Model):
         self,
         passphrase: str,  # aka secret key aka passphrase
     ) -> dict or str:
-        """
+        '''
         Decrypts the report text.
         Uses the salt from the encode prefix stored on the Report object.
 
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
-        """
+        '''
         _, stretched_key = hashers.make_key(
             self.encode_prefix, passphrase, self.salt)
         report_text = security.decrypt_text(stretched_key, self.encrypted)
@@ -98,7 +98,7 @@ class Record(models.Model):
             return report_text
 
     def withdraw_from_matching(self):
-        """ Deletes all associated MatchReports """
+        ''' Deletes all associated MatchReports '''
         self.matchreport_set.all().delete()
         self.match_found = False
         self.save()
@@ -140,11 +140,11 @@ class Record(models.Model):
 
 
 class MatchReport(models.Model):
-    """
+    '''
     A report that indicates the user wants to submit if a match is found.
-    A single report can have multiple MatchReports--one per perpetrator.
-    """
-    report = models.ForeignKey(Record, on_delete=models.CASCADE)
+    A single record can have multiple MatchReports--one per perpetrator.
+    '''
+    record = models.ForeignKey(Record, on_delete=models.CASCADE)
     identifier = models.CharField(blank=True, null=True, max_length=500)
     added = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(blank=False, default=False)
@@ -155,25 +155,25 @@ class MatchReport(models.Model):
     encode_prefix = models.CharField(blank=True, max_length=500)
 
     def __str__(self):
-        return "MatchReport for report(pk={0})".format(self.report.pk)
+        return "MatchReport for Record(pk={0})".format(self.record.pk)
 
     @property
     def match_found(self):
-        self.report.refresh_from_db()
-        return self.report.match_found
+        self.record.refresh_from_db()
+        return self.record.match_found
 
     def encrypt_match_report(
         self,
         report_text: str,  # MatchReportContent as a string of json
         identifier: str,  # MatchReport is encrypted with the identifier
     ) -> None:
-        """
+        '''
         Encrypts and attaches report text. Generates a random salt and
         stores it in an encode prefix on the MatchReport object.
 
         MatchReports are encrypted with the identifier, whereas Reports
         are encrypted with the secret key
-        """
+        '''
         if self.salt:
             self.salt = None
         hasher = hashers.get_hasher()
@@ -192,10 +192,10 @@ class MatchReport(models.Model):
         self,
         identifier: str,  # MatchReport is encrypted with the identifier
     ) -> str or None:
-        """
+        '''
         Checks if the given identifier triggers a match on this report.
         Returns report text if so.
-        """
+        '''
         decrypted_report = None
 
         prefix, stretched_identifier = hashers.make_key(
@@ -214,7 +214,7 @@ class MatchReport(models.Model):
 
 
 class SentReport(PolymorphicModel):
-    """Report of one or more incidents, sent to the monitoring organization"""
+    '''Report of one or more incidents, sent to the monitoring organization'''
     sent = models.DateTimeField(auto_now_add=True)
     to_address = models.CharField(blank=False, null=False, max_length=4096)
 
@@ -225,8 +225,8 @@ class SentReport(PolymorphicModel):
 
 
 class SentFullReport(SentReport):
-    """Report of a single incident since to the monitoring organization"""
-    report = models.ForeignKey(
+    '''Report of a single incident since to the monitoring organization'''
+    record = models.ForeignKey(
         Record,
         blank=True,
         null=True,
@@ -237,8 +237,8 @@ class SentFullReport(SentReport):
 
 
 class SentMatchReport(SentReport):
-    """Report of multiple incidents, sent to the monitoring organization"""
-    reports = models.ManyToManyField(MatchReport)
+    '''Report of multiple incidents, sent to the monitoring organization'''
+    records = models.ManyToManyField(MatchReport)
 
     def get_report_id(self):
         return self._get_id_for_authority(is_match=True)

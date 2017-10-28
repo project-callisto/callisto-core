@@ -388,7 +388,7 @@ class ReportDeliveryTest(MatchTest):
             notes='Please only call after 5pm')
         match2 = self.create_match(self.user2, 'perp', match2_report_content)
         report = PDFMatchReport([match1, match2], "perp")
-        output = report.generate_match_report(report_id=1)
+        output = report.generate_match_report(record_id=1)
         exported_report = BytesIO(output)
         pdfReader = PyPDF2.PdfFileReader(exported_report)
 

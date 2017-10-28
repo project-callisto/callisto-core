@@ -103,7 +103,7 @@ class CallistoCoreNotificationApi(object):
 
         Called during a successful matching run
         '''
-        user = matches[0].report.owner
+        user = matches[0].record.owner
 
         self.context = {
             'notification_name': 'match_delivery',
@@ -131,10 +131,10 @@ class CallistoCoreNotificationApi(object):
 
         self.context = {
             'notification_name': 'match_notification',
-            'to_addresses': [match_report.report.contact_email],
+            'to_addresses': [match_report.record.contact_email],
             'site_id': self.user_site_id(user),
             'from_email': from_email,
-            'report': match_report.report,
+            'report': match_report.record,
             'user': user,
         }
         self.send()
@@ -155,7 +155,7 @@ class CallistoCoreNotificationApi(object):
         sent_match_report = SentMatchReport.objects.create(
             to_address=self.context['to_addresses'][0],
         )
-        sent_match_report.reports.add(*matches)
+        sent_match_report.records.add(*matches)
         sent_match_report.save()
 
         report_id = sent_match_report.get_report_id()

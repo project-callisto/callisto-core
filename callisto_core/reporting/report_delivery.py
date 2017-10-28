@@ -394,7 +394,7 @@ class PDFMatchReport(PDFReport):
                 )
             )
 
-            report = match_report.report
+            report = match_report.record
             user = report.owner
 
             if report.submitted_to_school:

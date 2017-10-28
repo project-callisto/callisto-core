@@ -159,8 +159,8 @@ class MatchNotificationTest(MatchSetup):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
             self.create_match(self.user1, 'test1')
             match_report = self.create_match(self.user2, 'test1', alert=False)
-            match_report.report.submitted_to_school = timezone.now()
-            match_report.report.save()
+            match_report.record.submitted_to_school = timezone.now()
+            match_report.record.save()
             MatchingApi.run_matching()
             self.assertNotEqual(api_logging.call_count, 2)  # old behavior
             self.assertEqual(api_logging.call_count, 3)  # new behavior
