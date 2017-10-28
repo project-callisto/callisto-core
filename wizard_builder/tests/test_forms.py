@@ -37,8 +37,8 @@ class FormSerializationTest(TestCase):
     def test_same_questions(self):
         actual_data = self.actual_data
         expected_data = self.expected_data
-        for index, expected_question in enumerate(self.expected_data):
-            actual_question = self.actual_data[index]
+        for index, expected_question in enumerate(expected_data):
+            actual_question = actual_data[index]
             self.assertEqual(
                 actual_question,
                 expected_question,
