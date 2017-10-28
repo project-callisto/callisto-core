@@ -176,6 +176,13 @@ class RadioButton(
     proxy_name = 'radiobutton'
 
 
+class Dropdown(
+    model_helpers.ProxyQuestion,
+    FormQuestion,
+):
+    proxy_name = 'dropdown'
+
+
 class Choice(models.Model):
     question = models.ForeignKey(
         FormQuestion,
