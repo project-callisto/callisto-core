@@ -11,13 +11,14 @@ class FormSerializationTest(TestCase):
     expected_data = [{
         'descriptive_text': 'answer wisely',
         'field_id': 'question_2',
-        'formquestion_ptr': 2,
         'id': 2,
         'page': 2,
         'position': 0,
         'question_text': 'do androids dream of electric sheep?',
         'text': 'do androids dream of electric sheep?',
-        'type': 'Singlelinetext',
+        'type': 'singlelinetext',
+        'is_dropdown': False,
+        'choices': [],
     }]
 
     @classmethod
