@@ -59,8 +59,9 @@ release: ## package and upload a release
 	git push
 
 app-setup: ## setup the test application environment
-	python manage.py flush --noinput
-	python manage.py migrate --noinput --database default
+	- rm wizard_builder_test_app.sqlite3
+	- python manage.py flush --noinput
+	python manage.py migrate --noinput
 	python manage.py create_admins
 	python manage.py setup_sites
 	make load-fixture
