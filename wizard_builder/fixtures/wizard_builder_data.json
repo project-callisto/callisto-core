@@ -40,7 +40,8 @@
       "descriptive_text": "choose some!",
       "page": 1,
       "position": 0,
-      "type": "checkbox"
+      "is_dropdown": false,
+      "type": null
     }
   },
   {
@@ -51,7 +52,8 @@
       "descriptive_text": "answer wisely",
       "page": 2,
       "position": 0,
-      "type": "singlelinetext"
+      "is_dropdown": false,
+      "type": null
     }
   },
   {
@@ -62,7 +64,8 @@
       "descriptive_text": "",
       "page": 1,
       "position": 0,
-      "type": "singlelinetext"
+      "is_dropdown": false,
+      "type": null
     }
   },
   {
@@ -73,39 +76,8 @@
       "descriptive_text": "pick a type",
       "page": 3,
       "position": 0,
-      "type": "radiobutton"
-    }
-  },
-  {
-    "model": "wizard_builder.singlelinetext",
-    "pk": 2,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.singlelinetext",
-    "pk": 3,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.multiplechoice",
-    "pk": 1,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.multiplechoice",
-    "pk": 4,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.checkbox",
-    "pk": 1,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.radiobutton",
-    "pk": 4,
-    "fields": {
-      "is_dropdown": false
+      "is_dropdown": false,
+      "type": null
     }
   },
   {
