@@ -41,7 +41,7 @@
       "page": 1,
       "position": 0,
       "is_dropdown": false,
-      "type": null
+      "type": "checkbox"
     }
   },
   {
@@ -53,7 +53,7 @@
       "page": 2,
       "position": 0,
       "is_dropdown": false,
-      "type": null
+      "type": "singlelinetext"
     }
   },
   {
@@ -65,7 +65,7 @@
       "page": 1,
       "position": 0,
       "is_dropdown": false,
-      "type": null
+      "type": "singlelinetext"
     }
   },
   {
@@ -77,7 +77,7 @@
       "page": 3,
       "position": 0,
       "is_dropdown": false,
-      "type": null
+      "type": "radiobutton"
     }
   },
   {
