@@ -4,7 +4,7 @@ Guidance for using callisto-core in your own unique downstream application
 
 ## Tenant Configuration
 
-You are likely starting out with 1 tenant, and so will want to lock your SITE_ID to 1 via one of both of these methods
+You are likely starting out with 1 tenant, and so will want to lock your SITE_ID to 1 via one or both of these methods
 
 ```bash
 # bash profile, or similar
@@ -77,23 +77,28 @@ django settings.py minimum requirements
 - GPG (WIP)
 - tenant specific (WIP)
 
-## Views
+## APIs
 
-### views.py
+### View Functions
 
-Views specific to callisto-core, if you are implementing callisto-core you SHOULD NOT be importing these views. Import from view_partials instead. All of the classes in this file should represent one of more HTML view.
+View partials provide all the callisto-core front-end functionality. Subclass these partials with your own views if you are implementing callisto-core.
 
-### view_partials.py
+The `views.py` files in this repo are specific to callisto-core. If you are implementing callisto-core you SHOULD NOT be importing these views. Import from `view_partials` instead, and implement classes that look like the ones in `views`.
 
-View partials provide all the callisto-core front-end functionality. Subclass these partials with your own views if you are implementing callisto-core. Many of the view partials only provide a subset of the functionality required for a full HTML view.
+### NotificationApi
+
+Use this to change your notification (eg. emails, PDFs, slack messages, etc) implementation
+
+(further instructions WIP)
+
+### MatchingApi
+
+Use this to change your matching implementation
+
+(further instructions WIP)
 
 ## Data
 
 - sites (WIP)
 - questions (WIP)
 - notifications (WIP)
-
-## Apis
-
-- notification (WIP)
-- matching (WIP)
