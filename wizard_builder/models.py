@@ -87,7 +87,6 @@ class FormQuestion(models.Model):
         on_delete=models.SET_NULL,
     )
     position = models.PositiveSmallIntegerField("position", default=0)
-    is_dropdown = models.BooleanField(default=False)
     type = models.TextField(
         choices=fields.get_field_options(),
         null=True,

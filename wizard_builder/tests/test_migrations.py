@@ -173,3 +173,26 @@ class MoveChoiceQuestionMigrationTest(MigrationTest):
             new_base_question._meta.model_name.lower(), 'formquestion')
         self.assertEqual(
             old_base_question.id, new_base_question.id)
+
+
+class DropdownMigrationTest(MigrationTest):
+
+    app_name = 'wizard_builder'
+    before = '0039_dropdown_proxy'
+    after = '0040_populate_dropdown'
+
+    def test_type_populated(self):
+        FormQuestion = self.get_model_before('wizard_builder.FormQuestion')
+
+        no_dropdown = FormQuestion.objects.create(
+            type='radiobutton')
+        yes_dropdown = FormQuestion.objects.create(
+            type='radiobutton', is_dropdown=True)
+
+        self.run_migration()
+
+        no_dropdown = FormQuestion.objects.get(id=no_dropdown.id)
+        yes_dropdown = FormQuestion.objects.get(id=yes_dropdown.id)
+
+        self.assertEqual(no_dropdown.type, 'radiobutton')
+        self.assertEqual(yes_dropdown.type, 'dropdown')
