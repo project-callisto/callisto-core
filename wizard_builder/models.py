@@ -76,7 +76,6 @@ class Page(
         ordering = ['position']
 
 
-# TODO: rename to Question when downcasting is removed
 class FormQuestion(models.Model):
     text = models.TextField(blank=True)
     descriptive_text = models.TextField(blank=True)
