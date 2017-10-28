@@ -199,8 +199,7 @@ class Choice(models.Model):
     question = models.ForeignKey(
         FormQuestion,
         on_delete=models.CASCADE,
-        null=True,
-        related_name='example2')
+        null=True)
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
     extra_info_text = models.TextField(blank=True)
