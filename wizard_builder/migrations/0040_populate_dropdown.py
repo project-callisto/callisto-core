@@ -8,7 +8,8 @@ from django.db import migrations, models
 def add_dropdowns(apps, schema_editor):
     current_database = schema_editor.connection.alias
     Question = apps.get_model('wizard_builder.FormQuestion')
-    questions = Question.objects.filter(is_dropdown=True).using(current_database)
+    questions = Question.objects.filter(
+        is_dropdown=True).using(current_database)
     for question in questions:
         question.type = 'dropdown'
         question.save()
