@@ -73,7 +73,7 @@ load-fixture: ## load fixture from file
 
 update-fixture: ## update fixture with migrations added on the local branch
 	git checkout master
-	python manage.py flush --noinput
+	rm wizard_builder_test_app.sqlite3
 	- python manage.py loaddata $(DATA_FILE) -i
 	git checkout @{-1}
 	python manage.py migrate
