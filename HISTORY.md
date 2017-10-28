@@ -1,5 +1,12 @@
 # History / Changelog
 
+## 3.0.0 (2017-10-28)
+
+* removed downcasting queries
+* removed django-model-utils dependency
+
+    https://github.com/project-callisto/django-wizard-builder/pull/200
+
 ## 2.4.4 (2017-10-28)
 
 * fix button order in example app
