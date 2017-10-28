@@ -2,8 +2,8 @@ import nested_admin
 
 from django import forms
 
-from .inlines import ChoiceInline
 from .. import fields
+from .inlines import ChoiceInline
 
 
 class QuestionAdminForm(forms.ModelForm):

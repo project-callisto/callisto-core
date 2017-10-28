@@ -154,18 +154,12 @@ class SingleLineText(
 ):
     proxy_name = 'singlelinetext'
 
-    class Meta:
-        proxy = True
-
 
 class TextArea(
     model_helpers.ProxyQuestion,
     FormQuestion,
 ):
     proxy_name = 'textarea'
-
-    class Meta:
-        proxy = True
 
 
 class Checkbox(
@@ -174,18 +168,12 @@ class Checkbox(
 ):
     proxy_name = 'checkbox'
 
-    class Meta:
-        proxy = True
-
 
 class RadioButton(
     model_helpers.ProxyQuestion,
     FormQuestion,
 ):
     proxy_name = 'radiobutton'
-
-    class Meta:
-        proxy = True
 
 
 class Choice(models.Model):
