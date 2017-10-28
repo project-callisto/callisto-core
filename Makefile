@@ -74,7 +74,7 @@ load-fixture: ## load fixture from file
 update-fixture: ## update fixture with migrations added on the local branch
 	git checkout master
 	python manage.py flush --noinput
-	python manage.py loaddata $(DATA_FILE) -i
+	- python manage.py loaddata $(DATA_FILE) -i
 	git checkout @{-1}
 	python manage.py migrate
 	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
