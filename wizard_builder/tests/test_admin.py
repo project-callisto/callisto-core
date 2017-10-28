@@ -33,18 +33,14 @@ class AdminFunctionalTest(FunctionalTest):
         self.assertIn('Django administration', self.browser.page_source)
         self.assertIn('Wizard Builder', self.browser.page_source)
 
-    def test_can_see_all_models(self):
-        wizard_builder_models = [
-            Page,
-            FormQuestion,
-            SingleLineText,
-            MultipleChoice,
-            Checkbox,
-            RadioButton,
-            Choice,
-            TextArea,
-        ]
-        for Model in wizard_builder_models:
-            self.assertIn(
-                Model._meta.verbose_name.lower(),
-                self.browser.page_source.lower())
+    def test_page_visible(self):
+        self.assertIn(
+            Page._meta.verbose_name.lower(),
+            self.browser.page_source.lower(),
+        )
+
+    def test_question_visible(self):
+        self.assertIn(
+            FormQuestion._meta.verbose_name.lower(),
+            self.browser.page_source.lower(),
+        )
