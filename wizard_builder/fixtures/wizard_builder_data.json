@@ -40,7 +40,6 @@
       "descriptive_text": "choose some!",
       "page": 1,
       "position": 0,
-      "is_dropdown": false,
       "type": "checkbox"
     }
   },
@@ -52,7 +51,6 @@
       "descriptive_text": "answer wisely",
       "page": 2,
       "position": 0,
-      "is_dropdown": false,
       "type": "singlelinetext"
     }
   },
@@ -64,7 +62,6 @@
       "descriptive_text": "",
       "page": 1,
       "position": 0,
-      "is_dropdown": false,
       "type": "singlelinetext"
     }
   },
@@ -76,7 +73,6 @@
       "descriptive_text": "pick a type",
       "page": 3,
       "position": 0,
-      "is_dropdown": false,
       "type": "radiobutton"
     }
   },
