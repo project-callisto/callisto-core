@@ -88,7 +88,6 @@ class FormQuestion(models.Model):
     )
     position = models.PositiveSmallIntegerField("position", default=0)
     is_dropdown = models.BooleanField(default=False)
-    objects = managers.FormQuestionManager()
     type = models.TextField(
         choices=fields.get_field_options(),
         null=True,
