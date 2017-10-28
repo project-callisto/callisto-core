@@ -14,7 +14,7 @@ test-lint: ## lint with isort and flake8
 	isort --check-only --diff --quiet -rc wizard_builder/
 
 test-fast:
-	pytest -vlsx --ff --reuse-db --ignore wizard_builder/tests/test_frontend.py
+	pytest -vlsx --ff --reuse-db --ignore=wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py
 
 test-local-suite:
 	python manage.py check
