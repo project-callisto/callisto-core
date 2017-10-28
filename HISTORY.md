@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 2.4.4 (2017-10-28)
+
+* fix button order in example app
+
 ## 2.4.3 (2017-10-20)
 
 * partially disable conditionals

@@ -6,18 +6,19 @@
         {% include "wizard_builder/wizard_form_fields.html" %}
     </div>
 
-    <div class="col-xs-4">
-        {% if view.wizard_prev_step_exists %}
-            <input class='btn btn-default btn-block' type="submit" name="{{ view.wizard_goto_name }}" value="{{ view.wizard_back_name }}" />
-        {% endif %}
-    </div>
-
-    <div class="col-xs-4 col-xs-offset-4">
-        {% if view.wizard_next_is_done %}
-            <input class='btn btn-primary btn-block' type="submit" name="{{ view.wizard_goto_name }}" value="{{ view.wizard_review_name }}" />
-        {% else %}
-            <input class='btn btn-primary btn-block' type="submit" name="{{ view.wizard_goto_name }}" value="{{ view.wizard_next_name }}" />
-        {% endif %}
+    <div class="container-fluid" style="display: flex; flex-direction: row-reverse;">
+        <div class="col-xs-4 col-xs-offset-4">
+            {% if view.wizard_next_is_done %}
+                <input class='btn btn-primary btn-block' type="submit" name="{{ view.wizard_goto_name }}" value="{{ view.wizard_review_name }}" />
+            {% else %}
+                <input class='btn btn-primary btn-block' type="submit" name="{{ view.wizard_goto_name }}" value="{{ view.wizard_next_name }}" />
+            {% endif %}
+        </div>
+        <div class="col-xs-4">
+            {% if view.wizard_prev_step_exists %}
+                <input class='btn btn-default btn-block' type="submit" name="{{ view.wizard_goto_name }}" value="{{ view.wizard_back_name }}" />
+            {% endif %}
+        </div>
     </div>
 
 </form>
