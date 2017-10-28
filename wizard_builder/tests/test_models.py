@@ -56,16 +56,6 @@ class FormQuestionModelTest(ItemTestCase):
             question.text,
         )
 
-    def test_questions_get_added_to_end_by_default(self):
-        # setup creates one page
-        pages = 9
-        for i in range(pages):
-            Page.objects.create()
-        question = SingleLineText.objects.create(
-            text="This is a question with no page",
-        )
-        self.assertEqual(question.page.position, pages + 1)
-
     def test_questions_have_position(self):
         SingleLineText.objects.create(text="some question")
         self.assertEqual(SingleLineText.objects.first().position, 0)
