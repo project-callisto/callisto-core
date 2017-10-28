@@ -17,7 +17,6 @@ class FormSerializationTest(TestCase):
         'question_text': 'do androids dream of electric sheep?',
         'text': 'do androids dream of electric sheep?',
         'type': 'singlelinetext',
-        'is_dropdown': False,
         'choices': [],
     }]
 
