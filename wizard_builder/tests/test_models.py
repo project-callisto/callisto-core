@@ -3,7 +3,7 @@ import json
 from django import forms
 from django.test import TestCase
 
-from .. import mocks
+from .. import mocks, models
 from ..models import (
     Checkbox, Choice, ChoiceOption, FormQuestion, Page, RadioButton,
     SingleLineText,
@@ -102,8 +102,7 @@ class RadioButtonTestCase(ItemTestCase):
         self.assertIsInstance(field.widget, forms.RadioSelect)
 
     def test_can_make_dropdown(self):
-        model = RadioButton.objects.create(
-            text="this is a dropdown question", is_dropdown=True)
+        model = models.Dropdown.objects.create(text="this is a dropdown")
         for i in range(5):
             Choice.objects.create(text=f"choice {i}", question=model)
         mock = mocks.MockQuestion(model.serialized)
