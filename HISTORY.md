@@ -1,6 +1,6 @@
 # History / Changelog
 
-## 3.0.0 (2017-10-28)
+## 2.5.0 (2017-10-28)
 
 * removed downcasting queries
 * removed django-model-utils dependency
