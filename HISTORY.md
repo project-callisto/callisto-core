@@ -4,6 +4,7 @@
 
 * removed downcasting queries
 * removed django-model-utils dependency
+* refactored admin classes
 
     https://github.com/project-callisto/django-wizard-builder/pull/200
 
