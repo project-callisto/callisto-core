@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.16.1 (2017-10-28)
+
+* bump version support to `django-wizard-builder>=2.5,<2.6`
+
 ## 0.16.0 (2017-10-19)
 
 * better support for multiple records
