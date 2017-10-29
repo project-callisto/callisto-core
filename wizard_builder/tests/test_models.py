@@ -3,7 +3,7 @@ import json
 from django import forms
 from django.test import TestCase
 
-from .. import mocks
+from .. import mocks, models
 from ..models import (
     Checkbox, Choice, ChoiceOption, FormQuestion, Page, RadioButton,
     SingleLineText,
@@ -56,16 +56,6 @@ class FormQuestionModelTest(ItemTestCase):
             question.text,
         )
 
-    def test_questions_get_added_to_end_by_default(self):
-        # setup creates one page
-        pages = 9
-        for i in range(pages):
-            Page.objects.create()
-        question = SingleLineText.objects.create(
-            text="This is a question with no page",
-        )
-        self.assertEqual(question.page.position, pages + 1)
-
     def test_questions_have_position(self):
         SingleLineText.objects.create(text="some question")
         self.assertEqual(SingleLineText.objects.first().position, 0)
@@ -112,8 +102,7 @@ class RadioButtonTestCase(ItemTestCase):
         self.assertIsInstance(field.widget, forms.RadioSelect)
 
     def test_can_make_dropdown(self):
-        model = RadioButton.objects.create(
-            text="this is a dropdown question", is_dropdown=True)
+        model = models.Dropdown.objects.create(text="this is a dropdown")
         for i in range(5):
             Choice.objects.create(text=f"choice {i}", question=model)
         mock = mocks.MockQuestion(model.serialized)

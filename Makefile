@@ -14,7 +14,7 @@ test-lint: ## lint with isort and flake8
 	isort --check-only --diff --quiet -rc wizard_builder/
 
 test-fast:
-	pytest -vlsx --ff --reuse-db --ignore wizard_builder/tests/test_frontend.py
+	pytest -vlsx --ff --reuse-db --ignore=wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py --ignore=wizard_builder/tests/test_migrations.py
 
 test-local-suite:
 	python manage.py check
@@ -59,8 +59,9 @@ release: ## package and upload a release
 	git push
 
 app-setup: ## setup the test application environment
-	python manage.py flush --noinput
-	python manage.py migrate --noinput --database default
+	- rm wizard_builder_test_app.sqlite3
+	- python manage.py flush --noinput
+	python manage.py migrate --noinput
 	python manage.py create_admins
 	python manage.py setup_sites
 	make load-fixture
@@ -71,6 +72,12 @@ shell: ## manage.py shell_plus with dev settings
 load-fixture: ## load fixture from file
 	python manage.py loaddata $(DATA_FILE)
 
-create-fixture: ## create fixture from db
+update-fixture: ## update fixture with migrations added on the local branch
+	git checkout master
+	- rm wizard_builder_test_app.sqlite3
+	- python manage.py migrate
+	- python manage.py loaddata $(DATA_FILE) -i
+	git checkout @{-1}
+	python manage.py migrate
 	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
 	npx json -f $(DATA_FILE) -I

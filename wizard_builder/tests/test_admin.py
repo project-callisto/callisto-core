@@ -1,10 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 
-from ..models import (
-    Checkbox, Choice, FormQuestion, MultipleChoice, Page, RadioButton,
-    SingleLineText, TextArea,
-)
+from ..models import FormQuestion, Page
 from .base import FunctionalTest
 
 User = get_user_model()
@@ -33,18 +30,14 @@ class AdminFunctionalTest(FunctionalTest):
         self.assertIn('Django administration', self.browser.page_source)
         self.assertIn('Wizard Builder', self.browser.page_source)
 
-    def test_can_see_all_models(self):
-        wizard_builder_models = [
-            Page,
-            FormQuestion,
-            SingleLineText,
-            MultipleChoice,
-            Checkbox,
-            RadioButton,
-            Choice,
-            TextArea,
-        ]
-        for Model in wizard_builder_models:
-            self.assertIn(
-                Model._meta.verbose_name.lower(),
-                self.browser.page_source.lower())
+    def test_page_visible(self):
+        self.assertIn(
+            Page._meta.verbose_name.lower(),
+            self.browser.page_source.lower(),
+        )
+
+    def test_question_visible(self):
+        self.assertIn(
+            FormQuestion._meta.verbose_name.lower(),
+            self.browser.page_source.lower(),
+        )

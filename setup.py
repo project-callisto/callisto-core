@@ -27,7 +27,6 @@ setup(
     zip_safe=False,
     python_requires='>=3',
     install_requires=[
-        'django-model-utils>=3.0',
         'django-widget-tweaks==1.4.1',
         'django-nested-admin==3.0.20',
     ],

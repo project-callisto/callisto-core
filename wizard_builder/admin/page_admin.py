@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .base import QuestionInline
+from .inlines import QuestionInline
 
 
 class PageAdmin(admin.ModelAdmin):

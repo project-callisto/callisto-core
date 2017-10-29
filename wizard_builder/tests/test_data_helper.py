@@ -2,7 +2,7 @@ from unittest import skip
 
 from django.test import TestCase
 
-from .. import forms, managers, view_helpers
+from .. import managers, view_helpers
 
 
 class DataHelperTest(TestCase):

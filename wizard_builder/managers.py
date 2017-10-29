@@ -1,9 +1,5 @@
 import logging
-import sys
 
-from model_utils.managers import InheritanceManager, InheritanceQuerySet
-
-from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
@@ -71,23 +67,6 @@ class PageQuerySet(QuerySet):
         )
 
 
-class FormQuestionQuerySet(InheritanceQuerySet):
-    pass
-
-
-class AutoDowncastingManager(InheritanceManager):
-
-    def get_queryset(self):
-        base_queryset = self._queryset(self.model, using=self._db)
-        if getattr(settings, 'WIZARD_BUILDER_DISABLE_DOWNCASTING', False):
-            return base_queryset
-        # sourced from similar code in django-polymorphic
-        elif len(sys.argv) > 1 and sys.argv[1] == 'dumpdata':
-            return base_queryset
-        else:
-            return base_queryset.select_subclasses()
-
-
 class PageManager(Manager):
     _queryset_class = PageQuerySet
 
@@ -96,7 +75,3 @@ class PageManager(Manager):
 
     def on_site(self, site_id=None):
         return self.get_queryset().on_site(site_id)
-
-
-class FormQuestionManager(AutoDowncastingManager):
-    _queryset = FormQuestionQuerySet

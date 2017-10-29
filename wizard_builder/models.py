@@ -4,7 +4,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.forms.models import model_to_dict
 
-from . import managers, model_helpers
+from . import fields, managers, model_helpers
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class Page(
             Page.position defaults to 0, but we take 0 to mean "not set"
             so when there are no pages, Page.position is set to 1
 
-            otherwise we Page.position to the position of the latest
+            otherwise we set Page.position to the position of the latest
             object that isn't self, +1
         '''
         cls = self.__class__
@@ -76,7 +76,6 @@ class Page(
         ordering = ['position']
 
 
-# TODO: rename to Question when downcasting is removed
 class FormQuestion(models.Model):
     text = models.TextField(blank=True)
     descriptive_text = models.TextField(blank=True)
@@ -84,10 +83,14 @@ class FormQuestion(models.Model):
         Page,
         editable=True,
         null=True,
+        blank=False,
         on_delete=models.SET_NULL,
     )
     position = models.PositiveSmallIntegerField("position", default=0)
-    objects = managers.FormQuestionManager()
+    type = models.TextField(
+        choices=fields.get_field_options(),
+        null=True,
+        default='singlelinetext')
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
@@ -121,43 +124,12 @@ class FormQuestion(models.Model):
 
     @property
     def serialized(self):
-        # TODO use: from django.forms.models import model_to_dict
         data = model_to_dict(self)
         data.update({
             'question_text': self.text,
-            'type': self._meta.model_name.capitalize(),
             'field_id': self.field_id,
+            'choices': self.serialized_choices,
         })
-        return data
-
-    def set_question_page(self):
-        if not self.page:
-            self.page = Page.objects.latest('position')
-
-    def save(self, *args, **kwargs):
-        self.set_question_page()
-        super(FormQuestion, self).save(*args, **kwargs)
-
-    class Meta:
-        ordering = ['position']
-        verbose_name = 'question'
-
-
-class SingleLineText(FormQuestion):
-    pass
-
-
-class TextArea(FormQuestion):
-    pass
-
-
-class MultipleChoice(FormQuestion):
-    objects = managers.FormQuestionManager()
-
-    @property
-    def serialized(self):
-        data = super().serialized
-        data.update({'choices': self.serialized_choices})
         return data
 
     @property
@@ -166,21 +138,59 @@ class MultipleChoice(FormQuestion):
 
     @property
     def choices(self):
-        return list(self.choice_set.all().order_by('position'))
-
-
-class Checkbox(MultipleChoice):
+        try:
+            return list(self.choice_set.all().order_by('position'))
+        except BaseException:
+            return []
 
     class Meta:
-        verbose_name_plural = "checkboxes"
+        ordering = ['position']
 
 
-class RadioButton(MultipleChoice):
-    is_dropdown = models.BooleanField(default=False)
+class SingleLineText(
+    model_helpers.ProxyQuestion,
+    FormQuestion,
+):
+    proxy_name = 'singlelinetext'
+
+
+class TextArea(
+    model_helpers.ProxyQuestion,
+    FormQuestion,
+):
+    proxy_name = 'textarea'
+
+
+class MultipleChoice(
+    model_helpers.ProxyQuestion,
+    FormQuestion,
+):
+    pass
+
+
+class Checkbox(
+    MultipleChoice,
+):
+    proxy_name = 'checkbox'
+
+
+class RadioButton(
+    MultipleChoice,
+):
+    proxy_name = 'radiobutton'
+
+
+class Dropdown(
+    MultipleChoice,
+):
+    proxy_name = 'dropdown'
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(MultipleChoice, on_delete=models.CASCADE)
+    question = models.ForeignKey(
+        FormQuestion,
+        on_delete=models.CASCADE,
+        null=True)
     text = models.TextField(blank=False)
     position = models.PositiveSmallIntegerField("Position", default=0)
     extra_info_text = models.TextField(blank=True)

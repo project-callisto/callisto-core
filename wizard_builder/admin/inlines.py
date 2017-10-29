@@ -2,42 +2,10 @@ import nested_admin
 
 from django import forms
 from django.contrib import admin
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse_lazy
 from django.db import models
-from django.utils.html import format_html
 
 from ..models import Choice, ChoiceOption, FormQuestion
-
-
-class DowncastedAdmin(nested_admin.NestedModelAdmin):
-
-    list_display = ['object_display', 'model_type']
-
-    def get_queryset(self, request):
-        base_queryset = super(DowncastedAdmin, self).get_queryset(request)
-        return base_queryset.select_subclasses()
-
-    def object_display(self, obj):
-        model_name = obj.__class__.__name__
-        reverse_url = 'admin:{}_{}_change'.format(
-            obj._meta.app_label,
-            model_name.lower(),
-        )
-        url = reverse(reverse_url, args=(obj.id,))
-        text = obj.__str__()
-        return format_html('<a href="{}">{}</a>'.format(url, text))
-    object_display.short_description = 'Object'
-
-    def model_type(self, obj):
-        model_name = obj.__class__.__name__
-        reverse_url = 'admin:{}_{}_changelist'.format(
-            obj._meta.app_label,
-            model_name.lower(),
-        )
-        url = reverse(reverse_url)
-        text = obj.__class__._meta.verbose_name.capitalize()
-        return format_html('<a href="{}">{}</a>'.format(url, text))
-    model_type.short_description = 'Type'
 
 
 class ChoiceOptionInline(nested_admin.NestedStackedInline):
@@ -84,11 +52,3 @@ class QuestionInline(admin.TabularInline):
     sortable_field_name = "position"
     fields = ['question_link', 'question_type', 'position']
     readonly_fields = ['question_link', 'question_type']
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return True
-
-    extra = 0

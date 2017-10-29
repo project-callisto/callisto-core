@@ -1,5 +1,13 @@
 # History / Changelog
 
+## 2.5.0 (2017-10-28)
+
+* removed downcasting queries
+* removed django-model-utils dependency
+* refactored admin classes
+
+    https://github.com/project-callisto/django-wizard-builder/pull/200
+
 ## 2.4.4 (2017-10-28)
 
 * fix button order in example app

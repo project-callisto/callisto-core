@@ -39,7 +39,8 @@
       "text": "food options",
       "descriptive_text": "choose some!",
       "page": 1,
-      "position": 0
+      "position": 0,
+      "type": "checkbox"
     }
   },
   {
@@ -49,7 +50,8 @@
       "text": "do androids dream of electric sheep?",
       "descriptive_text": "answer wisely",
       "page": 2,
-      "position": 0
+      "position": 0,
+      "type": "singlelinetext"
     }
   },
   {
@@ -59,7 +61,8 @@
       "text": "eat it now???",
       "descriptive_text": "",
       "page": 1,
-      "position": 0
+      "position": 0,
+      "type": "singlelinetext"
     }
   },
   {
@@ -69,39 +72,8 @@
       "text": "whats on the radios?",
       "descriptive_text": "pick a type",
       "page": 3,
-      "position": 0
-    }
-  },
-  {
-    "model": "wizard_builder.singlelinetext",
-    "pk": 2,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.singlelinetext",
-    "pk": 3,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.multiplechoice",
-    "pk": 1,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.multiplechoice",
-    "pk": 4,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.checkbox",
-    "pk": 1,
-    "fields": {}
-  },
-  {
-    "model": "wizard_builder.radiobutton",
-    "pk": 4,
-    "fields": {
-      "is_dropdown": false
+      "position": 0,
+      "type": "radiobutton"
     }
   },
   {
