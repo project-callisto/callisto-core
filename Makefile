@@ -4,6 +4,10 @@ DATA_FILE := wizard_builder/fixtures/wizard_builder_data.json
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
+clean:
+	make clean-lint
+	make clean-build
+
 clean-lint: ## run the cleanup functions for the linters
 	autopep8 wizard_builder/ -raai
 	isort -rc wizard_builder/

@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 2.5.1 (2017-10-30)
+
+* fix migration 0034 on postgres
+
 ## 2.5.0 (2017-10-28)
 
 * removed downcasting queries

@@ -151,7 +151,7 @@ class MoveChoiceQuestionMigrationTest(MigrationTest):
 
     app_name = 'wizard_builder'
     before = '0033_add_temps'
-    after = '0034_move_choice_question'
+    after = '0035_auto_20171025_0014'
 
     def test_type_populated(self):
         RadioButton = self.get_model_before('wizard_builder.RadioButton')
