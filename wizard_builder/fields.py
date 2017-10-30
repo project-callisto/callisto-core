@@ -1,8 +1,9 @@
 import inspect
 
 from django import forms
-from django.forms import widgets
 from django.utils.safestring import mark_safe
+
+from . import widgets as wizard_builder_widgets
 
 
 def get_field_options():
@@ -52,7 +53,7 @@ class QuestionField(object):
             label=question.text,
             help_text=question.descriptive_text,
             required=False,
-            widget=widgets.CheckboxSelectMultiple,
+            widget=wizard_builder_widgets.CheckboxExtraSelectMultiple,
         )
 
     @classmethod
@@ -62,7 +63,7 @@ class QuestionField(object):
             label=question.text,
             help_text=question.descriptive_text,
             required=False,
-            widget=widgets.RadioSelect,
+            widget=wizard_builder_widgets.RadioExtraSelect,
         )
 
     @classmethod
@@ -72,5 +73,5 @@ class QuestionField(object):
             label=question.text,
             help_text=question.descriptive_text,
             required=False,
-            widget=widgets.Select,
+            widget=wizard_builder_widgets.ExtraSelect,
         )
