@@ -97,11 +97,9 @@ class FrontendTest(FunctionalBase):
         self.assertSelectorContains('form', 'apples')
         self.assertSelectorContains('form', 'sugar')
 
-    @skip('TEMP_CONDITIONALS_DISABLE')
     def test_extra_info(self):
         self.assertCss('[placeholder="extra information here"]')
 
-    @skip('TEMP_CONDITIONALS_DISABLE')
     def test_extra_dropdown(self):
         self.element.extra_dropdown.click()
         # / really unreliable way to wait for the element to be displayed
