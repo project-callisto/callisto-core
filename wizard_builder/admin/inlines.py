@@ -23,10 +23,9 @@ class ChoiceInline(nested_admin.NestedStackedInline):
     formfield_overrides = {
         models.TextField: {'widget': forms.TextInput},
     }
-    # TEMP_CONDITIONALS_DISABLE
-    # inlines = [
-    #     ChoiceOptionInline,
-    # ]
+    inlines = [
+        ChoiceOptionInline,
+    ]
 
 
 class QuestionInline(admin.TabularInline):
