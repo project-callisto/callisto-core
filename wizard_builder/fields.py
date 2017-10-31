@@ -55,47 +55,49 @@ class QuestionField(object):
     @classmethod
     def singlelinetext(cls, question):
         return forms.CharField(
-            label=mark_safe(question.text),
             required=False,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
         )
 
     @classmethod
     def textarea(cls, question):
         return forms.CharField(
-            widget=forms.Textarea,
-            label=mark_safe(question.text),
             required=False,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
+            widget=forms.Textarea,
         )
 
     @classmethod
     def checkbox(cls, question):
         return ConditionalMultipleChoiceField(
-            choice_datas=question.choices_data_array,
-            choices=question.choices_pk_text_array,
-            label=question.text,
-            help_text=question.descriptive_text,
             required=False,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
             widget=wizard_builder_widgets.CheckboxConditionalSelectMultiple,
+            choices=question.choices_pk_text_array,
+            choice_datas=question.choices_data_array,
         )
 
     @classmethod
     def radiobutton(cls, question):
         return ConditionalChoiceField(
-            choice_datas=question.choices_data_array,
-            choices=question.choices_pk_text_array,
-            label=question.text,
-            help_text=question.descriptive_text,
             required=False,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
             widget=wizard_builder_widgets.RadioConditionalSelect,
+            choices=question.choices_pk_text_array,
+            choice_datas=question.choices_data_array,
         )
 
     @classmethod
     def dropdown(cls, question):
         return ConditionalChoiceField(
-            choice_datas=question.choices_data_array,
-            choices=question.choices_pk_text_array,
-            label=question.text,
-            help_text=question.descriptive_text,
             required=False,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
             widget=wizard_builder_widgets.ConditionalSelect,
+            choices=question.choices_pk_text_array,
+            choice_datas=question.choices_data_array,
         )
