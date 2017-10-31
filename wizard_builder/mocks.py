@@ -55,7 +55,7 @@ class MockQuestion(object):
     @property
     def choices_field_display(self):
         return [
-            (choice.pk, choice.text)
+            (choice.pk, choice.text, choice.data)
             for choice in self.choices
         ]
 
@@ -74,3 +74,4 @@ class MockChoice(object):
         self.pk = self.id = data.get('pk')
         self.text = data.get('text')
         self.position = data.get('position', 0)
+        self.data = data
