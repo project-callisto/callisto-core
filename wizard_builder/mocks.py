@@ -53,9 +53,16 @@ class MockQuestion(object):
         return 'question_' + str(self.id)
 
     @property
-    def choices_field_display(self):
+    def choices_data_array(self):
         return [
-            (choice.pk, choice.text, choice.data)
+            choice.data
+            for choice in self.choices
+        ]
+
+    @property
+    def choices_pk_text_array(self):
+        return [
+            (choice.pk, choice.text)
             for choice in self.choices
         ]
 

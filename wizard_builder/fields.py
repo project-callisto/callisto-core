@@ -22,6 +22,27 @@ def get_field_options():
     return field_names
 
 
+class ConditionalFieldMixin:
+
+    def __init__(self, *args, choice_datas, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget.choice_datas = choice_datas
+
+
+class ConditionalChoiceField(
+    ConditionalFieldMixin,
+    forms.ChoiceField,
+):
+    pass
+
+
+class ConditionalMultipleChoiceField(
+    ConditionalFieldMixin,
+    forms.MultipleChoiceField,
+):
+    pass
+
+
 class QuestionField(object):
     '''
     The functions on this class correspond to the types of questions
@@ -48,30 +69,33 @@ class QuestionField(object):
 
     @classmethod
     def checkbox(cls, question):
-        return forms.MultipleChoiceField(
-            choices=question.choices_field_display,
+        return ConditionalMultipleChoiceField(
+            choice_datas=question.choices_data_array,
+            choices=question.choices_pk_text_array,
             label=question.text,
             help_text=question.descriptive_text,
             required=False,
-            widget=wizard_builder_widgets.CheckboxExtraSelectMultiple,
+            widget=wizard_builder_widgets.CheckboxConditionalSelectMultiple,
         )
 
     @classmethod
     def radiobutton(cls, question):
-        return forms.ChoiceField(
-            choices=question.choices_field_display,
+        return ConditionalChoiceField(
+            choice_datas=question.choices_data_array,
+            choices=question.choices_pk_text_array,
             label=question.text,
             help_text=question.descriptive_text,
             required=False,
-            widget=wizard_builder_widgets.RadioExtraSelect,
+            widget=wizard_builder_widgets.RadioConditionalSelect,
         )
 
     @classmethod
     def dropdown(cls, question):
-        return forms.ChoiceField(
-            choices=question.choices_field_display,
+        return ConditionalChoiceField(
+            choice_datas=question.choices_data_array,
+            choices=question.choices_pk_text_array,
             label=question.text,
             help_text=question.descriptive_text,
             required=False,
-            widget=wizard_builder_widgets.ExtraSelect,
+            widget=wizard_builder_widgets.ConditionalSelect,
         )

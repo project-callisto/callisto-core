@@ -8,12 +8,12 @@ from django.forms.widgets import (
 logger = logging.getLogger(__name__)
 
 
-class ExtraOptionsGenerator(object):
+class ConditionalGenerator(object):
     dropdown_var = 'extra_dropdown_widget_context'
     text_var = 'extra_text_widget_context'
 
     @classmethod
-    def get_context(
+    def generate_context(
         cls,
         choice,
         extra_info_data,
@@ -23,33 +23,25 @@ class ExtraOptionsGenerator(object):
         self.choice = choice
         self.extra_info_data = extra_info_data
         self.extra_options_data = extra_options_data
-        return self.create_context()
+        return self.context_from_conditional_type()
 
-    def create_context(self):
-        if self.choice.options and self.choice.extra_info_text:
-            logger.error('''
-                self.options and self.extra_info_text defined for Choice(pk={})
-            '''.format(self.choice.pk))
-            return {}
-        elif self.choice.options:
-            return {self.dropdown_var: self.get_context_dropdown()}
-        elif self.choice.extra_info_text:
-            return {self.text_var: self.get_context_text()}
+    def context_from_conditional_type(self):
+        if self.choice.get('options'):
+            return {self.dropdown_var: self.context_from_options_dropdown()}
+        elif self.choice.get('extra_info_text'):
+            return {self.text_var: self.context_from_extra_info()}
         else:
             return {}
 
-    def option_fields(self):
+    def dropdown_conditional_options(self):
         return [
-            (option.pk, option.text)
-            for option in self.choice.options
+            (option.get('pk'), option.get('text'))
+            for option in self.choice.get('options')
         ]
 
-    def get_context_dropdown(self):
-        '''
-            render widget for choice.options
-        '''
+    def context_from_options_dropdown(self):
         field = ChoiceField(
-            choices=self.option_fields(),
+            choices=self.dropdown_conditional_options(),
             required=False,
             widget=ChoiceField.widget(attrs={
                 'class': "extra-widget extra-widget-dropdown",
@@ -59,15 +51,12 @@ class ExtraOptionsGenerator(object):
         return field.widget.get_context(
             'extra_options', self.extra_options_data, {})
 
-    def get_context_text(self):
-        '''
-            render widget for choice.extra_info_text
-        '''
+    def context_from_extra_info(self):
         field = Field(
             required=False,
             widget=TextInput(
                 attrs={
-                    'placeholder': self.choice.extra_info_text,
+                    'placeholder': self.choice.get('extra_info_text'),
                     'class': "extra-widget extra-widget-text",
                     'style': "display: none;",
                 },
@@ -77,7 +66,7 @@ class ExtraOptionsGenerator(object):
             'extra_info', self.extra_info_data, {})
 
 
-class InputOptionExtraMixin:
+class ConditionalSelectMixin:
     '''
         adds extra_options_field and extra_info_field inline with a Choice
         instance
@@ -90,41 +79,42 @@ class InputOptionExtraMixin:
         return super().value_from_datadict(*args, **kwargs)
 
     def create_option(self, *args, **kwargs):
-        from .models import Choice
         options = super().create_option(*args, **kwargs)
-        options.update(ExtraOptionsGenerator.get_context(
-            choice=Choice.objects.get(id=options['value']),
-            extra_info_data=self.extra_info_data,
-            extra_options_data=self.extra_options_data,
-        ))
+        options.update(
+            ConditionalGenerator.generate_context(
+                choice=self.choice_datas[int(options['index'])],
+                extra_info_data=self.extra_info_data,
+                extra_options_data=self.extra_options_data,
+            )
+        )
         return options
 
 
-class ExtraSelect(
-    InputOptionExtraMixin,
+class ConditionalSelect(
+    ConditionalSelectMixin,
     Select,
 ):
     '''
-        A dropdown with inline widgets
+        A dropdown with conditional fields
     '''
     pass
 
 
-class RadioExtraSelect(
-    InputOptionExtraMixin,
+class RadioConditionalSelect(
+    ConditionalSelectMixin,
     RadioSelect,
 ):
     '''
-        A radio button set with inline widgets
+        A radio button set with conditional fields
     '''
     pass
 
 
-class CheckboxExtraSelectMultiple(
-    InputOptionExtraMixin,
+class CheckboxConditionalSelectMultiple(
+    ConditionalSelectMixin,
     CheckboxSelectMultiple,
 ):
     '''
-        A checkbox with inline widgets
+        A checkbox with conditional fields
     '''
     pass
