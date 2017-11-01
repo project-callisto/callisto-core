@@ -70,8 +70,8 @@ class ExtraInfoNameClashTest(FunctionalBase):
 
     def setUp(self):
         # add a second extra info question on the 1st page
-        models.Choice.objects.filter(text='sugar',
-                                     ).update(extra_info_text='what type???')
+        models.Choice.objects.filter(text='sugar').update(
+            extra_info_text='what type???')
         super().setUp()
 
         self.browser.find_elements_by_css_selector(
@@ -82,10 +82,10 @@ class ExtraInfoNameClashTest(FunctionalBase):
 
         self.text_input_1 = 'brown cinnamon'
         self.text_input_2 = 'white diamond'
-        self.browser.find_elements_by_css_selector('.extra_info [type="text"]', )[
-            0].send_keys(self.text_input_1)
-        self.browser.find_elements_by_css_selector('.extra_info [type="text"]', )[
-            1].send_keys(self.text_input_2)
+        self.browser.find_elements_by_css_selector(
+            '.extra_info [type="text"]')[0].send_keys(self.text_input_1)
+        self.browser.find_elements_by_css_selector(
+            '.extra_info [type="text"]')[1].send_keys(self.text_input_2)
 
     def test_review_page_has_input_1(self):
         self.element.next.click()
