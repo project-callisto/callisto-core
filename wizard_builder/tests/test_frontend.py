@@ -74,26 +74,18 @@ class ExtraInfoNameClashTest(FunctionalBase):
             extra_info_text='what type???')
         super().setUp()
 
-        self.element_one.click()
-        self.element_two.click()
+        self.browser.find_elements_by_css_selector(
+            '.extra_info [type="checkbox"]')[0].click()
+        self.browser.find_elements_by_css_selector(
+            '.extra_info [type="checkbox"]')[1].click()
         self.element.wait_for_display()
 
         self.text_input_one = 'brown cinnamon'
         self.text_input_two = 'white diamond'
-        self.element_one.send_keys(self.text_input_one)
-        self.element_two.send_keys(self.text_input_two)
-
-    def _get_element(self, index):
-        return self.browser.find_elements_by_css_selector(
-            '.extra_info [type="checkbox"]')[index]
-
-    @property
-    def element_one(self):
-        return self._get_element(0)
-
-    @property
-    def element_two(self):
-        return self._get_element(1)
+        self.browser.find_elements_by_css_selector(
+            '.extra_info [type="text"]')[0].send_keys(self.text_input_one)
+        self.browser.find_elements_by_css_selector(
+            '.extra_info [type="text"]')[1].send_keys(self.text_input_two)
 
     def test_review_page_has_input_1(self):
         self.element.next.click()
