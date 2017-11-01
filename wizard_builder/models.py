@@ -191,9 +191,9 @@ class Choice(models.Model):
         FormQuestion,
         on_delete=models.CASCADE,
         null=True)
-    text = models.TextField(blank=False)
+    text = models.TextField(blank=False, null=True)
     position = models.PositiveSmallIntegerField("Position", default=0)
-    extra_info_text = models.TextField(blank=True)
+    extra_info_text = models.TextField(blank=True, null=True)
 
     @property
     def data(self):
