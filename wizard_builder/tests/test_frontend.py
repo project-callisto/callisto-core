@@ -87,13 +87,33 @@ class ExtraInfoNameClashTest(FunctionalBase):
         self.browser.find_elements_by_css_selector(
             '.extra_info [type="text"]')[1].send_keys(self.text_input_two)
 
-    def test_review_page_has_input_1(self):
+    def test_input_one_persists(self):
+        self.element.next.click()
+        self.element.back.click()
+        element = self.browser.find_elements_by_css_selector(
+            '.extra_info [type="text"]')[0]
+        self.assertEqual(
+            element.get_attribute('value'),
+            self.text_input_one,
+        )
+
+    def test_input_two_persists(self):
+        self.element.next.click()
+        self.element.back.click()
+        element = self.browser.find_elements_by_css_selector(
+            '.extra_info [type="text"]')[1]
+        self.assertEqual(
+            element.get_attribute('value'),
+            self.text_input_two,
+        )
+
+    def test_review_page_has_input_one(self):
         self.element.next.click()
         self.element.next.click()
         self.element.done.click()
         self.assertSelectorContains('body', self.text_input_one)
 
-    def test_review_page_has_input_2(self):
+    def test_review_page_has_input_two(self):
         self.element.next.click()
         self.element.next.click()
         self.element.done.click()
