@@ -77,8 +77,8 @@ class Page(
 
 
 class FormQuestion(models.Model):
-    text = models.TextField(blank=True)
-    descriptive_text = models.TextField(blank=True)
+    text = models.TextField(blank=True, null=True)
+    descriptive_text = models.TextField(blank=True, null=True)
     page = models.ForeignKey(
         Page,
         editable=True,
