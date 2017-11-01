@@ -2,7 +2,7 @@ from unittest import skip
 
 from django.test import override_settings
 
-from .. import view_helpers
+from .. import models, view_helpers
 from .base import FunctionalTest
 
 
@@ -49,6 +49,11 @@ class ElementHelper(object):
         return self.browser.find_element_by_css_selector(
             '[type="text"]')
 
+    def wait_for_display(self):
+        # / really unreliable way to wait for the element to be displayed
+        self.next.click()
+        self.back.click()
+
     def choice_number(self, number):
         return self.browser.find_elements_by_css_selector(
             '[type="checkbox"]')[number]
@@ -59,6 +64,40 @@ class FunctionalBase(FunctionalTest):
     @property
     def element(self):
         return ElementHelper(self.browser)
+
+
+class ExtraInfoNameClashTest(FunctionalBase):
+
+    def setUp(self):
+        # add a second extra info question on the 1st page
+        models.Choice.objects.filter(text='sugar',
+                                     ).update(extra_info_text='what type???')
+        super().setUp()
+
+        self.browser.find_elements_by_css_selector(
+            '.extra_info [type="checkbox"]', )[0].click()
+        self.browser.find_elements_by_css_selector(
+            '.extra_info [type="checkbox"]', )[1].click()
+        self.element.wait_for_display()
+
+        self.text_input_1 = 'brown cinnamon'
+        self.text_input_2 = 'white diamond'
+        self.browser.find_elements_by_css_selector('.extra_info [type="text"]', )[
+            0].send_keys(self.text_input_1)
+        self.browser.find_elements_by_css_selector('.extra_info [type="text"]', )[
+            1].send_keys(self.text_input_2)
+
+    def test_review_page_has_input_1(self):
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains('body', self.text_input_1)
+
+    def test_review_page_has_input_2(self):
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains('body', self.text_input_2)
 
 
 class FrontendTest(FunctionalBase):
@@ -102,10 +141,7 @@ class FrontendTest(FunctionalBase):
 
     def test_extra_dropdown(self):
         self.element.extra_dropdown.click()
-        # / really unreliable way to wait for the element to be displayed
-        self.element.next.click()
-        self.element.back.click()
-        # / end
+        self.element.wait_for_display()
         self.assertSelectorContains('option', 'green')
         self.assertSelectorContains('option', 'red')
 
