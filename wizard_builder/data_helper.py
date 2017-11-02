@@ -1,3 +1,6 @@
+from . import widgets
+
+
 def resolve_list(item):
     return item[0] if is_single_element_list(item) else item
 
@@ -75,7 +78,14 @@ class SerializedDataHelper(object):
     def _get_choice_text(self, answer, question):
         choice = self._get_choice(question, answer)
         choice_text = choice.get('text')
+        conditional_text = self._get_conditional_answer(choice)
+        if conditional_text:
+            choice_text += ': ' + conditional_text
         return choice_text
 
     def _get_choice(self, question, answer):
         return get_by_pk(question.get('choices', []), answer)
+
+    def _get_conditional_answer(self, choice):
+        conditional_id = widgets.conditional_id(choice)
+        return self.data.get(conditional_id, '')
