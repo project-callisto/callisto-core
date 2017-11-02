@@ -20,7 +20,7 @@
 
 This is the report intake, escrow, matching and secure delivery code for [Callisto](https://www.projectcallisto.org), an online reporting system for sexual assault.
 
-<a href="https://www.ted.com/talks/jessica_ladd_the_reporting_system_that_sexual_assault_survivors_want?language=en" target="_blank"> Learn more about how Callisto works<br/><img src="https://raw.githubusercontent.com/project-callisto/callisto-core/master/assets/ted-video-still.png" alt="Callisto TED talk"></a>
+<a href="https://www.ted.com/talks/jessica_ladd_the_reporting_system_that_sexual_assault_survivors_want?language=en" target="_blank"> <img src="https://raw.githubusercontent.com/project-callisto/callisto-core/master/assets/ted-video-still.png" alt="Callisto TED talk"><br/><br/>Learn more about how Callisto works</a>
 
 <a href="https://www.youtube.com/watch?v=mYV6_OaZeEs" target="_blank">Learn more about information escrows</a>
 
