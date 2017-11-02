@@ -1,3 +1,6 @@
+from . import widgets
+
+
 def resolve_list(item):
     return item[0] if is_single_element_list(item) else item
 
@@ -23,11 +26,6 @@ def get_by_pk(items, pk):
 
 
 class SerializedDataHelper(object):
-    # TODO: move the zip functionality to PageForm or FormManager
-    conditional_fields = [
-        'extra_info',
-        'extra_options',
-    ]
     question_id_error_message = 'field_id={} not found in {}'
     choice_id_error_message = 'Choice(pk={}) not found in {}'
     not_answered_text = '[ Not Answered ]'
@@ -80,7 +78,19 @@ class SerializedDataHelper(object):
     def _get_choice_text(self, answer, question):
         choice = self._get_choice(question, answer)
         choice_text = choice.get('text')
+        conditional_text = self._get_conditional_answer(choice, answer)
+        if conditional_text:
+            choice_text += ': ' + conditional_text
         return choice_text
 
     def _get_choice(self, question, answer):
         return get_by_pk(question.get('choices', []), answer)
+
+    def _get_conditional_answer(self, choice, answer):
+        conditional_id = widgets.conditional_id(choice)
+        if choice.get('extra_info_text'):
+            return self.data.get(conditional_id, '')
+        elif choice.get('options'):
+            option_pk = self.data.get(conditional_id, '')
+            option = get_by_pk(choice.get('options', []), option_pk)
+            return option.get('text')

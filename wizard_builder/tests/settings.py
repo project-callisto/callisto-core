@@ -17,13 +17,6 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": 'wizard_builder_default.sqlite3',
     },
-    "dumpdata_db": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": 'wizard_builder_fake_dumpdata_db.sqlite3',
-        'TEST': {
-            'NAME': 'wizard_builder_dumpdata_db.sqlite3',
-        },
-    },
 }
 
 INSTALLED_APPS = [

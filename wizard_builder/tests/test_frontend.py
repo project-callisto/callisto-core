@@ -1,8 +1,10 @@
 from unittest import skip
 
+from selenium.webdriver.support.ui import Select
+
 from django.test import override_settings
 
-from .. import view_helpers
+from .. import models, view_helpers
 from .base import FunctionalTest
 
 
@@ -37,6 +39,11 @@ class ElementHelper(object):
             '#id_question_1_1')
 
     @property
+    def dropdown_select(self):
+        return self.browser.find_element_by_css_selector(
+            'select.extra-widget-dropdown')
+
+    @property
     def choice_1(self):
         return self.choice_number(0)
 
@@ -49,6 +56,11 @@ class ElementHelper(object):
         return self.browser.find_element_by_css_selector(
             '[type="text"]')
 
+    def wait_for_display(self):
+        # / really unreliable way to wait for the element to be displayed
+        self.next.click()
+        self.back.click()
+
     def choice_number(self, number):
         return self.browser.find_elements_by_css_selector(
             '[type="checkbox"]')[number]
@@ -59,6 +71,60 @@ class FunctionalBase(FunctionalTest):
     @property
     def element(self):
         return ElementHelper(self.browser)
+
+
+class ExtraInfoNameClashTest(FunctionalBase):
+
+    def setUp(self):
+        # add a second extra info question on the 1st page
+        models.Choice.objects.filter(text='sugar').update(
+            extra_info_text='what type???')
+        super().setUp()
+
+        self.browser.find_elements_by_css_selector(
+            '.extra-widget-text [type="checkbox"]')[0].click()
+        self.browser.find_elements_by_css_selector(
+            '.extra-widget-text [type="checkbox"]')[1].click()
+        self.element.wait_for_display()
+
+        self.text_input_one = 'brown cinnamon'
+        self.text_input_two = 'white diamond'
+        self.browser.find_elements_by_css_selector(
+            '.extra-widget-text [type="text"]')[0].send_keys(self.text_input_one)
+        self.browser.find_elements_by_css_selector(
+            '.extra-widget-text [type="text"]')[1].send_keys(self.text_input_two)
+
+    def test_input_one_persists(self):
+        self.element.next.click()
+        self.element.back.click()
+        element = self.browser.find_elements_by_css_selector(
+            '.extra-widget-text [type="text"]')[0]
+        self.assertEqual(
+            element.get_attribute('value'),
+            self.text_input_one,
+        )
+
+    def test_input_two_persists(self):
+        self.element.next.click()
+        self.element.back.click()
+        element = self.browser.find_elements_by_css_selector(
+            '.extra-widget-text [type="text"]')[1]
+        self.assertEqual(
+            element.get_attribute('value'),
+            self.text_input_two,
+        )
+
+    def test_review_page_has_input_one(self):
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains('body', self.text_input_one)
+
+    def test_review_page_has_input_two(self):
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.assertSelectorContains('body', self.text_input_two)
 
 
 class FrontendTest(FunctionalBase):
@@ -97,19 +163,34 @@ class FrontendTest(FunctionalBase):
         self.assertSelectorContains('form', 'apples')
         self.assertSelectorContains('form', 'sugar')
 
-    @skip('TEMP_CONDITIONALS_DISABLE')
     def test_extra_info(self):
         self.assertCss('[placeholder="extra information here"]')
 
-    @skip('TEMP_CONDITIONALS_DISABLE')
     def test_extra_dropdown(self):
         self.element.extra_dropdown.click()
-        # / really unreliable way to wait for the element to be displayed
-        self.element.next.click()
-        self.element.back.click()
-        # / end
+        self.element.wait_for_display()
         self.assertSelectorContains('option', 'green')
         self.assertSelectorContains('option', 'red')
+
+    def test_extra_dropdown_persists(self):
+        self.element.extra_dropdown.click()
+        self.element.wait_for_display()
+
+        self.assertEqual(
+            self.element.dropdown_select.get_attribute('value'),
+            '1',
+        )
+
+        select = Select(self.element.dropdown_select)
+        select.select_by_value('2')
+
+        self.element.next.click()
+        self.element.back.click()
+
+        self.assertEqual(
+            self.element.dropdown_select.get_attribute('value'),
+            '2',
+        )
 
     def test_can_select_choice(self):
         self.assertFalse(self.element.extra_input.is_selected())

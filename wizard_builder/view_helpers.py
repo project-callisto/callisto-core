@@ -146,11 +146,11 @@ class StorageHelper(object):
     def answers_for_current_step(self):
         # get the current data
         data = self.current_data_from_storage()
-        # create a set of form models from form storage + post data
+        # create a set of forms from form storage + post data
         new_data = copy(data)
         new_data[self.storage_data_key] = self.view.request.POST
         forms = self.get_form_models(new_data)
-        # get the cleaned data from those form models, add it to answer data
+        # get the cleaned data from those forms, add it to answer data
         form = forms[self.view.curent_step]
         data[self.storage_data_key].update(form.cleaned_data)
         # return answer data
@@ -176,18 +176,15 @@ class StorageHelper(object):
         self.add_data_to_storage(self.answers_for_current_step)
 
     def current_data_from_storage(self):
-        # TODO: base class with NotImplementedError checks
         return {
             self.storage_data_key: self.session.get(self.storage_data_key, {}),
             self.storage_form_key: self.session.get(self.storage_form_key, {}),
         }
 
     def add_data_to_storage(self, answer_data):
-        # TODO: base class with NotImplementedError checks
         self.session[self.storage_data_key] = answer_data
 
     def init_storage(self):
-        # TODO: base class with NotImplementedError checks
         self.session.setdefault(
             self.storage_form_key,
             self.serialized_forms,

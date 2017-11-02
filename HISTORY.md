@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 2.5.2 (2017-11-02)
+
+* re-enable conditionals
+
+    https://github.com/project-callisto/django-wizard-builder/pull/205
+
 ## 2.5.1 (2017-10-30)
 
 * fix migration 0034 on postgres

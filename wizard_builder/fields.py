@@ -1,8 +1,9 @@
 import inspect
 
 from django import forms
-from django.forms import widgets
 from django.utils.safestring import mark_safe
+
+from . import widgets as wizard_builder_widgets
 
 
 def get_field_options():
@@ -21,6 +22,27 @@ def get_field_options():
     return field_names
 
 
+class ConditionalFieldMixin:
+
+    def __init__(self, *args, choice_datas, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget.choice_datas = choice_datas
+
+
+class ConditionalChoiceField(
+    ConditionalFieldMixin,
+    forms.ChoiceField,
+):
+    pass
+
+
+class ConditionalMultipleChoiceField(
+    ConditionalFieldMixin,
+    forms.MultipleChoiceField,
+):
+    pass
+
+
 class QuestionField(object):
     '''
     The functions on this class correspond to the types of questions
@@ -33,44 +55,49 @@ class QuestionField(object):
     @classmethod
     def singlelinetext(cls, question):
         return forms.CharField(
-            label=mark_safe(question.text),
             required=False,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
         )
 
     @classmethod
     def textarea(cls, question):
         return forms.CharField(
-            widget=forms.Textarea,
-            label=mark_safe(question.text),
             required=False,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
+            widget=forms.Textarea,
         )
 
     @classmethod
     def checkbox(cls, question):
-        return forms.MultipleChoiceField(
-            choices=question.choices_field_display,
-            label=question.text,
-            help_text=question.descriptive_text,
+        return ConditionalMultipleChoiceField(
             required=False,
-            widget=widgets.CheckboxSelectMultiple,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
+            widget=wizard_builder_widgets.CheckboxConditionalSelectMultiple,
+            choices=question.choices_pk_text_array,
+            choice_datas=question.choices_data_array,
         )
 
     @classmethod
     def radiobutton(cls, question):
-        return forms.ChoiceField(
-            choices=question.choices_field_display,
-            label=question.text,
-            help_text=question.descriptive_text,
+        return ConditionalChoiceField(
             required=False,
-            widget=widgets.RadioSelect,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
+            widget=wizard_builder_widgets.RadioConditionalSelect,
+            choices=question.choices_pk_text_array,
+            choice_datas=question.choices_data_array,
         )
 
     @classmethod
     def dropdown(cls, question):
-        return forms.ChoiceField(
-            choices=question.choices_field_display,
-            label=question.text,
-            help_text=question.descriptive_text,
+        return ConditionalChoiceField(
             required=False,
-            widget=widgets.Select,
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
+            widget=wizard_builder_widgets.ConditionalSelect,
+            choices=question.choices_pk_text_array,
+            choice_datas=question.choices_data_array,
         )

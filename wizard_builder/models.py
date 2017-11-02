@@ -77,8 +77,8 @@ class Page(
 
 
 class FormQuestion(models.Model):
-    text = models.TextField(blank=True)
-    descriptive_text = models.TextField(blank=True)
+    text = models.TextField(blank=True, null=True)
+    descriptive_text = models.TextField(blank=True, null=True)
     page = models.ForeignKey(
         Page,
         editable=True,
@@ -191,19 +191,18 @@ class Choice(models.Model):
         FormQuestion,
         on_delete=models.CASCADE,
         null=True)
-    text = models.TextField(blank=False)
+    text = models.TextField(blank=False, null=True)
     position = models.PositiveSmallIntegerField("Position", default=0)
-    extra_info_text = models.TextField(blank=True)
+    extra_info_text = models.TextField(blank=True, null=True)
 
     @property
     def data(self):
-        return {
+        data = model_to_dict(self)
+        data.update({
             'pk': self.pk,
-            'text': self.text,
             'options': self.options_data,
-            'position': self.position,
-            'extra_info_text': self.extra_info_text,
-        }
+        })
+        return data
 
     @property
     def options_data(self):
