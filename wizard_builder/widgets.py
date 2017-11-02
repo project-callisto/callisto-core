@@ -37,10 +37,8 @@ class ConditionalField(object):
         }
         return ChoiceField(
             required=False,
-            widget=Select(
-                attrs=attrs,
-                choices=options_as_choices(choice),
-            ),
+            choices=options_as_choices(choice),
+            widget=Select(attrs=attrs),
         )
 
     @classmethod

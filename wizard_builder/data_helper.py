@@ -78,7 +78,7 @@ class SerializedDataHelper(object):
     def _get_choice_text(self, answer, question):
         choice = self._get_choice(question, answer)
         choice_text = choice.get('text')
-        conditional_text = self._get_conditional_answer(choice)
+        conditional_text = self._get_conditional_answer(choice, answer)
         if conditional_text:
             choice_text += ': ' + conditional_text
         return choice_text
@@ -86,6 +86,11 @@ class SerializedDataHelper(object):
     def _get_choice(self, question, answer):
         return get_by_pk(question.get('choices', []), answer)
 
-    def _get_conditional_answer(self, choice):
+    def _get_conditional_answer(self, choice, answer):
         conditional_id = widgets.conditional_id(choice)
-        return self.data.get(conditional_id, '')
+        if choice.get('extra_info_text'):
+            return self.data.get(conditional_id, '')
+        elif choice.get('options'):
+            option_pk = self.data.get(conditional_id, '')
+            option = get_by_pk(choice.get('options', []), option_pk)
+            return option.get('text')
