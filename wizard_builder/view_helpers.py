@@ -146,11 +146,11 @@ class StorageHelper(object):
     def answers_for_current_step(self):
         # get the current data
         data = self.current_data_from_storage()
-        # create a set of form models from form storage + post data
+        # create a set of forms from form storage + post data
         new_data = copy(data)
         new_data[self.storage_data_key] = self.view.request.POST
         forms = self.get_form_models(new_data)
-        # get the cleaned data from those form models, add it to answer data
+        # get the cleaned data from those forms, add it to answer data
         form = forms[self.view.curent_step]
         data[self.storage_data_key].update(form.cleaned_data)
         # return answer data
