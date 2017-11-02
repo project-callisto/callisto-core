@@ -1,5 +1,7 @@
 from unittest import skip
 
+from selenium.webdriver.support.ui import Select
+
 from django.test import override_settings
 
 from .. import models, view_helpers
@@ -35,6 +37,11 @@ class ElementHelper(object):
     def extra_dropdown(self):
         return self.browser.find_element_by_css_selector(
             '#id_question_1_1')
+
+    @property
+    def dropdown_select(self):
+        return self.browser.find_element_by_css_selector(
+            'select.extra-widget-dropdown')
 
     @property
     def choice_1(self):
@@ -164,6 +171,26 @@ class FrontendTest(FunctionalBase):
         self.element.wait_for_display()
         self.assertSelectorContains('option', 'green')
         self.assertSelectorContains('option', 'red')
+
+    def test_extra_dropdown_persists(self):
+        self.element.extra_dropdown.click()
+        self.element.wait_for_display()
+
+        self.assertEqual(
+            self.element.dropdown_select.get_attribute('value'),
+            '1',
+        )
+
+        select = Select(self.element.dropdown_select)
+        select.select_by_value('2')
+
+        self.element.next.click()
+        self.element.back.click()
+
+        self.assertEqual(
+            self.element.dropdown_select.get_attribute('value'),
+            '2',
+        )
 
     def test_can_select_choice(self):
         self.assertFalse(self.element.extra_input.is_selected())
