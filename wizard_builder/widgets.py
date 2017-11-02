@@ -20,6 +20,13 @@ def options_as_choices(data):
     ]
 
 
+def conditional_field_from_choice(choice):
+    if choice.get('options'):
+        return ConditionalField.dropdown(choice)
+    elif choice.get('extra_info_text'):
+        return ConditionalField.textinfo(choice)
+
+
 class ConditionalField(object):
 
     @classmethod
@@ -29,9 +36,11 @@ class ConditionalField(object):
             'style': "display: none;",
         }
         return ChoiceField(
-            choices=options_as_choices(choice),
             required=False,
-            widget=Select(attrs=attrs),
+            widget=Select(
+                attrs=attrs,
+                choices=options_as_choices(choice),
+            ),
         )
 
     @classmethod
@@ -95,12 +104,11 @@ class ConditionalSelectMixin:
             add the created option, our conditional field
         '''
         option = super().create_option(*args, **kwargs)
-        option.update(
-            ConditionalGenerator.generate_context(
-                choice=self.choice_datas[int(option['index'])],
-                querydict=self.querydict,
-            )
+        conditional_context = ConditionalGenerator.generate_context(
+            choice=self.choice_datas[int(option['index'])],
+            querydict=self.querydict,
         )
+        option.update(conditional_context)
         return option
 
 

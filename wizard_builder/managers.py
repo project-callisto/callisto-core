@@ -50,8 +50,8 @@ class FormManager(object):
     def _transform_page_to_form(self, page):
         FormClass = forms.PageForm.setup(page)
         form = FormClass(self.answer_data)
-        form.full_clean()
         form.page = page
+        form.full_clean()
         return form
 
 
