@@ -23,11 +23,6 @@ def get_by_pk(items, pk):
 
 
 class SerializedDataHelper(object):
-    # TODO: move the zip functionality to PageForm or FormManager
-    conditional_fields = [
-        'extra_info',
-        'extra_options',
-    ]
     question_id_error_message = 'field_id={} not found in {}'
     choice_id_error_message = 'Choice(pk={}) not found in {}'
     not_answered_text = '[ Not Answered ]'

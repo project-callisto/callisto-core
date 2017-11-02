@@ -197,13 +197,12 @@ class Choice(models.Model):
 
     @property
     def data(self):
-        return {
+        data = model_to_dict(self)
+        data.update({
             'pk': self.pk,
-            'text': self.text,
             'options': self.options_data,
-            'position': self.position,
-            'extra_info_text': self.extra_info_text,
-        }
+        })
+        return data
 
     @property
     def options_data(self):

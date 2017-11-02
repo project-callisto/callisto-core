@@ -8,86 +8,100 @@ from django.forms.widgets import (
 logger = logging.getLogger(__name__)
 
 
+def conditional_id(choice):
+    pk = choice.get('pk')
+    return f'choice_{pk}'
+
+
+def options_as_choices(data):
+    return [
+        (option.get('pk'), option.get('text'))
+        for option in data.get('options', [])
+    ]
+
+
+class ConditionalField(object):
+
+    @classmethod
+    def dropdown(cls, choice):
+        attrs = {
+            'class': "extra-widget extra-widget-dropdown",
+            'style': "display: none;",
+        }
+        return ChoiceField(
+            choices=options_as_choices(choice),
+            required=False,
+            widget=Select(attrs=attrs),
+        )
+
+    @classmethod
+    def textinfo(cls, choice):
+        attrs = {
+            'placeholder': choice.get('extra_info_text'),
+            'class': "extra-widget extra-widget-text",
+            'style': "display: none;",
+        }
+        return Field(
+            required=False,
+            widget=TextInput(attrs=attrs),
+        )
+
+
 class ConditionalGenerator(object):
+    '''
+        generates the "context" data needed to render a conditional
+    '''
     dropdown_var = 'extra_dropdown_widget_context'
     text_var = 'extra_text_widget_context'
 
     @classmethod
-    def generate_context(
-        cls,
-        choice,
-        extra_info_data,
-        extra_options_data,
-    ):
+    def generate_context(cls, choice, querydict):
         self = cls()
         self.choice = choice
-        self.extra_info_data = extra_info_data
-        self.extra_options_data = extra_options_data
+        self.querydict = querydict
         return self.context_from_conditional_type()
 
     def context_from_conditional_type(self):
         if self.choice.get('options'):
-            return {self.dropdown_var: self.context_from_options_dropdown()}
+            field = ConditionalField.dropdown(self.choice)
+            return {self.dropdown_var: self.context_from_field(field)}
         elif self.choice.get('extra_info_text'):
-            return {self.text_var: self.context_from_extra_info()}
+            field = ConditionalField.textinfo(self.choice)
+            return {self.text_var: self.context_from_field(field)}
         else:
             return {}
 
-    def dropdown_conditional_options(self):
-        return [
-            (option.get('pk'), option.get('text'))
-            for option in self.choice.get('options')
-        ]
-
-    def context_from_options_dropdown(self):
-        field = ChoiceField(
-            choices=self.dropdown_conditional_options(),
-            required=False,
-            widget=ChoiceField.widget(attrs={
-                'class': "extra-widget extra-widget-dropdown",
-                'style': "display: none;",
-            }),
-        )
-        return field.widget.get_context(
-            'extra_options', self.extra_options_data, {})
-
-    def context_from_extra_info(self):
-        field = Field(
-            required=False,
-            widget=TextInput(
-                attrs={
-                    'placeholder': self.choice.get('extra_info_text'),
-                    'class': "extra-widget extra-widget-text",
-                    'style': "display: none;",
-                },
-            ),
-        )
-        return field.widget.get_context(
-            'extra_info', self.extra_info_data, {})
+    def context_from_field(self, field):
+        name = conditional_id(self.choice)
+        value = field.widget.value_from_datadict(self.querydict, None, name)
+        return field.widget.get_context(name, value, {})
 
 
 class ConditionalSelectMixin:
     '''
-        adds extra_options_field and extra_info_field inline with a Choice
-        instance
+        hooks into a Select widget, and adds conditionals to certain choices
     '''
     option_template_name = 'wizard_builder/input_option_extra.html'
 
-    def value_from_datadict(self, *args, **kwargs):
-        self.extra_info_data = args[0].get('extra_info', '')
-        self.extra_options_data = args[0].get('extra_options', '')
-        return super().value_from_datadict(*args, **kwargs)
+    def value_from_datadict(self, data, files, name):
+        '''
+            grab the querydict for use in create_option later
+        '''
+        self.querydict = data
+        return super().value_from_datadict(data, files, name)
 
     def create_option(self, *args, **kwargs):
-        options = super().create_option(*args, **kwargs)
-        options.update(
+        '''
+            add the created option, our conditional field
+        '''
+        option = super().create_option(*args, **kwargs)
+        option.update(
             ConditionalGenerator.generate_context(
-                choice=self.choice_datas[int(options['index'])],
-                extra_info_data=self.extra_info_data,
-                extra_options_data=self.extra_options_data,
+                choice=self.choice_datas[int(option['index'])],
+                querydict=self.querydict,
             )
         )
-        return options
+        return option
 
 
 class ConditionalSelect(
@@ -105,7 +119,7 @@ class RadioConditionalSelect(
     RadioSelect,
 ):
     '''
-        A radio button set with conditional fields
+        A radio button series with conditional fields
     '''
     pass
 
@@ -115,6 +129,6 @@ class CheckboxConditionalSelectMultiple(
     CheckboxSelectMultiple,
 ):
     '''
-        A checkbox with conditional fields
+        A checkbox series with conditional fields
     '''
     pass

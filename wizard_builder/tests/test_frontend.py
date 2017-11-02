@@ -75,23 +75,23 @@ class ExtraInfoNameClashTest(FunctionalBase):
         super().setUp()
 
         self.browser.find_elements_by_css_selector(
-            '.extra_info [type="checkbox"]')[0].click()
+            '.extra-widget-text [type="checkbox"]')[0].click()
         self.browser.find_elements_by_css_selector(
-            '.extra_info [type="checkbox"]')[1].click()
+            '.extra-widget-text [type="checkbox"]')[1].click()
         self.element.wait_for_display()
 
         self.text_input_one = 'brown cinnamon'
         self.text_input_two = 'white diamond'
         self.browser.find_elements_by_css_selector(
-            '.extra_info [type="text"]')[0].send_keys(self.text_input_one)
+            '.extra-widget-text [type="text"]')[0].send_keys(self.text_input_one)
         self.browser.find_elements_by_css_selector(
-            '.extra_info [type="text"]')[1].send_keys(self.text_input_two)
+            '.extra-widget-text [type="text"]')[1].send_keys(self.text_input_two)
 
     def test_input_one_persists(self):
         self.element.next.click()
         self.element.back.click()
         element = self.browser.find_elements_by_css_selector(
-            '.extra_info [type="text"]')[0]
+            '.extra-widget-text [type="text"]')[0]
         self.assertEqual(
             element.get_attribute('value'),
             self.text_input_one,
@@ -101,7 +101,7 @@ class ExtraInfoNameClashTest(FunctionalBase):
         self.element.next.click()
         self.element.back.click()
         element = self.browser.find_elements_by_css_selector(
-            '.extra_info [type="text"]')[1]
+            '.extra-widget-text [type="text"]')[1]
         self.assertEqual(
             element.get_attribute('value'),
             self.text_input_two,
