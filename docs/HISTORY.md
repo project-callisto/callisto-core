@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.16.2 (2017-11-02)
+
+* add a `site_id=1` fallback to `EmailNotification.objects.on_site`
+
 ## 0.16.1 (2017-10-28)
 
 * bump version support to `django-wizard-builder>=2.5,<2.6`

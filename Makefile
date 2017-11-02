@@ -40,7 +40,7 @@ release: ## package and upload a release
 	make clean
 
 app-setup: ## setup the test application environment
-	python manage.py flush --noinput
+	- python manage.py flush --noinput
 	python manage.py migrate --noinput --database default
 	python manage.py create_admins
 	python manage.py setup_sites
