@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 2.5.3 (2017-11-06)
+
+* all foreign keys casade deletion now
+
 ## 2.5.2 (2017-11-02)
 
 * re-enable conditionals

@@ -84,7 +84,7 @@ class FormQuestion(models.Model):
         editable=True,
         null=True,
         blank=False,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     position = models.PositiveSmallIntegerField("position", default=0)
     type = models.TextField(
