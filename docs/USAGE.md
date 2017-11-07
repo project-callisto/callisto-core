@@ -62,8 +62,9 @@ django settings.py minimum requirements
     SCHOOL_LONGNAME
     SCHOOL_REPORT_PREFIX
     COORDINATOR_PUBLIC_KEY
+
     CALLISTO_EVAL_PUBLIC_KEY
-    CALLISTO_EVAL_PUBLIC_KEY
+    CALLISTO_EVAL_PRIVATE_KEY (keep this one secret!)
 
     # optional
     MATCH_IMMEDIATELY = True
