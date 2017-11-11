@@ -1,5 +1,8 @@
 import os
 
+import callisto_core.utils.tenant_api
+import callisto_core.tests.utils.api
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = os.getenv("passphrase", default='secret key')
 DEBUG = True
@@ -15,14 +18,18 @@ def load_file(path):
     return data
 
 
+COORDINATOR_NAME
+COORDINATOR_EMAIL
+
+
 MATCH_IMMEDIATELY = True
 COORDINATOR_PUBLIC_KEY = load_file('callisto_publickey.gpg')
 CALLISTO_CHECK_REPORT_OWNER = False
 CALLISTO_EVAL_PUBLIC_KEY = load_file('callisto_publickey.gpg')
 
-CALLISTO_MATCHING_API = 'callisto_core.tests.utils.api.CustomMatchingApi'
-CALLISTO_NOTIFICATION_API = 'callisto_core.tests.utils.api.CustomNotificationApi'
-CALLISTO_TENANT_API = 'callisto_core.utils.tenant_api.CallistoCoreTenantApi'
+CALLISTO_MATCHING_API = callisto_core.tests.utils.api.CustomMatchingApi
+CALLISTO_NOTIFICATION_API = callisto_core.tests.utils.api.CustomNotificationApi
+CALLISTO_TENANT_API = callisto_core.utils.tenant_api.CallistoCoreTenantApi
 
 KEY_HASHERS = [
     "callisto_core.delivery.hashers.Argon2KeyHasher",

@@ -27,6 +27,9 @@ class CallistoCoreTenantApi(object):
 
         The implementation here is a naive mock of a similar implementation in
         callisto campus
+
+        Use like:
+            TenantApi.site_settings('SOME_NUMBER', cast=int, site_id=10)
         '''
         if request:
             try:

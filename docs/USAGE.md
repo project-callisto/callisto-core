@@ -70,10 +70,11 @@ django settings.py minimum requirements
     # apis, see api section below
     CALLISTO_MATCHING_API
     CALLISTO_NOTIFICATION_API
+    CALLISTO_NOTIFICATION_API
 ```
 
-- GPG (WIP)
-- tenant specific (WIP)
+- GPG
+- tenant specific
 
 ## APIs
 
@@ -87,16 +88,12 @@ The `views.py` files in this repo are specific to callisto-core. If you are impl
 
 Use this to change your notification (eg. emails, PDFs, slack messages, etc) implementation
 
-(further instructions WIP)
-
 ### MatchingApi
 
 Use this to change your matching implementation
 
-(further instructions WIP)
-
 ## Data
 
-- sites (WIP)
-- questions (WIP)
-- notifications (WIP)
+- sites
+- questions
+- notifications
