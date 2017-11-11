@@ -11,7 +11,7 @@ def cast_string_to_type(
     if cast is str:
         return value
     elif cast is bool:
-        return strtobool(value.lower())
+        return strtobool(value)
     elif cast is int:
         return int(value)
     else:
