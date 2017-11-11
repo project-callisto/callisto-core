@@ -36,10 +36,6 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         'NAME': 'db-default.sqlite3',
     },
-    "alternate": {
-        "ENGINE": "django.db.backends.sqlite3",
-        'NAME': 'db-alternate.sqlite3',
-    },
 }
 
 INSTALLED_APPS = [
