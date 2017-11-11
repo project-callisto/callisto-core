@@ -21,7 +21,6 @@ MATCH_IMMEDIATELY = True
 COORDINATOR_PUBLIC_KEY = load_file('callisto_publickey.gpg')
 CALLISTO_CHECK_REPORT_OWNER = False
 CALLISTO_EVAL_PUBLIC_KEY = load_file('callisto_publickey.gpg')
-CALLISTO_EVAL_PUBLIC_KEY = ""
 
 CALLISTO_MATCHING_API = 'callisto_core.tests.utils.api.CustomMatchingApi'
 CALLISTO_NOTIFICATION_API = 'callisto_core.tests.utils.api.CustomNotificationApi'
