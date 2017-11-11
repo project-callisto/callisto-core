@@ -65,7 +65,7 @@ django settings.py minimum requirements
 
     # optional
     MATCH_IMMEDIATELY = True
-    CALLISTO_CHECK_REPORT_OWNER = False
+    CALLISTO_CHECK_REPORT_OWNER = True
 
     # apis, see api section below
     CALLISTO_MATCHING_API
