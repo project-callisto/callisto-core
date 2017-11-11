@@ -58,7 +58,6 @@ django settings.py minimum requirements
     # tenant specific
     COORDINATOR_NAME
     COORDINATOR_EMAIL
-    SCHOOL_SHORTNAME
     COORDINATOR_PUBLIC_KEY
 
     CALLISTO_EVAL_PUBLIC_KEY
