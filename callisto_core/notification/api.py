@@ -4,14 +4,12 @@ import typing
 import gnupg
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.template import Context, Template
 from django.utils import timezone
 
-from ..delivery.models import SentFullReport, SentMatchReport
-from ..reporting.report_delivery import PDFFullReport, PDFMatchReport
-from .models import EmailNotification
+from callisto_core.reporting.report_delivery import PDFFullReport, PDFMatchReport
+from callisto_core.notification.models import EmailNotification
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +45,7 @@ class CallistoCoreNotificationApi(object):
 
     def send_report_to_authority(
         self,
-        sent_report: type(SentFullReport),
+        sent_report,
         report_data: dict,
         site_id=0,
     ) -> None:
@@ -152,6 +150,7 @@ class CallistoCoreNotificationApi(object):
 
     def notification_with_match_report(self, matches, identifier):
         # TODO: make match notification_with_full_report more closely
+        from callisto_core.delivery.models import SentMatchReport
         sent_match_report = SentMatchReport.objects.create(
             to_address=self.context['to_addresses'][0],
         )
@@ -215,6 +214,7 @@ class CallistoCoreNotificationApi(object):
     # send cycle implementation
 
     def set_domain(self):
+        from django.contrib.sites.models import Site
         if not self.context.get('domain'):
             site = Site.objects.get(id=self.context.get('site_id'))
             self.context.update({'domain': site.domain})

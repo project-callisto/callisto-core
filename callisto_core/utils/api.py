@@ -1,11 +1,10 @@
 import logging
 
-from django.conf import settings
-
-import callisto_core.reporting.api
 import callisto_core.notification.api
+import callisto_core.reporting.api
 import callisto_core.utils.tenant_api
 
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 

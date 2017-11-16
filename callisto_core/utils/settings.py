@@ -1,7 +1,7 @@
 import os
 
-import callisto_core.utils.tenant_api
 import callisto_core.tests.utils.api
+import callisto_core.utils.tenant_api
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = os.getenv("passphrase", default='secret key')
@@ -16,10 +16,6 @@ def load_file(path):
     with open(path, 'r') as file_data:
         data = file_data.read()
     return data
-
-
-COORDINATOR_NAME
-COORDINATOR_EMAIL
 
 
 MATCH_IMMEDIATELY = True

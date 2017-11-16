@@ -1,7 +1,6 @@
 import logging
 
-from ..delivery.models import MatchReport
-from ..utils.api import NotificationApi
+from callisto_core.utils.api import NotificationApi
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +17,8 @@ class CallistoCoreMatchingApi(object):
           match_reports_to_check(list of MatchReport, optional): the MatchReports to be checked (must have identifiers)
           or None if the value is to be queried from the DB (Default value = None)
         """
+        from callisto_core.delivery.models import MatchReport
+
         if match_reports_to_check is None:
             match_reports_to_check = MatchReport.objects.filter(seen=False)
         self.find_matches(match_reports_to_check)
@@ -30,6 +31,8 @@ class CallistoCoreMatchingApi(object):
         Args:
           match_report (MatchReport): MatchReport to be checked
         """
+        from callisto_core.delivery.models import MatchReport
+
         return MatchReport.objects.all()
 
     def find_matches(self, match_reports_to_check):

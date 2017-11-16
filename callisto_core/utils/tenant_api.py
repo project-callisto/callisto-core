@@ -1,4 +1,5 @@
 from distutils.util import strtobool
+
 from django.contrib.sites.shortcuts import get_current_site
 
 
@@ -33,7 +34,7 @@ class CallistoCoreTenantApi(object):
         '''
         if request:
             try:
-                site_id = get_current_site(self.request).id
+                site_id = get_current_site(request).id
             except BaseException:
                 site_id = 1
 
