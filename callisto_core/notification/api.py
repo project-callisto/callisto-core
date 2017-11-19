@@ -45,14 +45,18 @@ class CallistoCoreNotificationApi(object):
         '''
         return 1
 
-    def to_coordinators(self):
-        return [x.strip() for x in settings.COORDINATOR_EMAIL.split(',')]
+    def split_addresses(self, addresses):
+        if isinstance(addresses, str):
+            return [x.strip() for x in addresses.split(',')]
+        else:
+            return addresses
 
     # entrypoints
 
     def send_report_to_authority(
         self,
         sent_report,
+        to_addresses: typing.List[str],
         report_data: dict,
         site_id=0,
     ) -> None:
@@ -63,7 +67,7 @@ class CallistoCoreNotificationApi(object):
         '''
         self.context = {
             'notification_name': 'report_delivery',
-            'to_addresses': self.to_coordinators(),
+            'to_addresses': to_addresses,
             'site_id': site_id,
         }
         self.notification_with_full_report(sent_report, report_data)
@@ -100,7 +104,12 @@ class CallistoCoreNotificationApi(object):
         }
         self.send()
 
-    def send_matching_report_to_authority(self, matches, identifier):
+    def send_matching_report_to_authority(
+        self,
+        matches,
+        identifier,
+        to_addresses: typing.List[str],
+    ):
         '''
         Notifies coordinator that a match has been found
 
@@ -112,7 +121,7 @@ class CallistoCoreNotificationApi(object):
 
         self.context = {
             'notification_name': 'match_delivery',
-            'to_addresses': self.to_coordinators(),
+            'to_addresses': to_addresses,
             'site_id': self.user_site_id(user),
             'user': user,
         }
@@ -247,7 +256,7 @@ class CallistoCoreNotificationApi(object):
             subject=self.context['subject'],
             body=self.context['body'],
             from_email=self.context.get('from_email', self.from_email),
-            to=self.context['to_addresses'],
+            to=self.split_addresses(self.context['to_addresses']),
         )
         if self.context.get('attachment'):
             email.attach(*self.context.get('attachment'))

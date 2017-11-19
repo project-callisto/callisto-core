@@ -1,14 +1,16 @@
 import json
 import logging
 
+from callisto_core.delivery import (
+    fields as delivery_fields, forms as delivery_forms,
+    models as delivery_models,
+)
+from callisto_core.utils.api import TenantApi
+
 from django import forms
 from django.conf import settings
 
 from . import fields, report_delivery
-from ..delivery import (
-    fields as delivery_fields, forms as delivery_forms,
-    models as delivery_models,
-)
 from .validators import Validators as ValidatorClass
 
 logger = logging.getLogger(__name__)
@@ -141,7 +143,9 @@ class ConfirmationForm(
             forms.ValidationError('Invalid key')
 
     def save(self, commit=True):
-        self.instance.to_address = settings.COORDINATOR_EMAIL
+        # TODO: obtain in the view, pass into form
+        self.instance.to_address = TenantApi.site_settings(
+            'COORDINATOR_EMAIL', request=self.request)
         return super().save(commit=commit)
 
     class Meta:

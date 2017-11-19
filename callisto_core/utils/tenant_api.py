@@ -30,6 +30,7 @@ class CallistoCoreTenantApi(object):
         callisto campus
 
         Use like:
+            from callisto_core.utils.tenant_api import TenantApi
             TenantApi.site_settings('SOME_NUMBER', cast=int, site_id=10)
         '''
         if request:

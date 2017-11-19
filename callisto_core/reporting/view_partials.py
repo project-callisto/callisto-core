@@ -21,7 +21,7 @@ and should not define:
 
 '''
 from callisto_core.delivery import view_partials as delivery_partials
-from callisto_core.utils import api
+from callisto_core.utils.api import MatchingApi, NotificationApi, TenantApi
 
 from django.conf import settings
 
@@ -69,13 +69,13 @@ class MatchingPartial(
         if form.data.get('identifier'):
             self._send_match_email()
             if settings.MATCH_IMMEDIATELY:
-                api.MatchingApi.run_matching(
+                MatchingApi.run_matching(
                     match_reports_to_check=[form.instance],
                 )
         return output
 
     def _send_match_email(self):
-        api.NotificationApi.send_confirmation(
+        NotificationApi.send_confirmation(
             email_type='match_confirmation',
             to_addresses=[self.report.contact_email],
             site_id=self.site_id,
@@ -99,18 +99,26 @@ class ConfirmationPartial(
 ):
     form_class = forms.ConfirmationForm
 
-    def _send_report_emails(self):
-        for sent_full_report in self.report.sentfullreport_set.all():
-            api.NotificationApi.send_report_to_authority(
-                sent_report=sent_full_report,
-                report_data=self.storage.cleaned_form_data,
-                site_id=self.site_id,
-            )
-        api.NotificationApi.send_confirmation(
+    def _send_report_to_authority(self, report):
+        NotificationApi.send_report_to_authority(
+            sent_report=report,
+            report_data=self.storage.cleaned_form_data,
+            site_id=self.site_id,
+            to_addresses=TenantApi.site_settings('COORDINATOR_EMAIL',
+                                                 request=self.request),
+        )
+
+    def _send_confirmation_email(self):
+        NotificationApi.send_confirmation(
             email_type='submit_confirmation',
             to_addresses=[self.report.contact_email],
             site_id=self.site_id,
         )
+
+    def _send_report_emails(self):
+        for sent_full_report in self.report.sentfullreport_set.all():
+            self._send_report_to_authority(sent_full_report)
+        self._send_confirmation_email()
 
     def form_valid(self, form):
         output = super().form_valid(form)

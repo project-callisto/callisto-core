@@ -9,7 +9,7 @@ from callisto_core.delivery.report_delivery import (
     MatchReportContent, PDFFullReport, PDFMatchReport,
 )
 from callisto_core.notification.models import EmailNotification
-from callisto_core.utils import api
+from callisto_core.utils.api import NotificationApi, TenantApi
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -359,8 +359,10 @@ class ReportDeliveryTest(MatchTest):
             body="test body",
         ).sites.add(self.site.id)
         sent_full_report = SentFullReport.objects.create(
-            report=self.report, to_address=settings.COORDINATOR_EMAIL)
-        api.NotificationApi.send_report_to_authority(
+            report=self.report,
+            to_address=TenantApi.site_settings('COORDINATOR_EMAIL'),
+        )
+        NotificationApi.send_report_to_authority(
             sent_full_report, self.decrypted_report, self.site.id)
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
@@ -436,7 +438,7 @@ class ReportDeliveryTest(MatchTest):
         ).sites.add(self.site.id)
         match1 = self.create_match(self.user1, 'dummy')
         match2 = self.create_match(self.user2, 'dummy')
-        api.NotificationApi.send_matching_report_to_authority(
+        NotificationApi.send_matching_report_to_authority(
             [match1, match2], "dummy")
         sent_report_id = SentMatchReport.objects.latest('id').get_report_id()
         self.assertEqual(len(mail.outbox), 1)
