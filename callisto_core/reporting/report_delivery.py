@@ -51,7 +51,7 @@ class MatchReportContent(object):
     @classmethod
     def from_form(cls, form):
         return cls(
-            identifier=form.instance.identifier,
+            identifier=form.cleaned_data.get('identifier'),
             perp_name=form.cleaned_data.get('perp_name'),
             contact_name=form.instance.report.contact_name,
             email=form.instance.report.contact_email,

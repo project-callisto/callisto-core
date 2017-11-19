@@ -170,12 +170,3 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
         self.client_post_report_creation()
         self.client_post_matching_enter()
         self.match_report_email_assertions()
-
-    @override_settings(
-        CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
-    def test_match_sends_report_delayed(self):
-        self.client_post_report_creation()
-        self.client_post_matching_enter()
-        self.assertEqual(len(mail.outbox), 0)
-        call_command('find_matches')
-        self.match_report_email_assertions()

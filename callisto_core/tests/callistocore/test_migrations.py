@@ -114,7 +114,7 @@ class MatchReportMigrationTest(MigrationTest):
             identifier=identifier,
             encrypted=encrypted_report,
             salt=salt)
-        MatchingApi.find_matches(match_reports_to_check=[match_report])
+        MatchingApi.find_matches('test_identifier')
         # have to use ANY because objects in migration tests are faked
         mock_process.assert_called_once_with([ANY, ANY], 'test_identifier')
 

@@ -70,7 +70,7 @@ class MatchingPartial(
     def form_valid(self, form):
         response = super().form_valid(form)
         identifier = form.data.get('identifier')
-        matches = self._get_matches(form)
+        matches = self._get_matches(identifier)
 
         self._notify_owner_of_submission(identifier)
         self._notify_authority_of_matches(matches, identifier)
@@ -78,12 +78,8 @@ class MatchingPartial(
 
         return response
 
-    def _get_matches(self, form):
-        return MatchingApi.find_matches(
-            match_report=form.instance,
-            identifier=form.data.get('identifier'),
-            to_coordinators=self.coordinator_emails,
-        )
+    def _get_matches(self, identifier):
+        return MatchingApi.find_matches(identifier)
 
     def _notify_owner_of_submission(self, identifier):
         if identifier:
