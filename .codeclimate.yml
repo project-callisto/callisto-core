@@ -12,5 +12,5 @@ ratings:
   - "**.js"
   - "**.py"
 exclude_paths:
-- callisto_core/tests/
-- */migrations/*
+  - 'callisto_core/tests/'
+  - '*/migrations/*'
