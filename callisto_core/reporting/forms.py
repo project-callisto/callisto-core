@@ -141,12 +141,6 @@ class ConfirmationForm(
         if not self.data.get('key') == self.view.storage.passphrase:
             forms.ValidationError('Invalid key')
 
-    def save(self, commit=True):
-        # TODO: obtain in the view, pass into form
-        self.instance.to_address = TenantApi.site_settings(
-            'COORDINATOR_EMAIL', request=self.request)
-        return super().save(commit=commit)
-
     class Meta:
         model = delivery_models.SentFullReport
         fields = []

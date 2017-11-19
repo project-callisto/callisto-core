@@ -121,6 +121,12 @@ class ConfirmationPartial(
 ):
     form_class = forms.ConfirmationForm
 
+    def form_valid(self, form):
+        output = super().form_valid(form)
+        self._save_to_address()
+        self._send_report_emails()
+        return output
+
     def _send_report_to_authority(self, report):
         NotificationApi.send_report_to_authority(
             sent_report=report,
@@ -136,16 +142,16 @@ class ConfirmationPartial(
             site_id=self.site_id,
         )
 
+    def _save_to_address(self, form):
+        sent_report = form.instance
+        sent_report.to_address = TenantApi.site_settings(
+            'COORDINATOR_EMAIL', request=self.request)
+        sent_report.save()
+
     def _send_report_emails(self):
         for sent_full_report in self.report.sentfullreport_set.all():
             self._send_report_to_authority(sent_full_report)
         self._send_confirmation_email()
-
-    def form_valid(self, form):
-        output = super().form_valid(form)
-        self._send_report_emails()
-        return output
-
 
 class MatchingWithdrawPartial(
     view_helpers.ReportingSuccessUrlMixin,
