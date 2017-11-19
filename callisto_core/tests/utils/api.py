@@ -39,7 +39,7 @@ class CustomMatchingApi(
     pass
 
 
-class CustomTestApi(
+class CustomTenantApi(
     CallistoCoreTenantApi,
 ):
     pass
