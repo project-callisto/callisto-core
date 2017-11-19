@@ -13,4 +13,5 @@ ratings:
   - "**.py"
 exclude_paths:
   - 'callisto_core/tests/'
-  - '*/migrations/*'
+  - 'callisto_core/notification/migrations/'
+  - 'callisto_core/delivery/migrations/'
