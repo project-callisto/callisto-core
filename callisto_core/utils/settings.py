@@ -17,7 +17,6 @@ def load_file(path):
     return data
 
 
-COORDINATOR_PUBLIC_KEY = load_file('callisto_publickey.gpg')
 CALLISTO_CHECK_REPORT_OWNER = False
 CALLISTO_EVAL_PUBLIC_KEY = load_file('callisto_publickey.gpg')
 
