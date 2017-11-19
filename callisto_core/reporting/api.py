@@ -1,7 +1,5 @@
 import logging
 
-from callisto_core.utils import api
-
 logger = logging.getLogger(__name__)
 
 
