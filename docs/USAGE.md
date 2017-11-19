@@ -70,7 +70,6 @@ django settings.py minimum requirements
     # apis, see api section below
     CALLISTO_MATCHING_API
     CALLISTO_NOTIFICATION_API
-    CALLISTO_NOTIFICATION_API
 ```
 
 - GPG

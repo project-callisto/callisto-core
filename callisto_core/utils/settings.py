@@ -25,7 +25,6 @@ CALLISTO_EVAL_PUBLIC_KEY = load_file('callisto_publickey.gpg')
 
 CALLISTO_MATCHING_API = callisto_core.tests.utils.api.CustomMatchingApi
 CALLISTO_NOTIFICATION_API = callisto_core.tests.utils.api.CustomNotificationApi
-CALLISTO_TENANT_API = callisto_core.utils.tenant_api.CallistoCoreTenantApi
 
 KEY_HASHERS = [
     "callisto_core.delivery.hashers.Argon2KeyHasher",

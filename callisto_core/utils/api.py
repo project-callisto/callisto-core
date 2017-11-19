@@ -65,8 +65,3 @@ class MatchingApi(metaclass=Api):
 class NotificationApi(metaclass=Api):
     API_SETTING_NAME = 'CALLISTO_NOTIFICATION_API'
     DEFAULT_CLASS = callisto_core.notification.api.CallistoCoreNotificationApi
-
-
-class TenantApi(metaclass=Api):
-    API_SETTING_NAME = 'CALLISTO_TENANT_API'
-    DEFAULT_CLASS = callisto_core.utils.tenant_api.CallistoCoreTenantApi

@@ -13,7 +13,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.html import conditional_escape
 
-from callisto_core.utils.api import NotificationApi, TenantApi
+from callisto_core.utils.api import NotificationApi
 
 logger = logging.getLogger(__name__)
 
@@ -350,7 +350,7 @@ class PDFMatchReport(PDFReport):
             topMargin=72, bottomMargin=72,
         )
         # COVER PAGE
-        recipient = TenantApi.site_settings('COORDINATOR_NAME')
+        # recipient = TenantApi.site_settings('COORDINATOR_NAME')
         self.pdf_elements.extend(
             NotificationApi.get_cover_page(
                 self, report_id=report_id, recipient=recipient,
