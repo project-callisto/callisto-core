@@ -55,11 +55,6 @@ django settings.py minimum requirements
         "callisto_core.delivery.hashers.PBKDF2KeyHasher"
     ]
 
-    # tenant specific
-    COORDINATOR_NAME
-    COORDINATOR_EMAIL
-    COORDINATOR_PUBLIC_KEY
-
     CALLISTO_EVAL_PUBLIC_KEY
     CALLISTO_EVAL_PRIVATE_KEY (keep this one secret!)
 
