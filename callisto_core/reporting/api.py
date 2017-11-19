@@ -24,25 +24,7 @@ class CallistoCoreMatchingApi(object):
                 if potential_match_report.get_match(identifier)
             ]
             if len(match_list) > 1:
-                seen_match_owners = [
-                    match.report.owner for match in match_list
-                    if match.seen
-                ]
-                new_match_owners = [
-                    match.report.owner for match in match_list
-                    if not match.seen
-                ]
-                # filter out multiple reports made by the same person
-                if len(set(seen_match_owners + new_match_owners)) > 1:
-                    # only send notifications if new matches are submitted by
-                    # owners we don't know about
-                    if not set(new_match_owners).issubset(
-                            set(seen_match_owners)):
-                        self._process_new_matches(
-                            match_list, identifier, to_addresses)
-                    for matched_report in match_list:
-                        matched_report.report.match_found = True
-                        matched_report.report.save()
+                self._filter_match_list(match_list, identifier, to_addresses)
             for match in match_list:
                 match.seen = True
                 # delete identifier, which should only be filled for newly
@@ -50,14 +32,28 @@ class CallistoCoreMatchingApi(object):
                 match.identifier = None
                 match.save()
 
-    def _process_new_matches(self, matches, identifier, to_addresses):
-        """Sends a report to the receiving authority and notifies the reporting users.
-        Each user should only be notified one time when a match is found.
+    def _filter_match_list(match_list, identifier, to_addresses):
+        seen_match_owners = [
+            match.report.owner for match in match_list
+            if match.seen
+        ]
+        new_match_owners = [
+            match.report.owner for match in match_list
+            if not match.seen
+        ]
+        # filter out multiple reports made by the same person
+        if len(set(seen_match_owners + new_match_owners)) > 1:
+            # only send notifications if new matches are submitted by
+            # owners we don't know about
+            if not set(new_match_owners).issubset(
+                    set(seen_match_owners)):
+                self._process_new_matches(
+                    match_list, identifier, to_addresses)
+            for matched_report in match_list:
+                matched_report.report.match_found = True
+                matched_report.report.save()
 
-        Args:
-          matches (list of MatchReports): the MatchReports that correspond to this identifier
-          identifier (str): identifier associated with the MatchReports
-        """
+    def _process_new_matches(self, matches, identifier, to_addresses):
         logger.info("new match found")
         owners_notified = []
         for match_report in matches:
