@@ -9,17 +9,20 @@ from django.template import Context, Template
 from django.utils import timezone
 
 from callisto_core.reporting.report_delivery import PDFFullReport, PDFMatchReport
-from callisto_core.notification.models import EmailNotification
 
 logger = logging.getLogger(__name__)
 
 
 class CallistoCoreNotificationApi(object):
 
-    model = EmailNotification
     report_filename = "report_{0}.pdf.gpg"
     from_email = '"Reports" <reports@{0}>'.format(settings.APP_URL)
     report_title = 'Report'
+
+    @property
+    def model(_):
+        from callisto_core.notification.models import EmailNotification
+        return EmailNotification
 
     def get_cover_page(self, *args, **kwargs):
         '''TODO: create pdf api, move this there'''

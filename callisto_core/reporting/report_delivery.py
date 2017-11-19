@@ -13,7 +13,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.html import conditional_escape
 
-from callisto_core.utils.api import NotificationApi
+from callisto_core.utils import api
 
 logger = logging.getLogger(__name__)
 
@@ -224,7 +224,7 @@ class PDFFullReport(PDFReport):
     def get_metadata_page(self, recipient):
         MetadataPage = []
         MetadataPage.append(Paragraph(
-            NotificationApi.report_title,
+            api.NotificationApi.report_title,
             self.report_title_style,
         ))
 
@@ -285,7 +285,7 @@ class PDFFullReport(PDFReport):
 
         # COVER PAGE
         self.pdf_elements.extend(
-            NotificationApi.get_cover_page(
+            api.NotificationApi.get_cover_page(
                 self,
                 report_id=report_id,
                 recipient=recipient,
@@ -352,7 +352,7 @@ class PDFMatchReport(PDFReport):
         # COVER PAGE
         recipient = "WORK IN PROGRESS!!!!!!"
         self.pdf_elements.extend(
-            NotificationApi.get_cover_page(
+            api.NotificationApi.get_cover_page(
                 self, report_id=report_id, recipient=recipient,
             ),
         )
@@ -360,7 +360,7 @@ class PDFMatchReport(PDFReport):
         # MATCH REPORTS
         self.pdf_elements.append(
             Paragraph(
-                NotificationApi.report_title,
+                api.NotificationApi.report_title,
                 self.report_title_style,
             )
         )

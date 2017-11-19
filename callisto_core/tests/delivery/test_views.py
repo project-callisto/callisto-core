@@ -9,7 +9,7 @@ from django.test.utils import override_settings
 from wizard_builder.forms import PageForm
 
 from .. import test_base
-from ...delivery import forms, models
+from callisto_core.delivery import forms, models
 
 
 class LegacyStorageFormatTest(test_base.ReportFlowHelper):

@@ -1,8 +1,7 @@
 import logging
 
-import callisto_core.notification.api
-import callisto_core.reporting.api
-import callisto_core.utils.tenant_api
+from callisto_core.notification import api as notification_api
+from callisto_core.reporting import api as reporting_api
 
 from django.conf import settings
 
@@ -59,9 +58,15 @@ class Api(type):
 
 class MatchingApi(metaclass=Api):
     API_SETTING_NAME = 'CALLISTO_MATCHING_API'
-    DEFAULT_CLASS = callisto_core.reporting.api.CallistoCoreMatchingApi
+
+    @property
+    def DEFAULT_CLASS(_):
+        return reporting_api.CallistoCoreMatchingApi
 
 
 class NotificationApi(metaclass=Api):
     API_SETTING_NAME = 'CALLISTO_NOTIFICATION_API'
-    DEFAULT_CLASS = callisto_core.notification.api.CallistoCoreNotificationApi
+
+    @property
+    def DEFAULT_CLASS(_):
+        return notification_api.CallistoCoreNotificationApi

@@ -23,8 +23,8 @@ and should not define:
 from django.conf import settings
 
 from . import forms, validators, view_helpers
-from ..delivery import view_partials as delivery_partials
-from ..utils import api
+from callisto_core.delivery import view_partials as delivery_partials
+from callisto_core.utils import api
 
 
 class SubmissionPartial(
