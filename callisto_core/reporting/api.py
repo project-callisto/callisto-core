@@ -1,6 +1,6 @@
 import logging
 
-from callisto_core.utils import api
+from callisto_core.utils.api import NotificationApi
 
 logger = logging.getLogger(__name__)
 
@@ -92,9 +92,9 @@ class CallistoCoreMatchingApi(object):
             owner = match_report.report.owner
             # dont notify report owners twice for a single match
             if owner not in owners_notified:
-                api.NotificationApi.send_match_notification(
+                NotificationApi.send_match_notification(
                     owner, match_report)
                 owners_notified.append(owner)
         # send report to school
-        api.NotificationApi.send_matching_report_to_authority(
+        NotificationApi.send_matching_report_to_authority(
             matches, identifier)
