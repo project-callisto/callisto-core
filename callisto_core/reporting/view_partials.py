@@ -20,11 +20,12 @@ and should not define:
     - url names
 
 '''
+from callisto_core.delivery import view_partials as delivery_partials
+from callisto_core.utils import api
+
 from django.conf import settings
 
 from . import forms, validators, view_helpers
-from callisto_core.delivery import view_partials as delivery_partials
-from callisto_core.utils import api
 
 
 class SubmissionPartial(

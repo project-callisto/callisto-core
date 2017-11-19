@@ -1,6 +1,8 @@
 from unittest import skip
 from unittest.mock import MagicMock
 
+from callisto_core.delivery import forms, models
+
 from django.core import mail
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
@@ -9,7 +11,6 @@ from django.test.utils import override_settings
 from wizard_builder.forms import PageForm
 
 from .. import test_base
-from callisto_core.delivery import forms, models
 
 
 class LegacyStorageFormatTest(test_base.ReportFlowHelper):

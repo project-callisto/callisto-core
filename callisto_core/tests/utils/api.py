@@ -1,7 +1,6 @@
 from callisto_core.notification import api as notification_api
-from callisto_core.reporting import api as reporting_api
-
 from callisto_core.notification.api import CallistoCoreNotificationApi
+from callisto_core.reporting import api as reporting_api
 from callisto_core.reporting.api import CallistoCoreMatchingApi
 
 
