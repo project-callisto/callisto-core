@@ -174,7 +174,6 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
         self.match_report_email_assertions()
 
     @skip('temporariy disabled')
-    @override_settings(MATCH_IMMEDIATELY=False)
     @override_settings(
         CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_delayed(self):

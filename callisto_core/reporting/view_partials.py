@@ -67,10 +67,9 @@ class MatchingPartial(
         output = super().form_valid(form)
         if form.data.get('identifier'):
             self._send_match_email()
-            if settings.MATCH_IMMEDIATELY:
-                api.MatchingApi.run_matching(
-                    match_reports_to_check=[form.instance],
-                )
+            api.MatchingApi.run_matching(
+                match_reports_to_check=[form.instance],
+            )
         return output
 
     def _send_match_email(self):

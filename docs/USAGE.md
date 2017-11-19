@@ -66,7 +66,6 @@ django settings.py minimum requirements
     CALLISTO_EVAL_PUBLIC_KEY
 
     # optional
-    MATCH_IMMEDIATELY = True
     CALLISTO_CHECK_REPORT_OWNER = False
 
     # apis, see api section below
