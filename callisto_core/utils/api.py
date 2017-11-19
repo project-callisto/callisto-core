@@ -1,7 +1,10 @@
 import logging
 
+from callisto_core.notification import api as notification_api
+from callisto_core.reporting import api as reporting_api
+from callisto_core.utils import tenant_api
+
 from django.conf import settings
-from django.utils.module_loading import import_string
 
 logger = logging.getLogger(__name__)
 
@@ -37,18 +40,18 @@ class Api(type):
         its functions. You can also disable a function by overriding it and
         making it return None.
 
-        You can also disable an api entirely by setting DEFAULT_CLASS_PATH to
+        You can also disable an api entirely by setting DEFAULT_CLASS to
         a ProjectExampleApi that defines no functions. This is useful if you
         want to disable an entire app (ex callisto_core.notification)
     '''
 
     def __getattr__(cls, attr):
-        override_class_path = getattr(
+        override_class = getattr(
             settings,
             cls.API_SETTING_NAME,
-            cls.DEFAULT_CLASS_PATH,
+            cls.DEFAULT_CLASS,
         )
-        api_instance = import_string(override_class_path)()
+        api_instance = override_class()
         func = getattr(api_instance, attr, lambda: None)
         log_api_func(api_instance, func)
         return func
@@ -56,9 +59,23 @@ class Api(type):
 
 class MatchingApi(metaclass=Api):
     API_SETTING_NAME = 'CALLISTO_MATCHING_API'
-    DEFAULT_CLASS_PATH = 'callisto_core.reporting.api.CallistoCoreMatchingApi'
+
+    @property
+    def DEFAULT_CLASS(_):
+        return reporting_api.CallistoCoreMatchingApi
 
 
 class NotificationApi(metaclass=Api):
     API_SETTING_NAME = 'CALLISTO_NOTIFICATION_API'
-    DEFAULT_CLASS_PATH = 'callisto_core.notification.api.CallistoCoreNotificationApi'
+
+    @property
+    def DEFAULT_CLASS(_):
+        return notification_api.CallistoCoreNotificationApi
+
+
+class TenantApi(metaclass=Api):
+    API_SETTING_NAME = 'CALLISTO_TENANT_API'
+
+    @property
+    def DEFAULT_CLASS(_):
+        return tenant_api.CallistoCoreTenantApi
