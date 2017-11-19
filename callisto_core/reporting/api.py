@@ -60,8 +60,13 @@ class CallistoCoreMatchingApi(object):
             owner = match_report.report.owner
             # dont notify report owners twice for a single match
             if owner not in owners_notified:
-                NotificationApi.send_match_notification(owner, match_report)
+                self._notify_owner(owner, match_report)
                 owners_notified.append(owner)
-        # send report to school
+        self._notify_authority(matches, identifier, to_addresses)
+
+    def _notify_authority(self, matches, identifier, to_addresses):
         NotificationApi.send_matching_report_to_authority(
             matches, identifier, to_addresses)
+
+    def _notify_owner(self, owner, match_report):
+        NotificationApi.send_match_notification(owner, match_report)
