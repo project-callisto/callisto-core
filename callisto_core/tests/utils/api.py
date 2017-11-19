@@ -1,17 +1,25 @@
 from callisto_core.notification.api import CallistoCoreNotificationApi
 from callisto_core.reporting.api import CallistoCoreMatchingApi
+from callisto_core.utils.tenant_api import CallistoCoreTenantApi
 
-from django.contrib.sites.models import Site
 
+class SiteAwareNotificationApi(
+    CallistoCoreNotificationApi,
+):
 
-class SiteAwareNotificationApi(CallistoCoreNotificationApi):
+    @property
+    def Site(_):
+        from django.contrib.sites.models import Site
+        return Site
 
     def user_site_id(self, user):
-        Site.objects.filter(id=1).update(domain='testserver')
+        self.Site.objects.filter(id=1).update(domain='testserver')
         return 1
 
 
-class CustomNotificationApi(SiteAwareNotificationApi):
+class CustomNotificationApi(
+    SiteAwareNotificationApi,
+):
 
     def send_email(self):
         pass  # disable sending
@@ -25,6 +33,13 @@ class CustomNotificationApi(SiteAwareNotificationApi):
         pass  # for testing inputs
 
 
-class CustomMatchingApi(CallistoCoreMatchingApi):
+class CustomMatchingApi(
+    CallistoCoreMatchingApi,
+):
+    pass
 
-    pass  # TODO: remove
+
+class CustomTestApi(
+    CallistoCoreTenantApi,
+):
+    pass

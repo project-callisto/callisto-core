@@ -58,24 +58,23 @@ django settings.py minimum requirements
     # tenant specific
     COORDINATOR_NAME
     COORDINATOR_EMAIL
-    SCHOOL_SHORTNAME
-    SCHOOL_LONGNAME
-    SCHOOL_REPORT_PREFIX
     COORDINATOR_PUBLIC_KEY
+
     CALLISTO_EVAL_PUBLIC_KEY
-    CALLISTO_EVAL_PUBLIC_KEY
+    CALLISTO_EVAL_PRIVATE_KEY (keep this one secret!)
 
     # optional
     MATCH_IMMEDIATELY = True
-    CALLISTO_CHECK_REPORT_OWNER = False
+    CALLISTO_CHECK_REPORT_OWNER = True
 
     # apis, see api section below
     CALLISTO_MATCHING_API
     CALLISTO_NOTIFICATION_API
+    CALLISTO_TENANT_API
 ```
 
-- GPG (WIP)
-- tenant specific (WIP)
+- GPG
+- tenant specific
 
 ## APIs
 
@@ -89,16 +88,12 @@ The `views.py` files in this repo are specific to callisto-core. If you are impl
 
 Use this to change your notification (eg. emails, PDFs, slack messages, etc) implementation
 
-(further instructions WIP)
-
 ### MatchingApi
 
 Use this to change your matching implementation
 
-(further instructions WIP)
-
 ## Data
 
-- sites (WIP)
-- questions (WIP)
-- notifications (WIP)
+- sites
+- questions
+- notifications

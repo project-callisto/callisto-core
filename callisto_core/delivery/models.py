@@ -218,10 +218,8 @@ class SentReport(PolymorphicModel):
     sent = models.DateTimeField(auto_now_add=True)
     to_address = models.CharField(blank=False, null=False, max_length=4096)
 
-    def _get_id_for_authority(self, is_match):
-        return "{0}-{1}-{2}".format(
-            settings.SCHOOL_REPORT_PREFIX, '%05d' %
-            self.id, 0 if is_match else 1)
+    def _get_id_for_authority(self, is_match=0):
+        return f'{self.id}-{is_match}'
 
 
 class SentFullReport(SentReport):
@@ -233,7 +231,7 @@ class SentFullReport(SentReport):
         on_delete=models.SET_NULL)
 
     def get_report_id(self):
-        return self._get_id_for_authority(is_match=False)
+        return self._get_id_for_authority()
 
 
 class SentMatchReport(SentReport):
@@ -241,4 +239,4 @@ class SentMatchReport(SentReport):
     reports = models.ManyToManyField(MatchReport)
 
     def get_report_id(self):
-        return self._get_id_for_authority(is_match=True)
+        return self._get_id_for_authority(is_match=1)
