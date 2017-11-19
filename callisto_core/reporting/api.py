@@ -1,6 +1,6 @@
 import logging
 
-from callisto_core.utils.api import NotificationApi
+from callisto_core.utils import api
 
 logger = logging.getLogger(__name__)
 
@@ -65,8 +65,8 @@ class CallistoCoreMatchingApi(object):
         self._notify_authority(matches, identifier, to_addresses)
 
     def _notify_authority(self, matches, identifier, to_addresses):
-        NotificationApi.send_matching_report_to_authority(
+        api.NotificationApi.send_matching_report_to_authority(
             matches, identifier, to_addresses)
 
     def _notify_owner(self, owner, match_report):
-        NotificationApi.send_match_notification(owner, match_report)
+        api.NotificationApi.send_match_notification(owner, match_report)

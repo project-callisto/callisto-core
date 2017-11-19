@@ -111,7 +111,7 @@ class MatchingOptionalForm(
 
     class Meta:
         model = delivery_models.MatchReport
-        fields = ['identifier']
+        fields = []
 
 
 class MatchingRequiredForm(
@@ -121,7 +121,7 @@ class MatchingRequiredForm(
 
     class Meta:
         model = delivery_models.MatchReport
-        fields = ['identifier']
+        fields = []
 
 
 class ConfirmationForm(
