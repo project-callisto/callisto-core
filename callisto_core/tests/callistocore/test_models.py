@@ -142,18 +142,6 @@ class MatchReportTest(test_base.ReportFlowHelper):
             "test legacy match report")
 
 
-class SentReportTest(test_base.ReportFlowHelper):
-
-    def test_id_format_works(self):
-        sent_full_report = SentFullReport.objects.create()
-        sent_full_report_id = sent_full_report.get_report_id()
-        sent_match_report = SentMatchReport.objects.create()
-        sent_match_report_id = sent_match_report.get_report_id()
-        self.assertNotEqual(sent_match_report_id, sent_full_report_id)
-        self.assertTrue(sent_full_report_id.endswith('-1'))
-        self.assertTrue(sent_match_report_id.endswith('-0'))
-
-
 class DeleteReportTest(test_base.ReportFlowHelper):
 
     def setUp(self):
