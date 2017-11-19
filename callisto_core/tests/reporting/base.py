@@ -50,7 +50,7 @@ class MatchSetup(TestCase):
     ):
         report = Report(owner=user)
         report.encrypt_report("test report 1", "key")
-        match_report = MatchReport(report=report, identifier=identifier)
+        match_report = MatchReport(report=report)
 
         if match_report_content:
             match_report_object = match_report_content
@@ -66,6 +66,6 @@ class MatchSetup(TestCase):
         )
 
         if alert:
-            MatchingApi.run_matching()
+            MatchingApi.find_matches(match_report, identifier)
 
         return match_report

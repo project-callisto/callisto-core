@@ -34,6 +34,11 @@ class SubmissionPartial(
 ):
     back_url = None
 
+    @property
+    def coordinator_emails(self):
+        return TenantApi.site_settings(
+            'COORDINATOR_EMAIL', request=self.request)
+
 
 class PrepPartial(
     SubmissionPartial,
@@ -68,9 +73,15 @@ class MatchingPartial(
         output = super().form_valid(form)
         if form.data.get('identifier'):
             self._send_match_email()
-            MatchingApi.find_matches(
-                match_reports_to_check=[form.instance])
+            self._find_matches(form)
         return output
+
+    def _find_matches(self, form):
+        MatchingApi.find_matches(
+            match_report=form.instance,
+            identifier=form.data.get('identifier'),
+            to_coordinators=self.coordinator_emails,
+        )
 
     def _send_match_email(self):
         NotificationApi.send_confirmation(
@@ -102,8 +113,7 @@ class ConfirmationPartial(
             sent_report=report,
             report_data=self.storage.cleaned_form_data,
             site_id=self.site_id,
-            to_addresses=TenantApi.site_settings('COORDINATOR_EMAIL',
-                                                 request=self.request),
+            to_addresses=self.coordinator_emails,
         )
 
     def _send_confirmation_email(self):
