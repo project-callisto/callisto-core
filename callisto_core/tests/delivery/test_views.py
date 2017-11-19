@@ -148,7 +148,6 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
             'inline; filename="report.pdf"',
         )
 
-    @skip('temporariy disabled')
     def test_match_report_entry(self):
         self.client_post_report_creation()
         self.client_post_matching_enter()
@@ -156,7 +155,6 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
             models.MatchReport.objects.filter(report=self.report).count(),
         )
 
-    @skip('temporariy disabled')
     def test_match_report_withdrawl(self):
         self.client_post_report_creation()
         self.client_post_matching_enter()
@@ -165,7 +163,6 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
             models.MatchReport.objects.filter(report=self.report).count(),
         )
 
-    @skip('temporariy disabled')
     @override_settings(
         CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_immediately(self):
@@ -173,7 +170,6 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
         self.client_post_matching_enter()
         self.match_report_email_assertions()
 
-    @skip('temporariy disabled')
     @override_settings(
         CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_delayed(self):
