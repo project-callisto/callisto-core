@@ -23,18 +23,9 @@ class MatchPropertyTest(MatchSetup):
         self.create_match(self.user2, 'test2', alert=False)
         for report in MatchReport.objects.all():
             self.assertFalse(report.seen)
-        MatchingApi.run_matching()
+        MatchingApi.find_matches('test1')
         for report in MatchReport.objects.all():
             self.assertTrue(report.seen)
-
-    def test_running_matching_erases_identifier(self):
-        self.create_match(self.user1, 'test1', alert=False)
-        self.create_match(self.user2, 'test2', alert=False)
-        for report in MatchReport.objects.all():
-            self.assertIsNotNone(report.identifier)
-        MatchingApi.run_matching()
-        for report in MatchReport.objects.all():
-            self.assertIsNone(report.identifier)
 
 
 class MatchDiscoveryTest(MatchSetup):
@@ -111,7 +102,7 @@ class MatchAlertingTest(MatchSetup):
         self.assert_matches_found_false()
 
         mock_process.reset_mock()
-        MatchingApi.run_matching()
+        MatchingApi.find_matches('test1')
         self.assert_matches_found_true()
 
     def test_triggers_new_matches_only(self, mock_process):
@@ -161,6 +152,6 @@ class MatchNotificationTest(MatchSetup):
             match_report = self.create_match(self.user2, 'test1', alert=False)
             match_report.report.submitted_to_school = timezone.now()
             match_report.report.save()
-            MatchingApi.run_matching()
+            MatchingApi.find_matches('test1')
             self.assertNotEqual(api_logging.call_count, 2)  # old behavior
             self.assertEqual(api_logging.call_count, 3)  # new behavior
