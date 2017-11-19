@@ -440,8 +440,8 @@ class PDFMatchReport(PDFReport):
 
         doc.build(
             self.pdf_elements,
-            onFirstPage=self.get_header_footer(),
-            onLaterPages=self.get_header_footer(),
+            onFirstPage=self.get_header_footer(recipient),
+            onLaterPages=self.get_header_footer(recipient),
             canvasmaker=NumberedCanvas,
         )
         result = buffer.getvalue()

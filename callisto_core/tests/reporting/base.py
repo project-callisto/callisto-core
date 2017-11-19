@@ -66,6 +66,6 @@ class MatchSetup(TestCase):
         )
 
         if alert:
-            MatchingApi.find_matches(match_report, identifier)
+            MatchingApi.find_matches(match_report, identifier, [''])
 
         return match_report
