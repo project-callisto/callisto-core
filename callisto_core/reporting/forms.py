@@ -8,7 +8,6 @@ from callisto_core.delivery import (
 from callisto_core.utils.api import TenantApi
 
 from django import forms
-from django.conf import settings
 
 from . import fields, report_delivery
 from .validators import Validators as ValidatorClass

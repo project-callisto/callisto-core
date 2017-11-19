@@ -128,7 +128,7 @@ class CallistoCoreNotificationApi(object):
         self.notification_with_match_report(matches, identifier)
         self.send()
 
-    def send_match_notification(self, user, match_report):
+    def send_match_notification(self, match_report):
         '''
         Notifies reporting user that a match has been found.
 
@@ -142,6 +142,7 @@ class CallistoCoreNotificationApi(object):
         from_email = '"Callisto Matching" <notification@{0}>'.format(
             settings.APP_URL,
         )
+        user = match_report.report.owner
 
         self.context = {
             'notification_name': 'match_notification',

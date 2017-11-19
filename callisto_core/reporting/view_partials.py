@@ -23,8 +23,6 @@ and should not define:
 from callisto_core.delivery import view_partials as delivery_partials
 from callisto_core.utils.api import MatchingApi, NotificationApi, TenantApi
 
-from django.conf import settings
-
 from . import forms, validators, view_helpers
 
 
@@ -70,25 +68,44 @@ class MatchingPartial(
         return kwargs
 
     def form_valid(self, form):
-        output = super().form_valid(form)
-        if form.data.get('identifier'):
-            self._send_match_email()
-            self._find_matches(form)
-        return output
+        response = super().form_valid(form)
+        identifier = form.data.get('identifier')
+        matches = self._get_matches(form)
 
-    def _find_matches(self, form):
-        MatchingApi.find_matches(
+        self._notify_owner_of_submission(identifier)
+        self._notify_authority_of_matches(matches, identifier)
+        self._notify_owners_of_matches(matches)
+
+        return response
+
+    def _get_matches(self, form):
+        return MatchingApi.find_matches(
             match_report=form.instance,
             identifier=form.data.get('identifier'),
             to_coordinators=self.coordinator_emails,
         )
 
-    def _send_match_email(self):
-        NotificationApi.send_confirmation(
-            email_type='match_confirmation',
-            to_addresses=[self.report.contact_email],
-            site_id=self.site_id,
-        )
+    def _notify_owner_of_submission(self, identifier):
+        if identifier:
+            NotificationApi.send_confirmation(
+                email_type='match_confirmation',
+                to_addresses=[self.report.contact_email],
+                site_id=self.site_id,
+            )
+
+    def _notify_authority_of_matches(self, matches, identifier):
+        if matches:
+            NotificationApi.send_matching_report_to_authority(
+                matches=matches,
+                indentifier=identifier,
+                to_addresses=self.coordinator_email,
+            )
+
+    def _notify_owners_of_matches(self, matches):
+        for match in matches:
+            NotificationApi.send_match_notification(
+                match_report=match,
+            )
 
 
 class OptionalMatchingPartial(
