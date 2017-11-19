@@ -350,7 +350,7 @@ class PDFMatchReport(PDFReport):
             topMargin=72, bottomMargin=72,
         )
         # COVER PAGE
-        # recipient = TenantApi.site_settings('COORDINATOR_NAME')
+        recipient = "WORK IN PROGRESS!!!!!!"
         self.pdf_elements.extend(
             NotificationApi.get_cover_page(
                 self, report_id=report_id, recipient=recipient,
