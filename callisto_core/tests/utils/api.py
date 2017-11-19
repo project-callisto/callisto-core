@@ -1,11 +1,10 @@
-from callisto_core.notification import api as notification_api
 from callisto_core.notification.api import CallistoCoreNotificationApi
-from callisto_core.reporting import api as reporting_api
 from callisto_core.reporting.api import CallistoCoreMatchingApi
+from callisto_core.utils.tenant_api import CallistoCoreTenantApi
 
 
 class SiteAwareNotificationApi(
-    notification_api.CallistoCoreNotificationApi,
+    CallistoCoreNotificationApi,
 ):
 
     @property
@@ -18,7 +17,9 @@ class SiteAwareNotificationApi(
         return 1
 
 
-class CustomNotificationApi(SiteAwareNotificationApi):
+class CustomNotificationApi(
+    SiteAwareNotificationApi,
+):
 
     def send_email(self):
         pass  # disable sending
@@ -33,6 +34,12 @@ class CustomNotificationApi(SiteAwareNotificationApi):
 
 
 class CustomMatchingApi(
-    reporting_api.CallistoCoreMatchingApi,
+    CallistoCoreMatchingApi,
+):
+    pass
+
+
+class CustomTestApi(
+    CallistoCoreTenantApi,
 ):
     pass
