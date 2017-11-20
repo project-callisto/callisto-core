@@ -126,7 +126,7 @@ class CallistoCoreNotificationApi(object):
             'site_id': self.user_site_id(user),
             'user': user,
         }
-        self.notification_with_match_report(matches, identifier)
+        self.notification_with_match_report(matches, identifier, to_addresses)
         self.send()
 
     def send_match_notification(self, match_report):
@@ -166,7 +166,7 @@ class CallistoCoreNotificationApi(object):
 
         self._notification_with_report(report_id, report_file)
 
-    def notification_with_match_report(self, matches, identifier):
+    def notification_with_match_report(self, matches, identifier, to_addresses):
         # TODO: make match notification_with_full_report more closely
         from callisto_core.delivery.models import SentMatchReport
         sent_match_report = SentMatchReport.objects.create(
@@ -177,7 +177,7 @@ class CallistoCoreNotificationApi(object):
 
         report_id = sent_match_report.get_report_id()
         report_pdf = PDFMatchReport(matches, identifier)
-        report_file = report_pdf.generate_match_report(report_id)
+        report_file = report_pdf.generate_match_report(report_id, to_addresses)
 
         self._notification_with_report(report_id, report_file)
 

@@ -326,7 +326,7 @@ class PDFMatchReport(PDFReport):
             reverse=True)
         self.identifier = identifier
 
-    def generate_match_report(self, report_id):
+    def generate_match_report(self, report_id, recipient):
         '''
         Generates PDF report about a discovered match.
 
