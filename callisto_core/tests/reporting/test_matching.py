@@ -76,7 +76,7 @@ class MatchAlertingTest(MatchSetup):
         matches = self.create_match(self.user2, 'test1')
         self.assertFalse(matches)
 
-    def test_triggers_new_matches_only(self, mock_process):
+    def test_triggers_new_matches_only(self):
         self.create_match(self.user1, 'test1')
         self.create_match(self.user2, 'test1')
         matches = self.create_match(self.user3, 'test2')
