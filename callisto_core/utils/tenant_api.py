@@ -3,6 +3,12 @@ from distutils.util import strtobool
 from django.contrib.sites.shortcuts import get_current_site
 
 
+def load_file(path):
+    with open(path, 'r') as file_data:
+        data = file_data.read()
+    return data
+
+
 def cast_string_to_type(
     value: str,
     cast: [str, bool, int]
@@ -43,6 +49,8 @@ class CallistoCoreTenantApi(object):
             1: {
                 'COORDINATOR_NAME': 'COORDINATOR_NAME',
                 'COORDINATOR_EMAIL': 'COORDINATOR_EMAIL@example.com',
+                'COORDINATOR_PUBLIC_KEY': load_file(
+                    'callisto_core/utils/callisto_publickey.gpg'),
             }
         }.get(site_id, {})
         value = site_values.get(var, '')

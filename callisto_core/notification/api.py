@@ -59,6 +59,7 @@ class CallistoCoreNotificationApi(object):
         sent_report,
         to_addresses: typing.List[str],
         report_data: dict,
+        public_key: str,
         site_id=0,
     ) -> None:
         '''
@@ -71,7 +72,8 @@ class CallistoCoreNotificationApi(object):
             'to_addresses': to_addresses,
             'site_id': site_id,
         }
-        self.notification_with_full_report(sent_report, report_data)
+        self.notification_with_full_report(
+            sent_report, report_data, public_key)
         self.send()
 
         # TODO: re-evaluate this decision
@@ -107,9 +109,10 @@ class CallistoCoreNotificationApi(object):
 
     def send_matching_report_to_authority(
         self,
-        matches,
-        identifier,
+        matches: list,
+        identifier: str,
         to_addresses: typing.List[str],
+        public_key: str,
     ):
         '''
         Notifies coordinator that a match has been found
@@ -126,7 +129,8 @@ class CallistoCoreNotificationApi(object):
             'site_id': self.user_site_id(user),
             'user': user,
         }
-        self.notification_with_match_report(matches, identifier, to_addresses)
+        self.notification_with_match_report(
+            matches, identifier, to_addresses, public_key)
         self.send()
 
     def send_match_notification(self, match_report):
@@ -158,15 +162,21 @@ class CallistoCoreNotificationApi(object):
     # report attachment
     # TODO: write to self.attachment without dict.update
 
-    def notification_with_full_report(self, sent_report, report_data):
+    def notification_with_full_report(
+            self, sent_report, report_data, public_key):
         report_id = sent_report.get_report_id()
         report_file = PDFFullReport(
             sent_report.report, report_data
         ).generate_pdf_report(report_id)
 
-        self._notification_with_report(report_id, report_file)
+        self._notification_with_report(report_id, report_file, public_key)
 
-    def notification_with_match_report(self, matches, identifier, to_addresses):
+    def notification_with_match_report(
+            self,
+            matches,
+            identifier,
+            to_addresses,
+            public_key):
         # TODO: make match notification_with_full_report more closely
         from callisto_core.delivery.models import SentMatchReport
         sent_match_report = SentMatchReport.objects.create(
@@ -179,10 +189,10 @@ class CallistoCoreNotificationApi(object):
         report_pdf = PDFMatchReport(matches, identifier)
         report_file = report_pdf.generate_match_report(report_id, to_addresses)
 
-        self._notification_with_report(report_id, report_file)
+        self._notification_with_report(report_id, report_file, public_key)
 
-    def _notification_with_report(self, report_id, report_file):
-        report_file = self._encrypt_file(report_file)
+    def _notification_with_report(self, report_id, report_file, public_key):
+        report_file = self._encrypt_file(report_file, public_key)
         attachment = (
             self.report_filename.format(report_id),
             report_file,
@@ -190,9 +200,9 @@ class CallistoCoreNotificationApi(object):
         )
         self.context.update({'attachment': attachment})
 
-    def _encrypt_file(self, file_data):
+    def _encrypt_file(self, file_data, public_key):
         gpg = gnupg.GPG()
-        imported_keys = gpg.import_keys(settings.COORDINATOR_PUBLIC_KEY)
+        imported_keys = gpg.import_keys(public_key)
         return gpg.encrypt(
             file_data,
             imported_keys.fingerprints[0],

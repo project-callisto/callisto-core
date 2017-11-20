@@ -37,6 +37,11 @@ class SubmissionPartial(
         return TenantApi.site_settings(
             'COORDINATOR_EMAIL', request=self.request)
 
+    @property
+    def coordinator_public_key(self):
+        return TenantApi.site_settings(
+            'COORDINATOR_PUBLIC_KEY', request=self.request)
+
 
 class PrepPartial(
     SubmissionPartial,
@@ -95,6 +100,7 @@ class MatchingPartial(
                 matches=matches,
                 identifier=identifier,
                 to_addresses=self.coordinator_emails,
+                public_key=self.coordinator_public_key,
             )
 
     def _notify_owners_of_matches(self, matches):
