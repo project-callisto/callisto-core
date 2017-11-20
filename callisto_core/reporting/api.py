@@ -16,6 +16,7 @@ class CallistoCoreMatchingApi(object):
             self._resolve_decryptable_reports,
             self._resolve_duplicate_owners,
             self._resolve_single_report,
+            self._resolve_already_matched,
             self._update_match_found,
         ]
 
@@ -36,9 +37,9 @@ class CallistoCoreMatchingApi(object):
 
     def _resolve_decryptable_reports(self, match_list):
         return [
-            report
-            for report in match_list
-            if report.get_match(self.identifier)
+            match_report
+            for match_report in match_list
+            if match_report.get_match(self.identifier)
         ]
 
     def _resolve_duplicate_owners(self, match_list):
@@ -57,6 +58,13 @@ class CallistoCoreMatchingApi(object):
             return []
         else:
             return match_list
+
+    def _resolve_already_matched(self, match_list):
+        return [
+            match_report
+            for match_report in match_list
+            if not match_report.report.match_found
+        ]
 
     def _update_match_found(self, match_list):
         for match in match_list:
