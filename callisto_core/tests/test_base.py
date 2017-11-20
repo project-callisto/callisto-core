@@ -18,25 +18,10 @@ class ReportAssertionHelper(object):
         return bool(models.Report.objects.filter(pk=self.report.pk).count())
 
     def match_report_email_assertions(self):
-        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test1@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[1]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test2@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[2]
-        self.assertEqual(message.subject, 'test match delivery')
-        self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertIn('"Reports" <reports@', message.from_email)
-        self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(
-            message.attachments[0][0],
-            'report_.*\\.pdf\\.gpg')
+        self.assertEqual(message.subject, 'match_confirmation')
+        self.assertEqual(message.to, ['test@example.com'])
 
 
 class ReportPostHelper(object):

@@ -165,5 +165,6 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
 
     def test_match_sends_report_immediately(self):
         self.client_post_report_creation()
+        self.client_post_report_prep()
         self.client_post_matching_enter()
         self.match_report_email_assertions()

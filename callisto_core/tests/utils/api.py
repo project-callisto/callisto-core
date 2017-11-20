@@ -7,13 +7,9 @@ class SiteAwareNotificationApi(
     CallistoCoreNotificationApi,
 ):
 
-    @property
-    def Site(_):
-        from django.contrib.sites.models import Site
-        return Site
-
     def user_site_id(self, user):
-        self.Site.objects.filter(id=1).update(domain='testserver')
+        from django.contrib.sites.models import Site
+        Site.objects.filter(id=1).update(domain='testserver')
         return 1
 
 
