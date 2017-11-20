@@ -73,7 +73,7 @@ class CallistoCoreNotificationApi(object):
             'site_id': site_id,
         }
         self.notification_with_full_report(
-            sent_report, report_data, public_key)
+            sent_report, report_data, public_key, to_addresses)
         self.send()
 
         # TODO: re-evaluate this decision
@@ -163,20 +163,26 @@ class CallistoCoreNotificationApi(object):
     # TODO: write to self.attachment without dict.update
 
     def notification_with_full_report(
-            self, sent_report, report_data, public_key):
+        self,
+        sent_report,
+        report_data,
+        public_key,
+        to_addresses,
+    ):
         report_id = sent_report.get_report_id()
-        report_file = PDFFullReport(
-            sent_report.report, report_data
-        ).generate_pdf_report(report_id)
+        report_pdf_class = PDFFullReport(sent_report.report, report_data)
+        report_file = report_pdf_class.generate_pdf_report(
+            report_id, to_addresses)
 
         self._notification_with_report(report_id, report_file, public_key)
 
     def notification_with_match_report(
-            self,
-            matches,
-            identifier,
-            to_addresses,
-            public_key):
+        self,
+        matches,
+        identifier,
+        to_addresses,
+        public_key,
+    ):
         # TODO: make match notification_with_full_report more closely
         from callisto_core.delivery.models import SentMatchReport
         sent_match_report = SentMatchReport.objects.create(
