@@ -23,14 +23,14 @@ class CallistoCoreMatchingApi(object):
         self.identifier = identifier
         match_list = self.match_reports
 
-        logger.debug(f'all reports => size:{len(match_list)}')
+        logger.debug(f'all reports => match_reports:{len(match_list)}')
         for func in self.transforms:
             if match_list:
                 match_list = func(match_list)
                 logger.debug(f'post {func.__name__} => {match_list}')
 
         if match_list:
-            logger.info(f"Match between ({len(match_list)}) reports found")
+            logger.info(f"matches found => match_reports:{len(match_list)}")
 
         return match_list
 
