@@ -154,6 +154,16 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
+    def client_post_matching_withdraw(self):
+        url = reverse(
+            'report_matching_withdraw',
+            kwargs={'uuid': self.report.uuid},
+        )
+        data = {'key': self.passphrase}
+        response = self.client.post(url, data, follow=True)
+        self.assertIn(response.status_code, self.valid_statuses)
+        return response
+
     def client_post_matching_enter(
             self, identifier='https://www.facebook.com/callistoorg'):
         url = reverse(

@@ -1,7 +1,7 @@
 import json
+from unittest import skip
 
 from mock import call, patch
-from unittest import skip
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
@@ -85,7 +85,6 @@ class MatchAlertingTest(MatchSetup):
 
 
 class MatchNotificationTest(MatchSetup):
-
 
     @skip('notification mechanics moved to view partials')
     def test_basic_email_case(self):

@@ -158,13 +158,11 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
     def test_match_report_withdrawl(self):
         self.client_post_report_creation()
         self.client_post_matching_enter()
-        self.client_get_matching_withdraw()
+        self.client_post_matching_withdraw()
         self.assertFalse(
             models.MatchReport.objects.filter(report=self.report).count(),
         )
 
-    @override_settings(
-        CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_immediately(self):
         self.client_post_report_creation()
         self.client_post_matching_enter()
