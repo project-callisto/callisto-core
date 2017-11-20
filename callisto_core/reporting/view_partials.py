@@ -94,7 +94,7 @@ class MatchingPartial(
             NotificationApi.send_matching_report_to_authority(
                 matches=matches,
                 indentifier=identifier,
-                to_addresses=self.coordinator_email,
+                to_addresses=self.coordinator_emails,
             )
 
     def _notify_owners_of_matches(self, matches):
