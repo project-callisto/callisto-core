@@ -278,7 +278,7 @@ class CallistoCoreNotificationApi(object):
         )
         if self.context.get('attachment'):
             email.attach(*self.context.get('attachment'))
-        email.send()
+        email.send(fail_silently=False)
         self.context.update({'EmailMessage': email})
 
     def log_action(self):
