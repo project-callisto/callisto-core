@@ -1,5 +1,15 @@
 # History / Changelog
 
+## 0.17.0 (2017-11-20)
+
+* rework `CallistoCoreMatchingApi`
+* add `TenantApi`, `CallistoCoreTenantApi`
+* moved the following attributes from `settings.VAR` to `TenantApi('VAR')`
+    * `COORDINATOR_NAME`
+    * `COORDINATOR_EMAIL`
+    * `COORDINATOR_PUBLIC_KEY`
+* this is a fairly thoroughly breaking version, so be sure to check all your corners
+
 ## 0.16.2 (2017-11-02)
 
 * add a `site_id=1` fallback to `EmailNotification.objects.on_site`
