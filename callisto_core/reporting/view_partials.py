@@ -139,6 +139,7 @@ class ConfirmationPartial(
             report_data=self.storage.cleaned_form_data,
             site_id=self.site_id,
             to_addresses=self.coordinator_emails,
+            public_key=self.coordinator_public_key,
         )
 
     def _send_confirmation_email(self):
