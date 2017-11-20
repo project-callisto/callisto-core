@@ -150,8 +150,7 @@ class ConfirmationPartial(
 
     def _save_to_address(self, form):
         sent_report = form.instance
-        sent_report.to_address = TenantApi.site_settings(
-            'COORDINATOR_EMAIL', request=self.request)
+        sent_report.to_address = self.coordinator_emails
         sent_report.save()
 
     def _send_report_emails(self):
