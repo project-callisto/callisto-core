@@ -69,7 +69,7 @@ class MatchingPartial(
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        identifier = form.data.get('identifier')
+        identifier = form.cleaned_data.get('identifier')
         matches = self._get_matches(identifier)
 
         self._notify_owner_of_submission(identifier)
