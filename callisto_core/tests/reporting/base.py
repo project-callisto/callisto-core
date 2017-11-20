@@ -40,14 +40,6 @@ class MatchSetup(TestCase):
     def assert_matches_found_false(self):
         self.assert_matches_found(self.assertFalse)
 
-    def assert_matches_not_seen(self):
-        for report in MatchReport.objects.all():
-            self.assertFalse(report.seen)
-
-    def assert_matches_seen(self):
-        for report in MatchReport.objects.all():
-            self.assertTrue(report.seen)
-
     def assert_matches_found(self, assertion):
         for match in MatchReport.objects.all():
             assertion(match.match_found)

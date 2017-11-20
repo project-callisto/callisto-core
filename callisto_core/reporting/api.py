@@ -13,7 +13,6 @@ class CallistoCoreMatchingApi(object):
     @property
     def transforms(self):
         return [
-            self._update_seen,
             self._resolve_duplicate_owners,
             self._resolve_single_report,
             self._update_match_found,
@@ -27,12 +26,6 @@ class CallistoCoreMatchingApi(object):
         ]
         for func in self.transforms:
             match_list = func(match_list)
-        return match_list
-
-    def _update_seen(self, match_list):
-        for match in match_list:
-            match.seen = True
-            match.save()
         return match_list
 
     def _resolve_duplicate_owners(self, match_list):

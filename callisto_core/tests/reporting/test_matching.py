@@ -16,16 +16,6 @@ from .base import MatchSetup
 User = get_user_model()
 
 
-class MatchPropertyTest(MatchSetup):
-
-    def test_running_matching_sets_report_seen(self):
-        self.create_match(self.user1, 'test1', alert=False)
-        self.create_match(self.user2, 'test2', alert=False)
-        self.assert_matches_not_seen()
-        MatchingApi.find_matches('test1')
-        self.assert_matches_seen()
-
-
 class MatchDiscoveryTest(MatchSetup):
 
     def test_two_matching_reports_match(self):

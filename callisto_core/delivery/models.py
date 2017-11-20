@@ -143,7 +143,6 @@ class MatchReport(models.Model):
     """
     report = models.ForeignKey('Report', on_delete=models.CASCADE)
     added = models.DateTimeField(auto_now_add=True)
-    seen = models.BooleanField(blank=False, default=False)
     encrypted = models.BinaryField(null=False)
 
     # <algorithm>$<iterations>$<salt>$
