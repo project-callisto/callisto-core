@@ -26,6 +26,8 @@ class CallistoCoreMatchingApi(object):
         ]
         for func in self.transforms:
             match_list = func(match_list)
+        if match_list:
+            logger.info("new match found")
         return match_list
 
     def _resolve_duplicate_owners(self, match_list):
@@ -43,7 +45,6 @@ class CallistoCoreMatchingApi(object):
         if len(match_list) == 1:
             return []
         else:
-            logger.info("new match found")
             return match_list
 
     def _update_match_found(self, match_list):
