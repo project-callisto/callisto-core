@@ -1,13 +1,14 @@
 import json
 
-from callisto_core.tests.utils.api import CustomNotificationApi
-from callisto_core.utils.api import MatchingApi
 from mock import call, patch
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
+
+from callisto_core.tests.utils.api import CustomNotificationApi
+from callisto_core.utils.api import MatchingApi
 
 from .. import test_base
 from ...delivery.models import MatchReport

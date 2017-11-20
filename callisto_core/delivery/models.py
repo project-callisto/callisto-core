@@ -169,6 +169,7 @@ class MatchReport(models.Model):
         MatchReports are encrypted with the identifier, whereas Reports
         are encrypted with the secret key
         """
+        logger.debug(identifier)
         if self.salt:
             self.salt = None
         hasher = hashers.get_hasher()
@@ -191,6 +192,7 @@ class MatchReport(models.Model):
         Checks if the given identifier triggers a match on this report.
         Returns report text if so.
         """
+        logger.debug(identifier)
         decrypted_report = None
 
         prefix, stretched_identifier = hashers.make_key(

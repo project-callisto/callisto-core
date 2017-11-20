@@ -3,7 +3,6 @@ import logging
 from collections import OrderedDict
 from io import BytesIO
 
-from callisto_core.utils import api
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
@@ -13,6 +12,8 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from django.conf import settings
 from django.utils import timezone
 from django.utils.html import conditional_escape
+
+from callisto_core.utils import api
 
 logger = logging.getLogger(__name__)
 

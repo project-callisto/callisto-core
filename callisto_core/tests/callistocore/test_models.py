@@ -1,8 +1,8 @@
+from django.contrib.auth import get_user_model
+
 from callisto_core.delivery.models import (
     MatchReport, Report, SentFullReport, SentMatchReport,
 )
-
-from django.contrib.auth import get_user_model
 
 from .. import test_base
 from .models import LegacyMatchReportData, LegacyReportData

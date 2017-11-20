@@ -2,14 +2,15 @@ import logging
 import typing
 
 import gnupg
-from callisto_core.reporting.report_delivery import (
-    PDFFullReport, PDFMatchReport,
-)
 
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template import Context, Template
 from django.utils import timezone
+
+from callisto_core.reporting.report_delivery import (
+    PDFFullReport, PDFMatchReport,
+)
 
 logger = logging.getLogger(__name__)
 

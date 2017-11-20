@@ -22,14 +22,15 @@ class CallistoCoreMatchingApi(object):
     def find_matches(self, identifier):
         self.identifier = identifier
         match_list = self.match_reports
-        logger.debug(f'all reports => {match_list}')
 
+        logger.debug(f'all reports => {match_list}')
         for func in self.transforms:
             match_list = func(match_list)
             logger.debug(f'post {func.__name__} => {match_list}')
 
         if match_list:
             logger.info(f"new matches({len(match_list)}) found")
+
         return match_list
 
     def _resolve_decryptable_reports(self, match_list):

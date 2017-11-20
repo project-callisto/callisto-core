@@ -2,6 +2,13 @@ from io import BytesIO
 
 import PyPDF2
 import six
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core import mail
+from django.test import override_settings
+from django.utils import timezone
+
 from callisto_core.delivery.models import (
     Report, SentFullReport, SentMatchReport,
 )
@@ -10,12 +17,6 @@ from callisto_core.delivery.report_delivery import (
 )
 from callisto_core.notification.models import EmailNotification
 from callisto_core.utils.api import NotificationApi, TenantApi
-
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.core import mail
-from django.test import override_settings
-from django.utils import timezone
 
 from .test_matching import MatchTest
 
