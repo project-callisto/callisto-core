@@ -1,11 +1,11 @@
-from callisto_core.notification.models import EmailNotification
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+
+from callisto_core.notification.models import EmailNotification
 
 from ..delivery import models
 
@@ -18,25 +18,10 @@ class ReportAssertionHelper(object):
         return bool(models.Report.objects.filter(pk=self.report.pk).count())
 
     def match_report_email_assertions(self):
-        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test1@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[1]
-        self.assertEqual(message.subject, 'test match notification')
-        self.assertEqual(message.to, ['test2@example.com'])
-        self.assertIn('Matching" <notification@', message.from_email)
-        self.assertIn('test match notification body', message.body)
-        message = mail.outbox[2]
-        self.assertEqual(message.subject, 'test match delivery')
-        self.assertEqual(message.to, ['titleix@example.com'])
-        self.assertIn('"Reports" <reports@', message.from_email)
-        self.assertIn('test match delivery body', message.body)
-        self.assertRegexpMatches(
-            message.attachments[0][0],
-            'report_.*\\.pdf\\.gpg')
+        self.assertEqual(message.subject, 'match_confirmation')
+        self.assertEqual(message.to, ['test@example.com'])
 
 
 class ReportPostHelper(object):
@@ -151,6 +136,16 @@ class ReportPostHelper(object):
             kwargs={'uuid': self.report.uuid},
         )
         response = self.client.get(url)
+        self.assertIn(response.status_code, self.valid_statuses)
+        return response
+
+    def client_post_matching_withdraw(self):
+        url = reverse(
+            'report_matching_withdraw',
+            kwargs={'uuid': self.report.uuid},
+        )
+        data = {'key': self.passphrase}
+        response = self.client.post(url, data, follow=True)
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 

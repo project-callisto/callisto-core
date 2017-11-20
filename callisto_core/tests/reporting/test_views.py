@@ -1,12 +1,12 @@
 from unittest import skip
 from unittest.mock import call, patch
 
+from django.core.urlresolvers import reverse
+
 from callisto_core.delivery.forms import ReportAccessForm
 from callisto_core.delivery.models import MatchReport, SentFullReport
 from callisto_core.reporting import view_partials
 from callisto_core.reporting.forms import ConfirmationForm
-
-from django.core.urlresolvers import reverse
 
 from .. import test_base
 from ..utils.api import CustomNotificationApi

@@ -13,7 +13,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.html import conditional_escape
 
-from ..utils.api import NotificationApi
+from callisto_core.utils import api
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class MatchReportContent(object):
     @classmethod
     def from_form(cls, form):
         return cls(
-            identifier=form.instance.identifier,
+            identifier=form.cleaned_data.get('identifier'),
             perp_name=form.cleaned_data.get('perp_name'),
             contact_name=form.instance.report.contact_name,
             email=form.instance.report.contact_email,
@@ -190,7 +190,7 @@ class PDFReport(object):
         self.add_question(question)
         self.add_answer_list(answers)
 
-    def get_header_footer(self, recipient=settings.COORDINATOR_NAME):
+    def get_header_footer(self, recipient):
         def func(canvas, doc):
             width, height = letter
             margin = 0.66 * 72
@@ -199,12 +199,10 @@ class PDFReport(object):
             canvas.drawString(margin, height - margin, "CONFIDENTIAL")
             canvas.drawRightString(
                 width - margin, height - margin, str(timezone.now()))
-            if recipient:
-                canvas.drawString(
-                    margin,
-                    margin,
-                    "Intended for: Title IX Coordinator %s" %
-                    recipient)
+            canvas.drawString(
+                margin, margin,
+                f"Intended for: Title IX Coordinator {recipient}",
+            )
             canvas.restoreState()
         return func
 
@@ -226,7 +224,7 @@ class PDFFullReport(PDFReport):
     def get_metadata_page(self, recipient):
         MetadataPage = []
         MetadataPage.append(Paragraph(
-            NotificationApi.report_title,
+            api.NotificationApi.report_title,
             self.report_title_style,
         ))
 
@@ -235,52 +233,47 @@ class PDFFullReport(PDFReport):
         overview_body = "Reported by: {0}<br/>".format(
             self.get_user_identifier(self.report.owner),
         )
-        if recipient:
-            overview_body = overview_body + '''
-                Submitted on: {0}<br/>
-            '''.format(
-                self.report.submitted_to_school,
-            )
+        overview_body = overview_body + '''
+            Submitted on: {0}<br/>
+        '''.format(
+            self.report.submitted_to_school,
+        )
         overview_body = overview_body + '''
             Record Created: {0}<br />
         '''.format(self.report.added.strftime("%Y-%m-%d %H:%M"))
 
         MetadataPage.append(Paragraph(overview_body, self.body_style))
 
-        if recipient:
-            MetadataPage.append(Paragraph(
-                "Contact Preferences",
-                self.section_title_style,
-            ))
+        MetadataPage.append(Paragraph(
+            "Contact Preferences",
+            self.section_title_style,
+        ))
 
-            contact_body = '''
-                Name: {0}<br />
-                Phone: {1}<br />
-                Voicemail preferences: {2}<br />
-                Email: {3}<br />
-                Notes on preferred contact time of day, gender of admin, etc.:
-            '''.format(
-                self.report.contact_name or "<i>None provided</i>",
-                self.report.contact_phone,
-                self.report.contact_voicemail or "None provided",
-                self.report.contact_email,
-            )
+        contact_body = '''
+            Name: {0}<br />
+            Phone: {1}<br />
+            Voicemail preferences: {2}<br />
+            Email: {3}<br />
+            Notes on preferred contact time of day, gender of admin, etc.:
+        '''.format(
+            self.report.contact_name or "<i>None provided</i>",
+            self.report.contact_phone,
+            self.report.contact_voicemail or "None provided",
+            self.report.contact_email,
+        )
 
-            MetadataPage.append(Paragraph(
-                contact_body,
-                self.body_style,
-            ))
-            MetadataPage.append(Paragraph(
-                self.report.contact_notes or "None provided",
-                self.notes_style,
-            ))
+        MetadataPage.append(Paragraph(
+            contact_body,
+            self.body_style,
+        ))
+        MetadataPage.append(Paragraph(
+            self.report.contact_notes or "None provided",
+            self.notes_style,
+        ))
 
         return MetadataPage
 
-    def generate_pdf_report(
-            self,
-            report_id,
-            recipient=settings.COORDINATOR_NAME):
+    def generate_pdf_report(self, report_id, recipient):
         # PREPARE PDF
         report_buffer = BytesIO()
         doc = SimpleDocTemplate(
@@ -292,7 +285,7 @@ class PDFFullReport(PDFReport):
 
         # COVER PAGE
         self.pdf_elements.extend(
-            NotificationApi.get_cover_page(
+            api.NotificationApi.get_cover_page(
                 self,
                 report_id=report_id,
                 recipient=recipient,
@@ -333,7 +326,7 @@ class PDFMatchReport(PDFReport):
             reverse=True)
         self.identifier = identifier
 
-    def generate_match_report(self, report_id):
+    def generate_match_report(self, report_id, recipient):
         '''
         Generates PDF report about a discovered match.
 
@@ -351,20 +344,22 @@ class PDFMatchReport(PDFReport):
             for match in self.matches]
 
         buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter,
-                                rightMargin=72, leftMargin=72,
-                                topMargin=72, bottomMargin=72)
+        doc = SimpleDocTemplate(
+            buffer, pagesize=letter,
+            rightMargin=72, leftMargin=72,
+            topMargin=72, bottomMargin=72,
+        )
         # COVER PAGE
         self.pdf_elements.extend(
-            NotificationApi.get_cover_page(
-                self,
-                report_id=report_id,
-                recipient=settings.COORDINATOR_NAME))
+            api.NotificationApi.get_cover_page(
+                self, report_id=report_id, recipient=recipient,
+            ),
+        )
 
         # MATCH REPORTS
         self.pdf_elements.append(
             Paragraph(
-                NotificationApi.report_title,
+                api.NotificationApi.report_title,
                 self.report_title_style,
             )
         )
@@ -445,8 +440,8 @@ class PDFMatchReport(PDFReport):
 
         doc.build(
             self.pdf_elements,
-            onFirstPage=self.get_header_footer(),
-            onLaterPages=self.get_header_footer(),
+            onFirstPage=self.get_header_footer(recipient),
+            onLaterPages=self.get_header_footer(recipient),
             canvasmaker=NumberedCanvas,
         )
         result = buffer.getvalue()

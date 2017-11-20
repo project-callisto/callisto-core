@@ -1,95 +1,73 @@
 import logging
 
-from ..delivery.models import MatchReport
-from ..utils.api import NotificationApi
-
 logger = logging.getLogger(__name__)
 
 
 class CallistoCoreMatchingApi(object):
 
-    def run_matching(self, match_reports_to_check=None):
-        """Compares existing match records to see if any match the given identifiers. If no identifiers are given,
-        checks existing match records against identifiers from records that weren't been marked as "seen" the last
-        time matching was run. For each identifier for which a new match is found, a report is sent to the receiving
-        authority and the reporting users are notified.
-
-        Args:
-          match_reports_to_check(list of MatchReport, optional): the MatchReports to be checked (must have identifiers)
-          or None if the value is to be queried from the DB (Default value = None)
-        """
-        if match_reports_to_check is None:
-            match_reports_to_check = MatchReport.objects.filter(seen=False)
-        self.find_matches(match_reports_to_check)
-
-    def get_all_eligible_match_reports(self, match_report):
-        """Returns all match reports that are eligible to be checked for matches against a given MatchReport.
-        Designed to be overridden for applications that want more granular options for matching
-        (segmented for a given population or severity level of report, for example.)
-
-        Args:
-          match_report (MatchReport): MatchReport to be checked
-        """
+    @property
+    def match_reports(_):
+        from callisto_core.delivery.models import MatchReport
         return MatchReport.objects.all()
 
-    def find_matches(self, match_reports_to_check):
-        """Finds sets of matching records that haven't been identified yet. For a match to count as new, there must be
-        associated Reports from at least 2 different users and at least one MatchReport must be newly created since
-        we last checked for matches.
+    @property
+    def transforms(self):
+        return [
+            self._resolve_reports_decryptable_with_identifier,
+            self._resolve_reports_with_duplicate_owners,
+            self._resolve_match_is_between_two_or_more_reports,
+            self._resolve_already_matched_reports,
+            self._update_match_found,
+        ]
 
-        Args:
-          match_reports_to_check (list of MatchReports): the MatchReports to check for matches
-        """
-        for match_report in match_reports_to_check:
-            identifier = match_report.identifier
-            eligible_reports = self.get_all_eligible_match_reports(
-                match_report)
-            match_list = [
-                potential_match_report
-                for potential_match_report in eligible_reports
-                if potential_match_report.get_match(identifier)
-            ]
-            if len(match_list) > 1:
-                seen_match_owners = [
-                    match.report.owner for match in match_list
-                    if match.seen
-                ]
-                new_match_owners = [
-                    match.report.owner for match in match_list
-                    if not match.seen
-                ]
-                # filter out multiple reports made by the same person
-                if len(set(seen_match_owners + new_match_owners)) > 1:
-                    # only send notifications if new matches are submitted by
-                    # owners we don't know about
-                    if not set(new_match_owners).issubset(
-                            set(seen_match_owners)):
-                        self.process_new_matches(match_list, identifier)
-                    for matched_report in match_list:
-                        matched_report.report.match_found = True
-                        matched_report.report.save()
-            for match in match_list:
-                match.seen = True
-                # delete identifier, which should only be filled for newly
-                # added match reports in delayed matching case
-                match.identifier = None
-                match.save()
+    def find_matches(self, identifier):
+        self.identifier = identifier
+        match_list = self.match_reports
 
-    def process_new_matches(self, matches, identifier):
-        """Sends a report to the receiving authority and notifies the reporting users.
-        Each user should only be notified one time when a match is found.
+        logger.debug(f'all reports => match_reports:{len(match_list)}')
+        for func in self.transforms:
+            if match_list:
+                match_list = func(match_list)
+                logger.debug(f'post {func.__name__} => {match_list}')
 
-        Args:
-          matches (list of MatchReports): the MatchReports that correspond to this identifier
-          identifier (str): identifier associated with the MatchReports
-        """
-        logger.info("new match found")
-        owners_notified = []
-        for match_report in matches:
-            owner = match_report.report.owner
-            # dont notify report owners twice for a single match
-            if owner not in owners_notified:
-                NotificationApi.send_match_notification(owner, match_report)
-                owners_notified.append(owner)
-        # send report to school
-        NotificationApi.send_matching_report_to_authority(matches, identifier)
+        if match_list:
+            logger.info(f"matches found => match_reports:{len(match_list)}")
+
+        return match_list
+
+    def _resolve_reports_decryptable_with_identifier(self, match_list):
+        return [
+            match_report
+            for match_report in match_list
+            if match_report.get_match(self.identifier)
+        ]
+
+    def _resolve_reports_with_duplicate_owners(self, match_list):
+        new_match_list = []
+        report_owners = []
+
+        for match in match_list:
+            if match.report.owner not in report_owners:
+                new_match_list.append(match)
+                report_owners.append(match.report.owner)
+
+        return new_match_list
+
+    def _resolve_match_is_between_two_or_more_reports(self, match_list):
+        if len(match_list) >= 2:
+            return match_list
+        else:
+            return []
+
+    def _resolve_already_matched_reports(self, match_list):
+        return [
+            match_report
+            for match_report in match_list
+            if not match_report.report.match_found
+        ]
+
+    def _update_match_found(self, match_list):
+        for match in match_list:
+            match.report.match_found = True
+            match.report.save()
+        return match_list

@@ -1,8 +1,8 @@
 from unittest.mock import MagicMock
 
-from callisto_core.reporting.forms import MatchingRequiredForm
-
 from django.test import TestCase, override_settings
+
+from callisto_core.reporting.forms import MatchingRequiredForm
 
 from ...delivery import models
 from ...reporting import validators

@@ -4,9 +4,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test import TestCase
 
-from ...delivery.models import MatchReport, Report
-from ...reporting.report_delivery import MatchReportContent
-from ...utils.api import MatchingApi
+from callisto_core.delivery.models import MatchReport, Report
+from callisto_core.reporting.report_delivery import MatchReportContent
+from callisto_core.utils.api import MatchingApi
 
 User = get_user_model()
 
@@ -44,28 +44,19 @@ class MatchSetup(TestCase):
         for match in MatchReport.objects.all():
             assertion(match.match_found)
 
-    def create_match(
-        self, user, identifier,
-        match_report_content=None, alert=True,
-    ):
+    def create_match(self, user, identifier):
         report = Report(owner=user)
         report.encrypt_report("test report 1", "key")
-        match_report = MatchReport(report=report, identifier=identifier)
 
-        if match_report_content:
-            match_report_object = match_report_content
-        else:
-            match_report_object = MatchReportContent(
-                identifier='test', perp_name='test',
-                email='test@example.com', phone="test",
-            )
-
+        match_report = MatchReport(report=report)
+        match_report_content = MatchReportContent(
+            identifier=identifier, perp_name=identifier,
+            email='test@example.com', phone="123",
+        )
         match_report.encrypt_match_report(
-            json.dumps(match_report_object.__dict__),
+            json.dumps(match_report_content.__dict__),
             identifier,
         )
 
-        if alert:
-            MatchingApi.run_matching()
-
-        return match_report
+        matches = MatchingApi.find_matches(identifier)
+        return matches

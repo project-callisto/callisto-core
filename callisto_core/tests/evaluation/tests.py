@@ -732,7 +732,7 @@ class EvalActionTest(MatchSetup):
             mock_anonymise_record):
         match1 = self.create_match(self.user1, 'test')
         match2 = self.create_match(self.user2, 'test')
-        MatchingApi.run_matching()
+        MatchingApi.find_matches()
         call1 = call(
             action=EvalRow.MATCH_FOUND,
             report=match1.report,

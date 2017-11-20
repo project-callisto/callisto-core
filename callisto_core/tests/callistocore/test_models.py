@@ -1,8 +1,8 @@
+from django.contrib.auth import get_user_model
+
 from callisto_core.delivery.models import (
     MatchReport, Report, SentFullReport, SentMatchReport,
 )
-
-from django.contrib.auth import get_user_model
 
 from .. import test_base
 from .models import LegacyMatchReportData, LegacyReportData
@@ -71,7 +71,7 @@ class ReportModelTest(test_base.ReportFlowHelper):
         report = Report(owner=self.user)
         report.encrypt_report("test report", "key")
         report.save()
-        MatchReport.objects.create(report=report, identifier='dummy')
+        MatchReport.objects.create(report=report)
         self.assertIsNotNone(Report.objects.first().entered_into_matching)
         report.match_found = True
         report.save()
@@ -86,9 +86,8 @@ class MatchReportTest(test_base.ReportFlowHelper):
     def setUp(self):
         super().setUp()
         self.client_post_report_creation()
-        match_report = MatchReport(report=self.report, identifier='dummy')
-        match_report.encrypt_match_report(
-            "test match report", match_report.identifier)
+        match_report = MatchReport(report=self.report)
+        match_report.encrypt_match_report("test match report", 'dummy')
         match_report.save()
 
     def test_entered_into_matching_property_is_set(self):
@@ -135,23 +134,11 @@ class MatchReportTest(test_base.ReportFlowHelper):
             report=report,
             encrypted=legacy_match_report.encrypted,
             salt=legacy_match_report.salt,
-            identifier="dumbo")
+        )
         new_match_report.save()
         self.assertEqual(
             new_match_report.get_match("dumbo"),
             "test legacy match report")
-
-
-class SentReportTest(test_base.ReportFlowHelper):
-
-    def test_id_format_works(self):
-        sent_full_report = SentFullReport.objects.create()
-        sent_full_report_id = sent_full_report.get_report_id()
-        sent_match_report = SentMatchReport.objects.create()
-        sent_match_report_id = sent_match_report.get_report_id()
-        self.assertNotEqual(sent_match_report_id, sent_full_report_id)
-        self.assertTrue(sent_full_report_id.endswith('-1'))
-        self.assertTrue(sent_match_report_id.endswith('-0'))
 
 
 class DeleteReportTest(test_base.ReportFlowHelper):
@@ -167,9 +154,9 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         self.assertEqual(User.objects.first(), self.user)
 
     def test_deleted_report_deletes_match_report(self):
-        match_report = MatchReport(report=self.report, identifier='dummy')
+        match_report = MatchReport(report=self.report)
         match_report.encrypt_match_report(
-            "test match report", match_report.identifier)
+            "test match report", 'dummy')
         match_report.save()
         self.assertEqual(MatchReport.objects.count(), 1)
         self.report.delete()
@@ -184,14 +171,14 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         self.assertEqual(SentFullReport.objects.first(), sent_report)
 
     def test_deleted_report_doesnt_delete_sent_match_report(self):
-        match_report = MatchReport(report=self.report, identifier='dummy')
+        match_report = MatchReport(report=self.report)
         match_report.encrypt_match_report("test match report", 'dummy')
         match_report.save()
         user2 = User.objects.create_user(username="dummy2", password="dummy")
         report2 = Report(owner=user2)
         report2.encrypt_report("test report 2", "key")
         report2.save()
-        match_report2 = MatchReport(report=report2, identifier='dummy')
+        match_report2 = MatchReport(report=report2)
         match_report2.encrypt_match_report("test match report 2", 'dummy')
         match_report2.save()
         sent_match_report = SentMatchReport.objects.create()

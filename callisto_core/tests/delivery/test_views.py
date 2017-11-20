@@ -6,10 +6,10 @@ from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 
+from callisto_core.delivery import forms, models
 from wizard_builder.forms import PageForm
 
 from .. import test_base
-from ...delivery import forms, models
 
 
 class LegacyStorageFormatTest(test_base.ReportFlowHelper):
@@ -148,7 +148,6 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
             'inline; filename="report.pdf"',
         )
 
-    @skip('temporariy disabled')
     def test_match_report_entry(self):
         self.client_post_report_creation()
         self.client_post_matching_enter()
@@ -156,30 +155,16 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
             models.MatchReport.objects.filter(report=self.report).count(),
         )
 
-    @skip('temporariy disabled')
     def test_match_report_withdrawl(self):
         self.client_post_report_creation()
         self.client_post_matching_enter()
-        self.client_get_matching_withdraw()
+        self.client_post_matching_withdraw()
         self.assertFalse(
             models.MatchReport.objects.filter(report=self.report).count(),
         )
 
-    @skip('temporariy disabled')
-    @override_settings(
-        CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
     def test_match_sends_report_immediately(self):
         self.client_post_report_creation()
+        self.client_post_report_prep()
         self.client_post_matching_enter()
-        self.match_report_email_assertions()
-
-    @skip('temporariy disabled')
-    @override_settings(MATCH_IMMEDIATELY=False)
-    @override_settings(
-        CALLISTO_NOTIFICATION_API='tests.callistocore.forms.SiteAwareNotificationApi')
-    def test_match_sends_report_delayed(self):
-        self.client_post_report_creation()
-        self.client_post_matching_enter()
-        self.assertEqual(len(mail.outbox), 0)
-        call_command('find_matches')
         self.match_report_email_assertions()

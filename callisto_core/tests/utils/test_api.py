@@ -2,7 +2,8 @@ from mock import patch
 
 from django.test import TestCase, override_settings
 
-from ...utils.api import MatchingApi
+from callisto_core.tests.utils import api as test_api
+from callisto_core.utils.api import MatchingApi
 
 
 class ApiTest(TestCase):
@@ -15,12 +16,11 @@ class ApiTest(TestCase):
 
     @patch('callisto_core.reporting.api.CallistoCoreMatchingApi.find_matches')
     def test_default_api_call(self, mock_process):
-        MatchingApi.find_matches()
-        mock_process.assert_called_once_with()
+        MatchingApi.find_matches('arg1')
+        mock_process.assert_called_once_with('arg1')
 
-    @override_settings(
-        CALLISTO_MATCHING_API='callisto_core.tests.utils.api.CustomMatchingApi')
-    @patch('callisto_core.tests.utils.api.CustomMatchingApi.run_matching')
+    @override_settings(CALLISTO_MATCHING_API=test_api.CustomMatchingApi)
+    @patch('callisto_core.tests.utils.api.CustomMatchingApi.find_matches')
     def test_overridden_api_call(self, mock_process):
-        MatchingApi.run_matching('arg1')
+        MatchingApi.find_matches('arg1')
         mock_process.assert_called_once_with('arg1')

@@ -1,5 +1,7 @@
 import os
 
+from callisto_core.tests.utils import api as test_api
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = os.getenv("passphrase", default='secret key')
 DEBUG = True
@@ -15,19 +17,12 @@ def load_file(path):
     return data
 
 
-COORDINATOR_NAME = "COORDINATOR_NAME"
-COORDINATOR_EMAIL = 'COORDINATOR_EMAIL@example.com'
-SCHOOL_SHORTNAME = "SCHOOL_SHORTNAME"
-SCHOOL_LONGNAME = "SCHOOL_LONGNAME"
-SCHOOL_REPORT_PREFIX = 1
-MATCH_IMMEDIATELY = True
-COORDINATOR_PUBLIC_KEY = load_file('callisto_publickey.gpg')
 CALLISTO_CHECK_REPORT_OWNER = False
 CALLISTO_EVAL_PUBLIC_KEY = load_file('callisto_publickey.gpg')
-CALLISTO_EVAL_PUBLIC_KEY = ""
 
-CALLISTO_MATCHING_API = 'callisto_core.tests.utils.api.CustomMatchingApi'
-CALLISTO_NOTIFICATION_API = 'callisto_core.tests.utils.api.CustomNotificationApi'
+CALLISTO_MATCHING_API = test_api.CustomMatchingApi
+CALLISTO_NOTIFICATION_API = test_api.CustomNotificationApi
+CALLISTO_TENANT_API = test_api.CustomTenantApi
 
 KEY_HASHERS = [
     "callisto_core.delivery.hashers.Argon2KeyHasher",
@@ -38,10 +33,6 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         'NAME': 'db-default.sqlite3',
-    },
-    "alternate": {
-        "ENGINE": "django.db.backends.sqlite3",
-        'NAME': 'db-alternate.sqlite3',
     },
 }
 

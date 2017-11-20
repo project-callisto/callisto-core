@@ -26,12 +26,9 @@ class Report(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     last_edited = models.DateTimeField(blank=True, null=True)
 
-    # DEPRECIATED: only kept to decrypt old entries before upgrade
-    salt = models.CharField(null=True, max_length=256)
-
-    # accept blank values for now, as old reports won't have them
     # <algorithm>$<iterations>$<salt>$
-    encode_prefix = models.CharField(blank=True, max_length=500)
+    encode_prefix = models.TextField(blank=True, null=True)
+    salt = models.TextField(null=True)  # used for backwards compatibility
 
     submitted_to_school = models.DateTimeField(blank=True, null=True)
     contact_phone = models.CharField(blank=True, null=True, max_length=256)
@@ -145,14 +142,12 @@ class MatchReport(models.Model):
     A single report can have multiple MatchReports--one per perpetrator.
     """
     report = models.ForeignKey('Report', on_delete=models.CASCADE)
-    identifier = models.CharField(blank=True, null=True, max_length=500)
     added = models.DateTimeField(auto_now_add=True)
-    seen = models.BooleanField(blank=False, default=False)
     encrypted = models.BinaryField(null=False)
-    # DEPRECIATED: only kept to decrypt old entries before upgrade
-    salt = models.CharField(null=True, max_length=256)
+
     # <algorithm>$<iterations>$<salt>$
-    encode_prefix = models.CharField(blank=True, max_length=500)
+    encode_prefix = models.TextField(blank=True)
+    salt = models.TextField(null=True)  # used for backwards compatibility
 
     def __str__(self):
         return "MatchReport for report(pk={0})".format(self.report.pk)
@@ -216,12 +211,10 @@ class MatchReport(models.Model):
 class SentReport(PolymorphicModel):
     """Report of one or more incidents, sent to the monitoring organization"""
     sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.CharField(blank=False, null=False, max_length=4096)
+    to_address = models.TextField(blank=False, null=False)
 
-    def _get_id_for_authority(self, is_match):
-        return "{0}-{1}-{2}".format(
-            settings.SCHOOL_REPORT_PREFIX, '%05d' %
-            self.id, 0 if is_match else 1)
+    def _get_id_for_authority(self, is_match=0):
+        return f'{self.id}-{is_match}'
 
 
 class SentFullReport(SentReport):
@@ -233,7 +226,7 @@ class SentFullReport(SentReport):
         on_delete=models.SET_NULL)
 
     def get_report_id(self):
-        return self._get_id_for_authority(is_match=False)
+        return self._get_id_for_authority()
 
 
 class SentMatchReport(SentReport):
@@ -241,4 +234,4 @@ class SentMatchReport(SentReport):
     reports = models.ManyToManyField(MatchReport)
 
     def get_report_id(self):
-        return self._get_id_for_authority(is_match=True)
+        return self._get_id_for_authority(is_match=1)

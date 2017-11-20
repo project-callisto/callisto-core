@@ -9,12 +9,15 @@ from django.core import mail
 from django.test import override_settings
 from django.utils import timezone
 
-from ...delivery.models import Report, SentFullReport, SentMatchReport
-from ...delivery.report_delivery import (
+from callisto_core.delivery.models import (
+    Report, SentFullReport, SentMatchReport,
+)
+from callisto_core.delivery.report_delivery import (
     MatchReportContent, PDFFullReport, PDFMatchReport,
 )
-from ...notification.models import EmailNotification
-from ...utils.api import NotificationApi
+from callisto_core.notification.models import EmailNotification
+from callisto_core.utils.api import NotificationApi, TenantApi
+
 from .test_matching import MatchTest
 
 User = get_user_model()
@@ -357,7 +360,9 @@ class ReportDeliveryTest(MatchTest):
             body="test body",
         ).sites.add(self.site.id)
         sent_full_report = SentFullReport.objects.create(
-            report=self.report, to_address=settings.COORDINATOR_EMAIL)
+            report=self.report,
+            to_address=TenantApi.site_settings('COORDINATOR_EMAIL'),
+        )
         NotificationApi.send_report_to_authority(
             sent_full_report, self.decrypted_report, self.site.id)
         self.assertEqual(len(mail.outbox), 1)

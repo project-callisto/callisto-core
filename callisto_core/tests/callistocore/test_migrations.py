@@ -1,14 +1,15 @@
 import json
 from unittest import skip
 
-from callisto_core.delivery import security
-from callisto_core.reporting.report_delivery import MatchReportContent
-from callisto_core.utils.api import MatchingApi
 from django_migration_testcase import MigrationTest
 from mock import ANY, patch
 
 from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
+
+from callisto_core.delivery import security
+from callisto_core.reporting.report_delivery import MatchReportContent
+from callisto_core.utils.api import MatchingApi
 
 from .models import _legacy_decrypt_report, _legacy_encrypt_report
 
@@ -114,7 +115,7 @@ class MatchReportMigrationTest(MigrationTest):
             identifier=identifier,
             encrypted=encrypted_report,
             salt=salt)
-        MatchingApi.find_matches(match_reports_to_check=[match_report])
+        MatchingApi.find_matches('test_identifier')
         # have to use ANY because objects in migration tests are faked
         mock_process.assert_called_once_with([ANY, ANY], 'test_identifier')
 

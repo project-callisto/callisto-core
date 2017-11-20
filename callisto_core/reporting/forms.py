@@ -2,13 +2,13 @@ import json
 import logging
 
 from django import forms
-from django.conf import settings
 
-from . import fields, report_delivery
-from ..delivery import (
+from callisto_core.delivery import (
     fields as delivery_fields, forms as delivery_forms,
     models as delivery_models,
 )
+
+from . import fields, report_delivery
 from .validators import Validators as ValidatorClass
 
 logger = logging.getLogger(__name__)
@@ -109,7 +109,7 @@ class MatchingOptionalForm(
 
     class Meta:
         model = delivery_models.MatchReport
-        fields = ['identifier']
+        fields = []
 
 
 class MatchingRequiredForm(
@@ -119,7 +119,7 @@ class MatchingRequiredForm(
 
     class Meta:
         model = delivery_models.MatchReport
-        fields = ['identifier']
+        fields = []
 
 
 class ConfirmationForm(
@@ -139,10 +139,6 @@ class ConfirmationForm(
     def clean_key(self):
         if not self.data.get('key') == self.view.storage.passphrase:
             forms.ValidationError('Invalid key')
-
-    def save(self, commit=True):
-        self.instance.to_address = settings.COORDINATOR_EMAIL
-        return super().save(commit=commit)
 
     class Meta:
         model = delivery_models.SentFullReport
