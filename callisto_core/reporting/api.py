@@ -23,13 +23,14 @@ class CallistoCoreMatchingApi(object):
         self.identifier = identifier
         match_list = self.match_reports
 
-        logger.debug(f'all reports => {match_list}')
+        logger.debug(f'all reports => size:{len(match_list)}')
         for func in self.transforms:
-            match_list = func(match_list)
-            logger.debug(f'post {func.__name__} => {match_list}')
+            if match_list:
+                match_list = func(match_list)
+                logger.debug(f'post {func.__name__} => {match_list}')
 
         if match_list:
-            logger.info(f"new matches({len(match_list)}) found")
+            logger.info(f"Match between ({len(match_list)}) reports found")
 
         return match_list
 
@@ -48,14 +49,11 @@ class CallistoCoreMatchingApi(object):
             if match.report.owner not in report_owners:
                 new_match_list.append(match)
                 report_owners.append(match.report.owner)
-            else:
-                logger.debug("duplicate report owner")
 
         return new_match_list
 
     def _resolve_single_report(self, match_list):
         if len(match_list) == 1:
-            logger.debug("no valid matches found")
             return []
         else:
             return match_list
