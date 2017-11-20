@@ -21,9 +21,6 @@ class CustomNotificationApi(
     SiteAwareNotificationApi,
 ):
 
-    def send_email(self):
-        pass  # disable sending
-
     def log_action(self):
         super().log_action()
         for key, value in self.context.items():
