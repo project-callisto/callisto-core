@@ -93,7 +93,7 @@ class MatchingPartial(
         if matches:
             NotificationApi.send_matching_report_to_authority(
                 matches=matches,
-                indentifier=identifier,
+                identifier=identifier,
                 to_addresses=self.coordinator_emails,
             )
 
