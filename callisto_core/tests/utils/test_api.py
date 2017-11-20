@@ -1,9 +1,8 @@
+from callisto_core.tests.utils import api as test_api
+from callisto_core.utils.api import MatchingApi
 from mock import patch
 
 from django.test import TestCase, override_settings
-
-from callisto_core.utils.api import MatchingApi
-from callisto_core.tests.utils import api as test_api
 
 
 class ApiTest(TestCase):

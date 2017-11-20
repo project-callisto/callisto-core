@@ -153,6 +153,7 @@ class ConfirmationPartial(
             self._send_report_to_authority(sent_full_report)
         self._send_confirmation_email()
 
+
 class MatchingWithdrawPartial(
     view_helpers.ReportingSuccessUrlMixin,
     delivery_partials.ReportActionPartial,

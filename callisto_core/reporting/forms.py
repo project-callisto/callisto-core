@@ -5,7 +5,6 @@ from callisto_core.delivery import (
     fields as delivery_fields, forms as delivery_forms,
     models as delivery_models,
 )
-from callisto_core.utils.api import TenantApi
 
 from django import forms
 
