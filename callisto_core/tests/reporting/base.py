@@ -44,28 +44,19 @@ class MatchSetup(TestCase):
         for match in MatchReport.objects.all():
             assertion(match.match_found)
 
-    def create_match(
-        self, user, identifier,
-        match_report_content=None, alert=True,
-    ):
+    def create_match(self, user, identifier):
         report = Report(owner=user)
         report.encrypt_report("test report 1", "key")
+
         match_report = MatchReport(report=report)
-
-        if match_report_content:
-            match_report_object = match_report_content
-        else:
-            match_report_object = MatchReportContent(
-                identifier='test', perp_name='test',
-                email='test@example.com', phone="test",
-            )
-
+        match_report_content = MatchReportContent(
+            identifier=identifier, perp_name=identifier,
+            email='test@example.com', phone="123",
+        )
         match_report.encrypt_match_report(
-            json.dumps(match_report_object.__dict__),
+            json.dumps(match_report_content.__dict__),
             identifier,
         )
 
-        if alert:
-            return MatchingApi.find_matches(identifier)
-        else:
-            return match_report
+        matches = MatchingApi.find_matches(identifier)
+        return matches
