@@ -350,7 +350,6 @@ class PDFMatchReport(PDFReport):
             topMargin=72, bottomMargin=72,
         )
         # COVER PAGE
-        recipient = "WORK IN PROGRESS!!!!!!"
         self.pdf_elements.extend(
             api.NotificationApi.get_cover_page(
                 self, report_id=report_id, recipient=recipient,
