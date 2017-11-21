@@ -5,11 +5,11 @@ from django.core.urlresolvers import reverse
 
 from callisto_core.delivery.forms import ReportAccessForm
 from callisto_core.delivery.models import MatchReport, SentFullReport
+from callisto_core.notification.models import EmailNotification
 from callisto_core.reporting import view_partials
 from callisto_core.reporting.forms import ConfirmationForm
-
-from .. import test_base
-from ..utils.api import CustomNotificationApi
+from callisto_core.tests import test_base
+from callisto_core.tests.utils.api import CustomNotificationApi
 
 
 class ReportingHelper(test_base.ReportFlowHelper):
@@ -52,6 +52,11 @@ class MatchingHelper(ReportingHelper):
 
 
 class MatchingViewTest(MatchingHelper):
+
+    def test_multiple_email_copies_resolved(self):
+        email = EmailNotification.objects.create(name='match_confirmation')
+        email.sites.add(1)
+        self.client_post_matching_enter()
 
     def test_multiple_emails_not_sent(self):
         with patch.object(CustomNotificationApi, 'log_action') as api_logging:
