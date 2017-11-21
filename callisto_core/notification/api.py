@@ -254,10 +254,13 @@ class CallistoCoreNotificationApi(object):
             self.context.update({'domain': site.domain})
 
     def set_notification(self):
-        # TODO: seperate funcs for getting notification and assigning values
-        notification = self.model.objects.on_site(
-            self.context.get('site_id'),
-        ).get(name=self.context['notification_name'])
+        site_id = self.context.get('site_id')
+        name = self.context['notification_name']
+        notifications = self.model.objects.on_site(site_id).filter(name=name)
+        if len(notifications) != 1:
+            logger.warn(
+                f'too many results for EmailNotification(site_id={site_id}, name={name})')
+        notification = notifications[0]
         self.context.update({
             'subject': notification.subject,
             'body': notification.body,
