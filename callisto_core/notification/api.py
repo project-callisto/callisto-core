@@ -259,7 +259,7 @@ class CallistoCoreNotificationApi(object):
         notifications = self.model.objects.on_site(site_id).filter(name=name)
         if len(notifications) != 1:
             logger.warn(
-                f'too many results for EmailNotification(site_id={site_id}, name={name})')
+                f'too many results for {self.model.__name__}(site_id={site_id}, name={name})')
         notification = notifications[0]
         self.context.update({
             'subject': notification.subject,
