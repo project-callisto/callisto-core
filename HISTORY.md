@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 2.5.4 (2017-11-21)
+
+* remove direct use of get_current_site
+
 ## 2.5.3 (2017-11-06)
 
 * all foreign keys casade deletion now
