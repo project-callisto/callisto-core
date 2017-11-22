@@ -226,16 +226,6 @@ class SentFullReport(models.Model):
         return f'{self.id}-0'
 
 
-class SentMatchReport(SentReport):
-    """Report of multiple incidents, sent to the monitoring organization"""
-    reports = models.ManyToManyField(MatchReport)
-    sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.TextField(blank=False, null=True)
-
-    def get_report_id(self):
-        return f'{self.id}-1'
-
-
 class NewSentMatchReport(models.Model):
     """Report of multiple incidents, sent to the monitoring organization"""
     reports = models.ManyToManyField(MatchReport)
@@ -246,6 +236,6 @@ class NewSentMatchReport(models.Model):
         return f'{self.id}-1'
 
 
-class ProxySentMatchReport(NewSentMatchReport):
+class SentMatchReport(NewSentMatchReport):
     class Meta:
         proxy = True
