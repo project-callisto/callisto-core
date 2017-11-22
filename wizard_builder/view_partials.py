@@ -16,7 +16,6 @@ and should not define:
 
 '''
 from django.contrib.sites.models import Site
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.views import generic as views
@@ -46,7 +45,7 @@ class WizardFormPartial(
 
     def get_site_id(self):
         try:
-            return get_current_site(self.request).id
+            return self.request.site.id
         except Site.DoesNotExist:
             return 1
 
