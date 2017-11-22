@@ -27,7 +27,6 @@ import ratelimit.mixins
 from nacl.exceptions import CryptoError
 
 from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -83,7 +82,7 @@ class ReportBasePartial(
     @property
     def site_id(self):
         # TODO: remove
-        return get_current_site(self.request).id
+        return self.request.site.id
 
     @property
     def decrypted_report(self):
