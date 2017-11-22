@@ -28,5 +28,6 @@ script:
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type coverage.py
 notifications:
+  email: false
   slack:
     secure: LAJQUhlhacL5KKM0hXdTGQUtchhsrZgV1JyNUI+3GpM/UdLGvQSMpGU6ZaLp8DNYFNhhzaU2YllMgFU8qz13vVeViveVKiD+litmpCM4CFJk6shvoHyXsAXDrC0wUZY7ApY8cliA/8w1Em+CDYb1H+LMtkMm4YXLb08NcLspr1/pBr0N2b/L0pYTq41luERmGn6Rr5BCI3RFsLB9GN5vBzmTZ+6APirc/qt+gFJ4KXrzMqa0p1LDpNGXJJI4pjXnfdZwqJXcBp/DqY+nVczIXVppwmjhTVTmoDwyXsaOosu7G4b2kM1ZRmV560BqTLjV177Qe2+FfvcekAsV2GXl9PNGhhtdC9D0H3qpisZp7P1Ge134lCLeEu9qR2dD1qJs76xJRDWzyasOP9q/eedd0RYk55jwTRVwV4WpjD/MrusojRZo+ApWEIvHM4NIOHLGXLUqbn0C5ssJtMf2/tLCxs7FSWKp1bSv6JCMY3ekNuM0d7y85B3tjdl+KI4+/2KYJaNH8oMUfaMAd4vNMxlsVKO+LQmf/+J4ElJWTsHa5Plv0bIU1R6iAYUCMR6uzAHMiVFyJxqUwbGhc6y7r+rDxTuGrsWMjWUqZa9QnH4ogPinDkuLN2lbwfRbXSdtfJ1riJmvn1mfg/cgZWdA13M2o32Pj1CqNVeD3tqQ9ciHfLQ=
