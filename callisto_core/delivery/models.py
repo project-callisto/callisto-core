@@ -210,11 +210,7 @@ class MatchReport(models.Model):
 
 class SentReport(PolymorphicModel):
     """Report of one or more incidents, sent to the monitoring organization"""
-    sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.TextField(blank=False, null=False)
-
-    def _get_id_for_authority(self, is_match=0):
-        return f'{self.id}-{is_match}'
+    pass
 
 
 class SentFullReport(SentReport):
@@ -228,7 +224,7 @@ class SentFullReport(SentReport):
     new_to_address = models.TextField(blank=False, null=True)
 
     def get_report_id(self):
-        return self._get_id_for_authority()
+        return f'{self.id}-0'
 
 
 class SentMatchReport(SentReport):
@@ -238,4 +234,4 @@ class SentMatchReport(SentReport):
     new_to_address = models.TextField(blank=False, null=True)
 
     def get_report_id(self):
-        return self._get_id_for_authority(is_match=1)
+        return f'{self.id}-1'
