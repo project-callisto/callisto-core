@@ -224,8 +224,8 @@ class SentFullReport(SentReport):
         blank=True,
         null=True,
         on_delete=models.SET_NULL)
-    sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.TextField(blank=False, null=False)
+    new_sent = models.DateTimeField(auto_now_add=True)
+    new_to_address = models.TextField(blank=False, null=True)
 
     def get_report_id(self):
         return self._get_id_for_authority()
@@ -234,8 +234,8 @@ class SentFullReport(SentReport):
 class SentMatchReport(SentReport):
     """Report of multiple incidents, sent to the monitoring organization"""
     reports = models.ManyToManyField(MatchReport)
-    sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.TextField(blank=False, null=False)
+    new_sent = models.DateTimeField(auto_now_add=True)
+    new_to_address = models.TextField(blank=False, null=True)
 
     def get_report_id(self):
         return self._get_id_for_authority(is_match=1)
