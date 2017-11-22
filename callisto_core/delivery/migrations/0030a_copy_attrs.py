@@ -7,8 +7,8 @@ from django.db import migrations
 
 def copy_attrs(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    SentFullReport = apps.get_model('wizard_builder.SentFullReport')
-    NewSentFullReport = apps.get_model('wizard_builder.NewSentFullReport')
+    SentFullReport = apps.get_model('delivery.SentFullReport')
+    NewSentFullReport = apps.get_model('delivery.NewSentFullReport')
     for instance in SentFullReport.objects.using(current_database):
         new_instance = NewSentFullReport.objects.create(
             sent=instance.sent,
