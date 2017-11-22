@@ -15,7 +15,7 @@ def copy_attrs(apps, schema_editor):
             to_address=instance.to_address,
         )
         for report in instance.reports.all():
-            new_instance.add(report)
+            new_instance.reports.add(report)
 
 
 class Migration(migrations.Migration):
