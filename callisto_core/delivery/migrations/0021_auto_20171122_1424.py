@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('delivery', '0020_remove_matchreport_seen'),
+        ('delivery', '0017_remove_report_autosaved'),
     ]
 
     operations = [
