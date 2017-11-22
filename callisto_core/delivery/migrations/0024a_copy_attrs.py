@@ -20,7 +20,7 @@ def copy_attrs(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('delivery', '0021_auto_20171122_1424'),
+        ('delivery', '0024_newsentfullreport'),
     ]
 
     operations = [
