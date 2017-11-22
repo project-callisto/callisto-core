@@ -1,7 +1,5 @@
 from distutils.util import strtobool
 
-from django.contrib.sites.shortcuts import get_current_site
-
 
 def load_file(path):
     with open(path, 'r') as file_data:
@@ -41,7 +39,7 @@ class CallistoCoreTenantApi(object):
         '''
         if request:
             try:
-                site_id = get_current_site(request).id
+                site_id = request.site.id
             except BaseException:
                 site_id = 1
 
