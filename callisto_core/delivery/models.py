@@ -220,8 +220,8 @@ class SentFullReport(SentReport):
         blank=True,
         null=True,
         on_delete=models.SET_NULL)
-    new_sent = models.DateTimeField(auto_now_add=True)
-    new_to_address = models.TextField(blank=False, null=True)
+    sent = models.DateTimeField(auto_now_add=True)
+    to_address = models.TextField(blank=False, null=True)
 
     def get_report_id(self):
         return f'{self.id}-0'
@@ -230,8 +230,8 @@ class SentFullReport(SentReport):
 class SentMatchReport(SentReport):
     """Report of multiple incidents, sent to the monitoring organization"""
     reports = models.ManyToManyField(MatchReport)
-    new_sent = models.DateTimeField(auto_now_add=True)
-    new_to_address = models.TextField(blank=False, null=True)
+    sent = models.DateTimeField(auto_now_add=True)
+    to_address = models.TextField(blank=False, null=True)
 
     def get_report_id(self):
         return f'{self.id}-1'
