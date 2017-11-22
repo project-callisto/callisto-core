@@ -8,10 +8,8 @@ import django.utils.timezone
 
 def _copy_attrs_for_instances(instances):
     for instance in instances:
-        page.new_position = page.position
-        page.new_section = page.section
-        for site in page.sites.all():
-            page.new_sites.add(site)
+        page.new_sent = page.sent
+        page.new_to_address = page.to_address
         page.save()
 
 
