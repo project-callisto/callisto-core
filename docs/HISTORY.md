@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.17.3 (2017-11-21)
+
+* add sites middleware
+
 ## 0.17.2 (2017-11-21)
 
 * resolve test path issues
