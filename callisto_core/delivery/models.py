@@ -3,7 +3,6 @@ import logging
 import uuid
 
 from nacl.exceptions import CryptoError
-from polymorphic.models import PolymorphicModel
 
 from django.conf import settings
 from django.db import models
@@ -208,30 +207,25 @@ class MatchReport(models.Model):
         return decrypted_report
 
 
-class SentReport(PolymorphicModel):
-    """Report of one or more incidents, sent to the monitoring organization"""
-    sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.TextField(blank=False, null=False)
-
-    def _get_id_for_authority(self, is_match=0):
-        return f'{self.id}-{is_match}'
-
-
-class SentFullReport(SentReport):
+class SentFullReport(models.Model):
     """Report of a single incident since to the monitoring organization"""
     report = models.ForeignKey(
         Report,
         blank=True,
         null=True,
         on_delete=models.SET_NULL)
+    sent = models.DateTimeField(auto_now_add=True)
+    to_address = models.TextField(blank=False, null=True)
 
     def get_report_id(self):
-        return self._get_id_for_authority()
+        return f'{self.id}-0'
 
 
-class SentMatchReport(SentReport):
+class SentMatchReport(models.Model):
     """Report of multiple incidents, sent to the monitoring organization"""
     reports = models.ManyToManyField(MatchReport)
+    sent = models.DateTimeField(auto_now_add=True)
+    to_address = models.TextField(blank=False, null=True)
 
     def get_report_id(self):
-        return self._get_id_for_authority(is_match=1)
+        return f'{self.id}-1'
