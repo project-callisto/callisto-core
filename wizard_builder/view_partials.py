@@ -45,7 +45,7 @@ class WizardFormPartial(
 
     def get_site_id(self):
         try:
-            return request.site.id
+            return self.request.site.id
         except Site.DoesNotExist:
             return 1
 
