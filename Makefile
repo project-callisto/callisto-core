@@ -61,6 +61,7 @@ release: ## package and upload a release
 	git tag -a $(VERSION) -m 'version $(VERSION)'
 	git push --tags
 	git push
+	make clean-build
 
 app-setup: ## setup the test application environment
 	- rm wizard_builder_test_app.sqlite3
