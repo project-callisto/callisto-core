@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.18.0 (2017-11-22)
+
+* remove contenttypes dependency from delivery models
+
 ## 0.17.3 (2017-11-21)
 
 * add sites middleware
