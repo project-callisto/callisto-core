@@ -208,10 +208,6 @@ class MatchReport(models.Model):
         return decrypted_report
 
 
-class SentReport(PolymorphicModel):
-    """Report of one or more incidents, sent to the monitoring organization"""
-    pass
-
 class SentFullReport(models.Model):
     """Report of a single incident since to the monitoring organization"""
     report = models.ForeignKey(
