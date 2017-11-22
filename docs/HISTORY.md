@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.17.2 (2017-11-21)
+
+* resolve test path issues
+
 ## 0.17.1 (2017-11-20)
 
 * resolve single EmailNotification when multiple present (and warn about this behavior)
