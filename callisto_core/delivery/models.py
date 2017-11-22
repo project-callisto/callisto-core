@@ -212,22 +212,7 @@ class SentReport(PolymorphicModel):
     """Report of one or more incidents, sent to the monitoring organization"""
     pass
 
-
-class SentFullReport(SentReport):
-    """Report of a single incident since to the monitoring organization"""
-    report = models.ForeignKey(
-        Report,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL)
-    sent = models.DateTimeField(auto_now_add=True)
-    to_address = models.TextField(blank=False, null=True)
-
-    def get_report_id(self):
-        return f'{self.id}-0'
-
-
-class NewSentFullReport(models.Model):
+class SentFullReport(models.Model):
     """Report of a single incident since to the monitoring organization"""
     report = models.ForeignKey(
         Report,
