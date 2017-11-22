@@ -7,10 +7,10 @@ from django.db import migrations
 
 def copy_attrs(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    SentFullReport = apps.get_model('delivery.SentFullReport')
-    NewSentFullReport = apps.get_model('delivery.NewSentFullReport')
+    SentFullReport = apps.get_model('delivery.SentMatchReport')
+    NewSentMatchReport = apps.get_model('delivery.NewSentMatchReport')
     for instance in SentFullReport.objects.using(current_database):
-        new_instance = NewSentFullReport.objects.create(
+        new_instance = NewSentMatchReport.objects.create(
             sent=instance.sent,
             to_address=instance.to_address,
         )
