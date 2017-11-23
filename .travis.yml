@@ -18,6 +18,7 @@ env:
 matrix:
   fast_finish: true
 before_install:
+- sudo apt-get install -y openjdk-8-jre-headless xvfb libxi6 libgconf-2-4
 - wget -N https://chromedriver.storage.googleapis.com/2.33/chromedriver_linux64.zip -P ~/
 - unzip ~/chromedriver_linux64.zip -d ~/
 - rm ~/chromedriver_linux64.zip
