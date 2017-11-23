@@ -38,7 +38,7 @@ urls.py
 
 Welcome to the Callisto Product Team! Here's a list of things you'll need to get started:
 
-    $ make install
+    $ make install-osx  # on osx
     $ make app-setup
 
 

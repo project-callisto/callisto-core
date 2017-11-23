@@ -26,9 +26,12 @@ test-local-suite:
 	pytest -v wizard_builder/tests/test_frontend.py
 	pytest -v wizard_builder/tests/test_admin.py
 
-install:
-	brew install git pyenv postgres chromedriver
+install-pip:
 	pip install -r requirements/test.txt --upgrade
+
+install-osx:
+	make install-pip
+	brew install git pyenv postgres chromedriver
 
 test-callisto-core:
 	pip install callisto-core --upgrade
