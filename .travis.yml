@@ -17,6 +17,8 @@ env:
   - DJANGO_VERSION=$DJANGO_DEV
 matrix:
   fast_finish: true
+  allow_failures:
+  - env: DJANGO_VERSION=$DJANGO_DEV
 before_install:
 - export CHROME_DRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`
 - sudo apt-get install -y openjdk-8-jre-headless xvfb libxi6 libgconf-2-4
