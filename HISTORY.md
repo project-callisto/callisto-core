@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 2.5.5 (2017-11-21)
+
+* add a missing migration
+
 ## 2.5.4 (2017-11-21)
 
 * remove direct use of get_current_site
