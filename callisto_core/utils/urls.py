@@ -6,7 +6,7 @@ docs / reference:
 '''
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic.base import RedirectView
 
 from ..delivery import views as delivery_views
