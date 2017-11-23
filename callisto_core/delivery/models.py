@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class Report(models.Model):
     """The full text of a reported incident."""
-    uuid = models.UUIDField(default=uuid.uuid4)
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     encrypted = models.BinaryField(blank=False)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,

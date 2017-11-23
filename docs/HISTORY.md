@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.18.2 (2017-11-22)
+
+* regenerate uuids, enforce their uniqueness
+
 ## 0.18.0 (2017-11-22)
 
 * remove contenttypes dependency from delivery models
