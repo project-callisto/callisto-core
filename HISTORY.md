@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 2.5.6 (2017-11-22)
+
+* supress extra question inlines
+
 ## 2.5.5 (2017-11-21)
 
 * add a missing migration

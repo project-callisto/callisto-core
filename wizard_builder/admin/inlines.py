@@ -32,6 +32,7 @@ class QuestionInline(admin.TabularInline):
     # hack because weird ghost FormQuestion version of this is called last
     id_cache = None
     type_cache = None
+    extra = 0
 
     def question_link(self, obj):
         if not self.id_cache:
