@@ -1,14 +1,6 @@
 languages:
   Python: true
 engines:
-  fixme:
-    enabled: true
-    config:
-      strings:
-      - FIXME
-      - BUG
-      - CUSTOM
-      - TODO
   duplication:
     enabled: true
     config:
@@ -16,8 +8,6 @@ engines:
       - javascript
       - python
   radon:
-    enabled: true
-  pep8:
     enabled: true
 ratings:
   paths:
