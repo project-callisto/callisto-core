@@ -2,7 +2,7 @@ import nested_admin
 
 from django import forms
 from django.contrib import admin
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db import models
 
 from ..models import Choice, ChoiceOption, FormQuestion

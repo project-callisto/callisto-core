@@ -1,7 +1,7 @@
 import logging
 from copy import copy
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from . import managers
 from .data_helper import SerializedDataHelper

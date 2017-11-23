@@ -2,7 +2,7 @@ from copy import copy
 from unittest import mock, skip
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 
 from .. import models, view_helpers
