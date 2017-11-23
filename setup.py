@@ -28,6 +28,6 @@ setup(
     python_requires='>=3',
     install_requires=[
         'django-widget-tweaks==1.4.1',
-        'django-nested-admin==3.0.20',
+        'django-nested-admin==3.0.21',
     ],
 )
