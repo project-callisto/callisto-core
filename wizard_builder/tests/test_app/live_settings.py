@@ -8,6 +8,6 @@ DATABASES = {
 }
 
 DEBUG = False
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
-] + MIDDLEWARE_CLASSES
+] + MIDDLEWARE
