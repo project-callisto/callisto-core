@@ -19,9 +19,6 @@ matrix:
   fast_finish: true
 before_install:
 - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
-- type -ap google-chrome-stable
-- type -ap google-chrome-stable | sed 's/google-chrome-stable/chromedriver/' | xargs -t ln -s $(type -ap google-chrome-stable)
-- type -ap chromedriver
 install:
 - pip install -r requirements/test.txt --upgrade
 - pip install $DJANGO_VERSION
