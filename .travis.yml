@@ -2,6 +2,8 @@ language: python
 python:
 - '3.6'
 sudo: false
+addons:
+  chrome: stable
 cache: pip
 env:
   global:
@@ -14,6 +16,8 @@ env:
   - DJANGO_VERSION=$DJANGO_DEV
 matrix:
   fast_finish: true
+before_install:
+- google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 install:
 - pip install -r requirements/test.txt --upgrade
 - pip install $DJANGO_VERSION
