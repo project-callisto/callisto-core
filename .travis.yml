@@ -1,22 +1,36 @@
+dist: trusty
 language: python
 python:
-  - "3.6"
-sudo: false
+- '3.6'
+sudo: required
+addons:
+  chrome: stable
 cache: pip
 env:
   global:
-    - DJANGO_111=Django>=1.11,<2.0
-    - DJANGO_DEV=https://github.com/django/django/tarball/master
+  - DJANGO_111='Django>=1.11,<2.0'
+  - DJANGO_DEV='https://github.com/django/django/tarball/master'
   matrix:
-    - DJANGO_VERSION=$DJANGO_111
-    - DJANGO_VERSION=$DJANGO_DEV
+  - DJANGO_VERSION=$DJANGO_111
+  - DJANGO_VERSION=$DJANGO_DEV
 matrix:
   fast_finish: true
+  allow_failures:
+  - env: DJANGO_VERSION=$DJANGO_DEV
+before_install:
+- export CHROME_DRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`
+- sudo apt-get install -y openjdk-8-jre-headless xvfb libxi6 libgconf-2-4
+- wget -N http://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip -P ~/
+- unzip ~/chromedriver_linux64.zip -d ~/
+- rm ~/chromedriver_linux64.zip
+- sudo mv -f ~/chromedriver /usr/local/bin/chromedriver
+- sudo chown root:root /usr/local/bin/chromedriver
+- sudo chmod 0755 /usr/local/bin/chromedriver
 install:
-  - pip install -r callisto_core/requirements/test.txt --upgrade
-  - pip install $DJANGO_VERSION
+- pip install -r callisto_core/requirements/test.txt --upgrade
+- pip install $DJANGO_VERSION
 script:
-  - make test
+- make test
 notifications:
   slack:
     secure: CVDBtNe8qXyKt6FwZF+kD2SUWvwGZRa3OPeQcRTsQ84vYMRu9Hfd+3EE9NdiNU2tF/+cpJAIn7Ke/SwbpS70Wjr9S547M/kRqxo7EiL35t5gSCYi/B+Z6Wrh90J9mUCMharbEQbxpTfb67jgYmtBCdhDpa0pSnURdd9fCC1kd4Clt6nqIF0+WE4rTM72mMnN/RaywCzpALnbu9ZyU+UZcjd4Ew3mGNqfYq26R4WKWymhyWkoIK1fmJ9yHa5OXEIWgs7QFqHOaDG5APWw9cSmzXE7y1vP38nx3ZwgUDS/Vk7Q/WmHaW27HG2f4Wui289sf8TvNC3MTN/cyS3Pj1NDWpYHKZS5Wu5GfqFxXqDudJk4U26CNte4z4DtLnFJLQnY6py6MP9qqufBHPuoSxpd74Jtv3ssim8bzsedav4JNOnHsG29ckM9TG2BoxW8fcOgWxBgXXiZWxHqJadECcW+tBFznJFoFXGDymXRsv9GqClVdZhmaAzf07H8RPQY58HZQ1udxsTCb2hH8O4UXqqtM/jE+TrfyYldjbR3RL6ozZmC4hggSl9+APyD0h3bQP0fkitv0oaCMapsecZF/Hzy8b4hzXUAqFoDWwDTbbbGOTCM9eMjnBAFd0830crIxIdIfmwBV1fh5dB8PCr8dTTDZ2XNn4OskjVJ3epqewXKElc=
