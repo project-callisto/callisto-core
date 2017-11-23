@@ -22,9 +22,9 @@ test-fast:
 
 test-local-suite:
 	python manage.py check
-	pytest --cov=wizard_builder -v --ignore wizard_builder/tests/test_frontend.py --ignore wizard_builder/tests/test_admin.py
-	pytest --cov=wizard_builder -v wizard_builder/tests/test_frontend.py
-	pytest --cov=wizard_builder -v wizard_builder/tests/test_admin.py
+	pytest -v --ignore wizard_builder/tests/test_frontend.py --ignore wizard_builder/tests/test_admin.py
+	pytest -v wizard_builder/tests/test_frontend.py
+	pytest -v wizard_builder/tests/test_admin.py
 
 test-callisto-core:
 	pip install callisto-core --upgrade
