@@ -7,6 +7,12 @@ class SitesMigrationTest(MigrationTest):
     before = '0005_delete_constraints'
     after = '0006_many_sites'
 
+    def migrate_kwargs(self):
+        return {
+            'verbosity': 1,
+            'interactive': False,
+        }
+
     def test_sites_attribute_populated(self):
         OldQuestionPage = self.get_model_before('wizard_builder.QuestionPage')
         old_page = OldQuestionPage.objects.create(site_id=1)
@@ -35,6 +41,12 @@ class QuestionPageMigrationTest(MigrationTest):
     before = '0008_remove_textpage'
     after = '0011_rename_questionpage_attrs'
 
+    def migrate_kwargs(self):
+        return {
+            'verbosity': 1,
+            'interactive': False,
+        }
+
     def test_attributes_populated(self):
         OldQuestionPage = self.get_model_before('wizard_builder.QuestionPage')
         old_page = OldQuestionPage.objects.create(
@@ -60,6 +72,12 @@ class PageIDMigrationTest(MigrationTest):
     before = '0011_rename_questionpage_attrs'
     after = '0014_questionpage_to_page_3'
 
+    def migrate_kwargs(self):
+        return {
+            'verbosity': 1,
+            'interactive': False,
+        }
+
     def _get_attrs(self, cls, attr):
         return list(cls.objects.all().values_list(attr, flat=True))
 
@@ -81,6 +99,12 @@ class PopulateTypeMigrationTest(MigrationTest):
     app_name = 'wizard_builder'
     before = '0028_formquestion_type'
     after = '0029_populate_type'
+
+    def migrate_kwargs(self):
+        return {
+            'verbosity': 1,
+            'interactive': False,
+        }
 
     def test_type_populated(self):
         FormQuestion = self.get_model_before('wizard_builder.FormQuestion')
@@ -125,6 +149,12 @@ class PopulateDropdownMigrationTest(MigrationTest):
     before = '0031_formquestion_choices_default'
     after = '0032_move_question_dropdown'
 
+    def migrate_kwargs(self):
+        return {
+            'verbosity': 1,
+            'interactive': False,
+        }
+
     def test_type_populated(self):
         RadioButton = self.get_model_before('wizard_builder.RadioButton')
 
@@ -153,6 +183,12 @@ class MoveChoiceQuestionMigrationTest(MigrationTest):
     before = '0033_add_temps'
     after = '0035_auto_20171025_0014'
 
+    def migrate_kwargs(self):
+        return {
+            'verbosity': 1,
+            'interactive': False,
+        }
+
     def test_type_populated(self):
         RadioButton = self.get_model_before('wizard_builder.RadioButton')
         OldChoice = self.get_model_before('wizard_builder.Choice')
@@ -180,6 +216,12 @@ class DropdownMigrationTest(MigrationTest):
     app_name = 'wizard_builder'
     before = '0039_dropdown_proxy'
     after = '0040_populate_dropdown'
+
+    def migrate_kwargs(self):
+        return {
+            'verbosity': 1,
+            'interactive': False,
+        }
 
     def test_type_populated(self):
         FormQuestion = self.get_model_before('wizard_builder.FormQuestion')

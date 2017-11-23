@@ -22,8 +22,16 @@ test-fast:
 
 test-local-suite:
 	python manage.py check
-	pytest --cov=wizard_builder -v --ignore wizard_builder/tests/test_frontend.py
-	pytest --cov=wizard_builder -v wizard_builder/tests/test_frontend.py
+	pytest -v --ignore wizard_builder/tests/test_frontend.py --ignore wizard_builder/tests/test_admin.py
+	pytest -v wizard_builder/tests/test_frontend.py
+	pytest -v wizard_builder/tests/test_admin.py
+
+install-pip:
+	pip install -r requirements/test.txt --upgrade
+
+install-osx:
+	make install-pip
+	brew install git pyenv postgres chromedriver
 
 test-callisto-core:
 	pip install callisto-core --upgrade

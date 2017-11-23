@@ -16,8 +16,8 @@ and should not define:
 
 '''
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseRedirect
+from django.urls import reverse_lazy
 from django.views import generic as views
 
 from . import view_helpers

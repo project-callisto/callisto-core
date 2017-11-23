@@ -38,8 +38,7 @@ urls.py
 
 Welcome to the Callisto Product Team! Here's a list of things you'll need to get started:
 
-    $ brew install git pyenv postgres phantomjs
-    $ pip install -r requirements/dev.txt --upgrade
+    $ make install-osx  # on osx
     $ make app-setup
 
 
