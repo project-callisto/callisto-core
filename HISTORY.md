@@ -1,8 +1,8 @@
 # History / Changelog
 
-## 2.5.7 (2017-11-22)
+## 2.5.7 (2017-11-23)
 
-* add django-dev support
+* maintainence release
 
 ## 2.5.6 (2017-11-22)
 
