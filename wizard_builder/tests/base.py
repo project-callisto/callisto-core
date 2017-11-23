@@ -60,7 +60,7 @@ class FunctionalTest(Assertions, StaticLiveServerTestCase):
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--remote-debugging-port=9222")
         cls.browser = webdriver.Chrome(
-            executable_path=os.path.abspath("google-chrome-stable"),
+            executable_path="/usr/bin/google-chrome-stable",
             chrome_options=chrome_options,
         )
 
