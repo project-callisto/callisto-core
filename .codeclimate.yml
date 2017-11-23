@@ -1,3 +1,5 @@
+languages:
+  Python: true
 engines:
   duplication:
     enabled: true
