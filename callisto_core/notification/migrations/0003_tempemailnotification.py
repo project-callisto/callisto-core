@@ -8,7 +8,8 @@ from django.db import migrations, models
 def populate_temp_emails(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     EmailNotification = apps.get_model('notification', 'EmailNotification')
-    TempEmailNotification = apps.get_model('notification', 'TempEmailNotification')
+    TempEmailNotification = apps.get_model(
+        'notification', 'TempEmailNotification')
     for email in EmailNotification.objects.using(db_alias):
         temp_email = TempEmailNotification.objects.using(db_alias).create(
             name=email.name,
@@ -18,9 +19,11 @@ def populate_temp_emails(apps, schema_editor):
         for site in email.sites.all():
             temp_email.sites.add(site.id)
 
+
 def delete_temp_emails(apps, schema_editor):
     db_alias = schema_editor.connection.alias
-    TempEmailNotification = apps.get_model('notification', 'TempEmailNotification')
+    TempEmailNotification = apps.get_model(
+        'notification', 'TempEmailNotification')
     TempEmailNotification.objects.using(db_alias).delete()
 
 
@@ -33,13 +36,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.CreateModel(
             name='TempEmailNotification',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+            fields=[('id', models.AutoField(
+                auto_created=True, primary_key=True, serialize=False,
+                verbose_name='ID')),
                 ('name', models.CharField(max_length=50)),
                 ('subject', models.CharField(max_length=77)),
                 ('body', models.TextField()),
-                ('sites', models.ManyToManyField(to='sites.Site')),
-            ],
-        ),
-        migrations.RunPython(populate_temp_emails, delete_temp_emails),
-    ]
+                ('sites', models.ManyToManyField(to='sites.Site')), ],),
+        migrations.RunPython(populate_temp_emails, delete_temp_emails), ]

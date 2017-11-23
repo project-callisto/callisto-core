@@ -1,0 +1,11 @@
+wheel
+autopep8
+pypandoc
+django-extensions
+ptipython
+dj-database-url==0.4.2
+gunicorn==19.7.1
+psycopg2==2.7.3.2
+whitenoise==3.3.1
+
+-r test.txt

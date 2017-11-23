@@ -1,33 +1,25 @@
 language: python
 python:
-    - "3.4"
-    - "3.5"
-    - "3.6"
+  - "3.6"
 sudo: false
 cache: pip
 env:
-    - TOXENV=django111
-    - TOXENV=djangodev
+  global:
+    - DJANGO_111=Django>=1.11,<2.0
+    - DJANGO_DEV=https://github.com/django/django/tarball/master
+  matrix:
+    - DJANGO_VERSION=$DJANGO_111
+    - DJANGO_VERSION=$DJANGO_DEV
 matrix:
-    fast_finish: true
-    exclude:
-        - python: "3.3"
-          env: TOXENV=djangodev
-        - python: "3.4"
-          env: TOXENV=djangodev
-        - python: "3.5"
-          env: TOXENV=djangodev
-    allow_failures:
-        - python: "3.6"
-          env: TOXENV=djangodev
+  fast_finish: true
+  allow_failures:
+    - env: DJANGO_VERSION=$DJANGO_DEV
 install:
-    - pip install -r requirements/test.txt
+  - pip install -r callisto_core/requirements/test.txt --upgrade
+  - pip install $DJANGO_VERSION
 script:
-    - make test-lint
-    - tox
+  - make test
 notifications:
-    slack:
-        secure: hMHHY0B/DUPsXnrHkgtbV526fqq2E8ZBYf6jODe6JbFrBKHy/8bFsSf2ET6w3He1VNiUJB1i4WLB4YQarjIWLMzd0zD7nXbtkm4tSYWX3fFd9GZ/HNn9U+c7Ks4Z6KKQ5nyIpBxSxNoJ7cT+AOq/p4uBwHZtvsGsOkEbLzkqdkdkvZl7tKWJ9F47yHu+Kn+uhjmsQa6ZIz8Xjy3Tof12fmnVUaCamtKwM5Tq4s/6p8RNNHpPYUUUUojjMH/2A47s3n3Kc1IkV+EAo+MAIO/dZec39NqFe9Pmm02AWdhEZF9tPHjBhApdAuSalgep1RjckfRSQs7uSc+Tsq0E0/qsfOcZG2WjFdS3ajfE20qyeKH1nYKTs8EAt0LXeGJ2ZvIVTujrKDRy7YgEfPgewkuNkopoj8KVkXUqOd5t4esGFB+Xr2EXUGRCx/XJLlcsNJNUQxBeQcZVxeL9xwwFofKFSYhIcvwfdHgPqfkY6vqvxyTLDsEndZHmxTu7OiZZWr384b9l1Beot0xipmUMVqUnDwS6PTiIbhc/e616NzLpSvLSXYBlnpvDDK+voqZuul1YsFUTMRkj7cmnWdj2COusj1RurlmBJnZjpEWEnWBVpGDmaKu5i8hqi7/ai41eGEiJfC6T4QUKVSMCP5eQ0H7HA+AbIKO1oMvFjq4VxnXd+0I=
-branches:
-  only:
-    - master
+  slack:
+    secure: CVDBtNe8qXyKt6FwZF+kD2SUWvwGZRa3OPeQcRTsQ84vYMRu9Hfd+3EE9NdiNU2tF/+cpJAIn7Ke/SwbpS70Wjr9S547M/kRqxo7EiL35t5gSCYi/B+Z6Wrh90J9mUCMharbEQbxpTfb67jgYmtBCdhDpa0pSnURdd9fCC1kd4Clt6nqIF0+WE4rTM72mMnN/RaywCzpALnbu9ZyU+UZcjd4Ew3mGNqfYq26R4WKWymhyWkoIK1fmJ9yHa5OXEIWgs7QFqHOaDG5APWw9cSmzXE7y1vP38nx3ZwgUDS/Vk7Q/WmHaW27HG2f4Wui289sf8TvNC3MTN/cyS3Pj1NDWpYHKZS5Wu5GfqFxXqDudJk4U26CNte4z4DtLnFJLQnY6py6MP9qqufBHPuoSxpd74Jtv3ssim8bzsedav4JNOnHsG29ckM9TG2BoxW8fcOgWxBgXXiZWxHqJadECcW+tBFznJFoFXGDymXRsv9GqClVdZhmaAzf07H8RPQY58HZQ1udxsTCb2hH8O4UXqqtM/jE+TrfyYldjbR3RL6ozZmC4hggSl9+APyD0h3bQP0fkitv0oaCMapsecZF/Hzy8b4hzXUAqFoDWwDTbbbGOTCM9eMjnBAFd0830crIxIdIfmwBV1fh5dB8PCr8dTTDZ2XNn4OskjVJ3epqewXKElc=
+  email: false

@@ -13,6 +13,7 @@ engines:
     enabled: true
     config:
       languages:
+      - javascript
       - python
   radon:
     enabled: true
@@ -20,7 +21,9 @@ engines:
     enabled: true
 ratings:
   paths:
+  - "**.js"
   - "**.py"
 exclude_paths:
-- "*/migrations/*"
-- "*test*"
+  - 'callisto_core/tests/'
+  - 'callisto_core/notification/migrations/'
+  - 'callisto_core/delivery/migrations/'

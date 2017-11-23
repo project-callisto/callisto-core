@@ -13,14 +13,8 @@ class EmailNotificationAdmin(admin.ModelAdmin):
     }
 
     list_display = ['name', 'sitenames']
-    search_fields = ['url', 'title']
+    search_fields = ['name', 'subject', 'body']
     list_filter = ['sites']
-
-    class Media:
-        js = [
-            '/static/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
-            '/static/js/tinymce_setup.js',
-        ]
 
 
 admin.site.register(EmailNotification, EmailNotificationAdmin)
