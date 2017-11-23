@@ -38,7 +38,7 @@ urls.py
 
 Welcome to the Callisto Product Team! Here's a list of things you'll need to get started:
 
-    $ brew install git pyenv postgres phantomjs
+    $ brew install git pyenv postgres ChromeDriver
     $ pip install -r requirements/dev.txt --upgrade
     $ make app-setup
 

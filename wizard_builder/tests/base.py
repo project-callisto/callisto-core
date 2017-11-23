@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.chrome.options import Options
 
 from django.contrib.sites.models import Site
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -54,12 +55,11 @@ class FunctionalTest(Assertions, StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super(FunctionalTest, cls).setUpClass()
-        if strtobool(os.environ.get('WEBDRIVER_FIREFOX', 'False').lower()):
-            # swap on with:
-            #   export WEBDRIVER_FIREFOX='True'
-            cls.browser = webdriver.Firefox()
-        else:
-            cls.browser = webdriver.PhantomJS()
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        cls.browser = webdriver.Chrome(
+            chrome_options=chrome_options,
+        )
 
     @classmethod
     def tearDownClass(cls):
