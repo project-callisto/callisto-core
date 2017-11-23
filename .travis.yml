@@ -10,8 +10,8 @@ env:
   global:
   - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct;
     else git log -1 --skip 1 --pretty=format:%ct; fi)
-  - DJANGO_111=Django>=1.11,<2.0
-  - DJANGO_DEV=https://github.com/django/django/tarball/master
+  - DJANGO_111='Django>=1.11,<2.0'
+  - DJANGO_DEV='https://github.com/django/django/tarball/master'
   matrix:
   - DJANGO_VERSION=$DJANGO_111
   - DJANGO_VERSION=$DJANGO_DEV
