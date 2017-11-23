@@ -27,55 +27,36 @@ if sys.argv[-1] == 'tag':
 
 try:
     import pypandoc
-    readme = pypandoc.convert_file('README.md', 'rst')
-    print("Converting README from markdown to restructured text")
-except (IOError, ImportError, OSError):
-    print("Please install PyPandoc to allow conversion of the README")
-    readme = open('README.md').read()
-history = open('HISTORY.rst').read().replace('.. :changelog:', '')
+    long_description = pypandoc.convert_file('README.md', 'rst') + \
+        pypandoc.convert_file('docs/HISTORY.md', 'rst')
+except BaseException:
+    long_description = ''
+
 license = open('LICENSE').read()
 
 setup(
     name='callisto-core',
     version=version,
     description='Report intake, escrow, matching and secure delivery code for Callisto, an online reporting system for sexual assault.',
+    long_description=long_description,
     license=license,
-    long_description=readme + '\n\n' + history,
-    author='Sexual Health Innovations',
-    author_email='tech@sexualhealthinnovations.org',
-    url='https://github.com/SexualHealthInnovations/callisto-core',
-    download_url='https://github.com/SexualHealthInnovations/callisto-core/tarball/release-8.15.16-2/',
+    author='Project Callisto',
+    author_email='tech@projectcallisto.org',
+    url='https://github.com/project-callisto/callisto-core',
     packages=find_packages(),
     include_package_data=True,
+    zip_safe=False,
+    python_requires='>=3',
     install_requires=[
         'django',
-        'django-polymorphic==1.2',
-        'django-ratelimit==1.0.1',
-        'django-wizard-builder==0.2.1',
-        'PyNaCl==1.1.2',
-        'python-gnupg==0.4.1',
-        'pytz==2017.2',
-        'reportlab==3.4.0',
+        'django-polymorphic>=1.0',
+        'django-ratelimit>=1.0',
+        'django-wizard-builder>=2.5,<2.6',
+        'PyNaCl>=1.0',
+        'python-gnupg>=0.4',
+        'pytz>=2017',
+        'reportlab>=3.0.0',
         'six',
         'argon2_cffi',
-    ],
-    zip_safe=False,
-    keywords='callisto-core',
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Framework :: Django',
-        'Framework :: Django :: 1.8',
-        'Framework :: Django :: 1.10',
-        'Framework :: Django :: 1.10',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
     ],
 )

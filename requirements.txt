@@ -1,1 +1,2 @@
--r requirements/base.txt
+# required because heroku does not allow changing the pip install entrypoint
+-r callisto_core/requirements/dev.txt
