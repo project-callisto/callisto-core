@@ -9,7 +9,7 @@ class SitesMigrationTest(MigrationTest):
 
     def migrate_kwargs(self):
         return {
-            'verbosity': 2,
+            'verbosity': 1,
             'interactive': False,
         }
 
@@ -43,7 +43,7 @@ class QuestionPageMigrationTest(MigrationTest):
 
     def migrate_kwargs(self):
         return {
-            'verbosity': 2,
+            'verbosity': 1,
             'interactive': False,
         }
 
@@ -74,7 +74,7 @@ class PageIDMigrationTest(MigrationTest):
 
     def migrate_kwargs(self):
         return {
-            'verbosity': 2,
+            'verbosity': 1,
             'interactive': False,
         }
 
@@ -102,7 +102,7 @@ class PopulateTypeMigrationTest(MigrationTest):
 
     def migrate_kwargs(self):
         return {
-            'verbosity': 2,
+            'verbosity': 1,
             'interactive': False,
         }
 
@@ -151,7 +151,7 @@ class PopulateDropdownMigrationTest(MigrationTest):
 
     def migrate_kwargs(self):
         return {
-            'verbosity': 2,
+            'verbosity': 1,
             'interactive': False,
         }
 
@@ -185,7 +185,7 @@ class MoveChoiceQuestionMigrationTest(MigrationTest):
 
     def migrate_kwargs(self):
         return {
-            'verbosity': 2,
+            'verbosity': 1,
             'interactive': False,
         }
 
@@ -219,7 +219,7 @@ class DropdownMigrationTest(MigrationTest):
 
     def migrate_kwargs(self):
         return {
-            'verbosity': 2,
+            'verbosity': 1,
             'interactive': False,
         }
 
