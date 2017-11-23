@@ -18,7 +18,7 @@ env:
 matrix:
   fast_finish: true
 before_install:
-- wget -N http://chromedriver.storage.googleapis.com/2.9/chromedriver_linux64.zip -P ~/
+- wget -N https://chromedriver.storage.googleapis.com/2.33/chromedriver_linux64.zip -P ~/
 - unzip ~/chromedriver_linux64.zip -d ~/
 - rm ~/chromedriver_linux64.zip
 - sudo mv -f ~/chromedriver /usr/local/share/
