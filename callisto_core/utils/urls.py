@@ -46,6 +46,11 @@ urlpatterns = [
         ),
         name="report_delete",
         ),
+    # dashboard
+    url(r'^dashboard/$',
+        delivery_views.DashboardView.as_view(),
+        name="dashboard",
+        ),
     # reporting flow
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/prep/$',
         reporting_views.ReportingPrepView.as_view(

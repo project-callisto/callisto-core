@@ -70,9 +70,6 @@ class FrontendTestCase(
         super(StaticLiveServerTestCase, cls).setUpClass()
         cls.setup_browser()
         cls.setup_data()
-        cls.setup_site()
-        cls.setup_user()
-        cls.create_report()
 
     @classmethod
     def setup_browser(cls):
@@ -92,33 +89,27 @@ class FrontendTestCase(
             **{'verbosity': 1, 'database': 'default'},
         )
 
-    @classmethod
-    def setup_user(cls):
+    def setup_user(self):
         User.objects.create_user(
-            username=cls.username,
-            password=cls.password,
+            username=self.username,
+            password=self.password,
         )
-        cls.browser.get(cls.live_server_url)
-        ElementHelper(cls.browser).enter_username()
-        ElementHelper(cls.browser).enter_password()
-        ElementHelper(cls.browser).submit()
+        self.browser.get(self.live_server_url)
+        self.element.enter_username()
+        self.element.enter_password()
+        self.element.submit()
 
-    @classmethod
-    def create_report(cls):
-        cls.browser.get(cls.live_server_url + reverse('report_new'))
-        ElementHelper(cls.browser).enter_key()
-        ElementHelper(cls.browser).enter_key_confirmation()
-        ElementHelper(cls.browser).submit()
-        cls.report = Report.objects.first()
-
-    @classmethod
-    def setup_site(cls):
-        port = urlparse(cls.live_server_url).port
-        Site.objects.filter(id=1).update(domain='localhost:{}'.format(port))
-        cls.site = Site.objects.filter(id=1)
+    def create_report(self):
+        self.browser.get(self.live_server_url + reverse('report_new'))
+        self.element.enter_key()
+        self.element.enter_key_confirmation()
+        self.element.submit()
+        self.report = Report.objects.first()
 
     def setUp(self):
         super().setUp()
+        self.setup_user()
+        self.create_report()
         url = reverse(
             'report_update',
             kwargs={'uuid': self.report.uuid, 'step': 0}
