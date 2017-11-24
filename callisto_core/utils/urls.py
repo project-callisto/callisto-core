@@ -7,13 +7,16 @@ docs / reference:
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.urls import reverse_lazy
 
 from callisto_core.delivery import views as delivery_views
 from callisto_core.reporting import views as reporting_views
 
 urlpatterns = [
     url(r'^$',
-        view=auth_views.LoginView.as_view(),
+        view=auth_views.LoginView.as_view(
+            success_url=reverse_lazy('report_new')
+        ),
         name='index',
         ),
     url(r'^reports/new/$',
