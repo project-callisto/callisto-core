@@ -54,3 +54,7 @@ app-setup: ## setup the test application environment
 	python manage.py loaddata wizard_builder_data
 	python manage.py loaddata callisto_core_notification_data
 	python manage.py demo_user
+
+dev-setup:
+	make pip-install
+	make app-setup
