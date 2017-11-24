@@ -9,7 +9,7 @@ docs / reference:
 '''
 import logging
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from wizard_builder import view_helpers as wizard_builder_helpers
 

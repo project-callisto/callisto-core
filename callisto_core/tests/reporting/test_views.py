@@ -1,7 +1,7 @@
 from unittest import skip
 from unittest.mock import call, patch
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from callisto_core.delivery.forms import ReportAccessForm
 from callisto_core.delivery.models import MatchReport, SentFullReport
