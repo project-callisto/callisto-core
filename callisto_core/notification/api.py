@@ -3,7 +3,6 @@ import typing
 
 import gnupg
 
-from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template import Context, Template
 from django.utils import timezone
@@ -22,7 +21,7 @@ class CallistoCoreNotificationApi(object):
 
     @property
     def from_email(_):
-        return '"Reports" <reports@{0}>'.format(settings.APP_URL)
+        return '"Reports" <reports@{0}>'.format(self.request.site.domain)
 
     @property
     def model(_):
@@ -97,7 +96,7 @@ class CallistoCoreNotificationApi(object):
         Called if an email confirmation is requested
         '''
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(
-            settings.APP_URL,
+            self.request.site.domain,
         )
         self.context = {
             'notification_name': email_type,
@@ -145,7 +144,7 @@ class CallistoCoreNotificationApi(object):
                 a match has been found
         '''
         from_email = '"Callisto Matching" <notification@{0}>'.format(
-            settings.APP_URL,
+            self.request.site.domain,
         )
         user = match_report.report.owner
 
