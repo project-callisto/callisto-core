@@ -11,8 +11,8 @@
                 </div>
                 <ul class="actions">
                     <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link view-btn" href="{% url 'report_update' uuid=report.uuid step=0 %}">Edit Record</a></li>
-                    <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link" href="{% url 'report_pdf_view' report.uuid %}" target="_blank">View PDF</a></li>
-                    <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link" href="{% url 'report_pdf_download' report.uuid %}" target="_blank">Download PDF</a></li>
+                    <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link" href="{% url 'report_pdf_view' report.uuid %}">View PDF</a></li>
+                    <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link" href="{% url 'report_pdf_download' report.uuid %}">Download PDF</a></li>
                     <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link delete-btn" href="{% url 'report_delete' report.uuid %}">Delete</a></li>
                 </ul>
             </div>
