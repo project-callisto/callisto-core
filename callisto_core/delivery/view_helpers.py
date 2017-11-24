@@ -69,6 +69,7 @@ class ReportStorageHelper(
         print('setting passphrase')
 
     def clear_passphrases(self):
+        print('DELETE PASSPHRASES')
         if self.view.request.session.get('passphrases'):
             del self.view.request.session['passphrases']
 

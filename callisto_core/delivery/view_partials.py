@@ -175,6 +175,7 @@ class _ReportAccessPartial(
             print('performing standard dispatch')
             return super().dispatch(request, *args, **kwargs)
         else:
+            print('rendering access form')
             return self._render_access_form()
 
     def _get_access_form(self):

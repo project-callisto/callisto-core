@@ -73,6 +73,13 @@ class CallistoCoreCases:
         print('SUBMITTED KEY')
         self.assertSelectorContains('.dashboard', 'No Reports')
 
+    def test_can_view_pdf(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text('View PDF').click()
+        self.element.enter_key()
+        self.element.submit()
+        from IPython import embed; embed()
+
 
 @override_settings(DEBUG=True)
 class EncryptedFrontendTest(

@@ -58,21 +58,9 @@ class EncryptedWizardView(
     done_template_name = 'callisto_core/delivery/review.html'
 
 
-class ViewPDFView(
-    view_partials.ViewPDFPartial,
-):
-    access_template_name = 'callisto_core/delivery/form.html'
-
-
 #############
 # dashboard #
 #############
-
-
-class DownloadPDFView(
-    view_partials.DownloadPDFPartial,
-):
-    access_template_name = 'callisto_core/delivery/form.html'
 
 
 class DashboardView(
@@ -91,3 +79,16 @@ class DashboardMatchingWithdrawnView(
     DashboardView,
 ):
     template_name = "callisto_core/delivery/dashboard/matching_withdrawn.html"
+
+
+class DownloadPDFView(
+    view_partials.DownloadPDFPartial,
+):
+    access_template_name = 'callisto_core/delivery/form.html'
+
+
+class ViewPDFView(
+    view_partials.ViewPDFPartial,
+):
+    access_template_name = 'callisto_core/delivery/form.html'
+
