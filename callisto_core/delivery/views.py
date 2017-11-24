@@ -91,4 +91,3 @@ class ViewPDFView(
     view_partials.ViewPDFPartial,
 ):
     access_template_name = 'callisto_core/delivery/form.html'
-
