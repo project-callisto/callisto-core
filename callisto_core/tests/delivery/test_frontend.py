@@ -1,5 +1,6 @@
 import os
 import time
+import unittest
 from distutils.util import strtobool
 from urllib.parse import urlparse
 
@@ -17,6 +18,10 @@ from callisto_core.delivery.models import Report
 from wizard_builder.tests import test_frontend as wizard_builder_tests
 
 User = get_user_model()
+
+
+def headless_mode():
+    return not strtobool(os.environ.get('HEADED', 'False'))
 
 
 class AuthMixin:
@@ -71,13 +76,13 @@ class CallistoCoreCases:
         self.element.submit()
         self.assertSelectorContains('.dashboard', 'No Reports')
 
+    @unittest.skipIf(headless_mode(), 'Not supported headless browsers')
     def test_can_view_pdf(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
         self.browser.find_element_by_link_text('View PDF').click()
         self.element.enter_key()
         self.element.submit()
         self.wait_for_until_body_loaded()
-        time.sleep(3)  # <= bad practice
         self.assertIn('type="application/pdf"', self.browser.page_source)
 
 
@@ -106,7 +111,7 @@ class EncryptedFrontendTest(
     def setup_browser(cls):
         chrome_options = Options()
         # deactivate with `HEADED=TRUE pytest...`
-        if not strtobool(os.environ.get('HEADED', 'False')):
+        if headless_mode():
             chrome_options.add_argument("--headless")
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument("--disable-gpu")
