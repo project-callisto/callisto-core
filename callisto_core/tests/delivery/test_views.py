@@ -142,7 +142,7 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
 
     def test_export_returns_pdf(self):
         self.client_post_report_creation()
-        response = self.client_get_report_pdf_view()
+        response = self.client_post_report_pdf_view()
         self.assertEqual(response.status_code, 200)
         self.assertEquals(
             response.get('Content-Disposition'),
