@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.18.3 (2017-11-23)
+
+* add dashboard views, and update selenium tests
+
 ## 0.18.2 (2017-11-22)
 
 * regenerate uuids, enforce their uniqueness
