@@ -48,9 +48,15 @@ class ElementHelper(
             '[name="password"]').send_keys(self.username)
 
 
-class __FrontendCase(
+class CallistoCoreCasesMixin:
+    pass
+
+
+@override_settings(DEBUG=True)
+class EncryptedFrontendTest(
     wizard_builder_tests.FrontendTest,
     AuthMixin,
+    CallistoCoreCasesMixin,
 ):
     fixtures = [
         'wizard_builder_data',
@@ -111,10 +117,3 @@ class __FrontendCase(
             kwargs={'uuid': self.report.uuid, 'step': 0}
         )
         self.browser.get(self.live_server_url + url)
-
-
-@override_settings(DEBUG=True)
-class EncryptedFrontendTest(
-    __FrontendCase,
-):
-    pass
