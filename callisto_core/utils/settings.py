@@ -119,27 +119,32 @@ LOGGING = {
         'gnupg': {
             'handlers': ['console'],
             'propagate': False,
-            'level': os.getenv('LOG_LEVEL', default='INFO'),
+            'level': 'INFO',
+        },
+        'django.db': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': 'INFO',
         },
         'django': {
             'handlers': ['console'],
             'propagate': False,
-            'level': os.getenv('LOG_LEVEL', default='DEBUG'),
+            'level': 'DEBUG',
         },
         'django.template': {
             'handlers': ['console'],
             'propagate': False,
-            'level': os.getenv('LOG_LEVEL', default='INFO'),
+            'level': 'WARNING',
         },
         'django.db.backends': {
             'handlers': ['console'],
             'propagate': False,
-            'level': os.getenv('LOG_LEVEL', default='INFO'),
+            'level': 'INFO',
         },
         'selenium': {
             'handlers': ['console'],
             'propagate': False,
-            'level': os.getenv('LOG_LEVEL', default='WARNING'),
+            'level': 'WARNING',
         },
     },
     'root': {
