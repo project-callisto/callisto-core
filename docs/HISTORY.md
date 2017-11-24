@@ -1,6 +1,6 @@
 # History / Changelog
 
-## 0.18.3 (2017-11-23)
+## 0.18.4 (2017-11-23)
 
 * add dashboard views, and update selenium tests
 * add NotificationApi hooks
