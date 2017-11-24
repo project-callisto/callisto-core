@@ -1,4 +1,5 @@
 import os
+import time
 from distutils.util import strtobool
 from urllib.parse import urlparse
 
@@ -76,6 +77,7 @@ class CallistoCoreCases:
         self.element.enter_key()
         self.element.submit()
         self.wait_for_until_body_loaded()
+        time.sleep(3)  # <= bad practice
         self.assertIn('type="application/pdf"', self.browser.page_source)
 
 
