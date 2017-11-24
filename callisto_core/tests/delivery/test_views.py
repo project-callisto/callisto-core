@@ -118,20 +118,20 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
 
 class ReportMetaFlowTest(test_base.ReportFlowHelper):
 
-    def test_report_action_no_key(self):
+    def test_report_action_passthrough_request(self):
         self.client_post_report_creation()
         self.assertTrue(self.report.pk)
         self.client_clear_passphrase()
         self.client_post_report_delete()
-        self.assertTrue(self.assert_report_exists())
+        self.assertFalse(self.assert_report_exists())
 
-    def test_report_action_passthrough_request(self):
+    def test_report_action_invalid_key(self):
         self.client_post_report_creation()
         self.assertTrue(self.report.pk)
         self.client_clear_passphrase()
         self.passphrase = 'wrong key'
         self.client_post_report_delete()
-        self.assertFalse(self.assert_report_exists())
+        self.assertTrue(self.assert_report_exists())
 
     def test_report_delete(self):
         self.client_post_report_creation()
