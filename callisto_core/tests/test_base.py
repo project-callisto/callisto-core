@@ -26,6 +26,22 @@ class ReportAssertionHelper(object):
 
 class ReportPostHelper(object):
     valid_statuses = [200, 301, 302]
+    username = 'demo'
+    password = 'demo'
+
+    def client_post_login(self):
+        self.user = User.objects.create_user(
+            username=self.username,
+            password=self.password,
+        )
+        url = reverse('index')
+        data = {
+            'username': self.username,
+            'password': self.password,
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertIn(response.status_code, self.valid_statuses)
+        return response
 
     def client_get_report_creation(self):
         url = reverse('report_new')
