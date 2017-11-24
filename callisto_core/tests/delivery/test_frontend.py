@@ -132,7 +132,7 @@ class EncryptedFrontendTest(
             username=self.username,
             password=self.password,
         )
-        self.browser.get(self.live_server_url + reverse('login'))
+        self.browser.get(self.live_server_url)
         self.element.enter_username()
         self.element.enter_password()
         self.element.submit()
