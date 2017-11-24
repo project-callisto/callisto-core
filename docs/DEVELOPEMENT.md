@@ -36,7 +36,7 @@ The requirements are the same, you will just want to swap out homebrew for apt-g
 
 ### Local Environment Setup Part 2
 
-    pip install -r callisto_core/requirements/dev.txt --upgrade
+    make pip-install
     make app-setup
 
 ## Running

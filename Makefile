@@ -43,6 +43,9 @@ release: ## package and upload a release
 	python setup.py tag
 	make clean
 
+pip-install:
+	pip install -r callisto_core/requirements/dev.txt --upgrade
+
 app-setup: ## setup the test application environment
 	- python manage.py flush --noinput
 	python manage.py migrate --noinput --database default

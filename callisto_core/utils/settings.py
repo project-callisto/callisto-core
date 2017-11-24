@@ -17,9 +17,7 @@ def load_file(path):
     return data
 
 
-CALLISTO_CHECK_REPORT_OWNER = False
 CALLISTO_EVAL_PUBLIC_KEY = load_file('callisto_publickey.gpg')
-
 CALLISTO_MATCHING_API = test_api.CustomMatchingApi
 CALLISTO_NOTIFICATION_API = test_api.CustomNotificationApi
 CALLISTO_TENANT_API = test_api.CustomTenantApi
@@ -51,6 +49,7 @@ INSTALLED_APPS = [
     'callisto_core.evaluation',
     'callisto_core.notification',
     'callisto_core.reporting',
+    'callisto_core.utils',
 ]
 
 MIDDLEWARE_CLASSES = [

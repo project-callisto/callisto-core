@@ -58,9 +58,6 @@ django settings.py minimum requirements
     CALLISTO_EVAL_PUBLIC_KEY
     CALLISTO_EVAL_PRIVATE_KEY (keep this one secret!)
 
-    # optional
-    CALLISTO_CHECK_REPORT_OWNER = True
-
     # apis, see api section below
     CALLISTO_MATCHING_API
     CALLISTO_NOTIFICATION_API
