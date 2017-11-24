@@ -48,11 +48,7 @@ class ElementHelper(
             '[name="password"]').send_keys(self.username)
 
 
-@override_settings(
-    DEBUG=True,
-    SITE_ID=1,
-)
-class FrontendTestCase(
+class FrontendCase(
     wizard_builder_tests.FrontendTest,
     AuthMixin,
 ):
@@ -122,6 +118,6 @@ class FrontendTestCase(
     SITE_ID=1,
 )
 class EncryptedFrontendTest(
-    FrontendTestCase,
+    FrontendCase,
 ):
     pass
