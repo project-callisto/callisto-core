@@ -48,7 +48,7 @@ class ElementHelper(
             '[name="password"]').send_keys(self.username)
 
 
-class CallistoCoreCasesMixin:
+class CallistoCoreCases:
     pass
 
 
@@ -56,7 +56,7 @@ class CallistoCoreCasesMixin:
 class EncryptedFrontendTest(
     wizard_builder_tests.FrontendTest,
     AuthMixin,
-    CallistoCoreCasesMixin,
+    CallistoCoreCases,
 ):
     fixtures = [
         'wizard_builder_data',
