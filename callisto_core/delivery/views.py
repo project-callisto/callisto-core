@@ -23,7 +23,7 @@ from . import view_partials
 class LoginView(
     auth_views.LoginView,
 ):
-    template_name = 'callisto_core/delivery/form.html'
+    template_name = 'callisto_core/delivery/login.html'
 
 
 ################
@@ -34,7 +34,7 @@ class LoginView(
 class ReportCreateView(
     view_partials.ReportCreatePartial,
 ):
-    template_name = 'callisto_core/delivery/form.html'
+    template_name = 'callisto_core/delivery/new_report.html'
     access_template_name = 'callisto_core/delivery/form.html'
 
 
