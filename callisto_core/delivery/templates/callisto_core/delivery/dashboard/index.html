@@ -3,12 +3,13 @@
 {% block content %}
     {% block messages %}{% endblock %}
     <h2>My Records</h2>
-    <div class="css-dashboard">
-        <div id="records">
-            {% for report in request.user.report_set.all %}
-                {% include 'callisto_core/delivery/review_report.html' %}
-            {% endfor %}
-        </div>
+    <div class="dashboard">
+        {% for report in request.user.report_set.all %}
+            {% include 'callisto_core/delivery/review_report.html' %}
+        {% endfor %}
+        {% if not request.user.report_set.all %}
+            <p>No Reports</p>
+        {% endif %}
         <div class="new-record">
             <a class="btn btn-primary btn-block" id="start-new-record" href="{% url 'report_new' %}">Start a new record</a>
         </div>

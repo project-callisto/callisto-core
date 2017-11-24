@@ -53,21 +53,22 @@ class ElementHelper(
 class CallistoCoreCases:
 
     def test_dashboard_title(self):
-        self.element.next.click()
-        self.element.next.click()
-        self.element.done.click()
-        self.browser.find_element_by_link_text('Dashboard').click()
+        self.browser.get(self.live_server_url + reverse('dashboard'))
         self.assertSelectorContains('h2', 'My Records')
 
     def test_edit_sends_you_to_first_question(self):
-        self.element.next.click()
-        self.element.next.click()
-        self.element.done.click()
-        self.browser.find_element_by_link_text('Dashboard').click()
+        self.browser.get(self.live_server_url + reverse('dashboard'))
         self.browser.find_element_by_link_text('Edit Record').click()
         self.element.enter_key()
         self.element.submit()
         self.assertSelectorContains('form', 'food options')
+
+    def test_can_delete_record(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text('Delete').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.assertSelectorContains('.dashboard', 'No Reports')
 
 
 @override_settings(DEBUG=True)
