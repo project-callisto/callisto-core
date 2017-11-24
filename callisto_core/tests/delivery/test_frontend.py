@@ -52,7 +52,13 @@ class ElementHelper(
 
 
 class CallistoCoreCases:
-    pass
+
+    def test_dashboard(self):
+        self.element.next.click()
+        self.element.next.click()
+        self.element.done.click()
+        self.browser.find_element_by_link_text('Dashboard').click()
+        self.assertSelectorContains('h2', 'My Records')
 
 
 @override_settings(DEBUG=True)

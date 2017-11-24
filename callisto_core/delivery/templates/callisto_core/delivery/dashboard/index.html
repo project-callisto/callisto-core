@@ -2,6 +2,7 @@
 
 {% block content %}
     {% block messages %}{% endblock %}
+    <h2>My Records</h2>
     <div class="css-dashboard">
         <div id="records">
             {% for report in request.user.report_set.all %}
