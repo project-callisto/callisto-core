@@ -22,7 +22,11 @@ class CallistoCoreNotificationApi(object):
 
     @property
     def from_email(_):
-        return '"Reports" <reports@{0}>'.format(settings.APP_URL)
+        return '"Reports" <reports@{0}>'.format(self.mail_domain)
+
+    @property
+    def mail_domain(_):
+        return settings.APP_URL
 
     @property
     def model(_):
@@ -97,7 +101,7 @@ class CallistoCoreNotificationApi(object):
         Called if an email confirmation is requested
         '''
         from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(
-            settings.APP_URL,
+            self.mail_domain,
         )
         self.context = {
             'notification_name': email_type,
@@ -145,7 +149,7 @@ class CallistoCoreNotificationApi(object):
                 a match has been found
         '''
         from_email = '"Callisto Matching" <notification@{0}>'.format(
-            settings.APP_URL,
+            self.mail_domain,
         )
         user = match_report.report.owner
 
