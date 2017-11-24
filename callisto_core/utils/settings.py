@@ -8,7 +8,7 @@ DEBUG = True
 
 ROOT_URLCONF = "callisto_core.utils.urls"
 APP_URL = os.environ.get('APP_URL', 'localhost')
-
+LOGIN_REDIRECT_URL = '/reports/new/'
 
 def load_file(path):
     path = os.path.join(BASE_DIR, path)
