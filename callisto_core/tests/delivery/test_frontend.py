@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.management import call_command
 from django.test import override_settings
 from django.urls import reverse
 
@@ -68,6 +69,7 @@ class FrontendTestCase(
     def setUpClass(cls):
         super(StaticLiveServerTestCase, cls).setUpClass()
         cls.setup_browser()
+        cls.setup_data()
         cls.setup_site()
         cls.setup_user()
         cls.create_report()
@@ -80,6 +82,14 @@ class FrontendTestCase(
         # chrome_options.add_argument("--disable-gpu")
         cls.browser = webdriver.Chrome(
             chrome_options=chrome_options,
+        )
+
+    @classmethod
+    def setup_data(cls):
+        call_command(
+            'loaddata',
+            *cls.fixtures,
+            **{'verbosity': 1, 'database': 'default'},
         )
 
     @classmethod
