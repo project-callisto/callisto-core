@@ -1,6 +1,5 @@
 import os
 from distutils.util import strtobool
-
 from urllib.parse import urlparse
 
 from selenium import webdriver
