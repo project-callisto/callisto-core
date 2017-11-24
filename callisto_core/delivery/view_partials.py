@@ -28,8 +28,8 @@ from nacl.exceptions import CryptoError
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 from django.views import generic as views
 
 from wizard_builder import view_partials as wizard_builder_partials
