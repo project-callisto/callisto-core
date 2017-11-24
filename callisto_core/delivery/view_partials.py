@@ -28,8 +28,8 @@ from nacl.exceptions import CryptoError
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
+from django.http import HttpResponse
+from django.urls import reverse, reverse_lazy
 from django.views import generic as views
 
 from wizard_builder import view_partials as wizard_builder_partials
@@ -163,10 +163,12 @@ class _ReportAccessPartial(
             return False
 
     def dispatch(self, request, *args, **kwargs):
-        if self.access_granted:
+        logger.debug(f'{self.__class__.__name__} access check')
+        if (
+            self.access_granted or
+            self.access_form_valid
+        ):
             return super().dispatch(request, *args, **kwargs)
-        elif self.access_form_valid:
-            return HttpResponseRedirect(self.request.path)
         else:
             return self._render_access_form()
 
@@ -199,28 +201,6 @@ class ReportUpdatePartial(
         return self.get_object()
 
 
-class ReportActionPartial(
-    ReportUpdatePartial,
-):
-    success_url = '/'
-
-    def form_valid(self, form):
-        output = super().form_valid(form)
-        self.view_action()
-        return output
-
-    def view_action(self):
-        pass
-
-
-class ReportDeletePartial(
-    ReportActionPartial,
-):
-
-    def view_action(self):
-        self.report.delete()
-
-
 ###################
 # wizard partials #
 ###################
@@ -237,25 +217,43 @@ class EncryptedWizardPartial(
         return super().dispatch(request, *args, **kwargs)
 
 
-class WizardActionPartial(
-    EncryptedWizardPartial,
+###################
+# report actions  #
+###################
+
+
+class ReportActionPartial(
+    ReportUpdatePartial,
 ):
-    access_form_class = forms.ReportAccessForm
+    success_url = reverse_lazy('dashboard')
 
-    def dispatch(self, request, *args, **kwargs):
-        self._dispatch_processing()
-        self.kwargs['step'] = view_helpers.ReportStepsHelper.done_name
-        if self.access_granted:
-            return self.view_action()
-        else:
-            return self._render_access_form()
+    def form_valid(self, form):
+        logger.debug(f'{self.__class__.__name__} form valid')
+        output = super().form_valid(form)
+        self.view_action()
+        return output
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
+
+    def view_action(self):
+        pass
 
 
-class WizardPDFPartial(
-    WizardActionPartial,
+class ReportDeletePartial(
+    ReportActionPartial,
 ):
 
     def view_action(self):
+        self.report.delete()
+
+
+class WizardPDFPartial(
+    ReportActionPartial,
+):
+
+    def form_valid(self, form):
+        super().form_valid(form)
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = self.content_disposition + \
             '; filename="report.pdf"'

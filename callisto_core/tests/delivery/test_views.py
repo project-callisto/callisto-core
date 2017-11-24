@@ -118,12 +118,12 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
 
 class ReportMetaFlowTest(test_base.ReportFlowHelper):
 
-    def test_report_action_no_key(self):
+    def test_report_action_passthrough_request(self):
         self.client_post_report_creation()
         self.assertTrue(self.report.pk)
         self.client_clear_passphrase()
         self.client_post_report_delete()
-        self.assertTrue(self.assert_report_exists())
+        self.assertFalse(self.assert_report_exists())
 
     def test_report_action_invalid_key(self):
         self.client_post_report_creation()
@@ -142,7 +142,7 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
 
     def test_export_returns_pdf(self):
         self.client_post_report_creation()
-        response = self.client_get_report_pdf_view()
+        response = self.client_post_report_pdf_view()
         self.assertEqual(response.status_code, 200)
         self.assertEquals(
             response.get('Content-Disposition'),

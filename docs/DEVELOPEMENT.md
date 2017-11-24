@@ -33,11 +33,7 @@ The requirements are the same, you will just want to swap out homebrew for apt-g
     pyenv local $PYTHON_VERSION
     python -m venv .venv
     source .venv/bin/activate
-
-### Local Environment Setup Part 2
-
-    make pip-install
-    make app-setup
+    make dev-setup
 
 ## Running
 
