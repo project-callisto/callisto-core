@@ -20,7 +20,7 @@ class CallistoCoreNotificationApi(object):
     report_title = 'Report'
 
     @property
-    def from_email(self):
+    def from_email(_):
         return '"Reports" <reports@{0}>'.format(self.request.site.domain)
 
     @property
