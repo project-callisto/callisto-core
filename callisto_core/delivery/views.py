@@ -56,25 +56,25 @@ class ViewPDFView(
 #############
 
 
-class DownloadPDFView(
-    view_partials.DownloadPDFPartial,
-):
-    access_template_name = 'callisto_core/delivery/form.html'
+# class DownloadPDFView(
+#     view_partials.DownloadPDFPartial,
+# ):
+#     access_template_name = 'callisto_core/delivery/form.html'
 
 
 class DashboardView(
-    delivery_partials.PassphraseClearingPartial,
+    view_partials.PassphraseClearingPartial,
 ):
     template_name = "callisto_core/delivery/dashboard/index.html"
 
 
 class DashboardReportDeletedView(
-    delivery_partials.PassphraseClearingPartial,
+    DashboardView,
 ):
     template_name = "callisto_core/delivery/dashboard/report_deleted.html"
 
 
 class DashboardMatchingWithdrawnView(
-    delivery_partials.PassphraseClearingPartial,
+    DashboardView,
 ):
     template_name = "callisto_core/delivery/dashboard/matching_withdrawn.html"
