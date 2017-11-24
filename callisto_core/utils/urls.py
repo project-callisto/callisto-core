@@ -7,6 +7,7 @@ docs / reference:
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.urls import reverse_lazy
+from django.views.generic import base as django_views
 
 from callisto_core.delivery import views as delivery_views
 from callisto_core.reporting import views as reporting_views
@@ -18,6 +19,12 @@ urlpatterns = [
         ),
         name='index',
         ),
+    url(r'^login/$', django_views.RedirectView.as_view(
+        url=reverse_lazy('login'),
+        permanent=True,
+    ),
+        name='login',
+    ),
     url(r'^reports/new/$',
         delivery_views.ReportCreateView.as_view(
             success_url='report_update',
