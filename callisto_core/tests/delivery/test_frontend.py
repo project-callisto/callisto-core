@@ -38,6 +38,14 @@ class FrontendTestCase(
     def element(self):
         return ElementHelper(self.browser)
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        User.objects.create_user(
+            username=cls.username,
+            password=cls.password,
+        )
+
     def setUp(self):
         super().setUp()
         self._setup_user()

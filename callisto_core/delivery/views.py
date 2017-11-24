@@ -11,7 +11,20 @@ views should define:
     - templates
 
 '''
+from django.contrib.auth import views as auth_views
+
 from . import view_partials
+
+################
+# auth views   #
+################
+
+
+class LoginView(
+    auth_views.LoginView,
+):
+    template_name = 'callisto_core/delivery/form.html'
+
 
 ################
 # report views #
@@ -56,10 +69,10 @@ class ViewPDFView(
 #############
 
 
-# class DownloadPDFView(
-#     view_partials.DownloadPDFPartial,
-# ):
-#     access_template_name = 'callisto_core/delivery/form.html'
+class DownloadPDFView(
+    view_partials.DownloadPDFPartial,
+):
+    access_template_name = 'callisto_core/delivery/form.html'
 
 
 class DashboardView(
