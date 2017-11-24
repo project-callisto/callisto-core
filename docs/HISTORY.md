@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.18.5 (2017-11-23)
+
+* fix NotificationApi.get_cover_page incorrect attrs
+
 ## 0.18.4 (2017-11-23)
 
 * add dashboard views, and update selenium tests

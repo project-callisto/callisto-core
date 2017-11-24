@@ -286,7 +286,6 @@ class PDFFullReport(PDFReport):
         # COVER PAGE
         self.pdf_elements.extend(
             api.NotificationApi.get_cover_page(
-                self,
                 report_id=report_id,
                 recipient=recipient,
             ),
@@ -352,7 +351,8 @@ class PDFMatchReport(PDFReport):
         # COVER PAGE
         self.pdf_elements.extend(
             api.NotificationApi.get_cover_page(
-                self, report_id=report_id, recipient=recipient,
+                report_id=report_id,
+                recipient=recipient,
             ),
         )
 
