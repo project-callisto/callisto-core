@@ -16,7 +16,8 @@ class LegacyStorageFormatTest(test_base.ReportFlowHelper):
 
     def setUp(self):
         super().setUp()
-        self.report = models.Report.objects.create()
+        self.client_post_login()
+        self.report = models.Report.objects.create(owner=self.user)
         legacy_storage = {'data': {'catte': 'good'}}
         self.report.encrypt_report(legacy_storage, self.passphrase)
         self.client_set_passphrase()

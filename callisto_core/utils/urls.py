@@ -7,14 +7,15 @@ docs / reference:
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.urls import reverse_lazy
-from django.views.generic.base import RedirectView
 
-from ..delivery import views as delivery_views
-from ..reporting import views as reporting_views
+from callisto_core.delivery import views as delivery_views
+from callisto_core.reporting import views as reporting_views
 
 urlpatterns = [
     url(r'^$',
-        RedirectView.as_view(url=reverse_lazy('report_new')),
+        view=delivery_views.LoginView.as_view(
+            success_url=reverse_lazy('report_new')
+        ),
         name='index',
         ),
     url(r'^reports/new/$',
@@ -44,6 +45,11 @@ urlpatterns = [
             success_url='/',
         ),
         name="report_delete",
+        ),
+    # dashboard
+    url(r'^dashboard/$',
+        delivery_views.DashboardView.as_view(),
+        name="dashboard",
         ),
     # reporting flow
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/prep/$',

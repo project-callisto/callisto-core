@@ -182,10 +182,9 @@ class _ReportAccessPartial(
         return self.render_to_response(context)
 
     def _check_report_owner(self):
-        if settings.CALLISTO_CHECK_REPORT_OWNER:
-            if not self.report.owner == self.request.user:
-                logger.warn(self.invalid_access_user_message)
-                raise PermissionDenied
+        if not self.report.owner == self.request.user:
+            logger.warn(self.invalid_access_user_message)
+            raise PermissionDenied
 
 
 class ReportUpdatePartial(

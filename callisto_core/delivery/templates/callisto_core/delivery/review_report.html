@@ -1,0 +1,46 @@
+<div class="row">
+    <div class="col-sm-offset-1 col-sm-22 col-xs-24 record">
+        <div class="record-status-div">
+            <div class="status-content">
+                <h2 class="record-status"><strong>Record Status:</strong> <em>{% if report.submitted_to_school %}Reported to school{% else %}Saved{% endif %}</em></h2>
+                <div class="timestamps" id="report-status-{{ report.pk }}">
+                    <strong>Created:</strong> {{ report.added|localtime|date:"n/j/Y \a\t f A"}}<br/>
+                    <strong>Last Edited:</strong> {{ report.last_edited|localtime|date:"n/j/Y \a\t f A" }} <br/>
+                </div>
+                <ul class="actions">
+                    <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link view-btn" href="{% url 'report_update' uuid=report.uuid step=0 %}">Edit Record</a></li>
+                    <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link" href="{% url 'report_pdf_view' report.uuid %}" target="_blank">View PDF</a></li>
+                    <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link" href="{% url 'report_pdf_download' report.uuid %}" target="_blank">Download PDF</a></li>
+                    <li aria-describedby="report-status-{{ report.pk }}"><a class="action-link delete-btn" href="{% url 'report_delete' report.uuid %}">Delete</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="action-columns">
+            <div class="col-sm-12 col-xs-24 report-it-now">
+                <h3>Report</h3>
+                <p>Send your saved record to {% settings_value 'SCHOOL_SHORTNAME' %} to let them know what happened. You'll need to verify your email address and provide your contact info so your school can reach out about next steps.</p>
+                {% if report.submitted_to_school %}
+                    <div class="record-result">Reported to school</div>
+                {% else %}
+                    <div class="button">
+                        <a class="btn dark-blue-btn" href="{% url 'reporting_email_confirmation' report.uuid %}">Start reporting process</a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-sm-12 col-xs-24 wait-for-others">
+                <h3>Match</h3>
+                <p>Enter your perpetrator's identity, which will only be sent to {% settings_value 'SCHOOL_SHORTNAME' %} if someone else names the same person. You'll need to verify your email address and provide your contact info so your school can reach out about next steps if a match is made.</p>
+                {% if report.entered_into_matching %}
+                    <div class="record-result">Identity stored - {% if report.match_found %}match found{% else %}waiting for others{% endif %}.</div>
+                    <div class="button">
+                        <a class="btn dark-blue-btn" href="{% url 'matching_withdraw' report.uuid %}">Withdraw from match</a>
+                    </div>
+                {% else %}
+                    <div class="button">
+                        <a class="btn dark-blue-btn" href="{% url 'matching_email_confirmation' report.uuid %}">Start matching process</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

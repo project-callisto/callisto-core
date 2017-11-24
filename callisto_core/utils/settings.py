@@ -5,9 +5,11 @@ from callisto_core.tests.utils import api as test_api
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = os.getenv("passphrase", default='secret key')
 DEBUG = True
+SITE_ID = 1
 
 ROOT_URLCONF = "callisto_core.utils.urls"
 APP_URL = os.environ.get('APP_URL', 'localhost')
+LOGIN_REDIRECT_URL = '/reports/new/'
 
 
 def load_file(path):
@@ -17,9 +19,7 @@ def load_file(path):
     return data
 
 
-CALLISTO_CHECK_REPORT_OWNER = False
 CALLISTO_EVAL_PUBLIC_KEY = load_file('callisto_publickey.gpg')
-
 CALLISTO_MATCHING_API = test_api.CustomMatchingApi
 CALLISTO_NOTIFICATION_API = test_api.CustomNotificationApi
 CALLISTO_TENANT_API = test_api.CustomTenantApi
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'callisto_core.evaluation',
     'callisto_core.notification',
     'callisto_core.reporting',
+    'callisto_core.utils',
 ]
 
 MIDDLEWARE_CLASSES = [

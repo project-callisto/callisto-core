@@ -11,7 +11,20 @@ views should define:
     - templates
 
 '''
+from django.contrib.auth import views as auth_views
+
 from . import view_partials
+
+################
+# auth views   #
+################
+
+
+class LoginView(
+    auth_views.LoginView,
+):
+    template_name = 'callisto_core/delivery/login.html'
+
 
 ################
 # report views #
@@ -21,7 +34,7 @@ from . import view_partials
 class ReportCreateView(
     view_partials.ReportCreatePartial,
 ):
-    template_name = 'callisto_core/delivery/form.html'
+    template_name = 'callisto_core/delivery/new_report.html'
     access_template_name = 'callisto_core/delivery/form.html'
 
 
@@ -51,7 +64,30 @@ class ViewPDFView(
     access_template_name = 'callisto_core/delivery/form.html'
 
 
+#############
+# dashboard #
+#############
+
+
 class DownloadPDFView(
     view_partials.DownloadPDFPartial,
 ):
     access_template_name = 'callisto_core/delivery/form.html'
+
+
+class DashboardView(
+    view_partials.PassphraseClearingPartial,
+):
+    template_name = "callisto_core/delivery/dashboard/index.html"
+
+
+class DashboardReportDeletedView(
+    DashboardView,
+):
+    template_name = "callisto_core/delivery/dashboard/report_deleted.html"
+
+
+class DashboardMatchingWithdrawnView(
+    DashboardView,
+):
+    template_name = "callisto_core/delivery/dashboard/matching_withdrawn.html"
