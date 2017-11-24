@@ -1,4 +1,9 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
 from django.contrib.auth import get_user_model
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.urls import reverse
 
 from wizard_builder.tests import test_frontend as wizard_builder_tests
 
@@ -40,7 +45,14 @@ class FrontendTestCase(
 
     @classmethod
     def setUpClass(cls):
-        super().setUpClass()
+        super(StaticLiveServerTestCase, cls).setUpClass()
+        chrome_options = Options()
+        # chrome_options.add_argument("--headless")
+        # chrome_options.add_argument('--no-sandbox')
+        # chrome_options.add_argument("--disable-gpu")
+        cls.browser = webdriver.Chrome(
+            chrome_options=chrome_options,
+        )
         User.objects.create_user(
             username=cls.username,
             password=cls.password,
@@ -58,25 +70,15 @@ class FrontendTestCase(
         )
         cookie = self.client.cookies['sessionid']
         self.browser.get(self.live_server_url)
-        # ref: https://github.com/ariya/phantomjs/issues/14228
-        try:
-            self.browser.add_cookie({
-                'name': 'sessionid',
-                'value': cookie.value,
-                'secure': False,
-                'path': '/',
-            })
-        except BaseException:
-            self.browser.add_cookie({
-                'name': 'sessionid',
-                'value': cookie.value,
-                'secure': False,
-                'path': '/',
-                'domain': 'localhost',
-            })
-        self.browser.get(self.live_server_url)
+        self.browser.add_cookie({
+            'name': 'sessionid',
+            'value': cookie.value,
+            'secure': False,
+            'path': '/',
+        })
 
     def _create_report(self):
+        self.browser.get(self.live_server_url + reverse('report_new'))
         self.element.enter_key()
         self.element.enter_key_confirmation()
         self.element.submit()
