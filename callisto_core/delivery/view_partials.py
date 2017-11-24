@@ -141,10 +141,12 @@ class _ReportAccessPartial(
 
     @property
     def access_granted(self):
+        print('\t checking if access already granted')
         self._check_report_owner()
         if self.storage.passphrase:
             try:
                 self.decrypted_report
+                print('\t\t access granted!')
                 return True
             except CryptoError:
                 logger.warn(self.invalid_access_key_message)
@@ -155,18 +157,23 @@ class _ReportAccessPartial(
 
     @property
     def access_form_valid(self):
+        print('\t checking if access form valid')
         form = self._get_access_form()
         if form.is_valid():
             form.save()
+            print('\t\t form valid!')
             return True
         else:
+            print('\t\t form invalid :(')
             return False
 
     def dispatch(self, request, *args, **kwargs):
-        if self.access_granted:
+        if (
+            self.access_granted or
+            self.access_form_valid
+        ):
+            print('performing standard dispatch')
             return super().dispatch(request, *args, **kwargs)
-        elif self.access_form_valid:
-            return HttpResponseRedirect(self.request.path)
         else:
             return self._render_access_form()
 
@@ -205,11 +212,18 @@ class ReportActionPartial(
     success_url = '/'
 
     def form_valid(self, form):
+        print('form is valid')
+        print(self)
         output = super().form_valid(form)
         self.view_action()
         return output
 
+    def form_invalid(self, form):
+        print('form is NOT valid')
+        return super().form_invalid(form)
+
     def view_action(self):
+        print('PERFORMING view action')
         pass
 
 
@@ -218,6 +232,8 @@ class ReportDeletePartial(
 ):
 
     def view_action(self):
+        print('DELETE DELETE DELETE')
+        print(self.report)
         self.report.delete()
 
 

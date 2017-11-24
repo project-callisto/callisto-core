@@ -44,7 +44,10 @@ class ReportStorageHelper(
     @property
     def passphrase(self) -> str:
         passphrases = self.view.request.session.get('passphrases', {})
-        return passphrases.get(str(self.report.uuid), '')
+        passphrase = passphrases.get(str(self.report.uuid), '')
+        print('passphrases ' + str(passphrases))
+        print('passphrase ' + str(passphrase))
+        return passphrase
 
     @property
     def report(self):
@@ -63,6 +66,7 @@ class ReportStorageHelper(
         passphrases = self.view.request.session.get('passphrases', {})
         passphrases[str(report.uuid)] = key
         self.view.request.session['passphrases'] = passphrases
+        print('setting passphrase')
 
     def clear_passphrases(self):
         if self.view.request.session.get('passphrases'):

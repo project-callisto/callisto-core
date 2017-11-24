@@ -40,16 +40,16 @@ urlpatterns = [
         delivery_views.DownloadPDFView.as_view(),
         name="report_pdf_download",
         ),
-    url(r'^reports/uuid/(?P<uuid>.+)/review/delete/$',
-        delivery_views.ReportDeleteView.as_view(
-            success_url='/',
-        ),
-        name="report_delete",
-        ),
     # dashboard
     url(r'^dashboard/$',
         delivery_views.DashboardView.as_view(),
         name="dashboard",
+        ),
+    url(r'^dashboard/uuid/(?P<uuid>.+)/delete/$',
+        delivery_views.ReportDeleteView.as_view(
+            success_url=reverse_lazy('dashboard'),
+        ),
+        name="report_delete",
         ),
     # reporting flow
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/prep/$',

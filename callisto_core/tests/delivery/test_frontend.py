@@ -66,8 +66,11 @@ class CallistoCoreCases:
     def test_can_delete_record(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
         self.browser.find_element_by_link_text('Delete').click()
+        print('ON DELETE PAGE')
         self.element.enter_key()
+        print('SUBMITTING KEY')
         self.element.submit()
+        print('SUBMITTED KEY')
         self.assertSelectorContains('.dashboard', 'No Reports')
 
 

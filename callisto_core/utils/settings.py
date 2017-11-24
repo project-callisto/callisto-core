@@ -144,7 +144,7 @@ LOGGING = {
         'selenium': {
             'handlers': ['console'],
             'propagate': False,
-            'level': 'WARNING',
+            'level': 'INFO',
         },
     },
     'root': {
