@@ -5,6 +5,7 @@ from callisto_core.tests.utils import api as test_api
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = os.getenv("passphrase", default='secret key')
 DEBUG = True
+SITE_ID = 1
 
 ROOT_URLCONF = "callisto_core.utils.urls"
 APP_URL = os.environ.get('APP_URL', 'localhost')

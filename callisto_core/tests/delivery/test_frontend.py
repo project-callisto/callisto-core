@@ -48,7 +48,7 @@ class ElementHelper(
             '[name="password"]').send_keys(self.username)
 
 
-class FrontendCase(
+class __FrontendCase(
     wizard_builder_tests.FrontendTest,
     AuthMixin,
 ):
@@ -95,7 +95,7 @@ class FrontendCase(
         self.element.enter_password()
         self.element.submit()
 
-    def create_report(self):
+    def setup_report(self):
         self.browser.get(self.live_server_url + reverse('report_new'))
         self.element.enter_key()
         self.element.enter_key_confirmation()
@@ -105,7 +105,7 @@ class FrontendCase(
     def setUp(self):
         super().setUp()
         self.setup_user()
-        self.create_report()
+        self.setup_report()
         url = reverse(
             'report_update',
             kwargs={'uuid': self.report.uuid, 'step': 0}
@@ -113,11 +113,8 @@ class FrontendCase(
         self.browser.get(self.live_server_url + url)
 
 
-@override_settings(
-    DEBUG=True,
-    SITE_ID=1,
-)
+@override_settings(DEBUG=True)
 class EncryptedFrontendTest(
-    FrontendCase,
+    __FrontendCase,
 ):
     pass
