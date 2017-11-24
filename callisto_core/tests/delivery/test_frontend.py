@@ -5,8 +5,20 @@ from wizard_builder.tests import test_frontend as wizard_builder_tests
 User = get_user_model()
 
 
-class EncryptedFrontendTest(wizard_builder_tests.FrontendTest):
+class CoreElementHelper(
+    wizard_builder_tests.ElementHelper,
+):
+    pass
+
+
+class EncryptedFrontendTest(
+    wizard_builder_tests.FrontendTest,
+):
     passphrase = 'soooooo seekrit'
+
+    @property
+    def element(self):
+        return CoreElementHelper(self.browser)
 
     def setUp(self):
         super().setUp()

@@ -1,0 +1,15 @@
+{% extends 'callisto_core/delivery/base.html' %}
+
+{% block content %}
+    <div class="css-dashboard">
+        <div id="records">
+            {% for report in request.user.report_set.all %}
+                {% include 'callisto_core/delivery/review_report.html' %}
+            {% endfor %}
+        </div>
+
+        <div class="new-record">
+            <a class="btn dark-blue-btn" id="start-new-record" href="{% url 'report_new' %}">Start a new record</a>
+        </div>
+    </div>
+{% endblock %}
