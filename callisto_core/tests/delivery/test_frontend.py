@@ -85,11 +85,31 @@ class CallistoCoreCases:
         self.wait_for_until_body_loaded()
         self.assertIn('type="application/pdf"', self.browser.page_source)
 
+    def test_reporting_errors_regression(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text('Start reporting process').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.assertSelectorDoesNotContain('form', 'error')
+
+    def test_reporting_errors_regression(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text('Start matching process').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.assertSelectorDoesNotContain('form', 'error')
+
     def test_reporting_process(self):
-        pass
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text('Start reporting process').click()
+        self.element.enter_key()
+        self.element.submit()
 
     def test_matching_process(self):
-        pass
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text('Start matching process').click()
+        self.element.enter_key()
+        self.element.submit()
 
 
 @override_settings(DEBUG=True)
@@ -159,3 +179,8 @@ class EncryptedFrontendTest(
             kwargs={'uuid': self.report.uuid, 'step': 0}
         )
         self.browser.get(self.live_server_url + url)
+
+    def assertSelectorDoesNotContain(self, css, text):
+        for element in self.browser.find_elements_by_css_selector(css):
+            if text.lower() in element.text.lower():
+                raise AssertionError(f'{text} found in {element.text}')
