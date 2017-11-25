@@ -76,7 +76,7 @@ class CallistoCoreCases:
         self.element.submit()
         self.assertSelectorContains('.dashboard', 'No Reports')
 
-    @unittest.skipIf(headless_mode(), 'Not supported headless browsers')
+    @unittest.skipIf(headless_mode(), 'Not supported by headless browsers')
     def test_can_view_pdf(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
         self.browser.find_element_by_link_text('View PDF').click()
