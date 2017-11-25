@@ -139,7 +139,7 @@ class MatchingBaseForm(
     def __init__(self, *args, matching_validators=None, **kwargs):
         super().__init__(*args, **kwargs)
         if not matching_validators:
-            self.matching_validators = validators.Validators
+            self.matching_validators = validators.Validators()
         else:
             self.matching_validators = matching_validators
         self.fields['identifier'] = fields.MatchIdentifierField(
