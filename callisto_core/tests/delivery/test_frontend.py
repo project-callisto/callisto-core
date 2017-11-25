@@ -85,6 +85,12 @@ class CallistoCoreCases:
         self.wait_for_until_body_loaded()
         self.assertIn('type="application/pdf"', self.browser.page_source)
 
+    def test_reporting_process(self):
+        pass
+
+    def test_matching_process(self):
+        pass
+
 
 @override_settings(DEBUG=True)
 class EncryptedFrontendTest(
