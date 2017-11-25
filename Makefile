@@ -33,7 +33,7 @@ test-integrated:
 	pytest -v callisto_core/tests/delivery/test_frontend.py
 
 test-fast: ## runs the test suite, with fast failures and a re-used database
-	pytest -v -l -s --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py
+	LOG_LEVEL=INFO pytest -v -l -s --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py
 
 test: ## run the linters and the test suite
 	make test-lint
