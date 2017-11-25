@@ -41,6 +41,7 @@ class CallistoCoreTenantApi(object):
             1: {
                 'COORDINATOR_NAME': 'COORDINATOR_NAME',
                 'COORDINATOR_EMAIL': 'COORDINATOR_EMAIL@example.com',
+                'SCHOOL_EMAIL_DOMAIN': 'example.com',
                 'COORDINATOR_PUBLIC_KEY': '''
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Comment: GPGTools - https://gpgtools.org

@@ -18,6 +18,21 @@ from . import view_partials
 ##################
 
 
+class ReportingSchoolEmailFormView(
+    view_partials.SchoolEmailFormPartial,
+):
+    template_name = 'callisto_core/reporting/submission.html'
+    access_template_name = 'callisto_core/delivery/form.html'
+    email_template_name = 'callisto_core/reporting/student_verification_email.html'
+
+
+class ReportingSchoolEmailConfirmationView(
+    view_partials.SchoolEmailConfirmationPartial,
+):
+    template_name = 'callisto_core/delivery/form.html'
+    access_template_name = 'callisto_core/delivery/form.html'
+
+
 class ReportingPrepView(
     view_partials.PrepPartial
 ):
@@ -42,6 +57,21 @@ class ReportingConfirmationView(
 #################
 # matching flow #
 #################
+
+
+class MatchingSchoolEmailFormView(
+    view_partials.SchoolEmailFormPartial,
+):
+    template_name = 'callisto_core/reporting/submission.html'
+    access_template_name = 'callisto_core/delivery/form.html'
+    email_template_name = 'callisto_core/reporting/student_verification_email.html'
+
+
+class MatchingSchoolEmailConfirmationView(
+    view_partials.SchoolEmailConfirmationPartial,
+):
+    template_name = 'callisto_core/delivery/form.html'
+    access_template_name = 'callisto_core/delivery/form.html'
 
 
 class MatchingPrepView(

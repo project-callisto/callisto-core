@@ -26,15 +26,19 @@ test-lint: ## check style with pep8 and isort
 	flake8 callisto_core/
 	isort --check-only --diff --quiet -rc callisto_core/
 
-test-suite: ## run the unit and integration tests
-	pytest -v
+test-suite:
+	pytest -v --ignore=callisto_core/tests/delivery/test_frontend.py
+
+test-integrated:
+	pytest -v callisto_core/tests/delivery/test_frontend.py
 
 test-fast: ## runs the test suite, with fast failures and a re-used database
-	pytest -v -l -s --maxfail=1 --ff --reuse-db
+	LOG_LEVEL=INFO pytest -v -l -s --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py
 
 test: ## run the linters and the test suite
 	make test-lint
 	make test-suite
+	make test-integrated
 
 release: ## package and upload a release
 	make clean
