@@ -25,7 +25,7 @@
                     <div class="record-result">Reported to school</div>
                 {% else %}
                     <div class="button">
-                        <a class="btn btn-primary btn-block" href="{% url 'reporting_prep' report.uuid %}">Start reporting process</a>
+                        <a class="btn btn-primary btn-block" href="{% url 'reporting_email_confirmation' report.uuid %}">Start reporting process</a>
                     </div>
                 {% endif %}
             </div>
@@ -39,7 +39,7 @@
                     </div>
                 {% else %}
                     <div class="button">
-                        <a class="btn btn-primary btn-block" href="{% url 'report_matching_prep' report.uuid %}">Start matching process</a>
+                        <a class="btn btn-primary btn-block" href="{% url 'matching_email_confirmation' report.uuid %}">Start matching process</a>
                     </div>
                 {% endif %}
             </div>

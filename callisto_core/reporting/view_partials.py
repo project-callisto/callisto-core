@@ -20,10 +20,15 @@ and should not define:
     - url names
 
 '''
+from django.contrib.auth.views import PasswordResetView
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
+from django.views.generic.edit import ModelFormMixin
+
 from callisto_core.delivery import view_partials as delivery_partials
 from callisto_core.utils.api import MatchingApi, NotificationApi, TenantApi
 
-from . import forms, validators, view_helpers
+from . import forms, tokens, validators, view_helpers
 
 
 class SubmissionPartial(
@@ -41,6 +46,59 @@ class SubmissionPartial(
     def coordinator_public_key(self):
         return TenantApi.site_settings(
             'COORDINATOR_PUBLIC_KEY', request=self.request)
+
+
+class SchoolEmailFormPartial(
+    SubmissionPartial,
+    PasswordResetView,
+):
+    form_class = forms.ReportingVerificationEmailForm
+    token_generator = tokens.StudentVerificationTokenGenerator()
+    # success_url is used for inputting a valid school email address
+    success_url = None
+    # next_url is used for having your account already verified,
+    # and inputting a correct account verification token
+    next_url = None
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.email_is_verified():
+            return self._redirect_to_next()
+        else:
+            return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse(self.success_url)
+
+    def form_valid(self, form):
+        '''
+        avoid saving the form twice (and thus sending emails twice)
+        '''
+        return ModelFormMixin.form_valid(self, form)
+
+    def email_is_verified(self):
+        return True  # downstream hook
+
+    def _redirect_to_next(self):
+        next_url = reverse(
+            self.next_url,
+            kwargs={'uuid': self.report.uuid},
+        )
+        return redirect(next_url)
+
+
+class SchoolEmailConfirmationPartial(
+    SchoolEmailFormPartial,
+):
+
+    def verify_email(self):
+        pass  # downstream hook
+
+    def dispatch(self, request, token=None, uidb64=None, *args, **kwargs):
+        if self.token_generator.check_token(self.request.user, token):
+            self.verify_email()
+            return self._redirect_to_next()
+        else:
+            return super().dispatch(self.request, *args, **kwargs)
 
 
 class PrepPartial(

@@ -52,6 +52,21 @@ urlpatterns = [
         name="report_pdf_download",
         ),
     # reporting flow
+    url(r'^uuid/(?P<uuid>.+)/reporting/confirmation/$',
+        reporting_views.ReportingSchoolEmailFormView.as_view(
+            back_url='dashboard',
+            next_url='reporting_prep',
+            success_url='reporting_prep',  # used to skip email confirmation
+        ),
+        name="reporting_email_confirmation",
+        ),
+    url(r'^uuid/(?P<uuid>.+)/reporting/confirmation/uidb64/(?P<uidb64>.+)/token/(?P<token>.+)/$',
+        reporting_views.ReportingSchoolEmailConfirmationView.as_view(
+            back_url='dashboard',
+            next_url='reporting_prep',
+        ),
+        name="reporting_email_confirmation",
+        ),
     url(r'^reports/uuid/(?P<uuid>.+)/reporting/prep/$',
         reporting_views.ReportingPrepView.as_view(
             back_url='report_view',
@@ -75,6 +90,21 @@ urlpatterns = [
         ),
     # /end reporting flow
     # matching flow
+    url(r'^uuid/(?P<uuid>.+)/matching/confirmation/$',
+        reporting_views.MatchingSchoolEmailFormView.as_view(
+            back_url='dashboard',
+            next_url='matching_prep',
+            success_url='matching_prep',  # used to skip email confirmation
+        ),
+        name="matching_email_confirmation",
+        ),
+    url(r'^uuid/(?P<uuid>.+)/matching/confirmation/uidb64/(?P<uidb64>.+)/token/(?P<token>.+)/$',
+        reporting_views.MatchingSchoolEmailConfirmationView.as_view(
+            back_url='dashboard',
+            next_url='matching_prep',
+        ),
+        name="matching_email_confirmation",
+        ),
     url(r'^reports/uuid/(?P<uuid>.+)/matching/prep/$',
         reporting_views.MatchingPrepView.as_view(
             back_url='report_view',
