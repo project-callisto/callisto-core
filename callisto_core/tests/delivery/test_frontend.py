@@ -55,6 +55,14 @@ class ElementHelper(
         self.browser.find_element_by_css_selector(
             '[name="password"]').send_keys(self.username)
 
+    def enter_email(self):
+        self.browser.find_element_by_css_selector(
+            '[name="contact_email"]').send_keys('test@example.com')
+
+    def enter_phone(self):
+        self.browser.find_element_by_css_selector(
+            '[name="contact_phone"]').send_keys('555-555-5555')
+
 
 class CallistoCoreCases:
 
@@ -87,29 +95,47 @@ class CallistoCoreCases:
 
     def test_reporting_errors_regression(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
-        self.browser.find_element_by_link_text('Start reporting process').click()
+        self.browser.find_element_by_link_text(
+            'Start reporting process').click()
         self.element.enter_key()
         self.element.submit()
         self.assertSelectorDoesNotContain('form', 'error')
 
     def test_reporting_errors_regression(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
-        self.browser.find_element_by_link_text('Start matching process').click()
+        self.browser.find_element_by_link_text(
+            'Start matching process').click()
         self.element.enter_key()
         self.element.submit()
         self.assertSelectorDoesNotContain('form', 'error')
 
-    def test_reporting_process(self):
+    def test_reporting_process_prep(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
-        self.browser.find_element_by_link_text('Start reporting process').click()
+        self.browser.find_element_by_link_text(
+            'Start reporting process').click()
         self.element.enter_key()
+        self.element.submit()
+        self.assertSelectorContains('form', 'Email Address')
+        self.assertSelectorContains('form', 'Phone Number')
+
+    def test_reporting_process_matching_screen(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text(
+            'Start reporting process').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.element.enter_phone()
+        self.element.enter_email()
         self.element.submit()
 
-    def test_matching_process(self):
+    def test_matching_process_prep(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
-        self.browser.find_element_by_link_text('Start matching process').click()
+        self.browser.find_element_by_link_text(
+            'Start matching process').click()
         self.element.enter_key()
         self.element.submit()
+        self.assertSelectorContains('form', 'Email Address')
+        self.assertSelectorContains('form', 'Phone Number')
 
 
 @override_settings(DEBUG=True)

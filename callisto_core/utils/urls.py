@@ -93,15 +93,15 @@ urlpatterns = [
     url(r'^uuid/(?P<uuid>.+)/matching/confirmation/$',
         reporting_views.MatchingSchoolEmailFormView.as_view(
             back_url='dashboard',
-            next_url='matching_prep',
-            success_url='matching_prep',  # used to skip email confirmation
+            next_url='report_matching_prep',
+            success_url='report_matching_prep',  # used to skip email confirmation
         ),
         name="matching_email_confirmation",
         ),
     url(r'^uuid/(?P<uuid>.+)/matching/confirmation/uidb64/(?P<uidb64>.+)/token/(?P<token>.+)/$',
         reporting_views.MatchingSchoolEmailConfirmationView.as_view(
             back_url='dashboard',
-            next_url='matching_prep',
+            next_url='report_matching_prep',
         ),
         name="matching_email_confirmation",
         ),
