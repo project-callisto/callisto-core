@@ -1,7 +1,6 @@
 from django.test import TestCase
 
 from callisto_core.delivery.models import Report
-
 from callisto_core.tests.test_base import ReportFlowHelper
 
 
