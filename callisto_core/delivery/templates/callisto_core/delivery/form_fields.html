@@ -6,7 +6,7 @@
 {% for field in form %}
     <div class="form-group {% if field.errors %}has-error{% endif %}">
         <span class='field-label'>
-            {{ field.label_tag }}{% if field.field.required %}*{% endif %}
+            {{ field.label_tag }}{% if field.field.required %}{% endif %}
         </span>
         <span class='errors'>
             {% include 'callisto_core/delivery/errors.html' with errors=field.errors %}
@@ -20,4 +20,4 @@
         </span>
     </div>
 {% endfor %}
-<p class="help-block">* Indicates required field</p>
+<p class="help-block required_field">* Indicates required field</p>
