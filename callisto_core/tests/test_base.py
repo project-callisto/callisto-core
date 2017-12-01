@@ -81,14 +81,15 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
-    def client_post_report_pdf_view(self):
+    def client_post_report_pdf_view(self, skip_assertions=False):
         url = reverse(
             'report_pdf_view',
             kwargs={'uuid': self.report.uuid},
         )
         data = {'key': self.passphrase}
         response = self.client.post(url, data, follow=True)
-        self.assertIn(response.status_code, self.valid_statuses)
+        if not skip_assertions:
+            self.assertIn(response.status_code, self.valid_statuses)
         return response
 
     def client_post_answer_question(self):
