@@ -83,8 +83,11 @@ class Report(models.Model):
         Raises:
           CryptoError: If the key and saved salt fail to decrypt the record.
         """
-        _, stretched_key = hashers.make_key(
-            self.encode_prefix, passphrase, self.salt)
+        if not (self.encode_prefix or self.salt):
+            stretched_key = self.encryption_setup(passphrase)
+        else:
+            _, stretched_key = hashers.make_key(
+                self.encode_prefix, passphrase, self.salt)
         report_text = security.decrypt_text(stretched_key, self.encrypted)
         try:
             decrypted_data = json.loads(report_text)
