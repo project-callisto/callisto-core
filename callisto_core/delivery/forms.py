@@ -7,6 +7,8 @@ from django.contrib.auth import get_user_model
 
 from . import fields, models
 
+from callisto_core.utils.forms import NoRequiredLabelMixin
+
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
@@ -32,6 +34,7 @@ class FormViewExtensionMixin(object):
 
 
 class ReportBaseForm(
+    NoRequiredLabelMixin,
     FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
@@ -52,7 +55,9 @@ class ReportBaseForm(
         fields = []
 
 
-class ReportCreateForm(ReportBaseForm):
+class ReportCreateForm(
+    ReportBaseForm,
+):
     message_confirmation_error = "key and key confirmation must match"
     key_confirmation = fields.PassphraseField(label='Confirm Passphrase')
 
@@ -71,7 +76,9 @@ class ReportCreateForm(ReportBaseForm):
             return key_confirmation
 
 
-class ReportAccessForm(ReportBaseForm):
+class ReportAccessForm(
+    ReportBaseForm,
+):
     message_key_error = 'Invalid passphrase'
     message_key_error_log = 'decryption failure on {}'
 
