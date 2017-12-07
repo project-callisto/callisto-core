@@ -1,6 +1,6 @@
 # History / Changelog
 
-## 0.18.6 (2017-12-01)
+## 0.18.7 (2017-12-01)
 
 * HTML error display adjustments
 
