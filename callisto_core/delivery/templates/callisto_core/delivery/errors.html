@@ -1,19 +1,19 @@
-{% if form.non_field_errors|length > 1 %}
-  <div class="has-error">
-    <ul class="help-block field-error" role="alert">
-        Errors:
-        {% for error in form.non_field_errors %}
-            <li>{{ error|escape }}</li>
-        {% endfor %}
-    </ul>
+{% if errors|length > 1 %}
+<div class="has-error">
+  <ul class="help-block field-error" role="alert">
+      Errors:
+      {% for error in errors %}
+          <li>{{ error|escape }}</li>
+      {% endfor %}
+  </ul>
+</div>
+{% elif errors|length == 1 %}
+<div class="has-error">
+  <div class="help-block field-error" role="alert">
+    Error: 
+    {% for error in errors %}
+      {{ error|escape }}
+   {% endfor %} 
   </div>
-{% elif form.non_field_errors|length == 1 %}
-  <div class="has-error">
-    <div class="help-block field-error" role="alert">
-      Error: 
-      {% for error in form.non_field_errors %}
-        {{ error|escape }}
-     {% endfor %} 
-    </div>
-  </div>
+</div>
 {% endif %}
