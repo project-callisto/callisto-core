@@ -55,6 +55,9 @@ release: ## package and upload a release
 	python setup.py tag
 	make clean
 
+osx-install:
+	brew install git pyenv postgres chromedriver
+
 pip-install:
 	pip install -r callisto_core/requirements/dev.txt --upgrade
 
@@ -69,18 +72,9 @@ app-setup: ## setup the test application environment
 	python manage.py demo_user
 
 dev-setup:
+	- make osx-install
 	make pip-install
 	make app-setup
-
-# Legacy from wizard_builder
-
-osx-install:
-	brew install git pyenv postgres chromedriver
-
-test-local-suite:
-	pytest -vls --ignore callisto_core/wizard_builder/tests/test_frontend.py --ignore callisto_core/wizard_builder/tests/test_admin.py
-	pytest -vls callisto_core/wizard_builder/tests/test_frontend.py
-	pytest -vls callisto_core/wizard_builder/tests/test_admin.py
 
 wizard-update-fixture: ## update fixture with migrations added on the local branch
 	git checkout master
