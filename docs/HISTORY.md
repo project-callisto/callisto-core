@@ -2,6 +2,10 @@
 
 ## 0.18.6 (2017-12-01)
 
+* HTML error display adjustments
+
+## 0.18.6 (2017-12-01)
+
 * allow decryption of records that didn't get an encode prefix set
 
 ## 0.18.5 (2017-11-23)
