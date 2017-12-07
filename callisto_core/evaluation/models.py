@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
+from callisto_core.delivery.models import Report
 from wizard_builder.models import FormQuestion, MultipleChoice
 
 logger = logging.getLogger(__name__)
@@ -15,46 +16,36 @@ logger = logging.getLogger(__name__)
 
 class EvalRow(models.Model):
     """Provides an auditing trail for various records"""
-    EDIT = "e"
-    CREATE = "c"
-    SUBMIT = "s"
-    VIEW = "v"
-    MATCH = "m"
-    MATCH_FOUND = 'mf'
-    FIRST = "f"
-    WITHDRAW = "w"
-    DELETE = "d"
-    AUTOSAVE = "a"
 
     ACTIONS = (
-        (CREATE, 'Create'),
-        (EDIT, 'Edit'),
-        (VIEW, 'View'),
-        (SUBMIT, 'Submit'),
-        (MATCH, 'Match'),
-        (MATCH_FOUND, 'Match found'),
-        (WITHDRAW, 'Withdraw'),
-        (DELETE, 'Delete'),
-        (AUTOSAVE, 'Autosave'),
-        # for records that were created before evaluation was
-        # implemented--saved on any decryption
-        (FIRST, 'First'),
+        ('CREATE', 'CREATE'),
+        ('EDIT', 'Edit'),
+        ('VIEW', 'VIEW'),
+        ('AUTOSAVE', 'AUTOSAVE'),
+        ('WITHDRAW', 'WITHDRAW'),
+        ('DELETE', 'DELETE'),
     )
 
-    user_identifier = models.CharField(blank=False, max_length=500)
-    record_identifier = models.CharField(blank=False, max_length=500)
-    action = models.CharField(max_length=2,
-                              choices=ACTIONS,
-                              blank=False)
-    row = models.BinaryField(blank=True)
+    user_identifier = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True)
+    report_identifier = models.ForeignKey(
+        Report,
+        on_delete=models.SET_NULL,
+        null=True)
+    action = models.TextField(null=True)
+    recort_encrypted = models.BinaryField(null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def anonymise_record(self,
-                         action,
-                         report,
-                         decrypted_text=None,
-                         match_identifier=None,
-                         key=settings.CALLISTO_EVAL_PUBLIC_KEY):
+    def anonymise_record(
+        self,
+        action,
+        report,
+        decrypted_text=None,
+        match_identifier=None,
+        key=settings.CALLISTO_EVAL_PUBLIC_KEY,
+    ):
         self.action = action
         self.set_identifiers(report)
         if decrypted_text:
@@ -179,10 +170,3 @@ class EvalRow(models.Model):
                 "couldn't save evaluation row on {}".format(
                     dict(
                         EvalRow.ACTIONS).get(action)))
-
-
-class EvaluationField(models.Model):
-    # If an associated EvaluationField exists for a record form item, we record the contents
-    # If not, we just save whether the question was answered or not
-    question = models.OneToOneField(FormQuestion, on_delete=models.CASCADE)
-    label = models.CharField(blank=False, null=False, max_length=500)
