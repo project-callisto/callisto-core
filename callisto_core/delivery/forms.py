@@ -5,9 +5,9 @@ from nacl.exceptions import CryptoError
 from django import forms
 from django.contrib.auth import get_user_model
 
-from . import fields, models
-
 from callisto_core.utils.forms import NoRequiredLabelMixin
+
+from . import fields, models
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
