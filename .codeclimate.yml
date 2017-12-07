@@ -15,3 +15,5 @@ exclude_paths:
   - 'callisto_core/tests/'
   - 'callisto_core/notification/migrations/'
   - 'callisto_core/delivery/migrations/'
+  - 'callisto_core/wizard_builder/tests/'
+  - 'callisto_core/wizard_builder/migrations/'
