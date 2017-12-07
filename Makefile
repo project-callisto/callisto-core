@@ -31,15 +31,18 @@ test-lint: ## check style with pep8 and isort
 	isort --check-only --diff --quiet -rc callisto_core/
 
 test-suite:
-	pytest -v --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/
-	pytest -v callisto_core/wizard_builder/ --ignore=callisto_core/wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py --ignore=wizard_builder/tests/test_migrations.py
+	python manage.py check
+	pytest -vls callisto_core/ --ignore=callisto_core/tests/delivery/test_frontend.py
+	pytest -vls callisto_core/wizard_builder/ --ignore=callisto_core/wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py
 
 test-integrated:
-	pytest -v callisto_core/tests/delivery/test_frontend.py
+	pytest -vls callisto_core/tests/delivery/test_frontend.py
+	pytest -vls callisto_core/wizard_builder/tests/test_frontend.py
+	pytest -vls callisto_core/wizard_builder/tests/test_admin.py
 
 test-fast: ## runs the test suite, with fast failures and a re-used database
-	LOG_LEVEL=INFO pytest -v -l -s --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/
-	LOG_LEVEL=INFO pytest -v -l -s --maxfail=1 --ff --reuse-db callisto_core/wizard_builder/ --ignore=callisto_core/wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py --ignore=wizard_builder/tests/test_migrations.py
+	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/
+	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db callisto_core/wizard_builder/ --ignore=callisto_core/wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py --ignore=wizard_builder/tests/test_migrations.py
 
 test: ## run the linters and the test suite
 	make test-lint
@@ -76,13 +79,9 @@ osx-install:
 	brew install git pyenv postgres chromedriver
 
 test-local-suite:
-	python manage.py check
-	pytest -v --ignore callisto_core/wizard_builder/tests/test_frontend.py --ignore callisto_core/wizard_builder/tests/test_admin.py
-	pytest -v callisto_core/wizard_builder/tests/test_frontend.py
-	pytest -v callisto_core/wizard_builder/tests/test_admin.py
-
-wizard-shell: ## manage.py shell_plus with dev settings
-	DJANGO_SETTINGS_MODULE='callisto_core.wizard_builder.tests.test_app.dev_settings' python manage.py shell_plus
+	pytest -vls --ignore callisto_core/wizard_builder/tests/test_frontend.py --ignore callisto_core/wizard_builder/tests/test_admin.py
+	pytest -vls callisto_core/wizard_builder/tests/test_frontend.py
+	pytest -vls callisto_core/wizard_builder/tests/test_admin.py
 
 wizard-update-fixture: ## update fixture with migrations added on the local branch
 	git checkout master
@@ -93,4 +92,3 @@ wizard-update-fixture: ## update fixture with migrations added on the local bran
 	python manage.py migrate
 	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
 	npx json -f $(DATA_FILE) -I
-
