@@ -41,8 +41,7 @@ test-integrated:
 	pytest -vls callisto_core/wizard_builder/tests/test_admin.py
 
 test-fast: ## runs the test suite, with fast failures and a re-used database
-	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/
-	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db callisto_core/wizard_builder/ --ignore=callisto_core/wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py --ignore=wizard_builder/tests/test_migrations.py
+	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py
 
 test: ## run the linters and the test suite
 	make test-lint
