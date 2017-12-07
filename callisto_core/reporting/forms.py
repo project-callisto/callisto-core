@@ -3,7 +3,7 @@ import logging
 
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
