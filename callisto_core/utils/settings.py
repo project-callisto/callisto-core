@@ -46,12 +46,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'nested_admin',
     'widget_tweaks',
-    'wizard_builder',
     'callisto_core.delivery',
     'callisto_core.evaluation',
     'callisto_core.notification',
     'callisto_core.reporting',
     'callisto_core.utils',
+    'callisto_core.wizard_builder',
 ]
 
 MIDDLEWARE_CLASSES = [
