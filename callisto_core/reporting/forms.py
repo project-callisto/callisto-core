@@ -3,7 +3,7 @@ import logging
 
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
@@ -12,13 +12,17 @@ from callisto_core.delivery import (
     models as delivery_models,
 )
 from callisto_core.utils.api import NotificationApi, TenantApi
+from callisto_core.utils.forms import NoRequiredLabelMixin
 
 from . import fields, report_delivery, tokens, validators
 
 logger = logging.getLogger(__name__)
 
 
-class SendVerificationEmailForm(PasswordResetForm):
+class SendVerificationEmailForm(
+    NoRequiredLabelMixin,
+    PasswordResetForm,
+):
     # only used for testing currently
 
     def __init__(self, *args, **kwargs):
@@ -53,7 +57,9 @@ class SendVerificationEmailForm(PasswordResetForm):
         )},
 
 
-class ReportingVerificationEmailForm(SendVerificationEmailForm):
+class ReportingVerificationEmailForm(
+    SendVerificationEmailForm,
+):
     token_generator = tokens.StudentVerificationTokenGenerator()
 
     def send_mail(self):
@@ -75,6 +81,7 @@ class ReportingVerificationEmailForm(SendVerificationEmailForm):
 
 
 class PrepForm(
+    NoRequiredLabelMixin,
     delivery_forms.FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
@@ -118,6 +125,7 @@ class PrepForm(
 
 
 class ReportSubclassBaseForm(
+    NoRequiredLabelMixin,
     delivery_forms.FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
