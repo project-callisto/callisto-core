@@ -4,7 +4,7 @@ View helpers contain functionality shared between several view partials.
 None of these classes provide full view functionality.
 
 docs / reference:
-    - https://github.com/project-callisto/django-wizard-builder/blob/master/wizard_builder/view_helpers.py
+    - https://github.com/project-callisto/callisto-core/blob/master/callisto_core/wizard_builder/view_helpers.py
 
 '''
 import logging
