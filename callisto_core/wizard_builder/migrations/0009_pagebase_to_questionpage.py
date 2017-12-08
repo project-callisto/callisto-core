@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 def copy_to_question_page(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    QuestionPage = apps.get_model('callisto_core.wizard_builder.QuestionPage')
+    QuestionPage = apps.get_model('wizard_builder.QuestionPage')
     for page in QuestionPage.objects.using(current_database):
         page.new_position = page.position
         page.new_section = page.section
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('sites', '0002_alter_domain_unique'),
-        ('callisto_core.wizard_builder', '0008_remove_textpage'),
+        ('wizard_builder', '0008_remove_textpage'),
     ]
 
     operations = [

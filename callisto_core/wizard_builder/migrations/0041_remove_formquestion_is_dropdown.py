@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0040_populate_dropdown'),
+        ('wizard_builder', '0040_populate_dropdown'),
     ]
 
     operations = [

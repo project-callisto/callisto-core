@@ -4,13 +4,13 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-import wizard_builder.model_helpers
+import callisto_core.wizard_builder.model_helpers
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0042_auto_20171101_1410'),
+        ('wizard_builder', '0042_auto_20171101_1410'),
     ]
 
     operations = [
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 'indexes': [],
             },
             bases=(
-                wizard_builder.model_helpers.ProxyQuestion,
+                callisto_core.wizard_builder.model_helpers.ProxyQuestion,
                 'wizard_builder.formquestion'),
         ),
     ]

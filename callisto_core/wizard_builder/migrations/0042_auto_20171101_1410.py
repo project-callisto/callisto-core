@@ -4,12 +4,12 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-import wizard_builder.model_helpers
+import callisto_core.wizard_builder.model_helpers
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [('callisto_core.wizard_builder',
+    dependencies = [('wizard_builder',
                      '0041_remove_formquestion_is_dropdown'), ]
 
     operations = [

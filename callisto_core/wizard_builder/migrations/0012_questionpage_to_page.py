@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('sites', '0002_alter_domain_unique'),
-        ('callisto_core.wizard_builder', '0011_rename_questionpage_attrs'),
+        ('wizard_builder', '0011_rename_questionpage_attrs'),
     ]
 
     operations = [

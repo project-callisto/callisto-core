@@ -8,10 +8,10 @@ from django.db import migrations, models
 def add_questions(apps, schema_editor):
     current_database = schema_editor.connection.alias
     QuestionSubmodels = [
-        apps.get_model('callisto_core.wizard_builder.SingleLineText'),
-        apps.get_model('callisto_core.wizard_builder.TextArea'),
-        apps.get_model('callisto_core.wizard_builder.RadioButton'),
-        apps.get_model('callisto_core.wizard_builder.Checkbox'),
+        apps.get_model('wizard_builder.SingleLineText'),
+        apps.get_model('wizard_builder.TextArea'),
+        apps.get_model('wizard_builder.RadioButton'),
+        apps.get_model('wizard_builder.Checkbox'),
     ]
     for Model in QuestionSubmodels:
         for question in Model.objects.using(current_database):
@@ -23,7 +23,7 @@ def add_questions(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0028_formquestion_type'),
+        ('wizard_builder', '0028_formquestion_type'),
     ]
 
     operations = [

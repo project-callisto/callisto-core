@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder',
+        ('wizard_builder',
          '0036_checkbox_multiplechoice_radiobutton_singlelinetext_textarea'),
     ]
 

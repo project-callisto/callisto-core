@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import django.db.models.deletion
 from django.db import migrations, models
 
-import wizard_builder.models
+import callisto_core.wizard_builder.models
 
 
 class Migration(migrations.Migration):

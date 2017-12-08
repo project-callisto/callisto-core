@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0015_admin_html_and_time'),
+        ('wizard_builder', '0015_admin_html_and_time'),
     ]
 
     operations = [

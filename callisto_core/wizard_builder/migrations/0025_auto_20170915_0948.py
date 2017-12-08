@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0024_remove_formquestion_added'),
+        ('wizard_builder', '0024_remove_formquestion_added'),
     ]
 
     operations = [

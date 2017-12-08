@@ -8,7 +8,7 @@ from django.db import migrations, models
 
 def move_choice_question(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    Choice = apps.get_model('callisto_core.wizard_builder.Choice')
+    Choice = apps.get_model('wizard_builder.Choice')
     for choice in Choice.objects.using(current_database):
         base_question = choice.question.formquestion_ptr
         choice.new_question = base_question
@@ -18,7 +18,7 @@ def move_choice_question(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0034b_move_choice_question'),
+        ('wizard_builder', '0034b_move_choice_question'),
     ]
 
     operations = [

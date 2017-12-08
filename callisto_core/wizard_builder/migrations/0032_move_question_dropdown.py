@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 def move_dropdown(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    RadioButton = apps.get_model('callisto_core.wizard_builder.RadioButton')
+    RadioButton = apps.get_model('wizard_builder.RadioButton')
     for radiobutton in RadioButton.objects.using(current_database):
         formquestion = radiobutton.formquestion_ptr
         formquestion.is_dropdown = radiobutton.is_dropdown
@@ -17,7 +17,7 @@ def move_dropdown(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0031_formquestion_choices_default'),
+        ('wizard_builder', '0031_formquestion_choices_default'),
     ]
 
     operations = [

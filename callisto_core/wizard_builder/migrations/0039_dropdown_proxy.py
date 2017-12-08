@@ -10,7 +10,7 @@ import callisto_core.wizard_builder.model_helpers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0038_checkbox_radiobutton'),
+        ('wizard_builder', '0038_checkbox_radiobutton'),
     ]
 
     operations = [

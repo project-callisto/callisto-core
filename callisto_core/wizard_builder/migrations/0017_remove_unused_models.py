@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0016_checkboxes'),
+        ('wizard_builder', '0016_checkboxes'),
     ]
 
     operations = [

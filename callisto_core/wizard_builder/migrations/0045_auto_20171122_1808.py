@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0044_auto_20171101_1412'),
+        ('wizard_builder', '0044_auto_20171101_1412'),
     ]
 
     operations = [

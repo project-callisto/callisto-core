@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 def copy_questionpage_to_page(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    QuestionPage = apps.get_model('callisto_core.wizard_builder.QuestionPage')
+    QuestionPage = apps.get_model('wizard_builder.QuestionPage')
     for question_page in QuestionPage.objects.using(current_database):
         with schema_editor.connection.cursor() as cursor:
             cursor.execute(
@@ -21,14 +21,14 @@ def copy_questionpage_to_page(apps, schema_editor):
 
 def delete_page_rows(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    Page = apps.get_model('callisto_core.wizard_builder.Page')
+    Page = apps.get_model('wizard_builder.Page')
     Page.objects.using(current_database).delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0012_questionpage_to_page'),
+        ('wizard_builder', '0012_questionpage_to_page'),
     ]
 
     operations = [

@@ -6,14 +6,14 @@ import django.db.models.deletion
 import django.db.models.manager
 from django.db import migrations, models
 
-import wizard_builder.models
+import callisto_core.wizard_builder.models
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
         ('sites', '0001_initial'),
-        ('callisto_core.wizard_builder', '0002_remove_formquestion_example'),
+        ('wizard_builder', '0002_remove_formquestion_example'),
     ]
 
     operations = [

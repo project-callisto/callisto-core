@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('callisto_core.wizard_builder', '0013_questionpage_to_page_2'),
+        ('wizard_builder', '0013_questionpage_to_page_2'),
     ]
 
     operations = [
