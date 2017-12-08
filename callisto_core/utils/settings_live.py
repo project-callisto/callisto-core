@@ -8,9 +8,9 @@ INSTALLED_APPS = INSTALLED_APPS + [
     'django_extensions',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
-] + MIDDLEWARE_CLASSES
+] + MIDDLEWARE
 
 DATABASES = {
     'default': dj_database_url.parse(os.getenv('DATABASE_URL')),

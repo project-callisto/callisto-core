@@ -37,8 +37,8 @@ django settings.py minimum requirements
         'callisto_core.reporting',
     ]
 
-    # the default generated MIDDLEWARE_CLASSES
-    MIDDLEWARE_CLASSES = [
+    # the default generated MIDDLEWARE
+    MIDDLEWARE = [
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
