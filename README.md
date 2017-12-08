@@ -4,7 +4,7 @@
 | --- | --- |
 | [![Build Status][build-image]][build-url] | ![python 3.6][python36] |
 | [![PyPI Version][pypi-image]][pypi-url] | ![django 1.11][django111] |
-| [![Maintainability](https://api.codeclimate.com/v1/badges/eed2b78a9c9cbf80e7af/maintainability)](https://codeclimate.com/github/project-callisto/callisto-core/maintainability) | - |
+| [![Code Climate](https://api.codeclimate.com/v1/badges/eed2b78a9c9cbf80e7af/maintainability)](https://codeclimate.com/github/project-callisto/callisto-core/maintainability) | - |
 
 [build-image]: https://travis-ci.org/project-callisto/callisto-core.svg?branch=master
 [build-url]: https://travis-ci.org/project-callisto/callisto-core
