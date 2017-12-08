@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0007_remove_conditional'),
+        ('callisto_core.wizard_builder', '0007_remove_conditional'),
     ]
 
     operations = [

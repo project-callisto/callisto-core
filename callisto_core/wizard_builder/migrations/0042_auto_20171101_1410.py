@@ -10,7 +10,7 @@ import wizard_builder.model_helpers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0041_remove_formquestion_is_dropdown'),
+        ('callisto_core.wizard_builder', '0041_remove_formquestion_is_dropdown'),
     ]
 
     operations = [

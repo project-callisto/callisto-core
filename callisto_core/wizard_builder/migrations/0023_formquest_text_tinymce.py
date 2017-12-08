@@ -10,7 +10,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0022_choiceoption_typo'),
+        ('callisto_core.wizard_builder', '0022_choiceoption_typo'),
     ]
 
     operations = [

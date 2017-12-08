@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0010_remove_pagebase_attrs'),
+        ('callisto_core.wizard_builder', '0010_remove_pagebase_attrs'),
     ]
 
     operations = [

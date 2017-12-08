@@ -10,7 +10,7 @@ import wizard_builder.model_helpers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0035_auto_20171025_0014'),
+        ('callisto_core.wizard_builder', '0035_auto_20171025_0014'),
     ]
 
     operations = [

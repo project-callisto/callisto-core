@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('sites', '0001_initial'),
-        ('wizard_builder', '0002_remove_formquestion_example'),
+        ('callisto_core.wizard_builder', '0002_remove_formquestion_example'),
     ]
 
     operations = [

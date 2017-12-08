@@ -4,13 +4,13 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-import wizard_builder.model_helpers
+import callisto_core.wizard_builder.model_helpers
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0038_checkbox_radiobutton'),
+        ('callisto_core.wizard_builder', '0038_checkbox_radiobutton'),
     ]
 
     operations = [
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 'indexes': [],
             },
             bases=(
-                wizard_builder.model_helpers.ProxyQuestion,
+                callisto_core.wizard_builder.model_helpers.ProxyQuestion,
                 'wizard_builder.formquestion'),
         ),
         migrations.AlterField(

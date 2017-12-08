@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder', '0034d_move_choice_question'),
+        ('callisto_core.wizard_builder', '0034d_move_choice_question'),
     ]
 
     operations = [
