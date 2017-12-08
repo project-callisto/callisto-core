@@ -21,7 +21,6 @@ and should not define:
 
 '''
 from django.contrib.auth.views import PasswordResetView
-from django.urls import reverse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.edit import ModelFormMixin

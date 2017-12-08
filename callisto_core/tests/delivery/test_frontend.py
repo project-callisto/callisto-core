@@ -15,7 +15,9 @@ from django.test import override_settings
 from django.urls import reverse
 
 from callisto_core.delivery.models import Report
-from wizard_builder.tests import test_frontend as wizard_builder_tests
+from callisto_core.wizard_builder.tests import (
+    test_frontend as wizard_builder_tests,
+)
 
 User = get_user_model()
 

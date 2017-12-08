@@ -11,7 +11,7 @@ import logging
 
 from django.urls import reverse
 
-from wizard_builder import view_helpers as wizard_builder_helpers
+from callisto_core.wizard_builder import view_helpers as wizard_builder_helpers
 
 logger = logging.getLogger(__name__)
 

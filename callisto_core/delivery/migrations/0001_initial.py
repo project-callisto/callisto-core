@@ -83,13 +83,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('sentreport_ptr',
                  models.OneToOneField(
-                    to='delivery.SentReport',
-                    primary_key=True,
-                    auto_created=True,
-                    serialize=False,
-                    parent_link=True,
-                    on_delete=django.db.models.deletion.SET_NULL,
-                )),
+                     to='delivery.SentReport',
+                     primary_key=True,
+                     auto_created=True,
+                     serialize=False,
+                     parent_link=True,
+                     on_delete=django.db.models.deletion.SET_NULL,
+                 )),
                 ('report', models.ForeignKey(
                     to='delivery.Report',
                     blank=True,
@@ -107,13 +107,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('sentreport_ptr',
                  models.OneToOneField(
-                    to='delivery.SentReport',
-                    primary_key=True,
-                    auto_created=True,
-                    serialize=False,
-                    parent_link=True,
-                    on_delete=django.db.models.deletion.SET_NULL,
-                )),
+                     to='delivery.SentReport',
+                     primary_key=True,
+                     auto_created=True,
+                     serialize=False,
+                     parent_link=True,
+                     on_delete=django.db.models.deletion.SET_NULL,
+                 )),
             ],
             options={
                 'abstract': False,

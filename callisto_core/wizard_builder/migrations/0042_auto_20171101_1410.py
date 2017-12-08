@@ -9,9 +9,8 @@ import wizard_builder.model_helpers
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('callisto_core.wizard_builder', '0041_remove_formquestion_is_dropdown'),
-    ]
+    dependencies = [('callisto_core.wizard_builder',
+                     '0041_remove_formquestion_is_dropdown'), ]
 
     operations = [
         migrations.AlterField(

@@ -32,7 +32,9 @@ from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.views import generic as views
 
-from wizard_builder import view_partials as wizard_builder_partials
+from callisto_core.wizard_builder import (
+    view_partials as wizard_builder_partials,
+)
 
 from . import forms, models, view_helpers
 from ..reporting import report_delivery

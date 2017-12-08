@@ -3,8 +3,8 @@ from copy import copy
 
 from django.urls import reverse
 
-from . import managers
 from .data_helper import SerializedDataHelper
+from .managers import FormManager
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ class StepsHelper(object):
 
 class StorageHelper(object):
     data_manager = SerializedDataHelper
-    form_manager = managers.FormManager
+    form_manager = FormManager
     storage_data_key = 'wizard_form_data'
     storage_form_key = 'wizard_form_serialized'
 
