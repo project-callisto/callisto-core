@@ -1,5 +1,13 @@
 # History / Changelog
 
+## 0.18.8 (2017-12-01)
+
+* required feild display overrides
+
+## 0.18.7 (2017-12-01)
+
+* HTML error display adjustments
+
 ## 0.18.6 (2017-12-01)
 
 * allow decryption of records that didn't get an encode prefix set
