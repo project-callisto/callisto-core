@@ -33,15 +33,14 @@ test-lint: ## check style with pep8 and isort
 test-suite:
 	python manage.py check
 	pytest -vls callisto_core/ --ignore=callisto_core/tests/delivery/test_frontend.py
-	pytest -vls callisto_core/wizard_builder/ --ignore=callisto_core/wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py
+	pytest -vls callisto_core/wizard_builder/ --ignore=callisto_core/wizard_builder/tests/test_frontend.py
 
 test-integrated:
 	pytest -vls callisto_core/tests/delivery/test_frontend.py
 	pytest -vls callisto_core/wizard_builder/tests/test_frontend.py
-	pytest -vls callisto_core/wizard_builder/tests/test_admin.py
 
 test-fast: ## runs the test suite, with fast failures and a re-used database
-	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/tests/test_frontend.py --ignore=wizard_builder/tests/test_admin.py
+	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/tests/test_frontend.py
 
 test: ## run the linters and the test suite
 	make test-lint
