@@ -6,14 +6,14 @@
 | [![PyPI Version][pypi-image]][pypi-url] | ![django 1.11][django111] |
 | [![Code Climate][climate-image]][climate-url] | - |
 
-[build-image]: https://travis-ci.org/SexualHealthInnovations/callisto-core.svg?branch=master
-[build-url]: https://travis-ci.org/SexualHealthInnovations/callisto-core
+[build-image]: https://travis-ci.org/project-callisto/callisto-core.svg?branch=master
+[build-url]: https://travis-ci.org/project-callisto/callisto-core
 
 [pypi-image]: https://img.shields.io/pypi/v/callisto-core.svg
 [pypi-url]: https://pypi.python.org/pypi/callisto-core
 
-[climate-image]:https://codeclimate.com/github/SexualHealthInnovations/callisto-core/badges/gpa.svg
-[climate-url]:https://codeclimate.com/github/SexualHealthInnovations/callisto-core
+[climate-image]:https://codeclimate.com/github/project-callisto/callisto-core/badges/gpa.svg
+[climate-url]:https://codeclimate.com/github/project-callisto/callisto-core
 
 [python36]: https://img.shields.io/badge/python-3.6-green.svg
 [django111]: https://img.shields.io/badge/django-1.11-yellowgreen.svg
