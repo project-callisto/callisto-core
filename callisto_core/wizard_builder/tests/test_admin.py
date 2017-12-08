@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 
-from ..models import FormQuestion, Page
-from .base import FunctionalTest
+from callisto_core.wizard_builder.models import FormQuestion, Page
+from callisto_core.wizard_builder.tests.base import FunctionalTest
 
 User = get_user_model()
 
