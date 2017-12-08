@@ -128,6 +128,14 @@ class EncryptedFrontendTest(
             **{'verbosity': 1, 'database': 'default'},
         )
 
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            cls.browser.quit()
+        except (AttributeError, OSError):
+            pass  # brower has already been quit!
+        super().tearDownClass()
+
     def wait_for_until_body_loaded(self):
         WebDriverWait(self.browser, 3).until(
             lambda driver: driver.find_element_by_tag_name('body'),
