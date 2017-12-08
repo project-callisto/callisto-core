@@ -21,11 +21,11 @@ class FormPersistenceTest(
     def setUp(self):
         super().setUp()
         response = self.client_post_report_creation()
-        uuid = response.context['report'].uuid
+        self.uuid = response.context['report'].uuid
         self.data = {'question_2': 'aloe ipsum speakerbox'}
         self.wizard_url = reverse(
             'report_update',
-            kwargs={'step': '0', 'uuid': uuid},
+            kwargs={'step': '0', 'uuid': self.uuid},
         )
         self.initial_response = self.client.get(self.wizard_url)
 
@@ -34,28 +34,28 @@ class FormPersistenceTest(
         question.update(text='this text is not persistent')
 
     def test_session_forms_identical_between_requests(self):
-        form_before = self.client.session[self.form_key]
+        form_before = self.decrypted_report[self.form_key]
         self.client.get(self.wizard_url)
-        form_after = self.client.session[self.form_key]
+        form_after = self.decrypted_report[self.form_key]
         self.assertEqual(form_before, form_after)
 
     def test_user_form_identical_when_backend_form_changed(self):
-        form_before = self.client.session[self.form_key]
+        form_before = self.decrypted_report[self.form_key]
         question_text = form_before[0][0]['question_text']
         self._change_form_text(form_before[0][0])
         self.client.get(self.wizard_url)
-        form_after = self.client.session[self.form_key]
+        form_after = self.decrypted_report[self.form_key]
         self.assertEqual(form_before, form_after)
         self.assertEqual(question_text, form_after[0][0]['question_text'])
 
     def test_when_changed_and_post(self):
-        form_before = self.client.session[self.form_key]
+        form_before = self.decrypted_report[self.form_key]
         question_text = form_before[0][0]['question_text']
         question_pk = form_before[0][0]['id']
         question = models.FormQuestion.objects.filter(pk=question_pk)
         question.update(text='this text is not persistent')
         self.client.post(self.wizard_url, self.data)
-        form_after = self.client.session[self.form_key]
+        form_after = self.decrypted_report[self.form_key]
         self.assertEqual(form_before, form_after)
         self.assertNotEqual(
             'this text is not persistent',
@@ -81,63 +81,50 @@ class FormPersistenceTest(
         self.assertEqual(form_before, form_after)
 
 
-class ViewTest(TestCase):
+class ViewTest(
+    test_base.ReportFlowHelper,
+):
     fixtures = [
         'wizard_builder_data',
     ]
 
     def setUp(self):
         super().setUp()
+        response = self.client_post_report_creation()
+        self.uuid = response.context['report'].uuid
         self.step = '1'
         self.data = {'question_2': 'aloe ipsum speakerbox'}
         self.url = reverse(
             'report_update',
-            kwargs={'step': self.step},
+            kwargs={'step': self.step, 'uuid': self.uuid},
         )
         self.choice_url = reverse(
             'report_update',
-            kwargs={'step': '0'},
+            kwargs={'step': '0', 'uuid': self.uuid},
         )
         self.review_url = reverse(
             'report_update',
-            kwargs={'step': view_helpers.StepsHelper.done_name},
+            kwargs={
+                'step': view_helpers.StepsHelper.done_name,
+                'uuid': self.uuid},
         )
-
-    def test_storage_receives_post_data(self):
-        self.client.post(self.url, self.data)
-        self.assertEqual(
-            self.client.session[view_helpers.StorageHelper.storage_data_key],
-            self.data,
-        )
+        self.response = self.client_post_answer_question()
 
     def test_storage_populates_form_data(self):
-        self.client.post(self.url, self.data)
-        response = self.client.get(self.url)
+        response = self.client_post_answer_question()
         form = response.context['form']
         self.assertEqual(
-            form.data,
-            self.data,
-        )
-
-    def test_form_data_wizard_goto_step_regression(self):
-        data_with_goto_step = copy(self.data)
-        data_with_goto_step['wizard_goto_step'] = 'Next'
-        self.client.post(self.url, data_with_goto_step)
-        response = self.client.get(self.url)
-        form_data = response.context['form'].data
-        expected_data = self.data
-        self.assertEqual(
-            form_data,
-            expected_data,
+            form.data['question_3'],
+            self.data['question_3'],
         )
 
     def test_review_page_textbox(self):
-        self.client.post(self.url, self.data)
+        self.client_post_answer_question()
         response = self.client.get(self.review_url)
         form_data = response.context['form_data']
         self.assertIn(
-            {'do androids dream of electric sheep?':
-                ['aloe ipsum speakerbox'],
+            {'eat it now???':
+                ['blanket ipsum pillowfight'],
              },
             form_data,
         )
