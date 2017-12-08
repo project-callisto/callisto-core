@@ -1,0 +1,21 @@
+{% extends 'wizard_builder/base.html' %}
+
+{% block content %}
+
+    {% block pre-review-content %}
+        <h2>Question Review</h2>
+    {% endblock %}
+
+    {% block review-content %}
+        {% include "wizard_builder/review_content.html" %}
+    {% endblock %}
+
+    {% block post-review-content %}
+        <div>
+            <div class="col-xs-8 col-xs-offset-2">
+                <a class='btn btn-primary btn-block' href='/'>Back To Start</a>
+            </div>
+        </div>
+    {% endblock %}
+
+{% endblock %}

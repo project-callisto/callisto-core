@@ -7,7 +7,7 @@ functionality required for a full HTML view.
 
 docs / reference:
     - https://docs.djangoproject.com/en/1.11/topics/class-based-views/
-    - https://github.com/project-callisto/django-wizard-builder/blob/master/wizard_builder/view_partials.py
+    - https://github.com/project-callisto/callisto-core/blob/master/callisto_core/wizard_builder/view_partials.py
 
 view_partials should define:
     - forms
@@ -32,7 +32,9 @@ from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.views import generic as views
 
-from wizard_builder import view_partials as wizard_builder_partials
+from callisto_core.wizard_builder import (
+    view_partials as wizard_builder_partials,
+)
 
 from . import forms, models, view_helpers
 from ..reporting import report_delivery

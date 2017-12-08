@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from wizard_builder.models import FormQuestion, MultipleChoice
+from callisto_core.wizard_builder.models import FormQuestion, MultipleChoice
 
 logger = logging.getLogger(__name__)
 

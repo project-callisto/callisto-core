@@ -39,4 +39,6 @@ class Migration(migrations.Migration):
                 primary_key=True, serialize=False)),
                 ('label', models.CharField(max_length=500)),
                 ('question', models.OneToOneField(
-                    to='wizard_builder.FormQuestion')), ],), ]
+                    to='wizard_builder.FormQuestion',
+                    on_delete=models.deletion.SET_NULL,
+                )), ],), ]

@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
 
-from wizard_builder.models import (
+from callisto_core.wizard_builder.models import (
     Checkbox, Choice, Page, RadioButton, SingleLineText,
 )
 

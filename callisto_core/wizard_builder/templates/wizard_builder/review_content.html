@@ -1,0 +1,14 @@
+<ul class='review-list'>
+    {% for form_item in form_data %}
+        <li class='review-item'>
+        {% for question, answers in form_item.items %}
+            <h2 class='review-question'>{{ question|striptags }}</h2>
+            <ul class='review-answer-list'>
+                {% for answer in answers %}
+                    <li class='review-answer-item'>{{ answer }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+        </li>
+    {% endfor %}
+</ul>

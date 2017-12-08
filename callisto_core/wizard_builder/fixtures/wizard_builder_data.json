@@ -1,0 +1,145 @@
+[
+  {
+    "model": "wizard_builder.page",
+    "pk": 1,
+    "fields": {
+      "position": 1,
+      "section": 1,
+      "sites": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "wizard_builder.page",
+    "pk": 2,
+    "fields": {
+      "position": 2,
+      "section": 1,
+      "sites": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "wizard_builder.page",
+    "pk": 3,
+    "fields": {
+      "position": 3,
+      "section": 1,
+      "sites": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "wizard_builder.formquestion",
+    "pk": 1,
+    "fields": {
+      "text": "food options",
+      "descriptive_text": "choose some!",
+      "page": 1,
+      "position": 0,
+      "type": "checkbox"
+    }
+  },
+  {
+    "model": "wizard_builder.formquestion",
+    "pk": 2,
+    "fields": {
+      "text": "do androids dream of electric sheep?",
+      "descriptive_text": "answer wisely",
+      "page": 2,
+      "position": 0,
+      "type": "singlelinetext"
+    }
+  },
+  {
+    "model": "wizard_builder.formquestion",
+    "pk": 3,
+    "fields": {
+      "text": "eat it now???",
+      "descriptive_text": "",
+      "page": 1,
+      "position": 0,
+      "type": "singlelinetext"
+    }
+  },
+  {
+    "model": "wizard_builder.formquestion",
+    "pk": 4,
+    "fields": {
+      "text": "whats on the radios?",
+      "descriptive_text": "pick a type",
+      "page": 3,
+      "position": 0,
+      "type": "radiobutton"
+    }
+  },
+  {
+    "model": "wizard_builder.choice",
+    "pk": 1,
+    "fields": {
+      "question": 1,
+      "text": "vegetables",
+      "position": 0,
+      "extra_info_text": "extra information here"
+    }
+  },
+  {
+    "model": "wizard_builder.choice",
+    "pk": 2,
+    "fields": {
+      "question": 1,
+      "text": "apples",
+      "position": 0,
+      "extra_info_text": ""
+    }
+  },
+  {
+    "model": "wizard_builder.choice",
+    "pk": 3,
+    "fields": {
+      "question": 1,
+      "text": "sugar",
+      "position": 0,
+      "extra_info_text": ""
+    }
+  },
+  {
+    "model": "wizard_builder.choice",
+    "pk": 4,
+    "fields": {
+      "question": 4,
+      "text": "guitar",
+      "position": 0,
+      "extra_info_text": ""
+    }
+  },
+  {
+    "model": "wizard_builder.choice",
+    "pk": 5,
+    "fields": {
+      "question": 4,
+      "text": "drums",
+      "position": 0,
+      "extra_info_text": ""
+    }
+  },
+  {
+    "model": "wizard_builder.choiceoption",
+    "pk": 1,
+    "fields": {
+      "choice": 2,
+      "text": "green"
+    }
+  },
+  {
+    "model": "wizard_builder.choiceoption",
+    "pk": 2,
+    "fields": {
+      "choice": 2,
+      "text": "red"
+    }
+  }
+]

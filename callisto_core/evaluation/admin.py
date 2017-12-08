@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from wizard_builder.admin import FormQuestionAdmin
-from wizard_builder.models import FormQuestion
+from callisto_core.wizard_builder.admin import FormQuestionAdmin
+from callisto_core.wizard_builder.models import FormQuestion
 
 from .models import EvaluationField
 
