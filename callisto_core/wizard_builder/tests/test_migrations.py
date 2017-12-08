@@ -1,3 +1,5 @@
+from unittest import skip
+
 from django_migration_testcase import MigrationTest
 
 
@@ -13,6 +15,7 @@ class SitesMigrationTest(MigrationTest):
             'interactive': False,
         }
 
+    @skip('migration already run')
     def test_sites_attribute_populated(self):
         OldQuestionPage = self.get_model_before('wizard_builder.QuestionPage')
         old_page = OldQuestionPage.objects.create(site_id=1)
@@ -23,6 +26,7 @@ class SitesMigrationTest(MigrationTest):
 
         self.assertEqual(old_page.site_id, new_page.sites.first().id)
 
+    @skip('migration already run')
     def test_phantom_sites_not_populated(self):
         OldQuestionPage = self.get_model_before('wizard_builder.QuestionPage')
         old_page = OldQuestionPage.objects.create()
@@ -47,6 +51,7 @@ class QuestionPageMigrationTest(MigrationTest):
             'interactive': False,
         }
 
+    @skip('migration already run')
     def test_attributes_populated(self):
         OldQuestionPage = self.get_model_before('wizard_builder.QuestionPage')
         old_page = OldQuestionPage.objects.create(
@@ -81,6 +86,7 @@ class PageIDMigrationTest(MigrationTest):
     def _get_attrs(self, cls, attr):
         return list(cls.objects.all().values_list(attr, flat=True))
 
+    @skip('migration already run')
     def test_attributes_populated(self):
         OldQuestionPage = self.get_model_before('wizard_builder.QuestionPage')
         for i in range(3):
@@ -106,6 +112,7 @@ class PopulateTypeMigrationTest(MigrationTest):
             'interactive': False,
         }
 
+    @skip('migration already run')
     def test_type_populated(self):
         FormQuestion = self.get_model_before('wizard_builder.FormQuestion')
         RadioButton = self.get_model_before('wizard_builder.RadioButton')
@@ -155,6 +162,7 @@ class PopulateDropdownMigrationTest(MigrationTest):
             'interactive': False,
         }
 
+    @skip('migration already run')
     def test_type_populated(self):
         RadioButton = self.get_model_before('wizard_builder.RadioButton')
 
@@ -189,6 +197,7 @@ class MoveChoiceQuestionMigrationTest(MigrationTest):
             'interactive': False,
         }
 
+    @skip('migration already run')
     def test_type_populated(self):
         RadioButton = self.get_model_before('wizard_builder.RadioButton')
         OldChoice = self.get_model_before('wizard_builder.Choice')
@@ -223,6 +232,7 @@ class DropdownMigrationTest(MigrationTest):
             'interactive': False,
         }
 
+    @skip('migration already run')
     def test_type_populated(self):
         FormQuestion = self.get_model_before('wizard_builder.FormQuestion')
 
