@@ -5,10 +5,14 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
-from .. import models, view_helpers
+from callisto_core.tests import test_base
+from callisto_core.wizard_builder import models, view_helpers
 
 
-class FormPersistenceTest(TestCase):
+class FormPersistenceTest(
+    test_base.ReportFlowHelper,
+):
+
     fixtures = [
         'wizard_builder_data',
     ]
@@ -16,10 +20,12 @@ class FormPersistenceTest(TestCase):
 
     def setUp(self):
         super().setUp()
+        response = self.client_post_report_creation()
+        uuid = response.context['report'].uuid
         self.data = {'question_2': 'aloe ipsum speakerbox'}
         self.wizard_url = reverse(
-            'wizard_update',
-            kwargs={'step': '0'},
+            'report_update',
+            kwargs={'step': '0', 'uuid': uuid},
         )
         self.initial_response = self.client.get(self.wizard_url)
 
@@ -85,15 +91,15 @@ class ViewTest(TestCase):
         self.step = '1'
         self.data = {'question_2': 'aloe ipsum speakerbox'}
         self.url = reverse(
-            'wizard_update',
+            'report_update',
             kwargs={'step': self.step},
         )
         self.choice_url = reverse(
-            'wizard_update',
+            'report_update',
             kwargs={'step': '0'},
         )
         self.review_url = reverse(
-            'wizard_update',
+            'report_update',
             kwargs={'step': view_helpers.StepsHelper.done_name},
         )
 

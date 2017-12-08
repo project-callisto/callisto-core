@@ -29,7 +29,7 @@ class WizardRedirectPartial(
 
     def get_redirect_url(self, *args, **kwargs):
         return reverse_lazy(
-            'wizard_update',
+            'report_update',
             kwargs={'step': self.step},
         )
 
