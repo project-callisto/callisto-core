@@ -29,6 +29,7 @@ from nacl.exceptions import CryptoError
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic as views
 
@@ -133,9 +134,6 @@ class _ReportLimitedDetailPartial(
 class _ReportAccessPartial(
     _ReportLimitedDetailPartial,
 ):
-    invalid_access_key_message = 'Invalid key in access request'
-    invalid_access_user_message = 'Invalid user in access request'
-    invalid_access_no_key_message = 'No key in access request'
     form_class = forms.ReportAccessForm
     access_form_class = forms.ReportAccessForm
 
@@ -143,14 +141,8 @@ class _ReportAccessPartial(
     def access_granted(self):
         self._check_report_owner()
         if self.storage.passphrase:
-            try:
-                self.decrypted_report
-                return True
-            except CryptoError:
-                logger.warn(self.invalid_access_key_message)
-                return False
+            return self._check_report_decryption()
         else:
-            logger.info(self.invalid_access_no_key_message)
             return False
 
     @property
@@ -163,13 +155,22 @@ class _ReportAccessPartial(
             return False
 
     def dispatch(self, request, *args, **kwargs):
-        logger.debug(f'{self.__class__.__name__} access check')
-        if (
-            self.access_granted or
-            self.access_form_valid
-        ):
+        logger.warn(f'{self.__class__.__name__} access check')
+        if self.request.POST:
+            print(self.request.POST)
+        print(self.request.session.get('passphrases', {}))
+        if self.access_granted:
+            logger.warn(f'{self.__class__.__name__} access granted')
             return super().dispatch(request, *args, **kwargs)
+        elif self.access_form_valid and self.get_form().is_valid():
+            logger.warn(f'{self.__class__.__name__} pass through access')
+            return super().dispatch(request, *args, **kwargs)
+        elif self.access_form_valid:
+            logger.warn(f'{self.__class__.__name__} access form filled')
+            print(self.request.session.get('passphrases', {}))
+            return redirect(self.request.path_info)
         else:
+            logger.warn(f'{self.__class__.__name__} access form rendered')
             return self._render_access_form()
 
     def _get_access_form(self):
@@ -183,9 +184,18 @@ class _ReportAccessPartial(
         context = self.get_context_data(form=self._get_access_form())
         return self.render_to_response(context)
 
+    def _check_report_decryption(self):
+        try:
+            self.decrypted_report
+            return True
+        except CryptoError:
+            logger.warn(f'{self.__class__.__name__} invalid key')
+            return False
+
     def _check_report_owner(self):
         if not self.report.owner == self.request.user:
-            logger.warn(self.invalid_access_user_message)
+            logger.warn(
+                f'{self.__class__.__name__} invalid user in access request')
             raise PermissionDenied
 
 
@@ -228,7 +238,7 @@ class ReportActionPartial(
     success_url = reverse_lazy('dashboard')
 
     def form_valid(self, form):
-        logger.debug(f'{self.__class__.__name__} form valid')
+        logger.warn(f'{self.__class__.__name__} form valid')
         output = super().form_valid(form)
         self.view_action()
         return output

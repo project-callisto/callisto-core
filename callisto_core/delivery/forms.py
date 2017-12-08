@@ -47,6 +47,7 @@ class ReportBaseForm(
     def save(self, *args, **kwargs):
         report = super().save(*args, **kwargs)
         if self.data.get("key"):
+            print('SAVING KEY???')
             self.view.storage.set_passphrase(self.data['key'], report=report)
         return report
 
