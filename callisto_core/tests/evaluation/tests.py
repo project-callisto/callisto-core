@@ -11,8 +11,8 @@ from django.http import HttpRequest
 from django.test import TestCase
 
 from callisto_core.delivery.models import Report
-from callisto_core.evaluation.models import EvalRow, EvaluationField
-from callisto_core.reporting.base import MatchSetup
+from callisto_core.evaluation.models import EvalRow
+from callisto_core.tests.reporting.base import MatchSetup
 from callisto_core.utils.api import MatchingApi
 from callisto_core.wizard_builder.models import (
     Checkbox, Choice, Page, RadioButton, SingleLineText,
