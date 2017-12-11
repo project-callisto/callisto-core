@@ -1,12 +1,13 @@
 import logging
 import uuid
 
+from config.notification import slack_notification
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 
 from callisto_core.utils.api import NotificationApi
-from config.notification import slack_notification
 
 User = get_user_model()
 logger = logging.getLogger(__name__)

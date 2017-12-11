@@ -1,10 +1,10 @@
 import logging
 
+from config.env import site_settings
+
 from django import forms
 from django.conf import settings
 from django.utils.safestring import mark_safe
-
-from config.env import site_settings
 
 logger = logging.getLogger(__name__)
 

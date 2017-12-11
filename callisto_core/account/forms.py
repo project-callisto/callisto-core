@@ -1,6 +1,10 @@
 import logging
 from collections import OrderedDict
 
+from account.tokens import StudentVerificationTokenGenerator
+from config.env import site_settings
+from tenants.utils.helpers import get_current_domain
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -16,10 +20,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.safestring import mark_safe
 
-from account.tokens import StudentVerificationTokenGenerator
 from callisto_core.utils.api import NotificationApi
-from config.env import site_settings
-from tenants.utils.helpers import get_current_domain
 
 from .models import Account
 from .validators import validate_school_email

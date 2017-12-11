@@ -1,4 +1,8 @@
+from account.forms import ReportingVerificationEmailForm
+from config.site_utils import TempSiteID
+from config.tests.base import CallistoCoreExtendedHelper, CallistoTestCase
 from tenant_schemas.utils import tenant_context
+from tenants.models import Tenant
 
 from django.contrib.auth import SESSION_KEY, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -8,11 +12,7 @@ from django.test.utils import override_settings
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from account.forms import ReportingVerificationEmailForm
 from callisto_core.utils.api import NotificationApi
-from config.site_utils import TempSiteID
-from config.tests.base import CallistoCoreExtendedHelper, CallistoTestCase
-from tenants.models import Tenant
 from wizard_builder.models import Page, SingleLineText
 
 from ..tokens import StudentVerificationTokenGenerator

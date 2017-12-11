@@ -1,5 +1,6 @@
 from unittest import skip
 
+from config.tests.base import CallistoTestCase
 from django_migration_testcase import MigrationTest
 
 from django.contrib.auth import get_user_model
@@ -9,7 +10,6 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from callisto_core.utils.api import NotificationApi
-from config.tests.base import CallistoTestCase
 
 from ..models import Account, BulkAccount
 

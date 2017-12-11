@@ -1,6 +1,6 @@
-from django.contrib.auth import get_user_model
-
 from config.tests.base import CallistoTestCase
+
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 

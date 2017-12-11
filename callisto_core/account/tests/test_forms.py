@@ -1,9 +1,9 @@
+from config.tests.base import CallistoTestCase
+from tenants.models import Tenant
+
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test.utils import override_settings
-
-from config.tests.base import CallistoTestCase
-from tenants.models import Tenant
 
 from ..forms import SendVerificationEmailForm
 from ..validators import non_school_email_error
