@@ -19,7 +19,7 @@ class EvalRow(models.Model):
 
     ACTIONS = (
         ('CREATE', 'CREATE'),
-        ('EDIT', 'Edit'),
+        ('EDIT', 'EDIT'),
         ('VIEW', 'VIEW'),
         ('AUTOSAVE', 'AUTOSAVE'),
         ('WITHDRAW', 'WITHDRAW'),
