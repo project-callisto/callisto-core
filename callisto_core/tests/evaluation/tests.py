@@ -10,14 +10,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import TestCase
 
+from callisto_core.delivery.models import Report
+from callisto_core.evaluation.models import EvalRow
+from callisto_core.tests.reporting.base import MatchSetup
+from callisto_core.utils.api import MatchingApi
 from callisto_core.wizard_builder.models import (
     Checkbox, Choice, Page, RadioButton, SingleLineText,
 )
 
-from ...delivery.models import Report
-from ...evaluation.models import EvalRow, EvaluationField
-from ...utils.api import MatchingApi
-from ..reporting.base import MatchSetup
 from .test_keypair import private_test_key, public_test_key
 
 User = get_user_model()
