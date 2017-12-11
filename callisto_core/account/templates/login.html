@@ -1,0 +1,33 @@
+{% extends 'auth.html' %}
+
+{% load bootstrap3 %}
+{% load utils %}
+
+{% block page-title %}
+    Login - Callisto
+{% endblock %}
+
+{% block auth-header-text %}Log in to access your records.{% endblock %}
+
+{% block auth-subheader-text%}
+        Don’t have an account? <a href="{% url 'signup' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">Sign up</a>.
+{% endblock %}
+
+{% block submit_button_text %}Log in{% endblock %}
+
+{% block content %}
+    {% if cooloff_time %}
+        <div class="row">
+            <div class="col-xs-offset-1-half-nested col-xs-after-1-half-offset">
+                <p class="lockout">You've been temporarily locked after too many incorrect login attempts. Please try again later. If you believe you're receiving this message in error, please <a href="mailto:support@projectcallisto.org">contact us</a>.</p>
+            </div>
+        </div>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+<!-- TODO: replace with a super() -->
+{% block postform %}
+    <p class="help-block">Forgot your password? <a href="{% url 'reset' %}">Reset it</a></p>
+{% endblock %}

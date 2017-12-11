@@ -1,0 +1,28 @@
+interactions:
+- request:
+    body: from=%22Callisto%22+%3Cnoreply%40mail.callistocampus.org%3E&to=first%21%3F%23%24%25%5E%26%2A%40example.com&subject=Keep+Our+Community+Safe+with+Callisto&html=%3Cp%3E%0AEarlier+this+year%2C+Upright+Citizens+Brigade+began+partnering+with+Callisto+to+provide+Training+Center+students+an+online+platform+to+document+and+report+sexual+assault.+Callisto+enables+survivors+to+save+a+record+of+what+happened+to+them%2C+report+sexual+assault%2C+identify+repeat+offenders%2C+and+find+support.+Please+%3Ca+href%3D%22https%3A%2F%2Flocalhost%2Faccount%2Factivate%2FMTU3%2F4rc-1c3838d25405a1bf58ed%2F%22%3Elog+in+to+Callisto+now%3C%2Fa%3E+to+activate+your+account+should+you+ever+want+to+use+this+service.%0A%3C%2Fp%3E%0A%3Cp%3E%0A%3Cb%3EHOW+CALLISTO+WORKS%3C%2Fb%3E%0A%3C%2Fp%3E%0A%3Cp%3E%0ACallisto+offers+three+distinct+options+for+survivors%3A+1%29+to+write+a+record+what+happened%2C+2%29+to+enter+their+perpetrator%E2%80%99s+information+into+a+matching+system%2C+or+3%29+to+send+their+record+directly+to+the+administration.%0A%3C%2Fp%3E%0A%3Cp%3E%0A%3Cb%3EWRITE%3A%3C%2Fb%3E+You+can+create+secure%2C+encrypted%2C+and+time-stamped+records+about+instances+of+sexual+assault.+Callisto+allows+you+to+save+information+immediately+after+an+incident+to+preserve+memories+and+evidence.+This+way%2C+if+and+when+you+decide+to+come+forward%2C+UCB+is+better+able+to+investigate+what+happened.%0A%3C%2Fp%3E%0A%3Cp%3E%0A%3Cb%3EMATCH%3A%3C%2Fb%3E+You+can+help+notify+UCB+about+repeat+offenders.+Matching+allows+you+to+identify+perpetrators+using+their+unique+Facebook+URL+or+twitter+URL%2C+which+is+then+sent+to+the+school+if+another+person+enters+the+same+perpetrator.+After+the+match%2C+you+can+then+make+the+decision+of+whether+or+not+you%E2%80%99d+like+to+send+your+full+record.%0A%3C%2Fp%3E%0A%3Cp%3E%0A%3Cb%3EREPORT%3A%3C%2Fb%3E+You+can+send+the+saved+record+you+have+created+directly+to+UCB.+This+means+that+the+administration+will+have+a+full%2C+detailed+account+of+what+happened+before+you+even+to+meet+with+them.%0A%3C%2Fp%3E%0A%3Cp%3E%0AYou+can+save+information+about+what+happened+privately+and+confidentially.+However%2C+if+you+choose+to+report+to+the+UCB+administration+or+enter+a+perpetrator+into+the+matching+system%2C+you+do+need+to+identify+yourself+with+an+email+address.%0A%3C%2Fp%3E%0A%3Cp%3E%0AAnyone+can+use+Callisto+to+learn+about+the+process+for+reporting%2C+find+support+services%2C+and+learn+how+to+help+a+friend+who+has+experienced+sexual+assault.%0A%3C%2Fp%3E%0A%3Cp%3E%0AGo+to+%3Ca+href%3D%22https%3A%2F%2Flocalhost%2Faccount%2Factivate%2FMTU3%2F4rc-1c3838d25405a1bf58ed%2F%22%3ECallisto%3C%2Fa%3E+now+to+activate+your+account.+You+can+use+Callisto+at+any+time+and+on+any+device.+If+you+have+any+questions%2C+contact+your+Director+of+Support+%26+Counseling%2C+%3Ca+href%3D%22mailto%3Amarissa%40ucbcomedy.com%22%3EMarissa+Tunis%3C%2Fa%3E+in+New+York+or+%3Ca+href%3D%22mailto%3Ashireen%40ucbcomedy.com+%22%3EShireen+Oberman%3C%2Fa%3E+in+Los+Angeles.%0A%3C%2Fp%3E%0A
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['2969']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.18.4]
+    method: POST
+    uri: https://api.mailgun.net/v3/mail.callistocampus.org/messages
+  response:
+    body: {string: "{\n  \"id\": \"<20171121024919.79934.F553BF6EECABE045@mail.callistocampus.org>\",\n
+        \ \"message\": \"Queued. Thank you.\"\n}"}
+    headers:
+      Access-Control-Allow-Headers: ['Content-Type, x-requested-with']
+      Access-Control-Allow-Methods: ['GET, POST, PUT, DELETE, OPTIONS']
+      Access-Control-Allow-Origin: ['*']
+      Access-Control-Max-Age: ['600']
+      Connection: [keep-alive]
+      Content-Disposition: [inline]
+      Content-Length: ['112']
+      Content-Type: [application/json]
+      Date: ['Tue, 21 Nov 2017 02:49:19 GMT']
+      Server: [nginx]
+    status: {code: 200, message: OK}
+version: 1

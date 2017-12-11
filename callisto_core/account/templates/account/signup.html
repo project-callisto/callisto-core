@@ -1,0 +1,8 @@
+{% extends 'auth.html' %}
+
+{% block page-title %}Sign Up - Callisto{% endblock %}
+
+{% block auth-header-text %}Create an account to begin.{% endblock %}
+{% block auth-subheader-text %}Already have an account? <a href="{% url 'login' %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">Log in</a>{% endblock %}
+
+{% block submit_button_text %}Start your record{% endblock %}
