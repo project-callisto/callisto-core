@@ -4,14 +4,14 @@ View helpers contain functionality shared between several view partials.
 None of these classes provide full view functionality.
 
 docs / reference:
-    - https://github.com/project-callisto/django-wizard-builder/blob/master/wizard_builder/view_helpers.py
+    - https://github.com/project-callisto/callisto-core/blob/master/callisto_core/wizard_builder/view_helpers.py
 
 '''
 import logging
 
 from django.urls import reverse
 
-from wizard_builder import view_helpers as wizard_builder_helpers
+from callisto_core.wizard_builder import view_helpers as wizard_builder_helpers
 
 logger = logging.getLogger(__name__)
 

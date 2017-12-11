@@ -49,9 +49,10 @@ setup(
     python_requires='>=3',
     install_requires=[
         'django',
+        'django-nested-admin==3.0.21',
         'django-polymorphic>=1.0',
         'django-ratelimit>=1.0',
-        'django-wizard-builder>=2.5,<2.6',
+        'django-widget-tweaks==1.4.1',
         'PyNaCl>=1.0',
         'python-gnupg>=0.4',
         'pytz>=2017',

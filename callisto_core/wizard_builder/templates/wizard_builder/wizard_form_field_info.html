@@ -1,0 +1,10 @@
+{% if field.label %}
+    {% if forloop.counter == 1 %}
+        <h2>{{ field.label|safe }}</h2>
+    {% else %}
+        <div class="help-block">{{ field.label|safe }}</div>
+    {% endif %}
+{% endif %}
+{% if field.help_text %}
+    <div class="help-block">{{ field.help_text|safe }}</div>
+{% endif %}

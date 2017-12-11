@@ -57,7 +57,10 @@ class Migration(migrations.Migration):
                 ('contact_notes', models.TextField(null=True, blank=True)),
                 ('contact_name', models.TextField(null=True, blank=True)),
                 ('match_found', models.BooleanField(default=False)),
-                ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('owner', models.ForeignKey(
+                    to=settings.AUTH_USER_MODEL,
+                    on_delete=django.db.models.deletion.SET_NULL,
+                )),
             ],
             options={
                 'ordering': ('-added',),
@@ -79,13 +82,20 @@ class Migration(migrations.Migration):
             name='SentFullReport',
             fields=[
                 ('sentreport_ptr',
-                 models.OneToOneField(to='delivery.SentReport',
-                                      primary_key=True,
-                                      auto_created=True,
-                                      serialize=False,
-                                      parent_link=True)),
-                ('report', models.ForeignKey(to='delivery.Report', blank=True,
-                                             on_delete=django.db.models.deletion.SET_NULL, null=True)),
+                 models.OneToOneField(
+                     to='delivery.SentReport',
+                     primary_key=True,
+                     auto_created=True,
+                     serialize=False,
+                     parent_link=True,
+                     on_delete=django.db.models.deletion.SET_NULL,
+                 )),
+                ('report', models.ForeignKey(
+                    to='delivery.Report',
+                    blank=True,
+                    on_delete=django.db.models.deletion.SET_NULL,
+                    null=True,
+                )),
             ],
             options={
                 'abstract': False,
@@ -96,11 +106,14 @@ class Migration(migrations.Migration):
             name='SentMatchReport',
             fields=[
                 ('sentreport_ptr',
-                 models.OneToOneField(to='delivery.SentReport',
-                                      primary_key=True,
-                                      auto_created=True,
-                                      serialize=False,
-                                      parent_link=True)),
+                 models.OneToOneField(
+                     to='delivery.SentReport',
+                     primary_key=True,
+                     auto_created=True,
+                     serialize=False,
+                     parent_link=True,
+                     on_delete=django.db.models.deletion.SET_NULL,
+                 )),
             ],
             options={
                 'abstract': False,
@@ -114,12 +127,17 @@ class Migration(migrations.Migration):
                 to='contenttypes.ContentType',
                 null=True,
                 related_name='polymorphic_delivery.sentreport_set+',
-                editable=False),
+                editable=False,
+                on_delete=django.db.models.deletion.SET_NULL,
+            ),
         ),
         migrations.AddField(
             model_name='matchreport',
             name='report',
-            field=models.ForeignKey(to='delivery.Report'),
+            field=models.ForeignKey(
+                to='delivery.Report',
+                on_delete=django.db.models.deletion.SET_NULL,
+            ),
         ),
         migrations.AddField(
             model_name='sentmatchreport',

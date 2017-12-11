@@ -1,10 +1,17 @@
 # History / Changelog
 
-## 0.18.8 (2017-12-01)
+## 0.19.0 (2017-12-08)
+
+* merge django-wizard-builder into callisto-core
+* !!! WARNING !!! this is an **immensely** breaking change
+
+    https://github.com/project-callisto/callisto-core/pull/345
+
+## 0.18.8 (2017-12-07)
 
 * required feild display overrides
 
-## 0.18.7 (2017-12-01)
+## 0.18.7 (2017-12-07)
 
 * HTML error display adjustments
 
