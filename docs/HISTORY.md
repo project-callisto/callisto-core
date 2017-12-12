@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.19.1 (2017-12-11)
+
+* change api classes (back) to importing from a settings string
+
 ## 0.19.0 (2017-12-08)
 
 * merge django-wizard-builder into callisto-core
