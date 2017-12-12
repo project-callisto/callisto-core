@@ -18,7 +18,8 @@ class ApiTest(TestCase):
         MatchingApi.find_matches('arg1')
         mock_process.assert_called_once_with('arg1')
 
-    @override_settings(CALLISTO_MATCHING_API='callisto_core.tests.utils.api.CustomMatchingApi')
+    @override_settings(
+        CALLISTO_MATCHING_API='callisto_core.tests.utils.api.CustomMatchingApi')
     @patch('callisto_core.tests.utils.api.CustomMatchingApi.find_matches')
     def test_overridden_api_call(self, mock_process):
         MatchingApi.find_matches('arg1')
