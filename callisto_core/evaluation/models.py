@@ -27,33 +27,35 @@ class EvalRow(models.Model):
     )
 
     user_identifier = models.TextField(null=True)
-    report_identifier = models.TextField(null=True)
+    record_identifier = models.TextField(null=True)
     action = models.TextField(null=True)
     record_encrypted = models.BinaryField(null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     def store_eval_row(
-        self,
+        cls,
         action: str,
-        report: 'Report(Model)',
-        decrypted_report: dict,
+        record: 'Report(Model)',
+        decrypted_record: dict,
     ):
         try:
+            self = cls()
             self.action = action
-            self._set_identifiers(report)
-            self._add_report_data(decrypted_report)
+            self._set_identifiers(record)
+            self._add_record_data(decrypted_record)
             self.save()
+            return self
         except BaseException as e:
             # catch and log errors, but ignore them in the user flow
             logger.error(e)
 
-    def _set_identifiers(self, report):
-        self.user_identifier = hash_input(report.owner.id)
-        self.record_identifier = hash_input(report.id)
+    def _set_identifiers(self, record):
+        self.user_identifier = hash_input(record.owner.id)
+        self.record_identifier = hash_input(record.id)
 
-    def _add_report_data(self, decrypted_report):
-        extracted_answers = self._extract_answers(decrypted_report)
+    def _add_record_data(self, decrypted_record):
+        extracted_answers = self._extract_answers(decrypted_record)
         encrypted_answers = self._encrypt_extracted_answers(extracted_answers)
         self.record_encrypted = encrypted_answers
 
