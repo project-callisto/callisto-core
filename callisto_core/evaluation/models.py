@@ -14,59 +14,64 @@ def hash_input(inp):
     return hashlib.sha256(str(inp).encode()).hexdigest()
 
 
+def encrypt_extracted_answers(extracted_answers):
+    extracted_answers_string = json.dumps(extracted_answers)
+    gpg = gnupg.GPG()
+    imported_keys = gpg.import_keys(settings.CALLISTO_EVAL_PUBLIC_KEY)
+    encrypted = gpg.encrypt(
+        extracted_answers_string,
+        imported_keys.fingerprints[0],
+        armor=True,
+        always_trust=True)
+    return encrypted.data
+
+
+def extract_answers(answered_questions_dict):
+    return answered_questions_dict
+
+
 class EvalRow(models.Model):
     """Provides an auditing trail for various records"""
 
-    ACTIONS = (
-        ('CREATE', 'CREATE'),
-        ('EDIT', 'EDIT'),
-        ('VIEW', 'VIEW'),
-        ('AUTOSAVE', 'AUTOSAVE'),
-        ('WITHDRAW', 'WITHDRAW'),
-        ('DELETE', 'DELETE'),
-    )
-
     user_identifier = models.TextField(null=True)
-    report_identifier = models.TextField(null=True)
+    record_identifier = models.TextField(null=True)
     action = models.TextField(null=True)
     record_encrypted = models.BinaryField(null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     def store_eval_row(
-        self,
+        cls,
         action: str,
-        report: 'Report(Model)',
-        decrypted_report: dict,
+        record: 'Report(Model)',
+        decrypted_record: dict,
     ):
-        try:
-            self.action = action
-            self._set_identifiers(report)
-            self._add_report_data(decrypted_report)
-            self.save()
-        except BaseException as e:
-            # catch and log errors, but ignore them in the user flow
-            logger.error(e)
+        self = cls()
+        self.action = action
+        self.record = record
+        self.decrypted_record = decrypted_record
+        self._save_all_possible_data()
+        return self
 
-    def _set_identifiers(self, report):
-        self.user_identifier = hash_input(report.owner.id)
-        self.record_identifier = hash_input(report.id)
+    def _save_all_possible_data(self):
+        for func in [
+            self._set_record_identifier,
+            self._set_user_identifier,
+            self._add_record_data,
+        ]:
+            try:
+                func()
+                self.save()
+            except BaseException as e:
+                logger.error(e)
 
-    def _add_report_data(self, decrypted_report):
-        extracted_answers = self._extract_answers(decrypted_report)
-        encrypted_answers = self._encrypt_extracted_answers(extracted_answers)
+    def _set_record_identifier(self):
+        self.record_identifier = hash_input(self.record.id)
+
+    def _set_user_identifier(self):
+        self.user_identifier = hash_input(self.record.owner.id)
+
+    def _add_record_data(self):
+        extracted_answers = extract_answers(self.decrypted_record)
+        encrypted_answers = encrypt_extracted_answers(extracted_answers)
         self.record_encrypted = encrypted_answers
-
-    def _encrypt_extracted_answers(self, extracted_answers):
-        extracted_answers_string = json.dumps(extracted_answers)
-        gpg = gnupg.GPG()
-        imported_keys = gpg.import_keys(settings.CALLISTO_EVAL_PUBLIC_KEY)
-        encrypted = gpg.encrypt(
-            extracted_answers_string,
-            imported_keys.fingerprints[0],
-            armor=True,
-            always_trust=True)
-        return encrypted.data
-
-    def _extract_answers(self, answered_questions_dict):
-        return answered_questions_dict
