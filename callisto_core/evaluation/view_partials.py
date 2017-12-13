@@ -6,6 +6,6 @@ class EvalDataMixin(object):
     def eval_action(self, action):
         EvalRow.store_eval_row(
             action=action,
-            record=self.record,
-            decrypted_record=self.decrypted_report,
+            record=getattr(self, 'report'),
+            decrypted_record=getattr(self, 'decrypted_report'),
         )

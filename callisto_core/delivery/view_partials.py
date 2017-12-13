@@ -168,6 +168,7 @@ class _ReportAccessPartial(
             self.access_granted or
             self.access_form_valid
         ):
+            self.eval_action('VIEW')
             return super().dispatch(request, *args, **kwargs)
         else:
             return self._render_access_form()
