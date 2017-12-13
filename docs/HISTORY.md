@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.19.4 (2017-12-13)
+
+* template display update
+
+    https://github.com/project-callisto/callisto-core/pull/352
+
 ## 0.19.3 (2017-12-13)
 
 * wipe eval migrations, for better downstream support
