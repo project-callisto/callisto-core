@@ -32,12 +32,13 @@ from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.views import generic as views
 
+from callisto_core.evaluation.view_partials import EvalDataMixin
+from callisto_core.reporting import report_delivery
 from callisto_core.wizard_builder import (
     view_partials as wizard_builder_partials,
 )
 
 from . import forms, models, view_helpers
-from ..reporting import report_delivery
 
 logger = logging.getLogger(__name__)
 
@@ -71,11 +72,8 @@ class PassphraseClearingPartial(
 ###################
 
 
-# TODO: generalize all of these to be about Model / Object, rather than Report
-# the intent there being more effective use of django builtin functionality
-
-
 class ReportBasePartial(
+    EvalDataMixin,
     wizard_builder_partials.WizardFormPartial,
 ):
     model = models.Report
