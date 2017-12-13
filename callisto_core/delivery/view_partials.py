@@ -32,12 +32,13 @@ from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.views import generic as views
 
+from callisto_core.evaluation.view_partials import EvalDataMixin
+from callisto_core.reporting import report_delivery
 from callisto_core.wizard_builder import (
     view_partials as wizard_builder_partials,
 )
 
 from . import forms, models, view_helpers
-from ..reporting import report_delivery
 
 logger = logging.getLogger(__name__)
 
@@ -71,15 +72,13 @@ class PassphraseClearingPartial(
 ###################
 
 
-# TODO: generalize all of these to be about Model / Object, rather than Report
-# the intent there being more effective use of django builtin functionality
-
-
 class ReportBasePartial(
+    EvalDataMixin,
     wizard_builder_partials.WizardFormPartial,
 ):
     model = models.Report
     storage_helper = view_helpers.EncryptedReportStorageHelper
+    EVAL_ACTION_TYPE = 'VIEW'  # fallback action, used rarely (if ever)
 
     @property
     def site_id(self):
@@ -102,6 +101,7 @@ class ReportCreatePartial(
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
+    EVAL_ACTION_TYPE = 'CREATE'
 
     def get_success_url(self):
         return reverse(
@@ -213,10 +213,14 @@ class EncryptedWizardPartial(
     wizard_builder_partials.WizardPartial,
 ):
     steps_helper = view_helpers.ReportStepsHelper
+    EVAL_ACTION_TYPE = 'EDIT'
 
     def dispatch(self, request, *args, **kwargs):
         self._dispatch_processing()
         return super().dispatch(request, *args, **kwargs)
+
+    def _rendering_done_hook(self):
+        self.eval_action('REVIEW')
 
 
 ###################
@@ -245,6 +249,7 @@ class ReportActionPartial(
 class ReportDeletePartial(
     ReportActionPartial,
 ):
+    EVAL_ACTION_TYPE = 'DELETE'
 
     def view_action(self):
         self.report.delete()
@@ -271,9 +276,11 @@ class ViewPDFPartial(
     WizardPDFPartial,
 ):
     content_disposition = 'inline'
+    EVAL_ACTION_TYPE = 'VIEW_PDF'
 
 
 class DownloadPDFPartial(
     WizardPDFPartial,
 ):
     content_disposition = 'attachment'
+    EVAL_ACTION_TYPE = 'DOWNLOAD_PDF'

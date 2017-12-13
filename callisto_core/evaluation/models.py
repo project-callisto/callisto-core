@@ -1,4 +1,3 @@
-import hashlib
 import json
 import logging
 
@@ -7,66 +6,61 @@ import gnupg
 from django.conf import settings
 from django.db import models
 
+from callisto_core.delivery.models import Report
+
 logger = logging.getLogger(__name__)
 
 
-def hash_input(inp):
-    return hashlib.sha256(str(inp).encode()).hexdigest()
+def encrypt_extracted_answers(extracted_answers):
+    extracted_answers_string = json.dumps(extracted_answers)
+    gpg = gnupg.GPG()
+    imported_keys = gpg.import_keys(settings.CALLISTO_EVAL_PUBLIC_KEY)
+    encrypted = gpg.encrypt(
+        extracted_answers_string,
+        imported_keys.fingerprints[0],
+        armor=True,
+        always_trust=True)
+    return encrypted.data
+
+
+def extract_answers(answered_questions_dict):
+    return answered_questions_dict
 
 
 class EvalRow(models.Model):
     """Provides an auditing trail for various records"""
 
-    ACTIONS = (
-        ('CREATE', 'CREATE'),
-        ('EDIT', 'EDIT'),
-        ('VIEW', 'VIEW'),
-        ('AUTOSAVE', 'AUTOSAVE'),
-        ('WITHDRAW', 'WITHDRAW'),
-        ('DELETE', 'DELETE'),
-    )
-
-    user_identifier = models.TextField(null=True)
-    report_identifier = models.TextField(null=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True)
+    record = models.ForeignKey(
+        Report,
+        on_delete=models.SET_NULL,
+        null=True)
     action = models.TextField(null=True)
     record_encrypted = models.BinaryField(null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     def store_eval_row(
-        self,
+        cls,
         action: str,
-        report: 'Report(Model)',
-        decrypted_report: dict,
+        record: Report,
+        decrypted_record: dict,
     ):
+        self = cls()
+        self.action = action
+        self.record = record
+        self.user = getattr(record, 'owner', None)
+        self._add_record_data(decrypted_record)
+        self.save()
+        return self
+
+    def _add_record_data(self, decrypted_record):
         try:
-            self.action = action
-            self._set_identifiers(report)
-            self._add_report_data(decrypted_report)
-            self.save()
+            extracted_answers = extract_answers(decrypted_record)
+            encrypted_answers = encrypt_extracted_answers(extracted_answers)
+            self.record_encrypted = encrypted_answers
         except BaseException as e:
-            # catch and log errors, but ignore them in the user flow
             logger.error(e)
-
-    def _set_identifiers(self, report):
-        self.user_identifier = hash_input(report.owner.id)
-        self.record_identifier = hash_input(report.id)
-
-    def _add_report_data(self, decrypted_report):
-        extracted_answers = self._extract_answers(decrypted_report)
-        encrypted_answers = self._encrypt_extracted_answers(extracted_answers)
-        self.record_encrypted = encrypted_answers
-
-    def _encrypt_extracted_answers(self, extracted_answers):
-        extracted_answers_string = json.dumps(extracted_answers)
-        gpg = gnupg.GPG()
-        imported_keys = gpg.import_keys(settings.CALLISTO_EVAL_PUBLIC_KEY)
-        encrypted = gpg.encrypt(
-            extracted_answers_string,
-            imported_keys.fingerprints[0],
-            armor=True,
-            always_trust=True)
-        return encrypted.data
-
-    def _extract_answers(self, answered_questions_dict):
-        return answered_questions_dict
