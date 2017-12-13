@@ -149,7 +149,3 @@ LOGGING = {
         'level': os.getenv('LOG_LEVEL', default='DEBUG'),
     },
 }
-
-CELERY_TASK_SERIALIZER = 'json'
-BROKER_URL = os.getenv('RABBITMQ_BIGWIG_TX_URL', default='amqp://localhost')
-CELERY_RESULT_BACKEND = os.getenv('RABBITMQ_BIGWIG_RX_URL', default='amqp://localhost')
