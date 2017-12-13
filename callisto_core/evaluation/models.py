@@ -17,15 +17,6 @@ def hash_input(inp):
 class EvalRow(models.Model):
     """Provides an auditing trail for various records"""
 
-    ACTIONS = (
-        ('CREATE', 'CREATE'),
-        ('EDIT', 'EDIT'),
-        ('VIEW', 'VIEW'),
-        ('AUTOSAVE', 'AUTOSAVE'),
-        ('WITHDRAW', 'WITHDRAW'),
-        ('DELETE', 'DELETE'),
-    )
-
     user_identifier = models.TextField(null=True)
     record_identifier = models.TextField(null=True)
     action = models.TextField(null=True)
