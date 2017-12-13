@@ -1,4 +1,3 @@
-import hashlib
 import json
 import logging
 
@@ -7,11 +6,9 @@ import gnupg
 from django.conf import settings
 from django.db import models
 
+from callisto_core.delivery.models import Report
+
 logger = logging.getLogger(__name__)
-
-
-def hash_input(inp):
-    return hashlib.sha256(str(inp).encode()).hexdigest()
 
 
 def encrypt_extracted_answers(extracted_answers):
@@ -33,8 +30,14 @@ def extract_answers(answered_questions_dict):
 class EvalRow(models.Model):
     """Provides an auditing trail for various records"""
 
-    user_identifier = models.TextField(null=True)
-    record_identifier = models.TextField(null=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True)
+    record = models.ForeignKey(
+        Report,
+        on_delete=models.SET_NULL,
+        null=True)
     action = models.TextField(null=True)
     record_encrypted = models.BinaryField(null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -43,35 +46,21 @@ class EvalRow(models.Model):
     def store_eval_row(
         cls,
         action: str,
-        record: 'Report(Model)',
+        record: Report,
         decrypted_record: dict,
     ):
         self = cls()
         self.action = action
         self.record = record
-        self.decrypted_record = decrypted_record
-        self._save_all_possible_data()
+        self.user = getattr(record, 'owner', None)
+        self._add_record_data(decrypted_record)
+        self.save()
         return self
 
-    def _save_all_possible_data(self):
-        for func in [
-            self._set_record_identifier,
-            self._set_user_identifier,
-            self._add_record_data,
-        ]:
-            try:
-                func()
-                self.save()
-            except BaseException as e:
-                logger.error(e)
-
-    def _set_record_identifier(self):
-        self.record_identifier = hash_input(self.record.id)
-
-    def _set_user_identifier(self):
-        self.user_identifier = hash_input(self.record.owner.id)
-
-    def _add_record_data(self):
-        extracted_answers = extract_answers(self.decrypted_record)
-        encrypted_answers = encrypt_extracted_answers(extracted_answers)
-        self.record_encrypted = encrypted_answers
+    def _add_record_data(self, decrypted_record):
+        try:
+            extracted_answers = extract_answers(decrypted_record)
+            encrypted_answers = encrypt_extracted_answers(extracted_answers)
+            self.record_encrypted = encrypted_answers
+        except BaseException as e:
+            logger.error(e)

@@ -92,6 +92,15 @@ class ReportPostHelper(object):
             self.assertIn(response.status_code, self.valid_statuses)
         return response
 
+    def client_get_review(self):
+        url = reverse(
+            'report_update',
+            kwargs={'uuid': self.report.uuid, 'step': 'done'},
+        )
+        response = self.client.get(url)
+        self.assertIn(response.status_code, self.valid_statuses)
+        return response
+
     def client_post_answer_question(self):
         url = reverse(
             'report_update',
