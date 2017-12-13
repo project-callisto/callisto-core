@@ -24,8 +24,8 @@ class TestModelData(TestCase):
             decrypted_record={},
         )
         self.assertTrue(evalrow.action)
-        self.assertTrue(evalrow.user_identifier)
-        self.assertTrue(evalrow.record_identifier)
+        self.assertTrue(evalrow.user)
+        self.assertTrue(evalrow.record)
         self.assertTrue(evalrow.record_encrypted)
         self.assertTrue(evalrow.timestamp)
 
@@ -37,7 +37,7 @@ class TestModelData(TestCase):
             decrypted_record={},
         )
         self.assertTrue(evalrow.action)
-        self.assertTrue(evalrow.record_identifier)
+        self.assertTrue(evalrow.record)
         self.assertTrue(evalrow.record_encrypted)
         self.assertTrue(evalrow.timestamp)
 
@@ -59,8 +59,8 @@ class TestModelData(TestCase):
             decrypted_record=9000,
         )
         self.assertTrue(evalrow.action)
-        self.assertTrue(evalrow.user_identifier)
-        self.assertTrue(evalrow.record_identifier)
+        self.assertTrue(evalrow.user)
+        self.assertTrue(evalrow.record)
         self.assertTrue(evalrow.timestamp)
 
     def test_content_encrypted(self):
@@ -71,8 +71,8 @@ class TestModelData(TestCase):
             record=record,
             decrypted_record={},
         )
-        self.assertNotEqual(evalrow.user_identifier, user.id)
-        self.assertNotEqual(evalrow.record_identifier, record.id)
+        self.assertNotEqual(evalrow.user, user.id)
+        self.assertNotEqual(evalrow.record, record.id)
         self.assertNotEqual(evalrow.record_encrypted, {})
 
     def test_can_identify_duplicate_data(self):
@@ -89,8 +89,8 @@ class TestModelData(TestCase):
             record=record_2,
             decrypted_record={},
         )
-        self.assertNotEqual(evalrow_1.user_identifier, user.id)
-        self.assertEqual(evalrow_1.user_identifier, evalrow_2.user_identifier)
+        self.assertNotEqual(evalrow_1.user, user.id)
+        self.assertEqual(evalrow_1.user, evalrow_2.user)
 
     @override_settings(CALLISTO_EVAL_PUBLIC_KEY=test_keypair.public_test_key)
     def test_gpg_decryption(self):
