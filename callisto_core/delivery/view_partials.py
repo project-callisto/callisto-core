@@ -78,7 +78,7 @@ class ReportBasePartial(
 ):
     model = models.Report
     storage_helper = view_helpers.EncryptedReportStorageHelper
-    EVAL_ACTION_TYPE = 'VIEW'
+    EVAL_ACTION_TYPE = 'VIEW'  # fallback action, used rarely (if ever)
 
     @property
     def site_id(self):
@@ -219,9 +219,8 @@ class EncryptedWizardPartial(
         self._dispatch_processing()
         return super().dispatch(request, *args, **kwargs)
 
-    def render_form_done(self):
+    def _rendering_done_hook(self):
         self.eval_action('REVIEW')
-        super().render_form_done()
 
 
 ###################
