@@ -29,6 +29,40 @@ class TestModelData(TestCase):
         self.assertTrue(evalrow.record_encrypted)
         self.assertTrue(evalrow.timestamp)
 
+    def test_null_user(self):
+        record = Report.objects.create()
+        evalrow = EvalRow.store_eval_row(
+            action='TESTING',
+            record=record,
+            decrypted_record={},
+        )
+        self.assertTrue(evalrow.action)
+        self.assertTrue(evalrow.record_identifier)
+        self.assertTrue(evalrow.record_encrypted)
+        self.assertTrue(evalrow.timestamp)
+
+    def test_null_record(self):
+        evalrow = EvalRow.store_eval_row(
+            action='TESTING',
+            record=None,
+            decrypted_record={},
+        )
+        self.assertTrue(evalrow.action)
+        self.assertTrue(evalrow.timestamp)
+
+    def test_bad_decrypted_record_format(self):
+        user = User.objects.create()
+        record = Report.objects.create(owner=user)
+        evalrow = EvalRow.store_eval_row(
+            action='TESTING',
+            record=record,
+            decrypted_record=9000,
+        )
+        self.assertTrue(evalrow.action)
+        self.assertTrue(evalrow.user_identifier)
+        self.assertTrue(evalrow.record_identifier)
+        self.assertTrue(evalrow.timestamp)
+
     def test_content_encrypted(self):
         user = User.objects.create()
         record = Report.objects.create(owner=user)
