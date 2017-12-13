@@ -41,6 +41,23 @@ class TestModelData(TestCase):
         self.assertNotEqual(evalrow.record_identifier, record.id)
         self.assertNotEqual(evalrow.record_encrypted, {})
 
+    def test_can_identify_duplicate_data(self):
+        user = User.objects.create()
+        record_1 = Report.objects.create(owner=user)
+        record_2 = Report.objects.create(owner=user)
+        evalrow_1 = EvalRow.store_eval_row(
+            action='TESTING',
+            record=record_1,
+            decrypted_record={},
+        )
+        evalrow_2 = EvalRow.store_eval_row(
+            action='TESTING',
+            record=record_2,
+            decrypted_record={},
+        )
+        self.assertNotEqual(evalrow_1.user_identifier, user.id)
+        self.assertEqual(evalrow_1.user_identifier, evalrow_2.user_identifier)
+
     @override_settings(CALLISTO_EVAL_PUBLIC_KEY=test_keypair.public_test_key)
     def test_gpg_decryption(self):
         user = User.objects.create()
