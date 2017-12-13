@@ -78,6 +78,7 @@ class ReportBasePartial(
 ):
     model = models.Report
     storage_helper = view_helpers.EncryptedReportStorageHelper
+    EVAL_ACTION_TYPE = 'VIEW'
 
     @property
     def site_id(self):
@@ -100,6 +101,7 @@ class ReportCreatePartial(
     views.edit.CreateView,
 ):
     form_class = forms.ReportCreateForm
+    EVAL_ACTION_TYPE = 'CREATE'
 
     def get_success_url(self):
         return reverse(
@@ -168,7 +170,6 @@ class _ReportAccessPartial(
             self.access_granted or
             self.access_form_valid
         ):
-            self.eval_action('VIEW')
             return super().dispatch(request, *args, **kwargs)
         else:
             return self._render_access_form()
@@ -212,10 +213,15 @@ class EncryptedWizardPartial(
     wizard_builder_partials.WizardPartial,
 ):
     steps_helper = view_helpers.ReportStepsHelper
+    EVAL_ACTION_TYPE = 'EDIT'
 
     def dispatch(self, request, *args, **kwargs):
         self._dispatch_processing()
         return super().dispatch(request, *args, **kwargs)
+
+    def render_form_done(self):
+        self.eval_action('REVIEW')
+        super().render_form_done()
 
 
 ###################
@@ -244,6 +250,7 @@ class ReportActionPartial(
 class ReportDeletePartial(
     ReportActionPartial,
 ):
+    EVAL_ACTION_TYPE = 'DELETE'
 
     def view_action(self):
         self.report.delete()
@@ -270,9 +277,11 @@ class ViewPDFPartial(
     WizardPDFPartial,
 ):
     content_disposition = 'inline'
+    EVAL_ACTION_TYPE = 'VIEW_PDF'
 
 
 class DownloadPDFPartial(
     WizardPDFPartial,
 ):
     content_disposition = 'attachment'
+    EVAL_ACTION_TYPE = 'DOWNLOAD_PDF'

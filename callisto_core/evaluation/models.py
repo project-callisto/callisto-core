@@ -32,11 +32,11 @@ class EvalRow(models.Model):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True)
     record = models.ForeignKey(
         Report,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         null=True)
     action = models.TextField(null=True)
     record_encrypted = models.BinaryField(null=True)
