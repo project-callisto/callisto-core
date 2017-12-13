@@ -50,7 +50,10 @@ class EvalRow(models.Model):
         self.action = action
         self.record = record
         self.decrypted_record = decrypted_record
+        self._save_all_possible_data()
+        return self
 
+    def _save_all_possible_data(self):
         for func in [
             self._set_record_identifier,
             self._set_user_identifier,
@@ -61,8 +64,6 @@ class EvalRow(models.Model):
                 self.save()
             except BaseException as e:
                 logger.error(e)
-
-        return self
 
     def _set_record_identifier(self):
         self.record_identifier = hash_input(self.record.id)
