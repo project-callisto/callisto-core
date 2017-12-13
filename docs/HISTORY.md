@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.19.3 (2017-12-13)
+
+* wipe eval migrations, for better downstream support
+
 ## 0.19.2 (2017-12-13)
 
 * add eval actions
