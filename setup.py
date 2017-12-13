@@ -59,5 +59,6 @@ setup(
         'reportlab>=3.0',
         'six',
         'argon2_cffi',
+        'celery==4.1.0',
     ],
 )
