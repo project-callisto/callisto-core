@@ -41,3 +41,32 @@ class EvalViewTest(ReportFlowTestCase):
         self.client_post_report_creation()
         self.client_post_report_pdf_view()
         self.assertTrue(EvalRow.objects.filter(action='VIEW_PDF').count())
+
+    def test_action_contact_prep(self):
+        self.assertFalse(EvalRow.objects.filter(action='CONTACT_PREP').count())
+        self.client_post_report_creation()
+        self.client_post_report_prep()
+        self.assertTrue(EvalRow.objects.filter(action='CONTACT_PREP').count())
+
+    def test_action_matching_enter(self):
+        self.assertFalse(
+            EvalRow.objects.filter(action='ENTER_MATCHING').count())
+        self.client_post_report_creation()
+        self.client_post_matching_enter()
+        self.assertTrue(
+            EvalRow.objects.filter(action='ENTER_MATCHING').count())
+
+    def test_action_matching_withdraw(self):
+        self.assertFalse(
+            EvalRow.objects.filter(action='MATCHING_WITHDRAW').count())
+        self.client_post_report_creation()
+        self.client_post_matching_enter()
+        self.client_post_matching_withdraw()
+        self.assertTrue(
+            EvalRow.objects.filter(action='MATCHING_WITHDRAW').count())
+
+    def test_action_reporting(self):
+        self.assertFalse(EvalRow.objects.filter(action='REPORTING').count())
+        self.client_post_report_creation()
+        self.client_post_reporting_confirmation()
+        self.assertTrue(EvalRow.objects.filter(action='REPORTING').count())
