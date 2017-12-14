@@ -2,12 +2,13 @@ import json
 
 import gnupg
 
+from django.test import override_settings
+
 from callisto_core.evaluation.models import EvalRow
+from callisto_core.tests.evaluation import test_keypair
 from callisto_core.tests.test_base import (
     ReportFlowHelper as ReportFlowTestCase,
 )
-from django.test import override_settings
-from callisto_core.tests.evaluation import test_keypair
 
 
 class EvalViewTest(ReportFlowTestCase):
