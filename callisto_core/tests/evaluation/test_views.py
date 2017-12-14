@@ -1,7 +1,13 @@
+import json
+
+import gnupg
+
 from callisto_core.evaluation.models import EvalRow
 from callisto_core.tests.test_base import (
     ReportFlowHelper as ReportFlowTestCase,
 )
+from django.test import override_settings
+from callisto_core.tests.evaluation import test_keypair
 
 
 class EvalViewTest(ReportFlowTestCase):
@@ -70,3 +76,25 @@ class EvalViewTest(ReportFlowTestCase):
         self.client_post_report_creation()
         self.client_post_reporting_confirmation()
         self.assertTrue(EvalRow.objects.filter(action='REPORTING').count())
+
+
+@override_settings(CALLISTO_EVAL_PUBLIC_KEY=test_keypair.public_test_key)
+class AnswerEncryptionTest(ReportFlowTestCase):
+
+    def _get_answers(self, evalrow):
+        gpg = gnupg.GPG()
+        gpg.import_keys(test_keypair.private_test_key)
+        gpg_data = gpg.decrypt(evalrow.record_encrypted)
+        data = json.loads(gpg_data.data)
+        try:
+            return data['data']
+        except BaseException:
+            return {}
+
+    def test_eval_pops_some_answers(self):
+        self.client_post_report_creation()
+        self.client_post_answer_question()
+        report_answers = self.report.decrypted_report(self.passphrase)['data']
+        for evalrow in EvalRow.objects.all():
+            eval_answers = self._get_answers(evalrow)
+            self.assertLess(len(eval_answers), len(report_answers))
