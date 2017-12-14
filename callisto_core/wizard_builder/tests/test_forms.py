@@ -18,6 +18,7 @@ class FormSerializationTest(TestCase):
         'text': 'do androids dream of electric sheep?',
         'type': 'singlelinetext',
         'choices': [],
+        'skip_eval': True,
     }]
 
     @classmethod
