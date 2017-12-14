@@ -1,4 +1,3 @@
-import copy
 import json
 import logging
 
@@ -24,21 +23,27 @@ def encrypt_filtered_data(filtered_data):
     return encrypted.data
 
 
+def _pop_answer_if_question_skips_eval(question, data):
+    field_id = 'question_' + str(question['id'])
+    if (
+        question.get('skip_eval') and
+        data.get(field_id)
+    ):
+        data.pop(field_id)
+
+
 def filter_record_data(record_data):
-    filtered_data = copy.copy(record_data)
     try:
         pages = record_data['wizard_form_serialized']
     except BaseException:
         pages = []
     for page in pages:
         for question in page:
-            field_id = 'question_' + str(question['id'])
-            if (
-                question.get('skip_eval') and
-                filtered_data.get('data', {}).get(field_id)
-            ):
-                filtered_data['data'].pop(field_id)
-    return filtered_data
+            _pop_answer_if_question_skips_eval(
+                question,
+                record_data.get('data', {}),
+            )
+    return record_data
 
 
 class EvalRow(models.Model):
