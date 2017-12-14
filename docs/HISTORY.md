@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.19.5 (2017-12-14)
+
+* add field for filtering eval data
+
+    https://github.com/project-callisto/callisto-core/pull/354
+
 ## 0.19.4 (2017-12-13)
 
 * template display update
