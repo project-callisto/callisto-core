@@ -1,7 +1,6 @@
 import copy
 import json
 import logging
-import traceback
 
 import gnupg
 
@@ -29,7 +28,7 @@ def filter_record_data(record_data):
     filtered_data = copy.copy(record_data)
     try:
         pages = record_data['wizard_form_serialized']
-    except TypeError:
+    except BaseException:
         pages = []
     for page in pages:
         for question in page:
@@ -77,5 +76,5 @@ class EvalRow(models.Model):
             filtered_data = filter_record_data(decrypted_record)
             encrypted_answers = encrypt_filtered_data(filtered_data)
             self.record_encrypted = encrypted_answers
-        except BaseException as e:
-            logger.error(traceback.format_exc())
+        except BaseException as error:
+            logger.exception(error)

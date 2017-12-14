@@ -93,9 +93,28 @@ class AnswerEncryptionTest(ReportFlowTestCase):
             return {}
 
     def test_eval_pops_some_answers(self):
+        '''
+        when a question is answered that skips eval
+        assert that no eval row contains all report answers
+        '''
+        self.client_post_report_creation()
+        self.client_post_answer_second_page_question()
+        report_answers = self.report.decrypted_report(self.passphrase)['data']
+        for evalrow in EvalRow.objects.all():
+            eval_answers = self._get_answers(evalrow)
+            self.assertLess(len(eval_answers), len(report_answers))
+
+    def test_eval_doesnt_pop_skipped_answers(self):
+        '''
+        when no questions are answered that skip eval
+        assert that at least on eval row contains all report answers
+        '''
         self.client_post_report_creation()
         self.client_post_answer_question()
         report_answers = self.report.decrypted_report(self.passphrase)['data']
         for evalrow in EvalRow.objects.all():
             eval_answers = self._get_answers(evalrow)
-            self.assertLess(len(eval_answers), len(report_answers))
+            if len(eval_answers) == len(report_answers):
+                break
+        else:
+            raise AssertionError('No EvalRow with accurate size')

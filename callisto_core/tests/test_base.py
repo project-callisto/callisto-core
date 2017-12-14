@@ -116,6 +116,21 @@ class ReportPostHelper(object):
         )
         return response
 
+    def client_post_answer_second_page_question(self):
+        url = reverse(
+            'report_update',
+            kwargs={'uuid': self.report.uuid, 'step': '1'},
+        )
+        self.data = {'question_2': 'cupcake ipsum catsmeow'}
+        response = self.client.post(url, self.data, follow=True)
+        self.assertIn(response.status_code, self.valid_statuses)
+        self.report.refresh_from_db()
+        self.assertEqual(
+            self.decrypted_report['data']['question_2'],
+            self.data['question_2'],
+        )
+        return response
+
     def client_post_report_access(self, url):
         response = self.client.post(
             url,
