@@ -1,5 +1,4 @@
 import json
-import unittest
 
 import gnupg
 
@@ -104,6 +103,7 @@ class TestModelData(TestCase):
 
         gpg = gnupg.GPG()
         gpg.import_keys(test_keypair.private_test_key)
-        data = gpg.decrypt(evalrow.record_encrypted)
+        gpg_data = gpg.decrypt(evalrow.record_encrypted)
+        data = json.loads(gpg_data.data)
 
-        self.assertEqual(json.loads(data.data), {'rawr': 'cats'})
+        self.assertEqual(data, {'rawr': 'cats'})
