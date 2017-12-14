@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .. import managers
+from callisto_core.wizard_builder import managers
 
 
 class FormSerializationTest(TestCase):
@@ -44,3 +44,24 @@ class FormSerializationTest(TestCase):
                 actual_question,
                 expected_question,
             )
+
+    def test_eval_set_true(self):
+        question = self.manager.get_form_models()[1].serialized[0]
+        self.assertEqual(
+            question['text'],
+            'do androids dream of electric sheep?')
+        self.assertTrue(question['skip_eval'])
+
+    def test_eval_set_false(self):
+        question = self.manager.get_form_models()[0].serialized[1]
+        self.assertEqual(
+            question['text'],
+            'eat it now???')
+        self.assertFalse(question['skip_eval'])
+
+    def test_eval_set_null(self):
+        question = self.manager.get_form_models()[2].serialized[0]
+        self.assertEqual(
+            question['text'],
+            'whats on the radios?')
+        self.assertTrue(question['skip_eval'])
