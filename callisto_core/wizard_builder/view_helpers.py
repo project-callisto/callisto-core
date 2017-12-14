@@ -124,7 +124,11 @@ class StepsHelper(object):
 class StorageHelper(object):
     data_manager = SerializedDataHelper
     form_manager = FormManager
+
+    # NOTE: overriden to 'data' by EncryptedReportStorageHelper
     storage_data_key = 'wizard_form_data'
+
+    # WARNING: do not change! record data is keyed on this value
     storage_form_key = 'wizard_form_serialized'
 
     def __init__(self, view):

@@ -107,7 +107,9 @@ class EncryptedReportStorageHelper(
     wizard_builder_helpers.StorageHelper,
     _LegacyReportStorageHelper,
 ):
-    storage_data_key = 'data'  # TODO: remove
+
+    # WARNING: do not change! record data is keyed on this value
+    storage_data_key = 'data'
 
     @classmethod
     def empty_storage(cls) -> dict:
