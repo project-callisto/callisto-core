@@ -100,10 +100,7 @@ class _LegacyReportStorageHelper(
             self.storage_data_key: data,
             self.storage_form_key: self.serialized_forms,
         }
-        self.report.encrypt_record(
-            record_data_string=storage,
-            passphrase=self.passphrase,
-        )
+        self.report.encrypt_record(storage, self.passphrase)
 
 
 class EncryptedReportStorageHelper(
@@ -131,10 +128,7 @@ class EncryptedReportStorageHelper(
         if self.passphrase:
             storage = self.current_data_from_storage()
             storage[self.storage_data_key] = data
-            self.report.encrypt_record(
-                record_data_string=storage,
-                passphrase=self.passphrase,
-            )
+            self.report.encrypt_record(storage, self.passphrase)
 
     def init_storage(self):
         if self.passphrase:

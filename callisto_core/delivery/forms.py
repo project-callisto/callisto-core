@@ -89,8 +89,7 @@ class ReportAccessForm(
             return self._decryption_failed()
 
     def _decrypt_report(self):
-        self.decrypted_report = self.report.decrypt_record(
-            self.data['key'])
+        self.decrypted_report = self.report.decrypt_record(self.data['key'])
         return self.data['key']
 
     def _decryption_failed(self):
