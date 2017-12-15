@@ -21,17 +21,3 @@ class EvalRow(models.Model):
         null=True)
     action = models.TextField(null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-
-    @classmethod
-    def store_eval_row(
-        cls,
-        action: str,
-        record: Report,
-        decrypted_record: dict,
-    ):
-        self = cls()
-        self.action = action
-        self.record = record
-        self.user = getattr(record, 'owner', None)
-        self.save()
-        return self

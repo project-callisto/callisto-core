@@ -4,6 +4,7 @@ import gnupg
 
 from django.test import override_settings
 
+from callisto_core.delivery.models import Report
 from callisto_core.evaluation.models import EvalRow
 from callisto_core.tests.evaluation import test_keypair
 from callisto_core.tests.test_base import (
@@ -17,6 +18,11 @@ class EvalViewTest(ReportFlowTestCase):
         self.assertFalse(EvalRow.objects.count())
         self.client_post_report_creation()
         self.assertTrue(EvalRow.objects.count())
+
+    def test_eval_rows_have_record_attached(self):
+        self.assertFalse(EvalRow.objects.count())
+        self.client_post_report_creation()
+        self.assertTrue(EvalRow.objects.filter(record=self.report).count())
 
     def test_action_create(self):
         self.assertFalse(EvalRow.objects.filter(action='CREATE').count())
