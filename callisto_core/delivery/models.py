@@ -55,16 +55,6 @@ class Report(models.Model):
         else:
             return None
 
-    @property
-    def get_submitted_report_id(self):
-        '''Return the ID of the first time a FullReport was submitted.'''
-        if self.submitted_to_school:
-            sent_report = self.sentfullreport_set.first()
-            report_id = sent_report.get_report_id() if sent_report else None
-            return report_id
-        else:
-            return None
-
     def encrypt_record(
         self,
         record_data: dict,
