@@ -124,6 +124,8 @@ class RadioConditionalSelect(
     ConditionalSelectMixin,
     RadioSelect,
 ):
+    template_name = 'wizard_builder/wizard_radio.html'
+
     '''
         A radio button series with conditional fields
     '''
@@ -134,6 +136,8 @@ class CheckboxConditionalSelectMultiple(
     ConditionalSelectMixin,
     CheckboxSelectMultiple,
 ):
+    template_name = 'wizard_builder/wizard_checkbox.html'
+
     '''
         A checkbox series with conditional fields
     '''
