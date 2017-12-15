@@ -7,12 +7,13 @@ from django.test.utils import override_settings
 from django.urls import reverse
 
 from callisto_core.delivery import forms, models
-from wizard_builder.forms import PageForm
+from callisto_core.tests import test_base
+from callisto_core.wizard_builder.forms import PageForm
 
-from .. import test_base
 
-
-class LegacyStorageFormatTest(test_base.ReportFlowHelper):
+class LegacyStorageFormatTest(
+    test_base.ReportFlowHelper,
+):
 
     def setUp(self):
         super().setUp()

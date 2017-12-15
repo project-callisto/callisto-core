@@ -92,14 +92,43 @@ class ReportPostHelper(object):
             self.assertIn(response.status_code, self.valid_statuses)
         return response
 
+    def client_get_review(self):
+        url = reverse(
+            'report_update',
+            kwargs={'uuid': self.report.uuid, 'step': 'done'},
+        )
+        response = self.client.get(url)
+        self.assertIn(response.status_code, self.valid_statuses)
+        return response
+
     def client_post_answer_question(self):
         url = reverse(
             'report_update',
             kwargs={'uuid': self.report.uuid, 'step': '0'},
         )
-        data = {'question_3': 'blanket ipsum pillowfight'}
-        response = self.client.post(url, data, follow=True)
+        self.data = {'question_3': 'blanket ipsum pillowfight'}
+        response = self.client.post(url, self.data, follow=True)
         self.assertIn(response.status_code, self.valid_statuses)
+        self.report.refresh_from_db()
+        self.assertEqual(
+            self.decrypted_report['data']['question_3'],
+            self.data['question_3'],
+        )
+        return response
+
+    def client_post_answer_second_page_question(self):
+        url = reverse(
+            'report_update',
+            kwargs={'uuid': self.report.uuid, 'step': '1'},
+        )
+        self.data = {'question_2': 'cupcake ipsum catsmeow'}
+        response = self.client.post(url, self.data, follow=True)
+        self.assertIn(response.status_code, self.valid_statuses)
+        self.report.refresh_from_db()
+        self.assertEqual(
+            self.decrypted_report['data']['question_2'],
+            self.data['question_2'],
+        )
         return response
 
     def client_post_report_access(self, url):
@@ -204,6 +233,10 @@ class ReportFlowHelper(
         'wizard_builder_data',
         'callisto_core_notification_data',
     ]
+
+    @property
+    def decrypted_report(self):
+        return self.report.decrypted_report(self.passphrase)
 
     def setUp(self):
         self._setup_sites()

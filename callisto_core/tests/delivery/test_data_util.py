@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from callisto_core.delivery.models import Report
 from callisto_core.delivery.utils import RecordDataUtil
-from wizard_builder.view_helpers import SerializedDataHelper
+from callisto_core.wizard_builder.view_helpers import SerializedDataHelper
 
 from . import record_data
 

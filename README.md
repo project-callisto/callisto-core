@@ -4,16 +4,16 @@
 | --- | --- |
 | [![Build Status][build-image]][build-url] | ![python 3.6][python36] |
 | [![PyPI Version][pypi-image]][pypi-url] | ![django 1.11][django111] |
-| [![Code Climate][climate-image]][climate-url] | - |
+| [![Code Climate](https://api.codeclimate.com/v1/badges/eed2b78a9c9cbf80e7af/maintainability)](https://codeclimate.com/github/project-callisto/callisto-core/maintainability) | - |
 
-[build-image]: https://travis-ci.org/SexualHealthInnovations/callisto-core.svg?branch=master
-[build-url]: https://travis-ci.org/SexualHealthInnovations/callisto-core
+[build-image]: https://travis-ci.org/project-callisto/callisto-core.svg?branch=master
+[build-url]: https://travis-ci.org/project-callisto/callisto-core
 
 [pypi-image]: https://img.shields.io/pypi/v/callisto-core.svg
 [pypi-url]: https://pypi.python.org/pypi/callisto-core
 
-[climate-image]:https://codeclimate.com/github/SexualHealthInnovations/callisto-core/badges/gpa.svg
-[climate-url]:https://codeclimate.com/github/SexualHealthInnovations/callisto-core
+[climate-image]:https://codeclimate.com/github/project-callisto/callisto-core/badges/gpa.svg
+[climate-url]:https://codeclimate.com/github/project-callisto/callisto-core
 
 [python36]: https://img.shields.io/badge/python-3.6-green.svg
 [django111]: https://img.shields.io/badge/django-1.11-yellowgreen.svg
@@ -23,9 +23,6 @@ This is the report intake, escrow, matching and secure delivery code for [Callis
 <a href="https://www.ted.com/talks/jessica_ladd_the_reporting_system_that_sexual_assault_survivors_want?language=en" target="_blank"> <img src="https://raw.githubusercontent.com/project-callisto/callisto-core/master/assets/ted-video-still.png" alt="Callisto TED talk"><br/><br/>Learn more about how Callisto works</a>
 
 <a href="https://www.youtube.com/watch?v=mYV6_OaZeEs" target="_blank">Learn more about information escrows</a>
-
-### Requirements
-`callisto-core` is built on top of [`django-wizard-builder`](https://github.com/SexualHealthInnovations/django-wizard-builder), another open source Django package maintained by Sexual Health Innovations. If you're interested in contributing to Callisto, please check out that repo as well.
 
 ### Support us
 

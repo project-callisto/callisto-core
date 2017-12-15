@@ -21,8 +21,8 @@ and should not define:
 
 '''
 from django.contrib.auth.views import PasswordResetView
-from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic.edit import ModelFormMixin
 
 from callisto_core.delivery import view_partials as delivery_partials
@@ -36,6 +36,7 @@ class SubmissionPartial(
     delivery_partials.ReportUpdatePartial,
 ):
     back_url = None
+    EVAL_ACTION_TYPE = 'SUBMISSION'
 
     @property
     def coordinator_emails(self):
@@ -59,6 +60,7 @@ class SchoolEmailFormPartial(
     # next_url is used for having your account already verified,
     # and inputting a correct account verification token
     next_url = None
+    EVAL_ACTION_TYPE = 'SCHOOL_EMAIL'
 
     def dispatch(self, request, *args, **kwargs):
         if self.email_is_verified():
@@ -105,6 +107,7 @@ class PrepPartial(
     SubmissionPartial,
 ):
     form_class = forms.PrepForm
+    EVAL_ACTION_TYPE = 'CONTACT_PREP'
 
 
 class ReportSubclassPartial(
@@ -121,6 +124,7 @@ class MatchingPartial(
     ReportSubclassPartial,
 ):
     matching_validator_class = validators.Validators
+    EVAL_ACTION_TYPE = 'ENTER_MATCHING'
 
     def get_matching_validators(self, *args, **kwargs):
         return self.matching_validator_class()
@@ -184,6 +188,7 @@ class ConfirmationPartial(
     ReportSubclassPartial,
 ):
     form_class = forms.ConfirmationForm
+    EVAL_ACTION_TYPE = 'REPORTING'
 
     def form_valid(self, form):
         output = super().form_valid(form)
@@ -222,6 +227,7 @@ class MatchingWithdrawPartial(
     view_helpers.ReportingSuccessUrlMixin,
     delivery_partials.ReportActionPartial,
 ):
+    EVAL_ACTION_TYPE = 'MATCHING_WITHDRAW'
 
     def view_action(self):
         self.report.withdraw_from_matching()
