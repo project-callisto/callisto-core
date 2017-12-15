@@ -170,6 +170,7 @@ class Report(models.Model):
 
 
 class RecordHistorical(models.Model):
+    '''for saving the change in record eval data over time'''
     record = models.ForeignKey(Report, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     encrypted_eval = models.BinaryField(null=True)
