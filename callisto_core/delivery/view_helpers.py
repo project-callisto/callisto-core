@@ -56,7 +56,7 @@ class ReportStorageHelper(
 
     @property
     def decrypted_report(self) -> dict:
-        return self.report.decrypted_report(self.passphrase)
+        return self.report.decrypt_record(self.passphrase)
 
     def set_passphrase(self, key, report=None):
         if not report:
@@ -83,7 +83,7 @@ class _LegacyReportStorageHelper(
             pass  # storage already initialized
 
     def _report_is_legacy_format(self) -> bool:
-        decrypted_report = self.report.decrypted_report(self.passphrase)
+        decrypted_report = self.report.decrypt_record(self.passphrase)
         return bool(not decrypted_report.get(self.storage_form_key, False))
 
     def _create_new_report_storage(self):
@@ -91,7 +91,7 @@ class _LegacyReportStorageHelper(
         self._create_storage({})
 
     def _translate_legacy_report_storage(self):
-        decrypted_report = self.report.decrypted_report(self.passphrase)
+        decrypted_report = self.report.decrypt_record(self.passphrase)
         self._create_storage(decrypted_report[self.storage_data_key])
         logger.debug('translated legacy report storage')
 
@@ -100,7 +100,7 @@ class _LegacyReportStorageHelper(
             self.storage_data_key: data,
             self.storage_form_key: self.serialized_forms,
         }
-        self.report.encrypt_report(storage, self.passphrase)
+        self.report.encrypt_record(storage, self.passphrase)
 
 
 class EncryptedReportStorageHelper(
@@ -120,7 +120,7 @@ class EncryptedReportStorageHelper(
 
     def current_data_from_storage(self) -> dict:
         if self.passphrase:
-            return self.report.decrypted_report(self.passphrase)
+            return self.report.decrypt_record(self.passphrase)
         else:
             return self.empty_storage()
 
@@ -128,7 +128,7 @@ class EncryptedReportStorageHelper(
         if self.passphrase:
             storage = self.current_data_from_storage()
             storage[self.storage_data_key] = data
-            self.report.encrypt_report(storage, self.passphrase)
+            self.report.encrypt_record(storage, self.passphrase)
 
     def init_storage(self):
         if self.passphrase:

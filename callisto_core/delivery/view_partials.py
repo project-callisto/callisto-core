@@ -87,7 +87,7 @@ class ReportBasePartial(
 
     @property
     def decrypted_report(self):
-        return self.report.decrypted_report(self.storage.passphrase)
+        return self.report.decrypt_record(self.storage.passphrase)
 
     def get_form_kwargs(self):
         # TODO: remove

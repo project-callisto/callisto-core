@@ -10,8 +10,10 @@ class EvalDataMixin(object):
         return super().dispatch(request, *args, **kwargs)
 
     def eval_action(self, action):
-        EvalRow.store_eval_row(
+        record = getattr(self, 'report', None)
+        user = getattr(record, 'owner', None)
+        EvalRow.objects.create(
             action=action,
-            record=getattr(self, 'report', None),
-            decrypted_record=getattr(self, 'decrypted_report', None),
+            record=record,
+            user=user,
         )
