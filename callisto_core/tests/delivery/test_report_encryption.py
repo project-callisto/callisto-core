@@ -94,7 +94,7 @@ class AnswerEncryptionTest(ReportFlowTestCase):
         report_answers = self.report.decrypt_record(self.passphrase)['data']
 
         self.assertTrue(report_answers)
-        for record in RecordHistorical.objects.all():
+        for record in RecordHistorical.objects.filter(record=self.report):
             eval_answers = self._get_answers(record)
             self.assertLess(len(eval_answers), len(report_answers))
 
@@ -108,7 +108,7 @@ class AnswerEncryptionTest(ReportFlowTestCase):
         report_answers = self.report.decrypt_record(self.passphrase)['data']
 
         self.assertTrue(len(report_answers))
-        for record in RecordHistorical.objects.all():
+        for record in RecordHistorical.objects.filter(record=self.report):
             eval_answers = self._get_answers(record)
             if len(eval_answers) == len(report_answers):
                 break

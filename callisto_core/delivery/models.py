@@ -160,7 +160,8 @@ class Report(models.Model):
                 key=settings.CALLISTO_EVAL_PUBLIC_KEY,
             )
             self.encrypted_eval = encrypted_answers
-            RecordHistorical.objects.create(encrypted_eval=encrypted_answers)
+            RecordHistorical.objects.create(
+                record=self, encrypted_eval=encrypted_answers)
         except BaseException as error:
             logger.exception(error)
 
@@ -169,6 +170,7 @@ class Report(models.Model):
 
 
 class RecordHistorical(models.Model):
+    record = models.ForeignKey(Report, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     encrypted_eval = models.BinaryField(null=True)
 
@@ -178,7 +180,7 @@ class MatchReport(models.Model):
     A report that indicates the user wants to submit if a match is found.
     A single report can have multiple MatchReports--one per perpetrator.
     '''
-    report = models.ForeignKey('Report', on_delete=models.CASCADE)
+    report = models.ForeignKey(Report, on_delete=models.CASCADE)
     added = models.DateTimeField(auto_now_add=True)
     encrypted = models.BinaryField(null=False)
 
