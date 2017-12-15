@@ -68,7 +68,7 @@ class LegacyReportData(object):
     encrypted = None
     salt = None
 
-    def encrypt_report(self, report_text, key):
+    def encrypt_record(self, report_text, key):
         """Encrypts and attaches report text. Generates a random salt and stores it on the Report object.
 
         Args:

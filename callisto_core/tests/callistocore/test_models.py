@@ -18,9 +18,9 @@ class ReportModelTest(test_base.ReportFlowHelper):
         report.save()
         self.assertIn(report, self.user .report_set.all())
 
-    def test_can_encrypt_report(self):
+    def test_can_encrypt_record(self):
         report = Report(owner=self.user)
-        report.encrypt_report(
+        report.encrypt_record(
             "this text should be encrypted",
             'this is my key',
         )
@@ -31,20 +31,20 @@ class ReportModelTest(test_base.ReportFlowHelper):
 
     def test_can_decrypt_report(self):
         report = Report(owner=self.user)
-        report.encrypt_report(
+        report.encrypt_record(
             "this text should be encrypted, yes it should by golly!",
             'this is my key',
         )
         report.save()
         saved_report = Report.objects.first()
         self.assertEqual(
-            saved_report.decrypted_report('this is my key'),
+            saved_report.decrypt_record('this is my key'),
             "this text should be encrypted, yes it should by golly!",
         )
 
     def test_can_decrypt_old_reports(self):
         legacy_report = LegacyReportData()
-        legacy_report.encrypt_report(
+        legacy_report.encrypt_record(
             "this text should be encrypted otherwise bad things",
             key='this is my key',
         )
@@ -56,20 +56,20 @@ class ReportModelTest(test_base.ReportFlowHelper):
         report.save()
         saved_report = Report.objects.first()
         self.assertEqual(
-            saved_report.decrypted_report('this is my key'),
+            saved_report.decrypt_record('this is my key'),
             "this text should be encrypted otherwise bad things",
         )
 
     def test_no_times_by_default(self):
         report = Report(owner=self.user)
-        report.encrypt_report("test report", "key")
+        report.encrypt_record("test report", "key")
         report.save()
         self.assertIsNone(Report.objects.first().submitted_to_school)
         self.assertIsNone(Report.objects.first().entered_into_matching)
 
     def test_can_withdraw_from_matching(self):
         report = Report(owner=self.user)
-        report.encrypt_report("test report", "key")
+        report.encrypt_record("test report", "key")
         report.save()
         MatchReport.objects.create(report=report)
         self.assertIsNotNone(Report.objects.first().entered_into_matching)
@@ -96,7 +96,7 @@ class MatchReportTest(test_base.ReportFlowHelper):
     def test_entered_into_matching_is_blank_before_entering_into_matching(
             self):
         report = Report(owner=self.user)
-        report.encrypt_report("test non-matching report", "key")
+        report.encrypt_record("test non-matching report", "key")
         report.save()
         self.assertIsNone(
             Report.objects.get(
@@ -121,7 +121,7 @@ class MatchReportTest(test_base.ReportFlowHelper):
             "test legacy match report", "dumbo")
 
         legacy_report = LegacyReportData()
-        legacy_report.encrypt_report(
+        legacy_report.encrypt_record(
             "this text should be encrypted otherwise bad things",
             key='this is my key')
         report = Report(
@@ -176,7 +176,7 @@ class DeleteReportTest(test_base.ReportFlowHelper):
         match_report.save()
         user2 = User.objects.create_user(username="dummy2", password="dummy")
         report2 = Report(owner=user2)
-        report2.encrypt_report("test report 2", "key")
+        report2.encrypt_record("test report 2", "key")
         report2.save()
         match_report2 = MatchReport(report=report2)
         match_report2.encrypt_match_report("test match report 2", 'dummy')

@@ -1,7 +1,4 @@
-import json
 import logging
-
-import gnupg
 
 from django.conf import settings
 from django.db import models
@@ -11,43 +8,8 @@ from callisto_core.delivery.models import Report
 logger = logging.getLogger(__name__)
 
 
-def encrypt_filtered_data(filtered_data):
-    filtered_data_string = json.dumps(filtered_data)
-    gpg = gnupg.GPG()
-    imported_keys = gpg.import_keys(settings.CALLISTO_EVAL_PUBLIC_KEY)
-    encrypted = gpg.encrypt(
-        filtered_data_string,
-        imported_keys.fingerprints[0],
-        armor=True,
-        always_trust=True)
-    return encrypted.data
-
-
-def _pop_answer_if_question_skips_eval(question, data):
-    field_id = 'question_' + str(question['id'])
-    if (
-        question.get('skip_eval') and
-        data.get(field_id)
-    ):
-        data.pop(field_id)
-
-
-def filter_record_data(record_data):
-    try:
-        pages = record_data['wizard_form_serialized']
-    except BaseException:
-        pages = []
-    for page in pages:
-        for question in page:
-            _pop_answer_if_question_skips_eval(
-                question,
-                record_data.get('data', {}),
-            )
-    return record_data
-
-
 class EvalRow(models.Model):
-    """Provides an auditing trail for various records"""
+    'stores record tracking data'
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -58,7 +20,6 @@ class EvalRow(models.Model):
         on_delete=models.SET_NULL,
         null=True)
     action = models.TextField(null=True)
-    record_encrypted = models.BinaryField(null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
@@ -72,14 +33,5 @@ class EvalRow(models.Model):
         self.action = action
         self.record = record
         self.user = getattr(record, 'owner', None)
-        self._add_record_data(decrypted_record)
         self.save()
         return self
-
-    def _add_record_data(self, decrypted_record):
-        try:
-            filtered_data = filter_record_data(decrypted_record)
-            encrypted_answers = encrypt_filtered_data(filtered_data)
-            self.record_encrypted = encrypted_answers
-        except BaseException as error:
-            logger.exception(error)
