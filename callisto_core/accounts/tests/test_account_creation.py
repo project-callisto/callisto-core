@@ -1,6 +1,5 @@
 from unittest import skip
 
-from config.tests.base import CallistoTestCase
 from django_migration_testcase import MigrationTest
 
 from django.contrib.auth import get_user_model
@@ -9,6 +8,9 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from callisto_core.tests.test_base import (
+    ReportFlowHelper as ReportFlowTestCase,
+)
 from callisto_core.utils.api import NotificationApi
 
 from ..models import Account, BulkAccount
@@ -16,7 +18,7 @@ from ..models import Account, BulkAccount
 User = get_user_model()
 
 
-class AccountEmailParsingTest(CallistoTestCase):
+class AccountEmailParsingTest(ReportFlowTestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -95,7 +97,7 @@ class AccountEmailParsingTest(CallistoTestCase):
         )
 
 
-class AccountEmailTest(CallistoTestCase):
+class AccountEmailTest(ReportFlowTestCase):
 
     def test_gets_account_activation_email(self):
         BulkAccount.objects.create(emails='tech@projectcallisto.org')

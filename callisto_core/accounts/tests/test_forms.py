@@ -1,12 +1,12 @@
-from config.tests.base import CallistoTestCase
-from tenants.models import Tenant
-
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test.utils import override_settings
 
-from ..forms import SendVerificationEmailForm
-from ..validators import non_school_email_error
+from callisto_core.accounts.forms import SendVerificationEmailForm
+from callisto_core.accounts.validators import non_school_email_error
+from callisto_core.tests.test_base import (
+    ReportFlowHelper as ReportFlowTestCase,
+)
 
 User = get_user_model()
 
@@ -17,7 +17,7 @@ class MockView(object):
         self.request = test.request
 
 
-class StudentVerificationTest(CallistoTestCase):
+class StudentVerificationTest(ReportFlowTestCase):
 
     def setUp(self):
         super().setUp()

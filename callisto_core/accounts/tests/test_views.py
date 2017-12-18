@@ -1,8 +1,4 @@
 from account.forms import ReportingVerificationEmailForm
-from config.site_utils import TempSiteID
-from config.tests.base import CallistoCoreExtendedHelper, CallistoTestCase
-from tenant_schemas.utils import tenant_context
-from tenants.models import Tenant
 
 from django.contrib.auth import SESSION_KEY, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -12,16 +8,18 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from callisto_core.accounts.tokens import StudentVerificationTokenGenerator
+from callisto_core.accounts.views import CustomSignupView
+from callisto_core.tests.test_base import (
+    ReportFlowHelper as ReportFlowTestCase,
+)
 from callisto_core.utils.api import NotificationApi
 from callisto_core.wizard_builder.models import Page, SingleLineText
-
-from ..tokens import StudentVerificationTokenGenerator
-from ..views import CustomSignupView
 
 User = get_user_model()
 
 
-class SignupViewIntegratedTest(CallistoTestCase):
+class SignupViewIntegratedTest(ReportFlowTestCase):
     signup_url = reverse('signup')
 
     def test_signup_page_renders_signup_template(self):
@@ -133,7 +131,7 @@ class SignupViewIntegratedTest(CallistoTestCase):
         self.assertRedirects(response, reverse('login'))
 
 
-class SignupViewUnitTest(CallistoTestCase):
+class SignupViewUnitTest(ReportFlowTestCase):
 
     def setUp(self):
         super().setUp()
@@ -161,7 +159,7 @@ class SignupViewUnitTest(CallistoTestCase):
         self.assertEqual(response.get('location'), reverse('report_new'))
 
 
-class LoginViewTest(CallistoTestCase):
+class LoginViewTest(ReportFlowTestCase):
     login_url = reverse('login')
 
     def test_login_page_renders_login_template(self):
@@ -240,7 +238,7 @@ class LoginViewTest(CallistoTestCase):
         self.assertContains(response, 'You should have gotten an email')
 
 
-class StudentVerificationTest(CallistoCoreExtendedHelper):
+class StudentVerificationTest(ReportFlowTestCase):
 
     def setUp(self):
         super().setUp()
