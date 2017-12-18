@@ -99,6 +99,7 @@ class WizardPartial(
 
     def get_context_data(self, **kwargs):
         if self.steps.current_is_done:
+            self._rendering_done_hook()
             self.template_name = self.done_template_name
             kwargs['form'] = None
             kwargs['form_data'] = self.storage.cleaned_form_data
@@ -129,3 +130,6 @@ class WizardPartial(
         step = self.kwargs.get('step')
         if step:
             self.curent_step = self.steps.parse_step(step)
+
+    def _rendering_done_hook(self):
+        pass

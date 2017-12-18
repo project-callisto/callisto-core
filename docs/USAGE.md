@@ -77,11 +77,15 @@ The `views.py` files in this repo are specific to callisto-core. If you are impl
 
 ### NotificationApi
 
-Use this to change your notification (eg. emails, PDFs, slack messages, etc) implementation
+For changing the notification (eg. emails, PDFs, slack messages, etc) implementation
 
 ### MatchingApi
 
-Use this to change your matching implementation
+For changing the matching implementation
+
+### TenantApi
+
+For producing different attributes based on the tenants
 
 ## Data
 
