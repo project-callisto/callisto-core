@@ -1,8 +1,7 @@
 import logging
 from collections import OrderedDict
 
-from callisto_coreaccount.tokens import StudentVerificationTokenGenerator
-from tenants.utils.helpers import get_current_domain
+from callisto_core.accounts.tokens import StudentVerificationTokenGenerator
 
 from django import forms
 from django.conf import settings
@@ -138,7 +137,7 @@ class FormattedPasswordResetForm(PasswordResetForm):
         self.fields['email'].label = "Enter your email to reset your password"
 
     def save(self, *args, **kwargs):
-        kwargs['domain_override'] = get_current_domain()
+        kwargs['domain_override'] = TenantApi.get_current_domain()
         super().save(*args, **kwargs)
 
     def send_mail(self, *args, **kwargs):

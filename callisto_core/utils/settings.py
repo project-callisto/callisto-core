@@ -10,6 +10,10 @@ APP_URL = os.environ.get('APP_URL', 'localhost')
 LOGIN_REDIRECT_URL = '/reports/new/'
 
 
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MAX_LENGTH = 120
+
+
 def load_file(path):
     path = os.path.join(BASE_DIR, path)
     with open(path, 'r') as file_data:
