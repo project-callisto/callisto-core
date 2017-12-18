@@ -51,7 +51,6 @@
       "descriptive_text": "answer wisely",
       "page": 2,
       "position": 0,
-      "skip_eval": true,
       "type": "singlelinetext"
     }
   },
@@ -63,7 +62,6 @@
       "descriptive_text": "",
       "page": 1,
       "position": 0,
-      "skip_eval": false,
       "type": "singlelinetext"
     }
   },
