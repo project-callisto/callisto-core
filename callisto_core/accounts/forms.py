@@ -1,8 +1,6 @@
 import logging
 from collections import OrderedDict
 
-from callisto_core.accounts.tokens import StudentVerificationTokenGenerator
-
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -18,6 +16,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.safestring import mark_safe
 
+from callisto_core.accounts.tokens import StudentVerificationTokenGenerator
 from callisto_core.utils.api import NotificationApi, TenantApi
 
 from .models import Account
