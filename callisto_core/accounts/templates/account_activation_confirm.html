@@ -1,19 +1,11 @@
-{% extends 'auth.html' %}
+{% extends 'callisto_core/delivery/form.html' %}
 
-{% block auth-header-text %}Activate your account{% endblock %}
-{% block auth-subheader-text %}Create a password to activate your account. Afterwards, you'll be directed to log in.{% endblock %}
+{% block message %}
 
-{% block preform %}
-    {% if not validlink %}
-        <p>Your account was created with a temporary password. Get a new password to activate your account with by <a href="{% url 'reset' %}">resetting your password</a>.</p>
-        {% block required %}{% endblock %}
-    {% endif %}
+<p>Create a password to activate your account. Afterwards, you'll be directed to log in.</p>
+{% if not validlink %}
+    <p>Your account was created with a temporary password. Get a new password to activate your account with by <a href="{% url 'reset' %}">resetting your password</a>.</p>
+    {% block required %}{% endblock %}
+{% endif %}
+
 {% endblock %}
-
-{% block buttons %}
-    {% if validlink %}
-        {{ block.super }}
-    {% endif %}
-{% endblock %}
-
-{% block submit_button_text %}Reset{% endblock %}
