@@ -27,7 +27,10 @@ def validate_school_email(email, request=None, site_id=None):
         site_id=site_id,
     )
 
-    allowed = [_domain.strip() for _domain in school_email_domain.split(',')]
+    allowed = [
+        _domain.strip().strip('@').strip()
+        for _domain in school_email_domain.split(',')
+    ]
     allowed.append('sexualhealthinnovations.org')
     allowed.append('projectcallisto.org')
 

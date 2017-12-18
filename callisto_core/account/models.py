@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 class Account(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE)
     uuid = models.UUIDField(default=uuid.uuid4)
 
     is_verified = models.BooleanField(default=False)
