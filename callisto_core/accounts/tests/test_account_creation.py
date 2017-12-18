@@ -16,37 +16,6 @@ from ..models import Account, BulkAccount
 User = get_user_model()
 
 
-@skip('migration already run, test is here for archive purposes')
-class UCBEmailCaseTest(MigrationTest):
-
-    before = [
-        ('auth', '0008_alter_user_username_max_length'),
-        ('callisto_site', '0010_clear_conditionals'),
-        ('account', '0006_account_uuid'),
-    ]
-    after = [
-        ('auth', '0008_alter_user_username_max_length'),
-        ('callisto_site', '0011_ucb_casing'),
-        ('account', '0006_account_uuid'),
-    ]
-
-    def test_emails_add_a_default_site(self):
-        User = self.get_model_before('auth.User')
-        Account = self.get_model_before('account.Account')
-        self.assertEqual(User.objects.all().count(), 0)
-
-        user = User.objects.create(username='TECH@projectcallisto.org')
-        Account.objects.create(user=user, site_id=11)
-        self.assertEqual(User.objects.all().count(), 1)
-        self.run_migration()
-
-        self.assertEqual(User.objects.all().count(), 2)
-        self.assertTrue(User.objects.filter(
-            username='TECH@projectcallisto.org'))
-        self.assertTrue(User.objects.filter(
-            username='tech@projectcallisto.org'))
-
-
 class AccountEmailParsingTest(CallistoTestCase):
 
     @classmethod
