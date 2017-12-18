@@ -17,6 +17,9 @@ def cast_string_to_type(
 
 class CallistoCoreTenantApi(object):
 
+    def get_current_domain():
+        return None
+
     @staticmethod
     def site_settings(var, cast=str, request=None, site_id=1):
         '''
@@ -39,6 +42,8 @@ class CallistoCoreTenantApi(object):
 
         site_values = {
             1: {
+                'DISABLE_SIGNUP': False,
+                'SCHOOL_SHORTNAME': 'callisto-core',
                 'COORDINATOR_NAME': 'COORDINATOR_NAME',
                 'COORDINATOR_EMAIL': 'COORDINATOR_EMAIL@example.com',
                 'SCHOOL_EMAIL_DOMAIN': 'example.com',
