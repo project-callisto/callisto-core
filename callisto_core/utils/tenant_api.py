@@ -1,3 +1,4 @@
+from copy import copy
 from distutils.util import strtobool
 
 
@@ -40,14 +41,13 @@ class CallistoCoreTenantApi(object):
             except BaseException:
                 site_id = 1
 
-        site_values = {
-            1: {
-                'DISABLE_SIGNUP': False,
-                'SCHOOL_SHORTNAME': 'callisto-core',
-                'COORDINATOR_NAME': 'COORDINATOR_NAME',
-                'COORDINATOR_EMAIL': 'COORDINATOR_EMAIL@example.com',
-                'SCHOOL_EMAIL_DOMAIN': 'example.com',
-                'COORDINATOR_PUBLIC_KEY': '''
+        default_values = {
+            'DISABLE_SIGNUP': False,
+            'SCHOOL_SHORTNAME': 'callisto-core',
+            'COORDINATOR_NAME': 'COORDINATOR_NAME',
+            'COORDINATOR_EMAIL': 'COORDINATOR_EMAIL@example.com',
+            'SCHOOL_EMAIL_DOMAIN': 'example.com',
+            'COORDINATOR_PUBLIC_KEY': '''
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Comment: GPGTools - https://gpgtools.org
 
@@ -78,8 +78,15 @@ wcFlYKGBlea/REi7+EAtE0u/nX2FB6adtMwopHlyTonKURJnInM9/T0UAwiNxfAB
 cL+QqgshFt79Yh0=
 =3BvZ
 -----END PGP PUBLIC KEY BLOCK-----
-                ''',
-            }
+            ''',
+        }
+
+        defaults_with_signup_disabled = copy(default_values)
+        defaults_with_signup_disabled['DISABLE_SIGNUP'] = True
+
+        site_values = {
+            1: default_values,
+            2: defaults_with_signup_disabled,
         }.get(site_id, {})
         value = site_values.get(var, '')
         value = cast_string_to_type(value, cast)

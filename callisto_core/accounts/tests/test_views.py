@@ -126,7 +126,7 @@ class SignupViewIntegratedTest(ReportFlowTestCase):
                 tem_site_id,
             )
 
-    @override_settings(SITE_ID=11)
+    @override_settings(SITE_ID=2)
     def test_disable_signup_redirects_from_signup(self):
         response = self.client.get(self.signup_url)
         self.assertRedirects(response, reverse('login'))
@@ -233,7 +233,7 @@ class LoginViewTest(ReportFlowTestCase):
             self.assertNotIn(SESSION_KEY, response.client.session)
             self.assertFalse(response.context['form'].is_valid())
 
-    @override_settings(SITE_ID=11)
+    @override_settings(SITE_ID=2)
     def test_disable_signups_has_special_instructions(self):
         response = self.client.get(self.login_url)
         self.assertIsInstance(response.context['form'], AuthenticationForm)
