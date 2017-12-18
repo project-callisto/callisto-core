@@ -99,6 +99,7 @@ class AccountEmailParsingTest(ReportFlowTestCase):
 
 class AccountEmailTest(ReportFlowTestCase):
 
+    @skip('skip pending NotificationApi update')
     def test_gets_account_activation_email(self):
         BulkAccount.objects.create(emails='tech@projectcallisto.org')
         self.assertEqual(len(self.cassette), 1)

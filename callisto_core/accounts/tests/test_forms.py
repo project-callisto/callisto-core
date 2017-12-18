@@ -70,9 +70,9 @@ class StudentVerificationTest(ReportFlowTestCase):
 
     @override_settings(SITE_ID=4)
     def test_multiple_domains(self):
-        good_data = {'email': 'tech@dons.usfca.edu'}
+        good_data = {'email': 'tech@example.com'}
         form = SendVerificationEmailForm(good_data, view=MockView(self))
         self.assertTrue(form.is_valid())
-        good_data = {'email': 'tech@usfca.edu'}
+        good_data = {'email': 'tech@subdomain.example.com'}
         form = SendVerificationEmailForm(good_data, view=MockView(self))
         self.assertTrue(form.is_valid())

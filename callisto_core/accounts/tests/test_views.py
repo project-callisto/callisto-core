@@ -260,6 +260,7 @@ class StudentVerificationTest(ReportFlowTestCase):
             ReportingVerificationEmailForm,
         )
 
+    @skip('skip pending NotificationApi update')
     @override_settings(SITE_ID=1)
     def test_verification_post(self):
         response = self.client.post(
