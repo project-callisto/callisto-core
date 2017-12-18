@@ -2,7 +2,7 @@
 
 ## 0.19.7 (2017-12-18)
 
-* the evaluation model is now used only for storing record actions
+* eval data filtering is being moved to the stats frontend
 
     https://github.com/project-callisto/callisto-core/pull/357
 
