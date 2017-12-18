@@ -1,14 +1,13 @@
 import logging
 
-from config.env import site_settings
-
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.http import is_safe_url
-from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import CreateView
+
+from callisto_core.utils.api import TenantApi
 
 from .forms import FormattedPasswordResetForm, LoginForm, SignUpForm
 from .models import Account
@@ -23,7 +22,10 @@ class CustomSignupView(CreateView):
     success_url = reverse_lazy('dashboard')
 
     def dispatch(self, request, *args, **kwargs):
-        if site_settings('DISABLE_SIGNUP', cast=bool, request=request):
+        if TenantApi.site_settings(
+            'DISABLE_SIGNUP',
+            cast=bool,
+                request=request):
             return redirect(reverse('login'))
         else:
             return super().dispatch(request, *args, **kwargs)
@@ -50,7 +52,7 @@ class CustomLoginView(LoginView):
     authentication_form = LoginForm
 
     def get_template_names(self):
-        if site_settings(
+        if TenantApi.site_settings(
             'DISABLE_SIGNUP',
             cast=bool,
             request=self.request,
@@ -86,7 +88,7 @@ class CustomLogoutView(LogoutView):
         context.update({
             'site': current_site,
             'site_name': current_site.name,
-            'title': _('Logged out'),
+            'title': 'Logged out',
         })
         if self.extra_context is not None:
             context.update(self.extra_context)

@@ -1,8 +1,6 @@
 import logging
 import uuid
 
-from config.notification import slack_notification
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -36,7 +34,7 @@ class BulkAccount(models.Model):
 
     def create_accounts(self):
         emails = self.emails.split(',')
-        slack_notification(
+        NotificationApi.slack_notification(
             f'Running bulk account creation for {len(emails)} accounts',
             channel='#launch'
         )

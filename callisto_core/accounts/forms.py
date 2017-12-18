@@ -1,8 +1,7 @@
 import logging
 from collections import OrderedDict
 
-from account.tokens import StudentVerificationTokenGenerator
-from config.env import site_settings
+from callisto_coreaccount.tokens import StudentVerificationTokenGenerator
 from tenants.utils.helpers import get_current_domain
 
 from django import forms
@@ -20,7 +19,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.safestring import mark_safe
 
-from callisto_core.utils.api import NotificationApi
+from callisto_core.utils.api import NotificationApi, TenantApi
 
 from .models import Account
 from .validators import validate_school_email
@@ -195,7 +194,7 @@ class SendVerificationEmailForm(PasswordResetForm):
             kwargs.pop('instance')
         self.view = kwargs.pop('view')
         super().__init__(*args, **kwargs)
-        school_email_domain = site_settings(
+        school_email_domain = TenantApi.site_settings(
             'SCHOOL_EMAIL_DOMAIN',
             request=self.view.request,
         )

@@ -24,7 +24,6 @@ class StudentVerificationTest(ReportFlowTestCase):
         self.request = HttpRequest()
         self.request.method = 'POST'
         self.request.META['HTTP_HOST'] = 'testserver'
-        self.request.tenant = Tenant.objects.get(site_id=1)
 
     def test_student_email_accepted(self):
         good_data = {'email': 'myname@projectcallisto.org'}

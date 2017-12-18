@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'callisto_core.evaluation',
     'callisto_core.notification',
     'callisto_core.reporting',
+    'callisto_core.accounts',
     'callisto_core.utils',
 ]
 
