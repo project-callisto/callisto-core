@@ -13,9 +13,9 @@ from django.contrib.auth.forms import (
     UserCreationForm,
 )
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.forms.fields import CharField
 from django.forms.widgets import PasswordInput, TextInput
+from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.safestring import mark_safe

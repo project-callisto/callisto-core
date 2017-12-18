@@ -6,14 +6,14 @@ from tenants.models import Tenant
 
 from django.contrib.auth import SESSION_KEY, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from callisto_core.utils.api import NotificationApi
-from wizard_builder.models import Page, SingleLineText
+from callisto_core.wizard_builder.models import Page, SingleLineText
 
 from ..tokens import StudentVerificationTokenGenerator
 from ..views import CustomSignupView

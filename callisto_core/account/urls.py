@@ -1,6 +1,6 @@
 import django.contrib.auth.views as auth_views
 from django.conf.urls import url
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 
 from . import forms, views

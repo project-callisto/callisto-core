@@ -4,8 +4,8 @@ from config.env import site_settings
 
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
-from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
 from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import CreateView
