@@ -1,5 +1,29 @@
 # History / Changelog
 
+## 0.19.5 (2017-12-14)
+
+* add field for filtering eval data
+
+    https://github.com/project-callisto/callisto-core/pull/354
+
+## 0.19.4 (2017-12-13)
+
+* template display update
+
+    https://github.com/project-callisto/callisto-core/pull/352
+
+## 0.19.3 (2017-12-13)
+
+* wipe eval migrations, for better downstream support
+
+## 0.19.2 (2017-12-13)
+
+* add eval actions
+
+## 0.19.1 (2017-12-11)
+
+* change api classes (back) to importing from a settings string
+
 ## 0.19.0 (2017-12-08)
 
 * merge django-wizard-builder into callisto-core

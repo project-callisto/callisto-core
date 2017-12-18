@@ -30,6 +30,7 @@ class MockPage(
 class MockQuestion(object):
 
     def __init__(self, data):
+        data['skip_eval'] = data.get('skip_eval', False)
         self.pk = self.id = data.get('id')
         self.text = data.get('question_text')
         self.descriptive_text = data.get('descriptive_text')
