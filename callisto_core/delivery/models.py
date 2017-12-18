@@ -141,7 +141,6 @@ class Report(models.Model):
     ):
         '''
         store callisto decryptable data and ignore fails
-        filters out skip_eval fields before storing
         '''
         try:
             encrypted_answers = model_helpers.gpg_encrypt_data(
