@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class CustomSignupView(CreateView):
-    template_name = 'account/signup.html'
+    template_name = 'callisto_core/accounts/signup.html'
     form_class = SignUpForm
     success_url = reverse_lazy('dashboard')
 
@@ -48,7 +48,7 @@ class CustomSignupView(CreateView):
 
 
 class CustomLoginView(LoginView):
-    template_name = 'login.html'
+    template_name = 'callisto_core/accounts/login.html'
     authentication_form = LoginForm
 
     def get_template_names(self):
@@ -57,7 +57,7 @@ class CustomLoginView(LoginView):
             cast=bool,
             request=self.request,
         ):
-            self.template_name = 'login_ucb.html'
+            self.template_name = 'callisto_core/accounts/login_signup_disabled.html'
         return super().get_template_names()
 
     def get_context_data(self, **kwargs):
@@ -74,8 +74,8 @@ class CustomLoginView(LoginView):
 
 
 class CustomPasswordResetView(PasswordResetView):
-    template_name = 'password_reset.html'
-    email_template_name = 'account/password_reset_email.html'
+    template_name = 'callisto_core/accounts/password_reset.html'
+    email_template_name = 'callisto_core/accounts/password_reset_email.html'
     success_url = reverse_lazy('password_reset_sent')
     form_class = FormattedPasswordResetForm
 

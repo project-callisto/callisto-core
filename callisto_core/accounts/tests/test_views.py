@@ -7,6 +7,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.contrib.sites.models import Site
 
 from callisto_core.accounts.forms import ReportingVerificationEmailForm
 from callisto_core.accounts.tokens import StudentVerificationTokenGenerator
@@ -128,6 +129,7 @@ class SignupViewIntegratedTest(ReportFlowTestCase):
 
     @override_settings(SITE_ID=2)
     def test_disable_signup_redirects_from_signup(self):
+        Site.objects.create()
         response = self.client.get(self.signup_url)
         self.assertRedirects(response, reverse('login'))
 
@@ -235,6 +237,7 @@ class LoginViewTest(ReportFlowTestCase):
 
     @override_settings(SITE_ID=2)
     def test_disable_signups_has_special_instructions(self):
+        Site.objects.create()
         response = self.client.get(self.login_url)
         self.assertIsInstance(response.context['form'], AuthenticationForm)
         self.assertContains(response, 'You should have gotten an email')

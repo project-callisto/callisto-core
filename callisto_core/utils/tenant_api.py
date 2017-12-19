@@ -42,7 +42,7 @@ class CallistoCoreTenantApi(object):
                 site_id = 1
 
         default_values = {
-            'DISABLE_SIGNUP': False,
+            'DISABLE_SIGNUP': 'False',
             'SCHOOL_SHORTNAME': 'callisto-core',
             'COORDINATOR_NAME': 'COORDINATOR_NAME',
             'COORDINATOR_EMAIL': 'COORDINATOR_EMAIL@example.com',
@@ -82,7 +82,7 @@ cL+QqgshFt79Yh0=
         }
 
         defaults_with_signup_disabled = copy(default_values)
-        defaults_with_signup_disabled['DISABLE_SIGNUP'] = True
+        defaults_with_signup_disabled['DISABLE_SIGNUP'] = 'True'
 
         site_values = {
             1: default_values,
