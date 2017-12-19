@@ -1,17 +1,20 @@
 from __future__ import absolute_import, unicode_literals
-from django.conf import settings
 
+import logging
 import os
 
+import configurations
 from celery import Celery
 
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
 app = Celery('celery')
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'callisto_core.utils.settings')
 os.environ.setdefault('DJANGO_CONFIGURATION', 'DevServerConfiguration')
 
-import configurations
 configurations.setup()
 
 # Using a string here means the worker doesn't have to serialize
@@ -21,7 +24,7 @@ configurations.setup()
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django app configs.
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+app.autodiscover_tasks(settings.INSTALLED_APPS)
 
 
 @app.task(bind=True)
