@@ -4,24 +4,8 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 
-from ..models import Page, SingleLineText
-
-
-class TempSiteID():
-    '''
-        with TempSiteID(1):
-            ...
-    '''
-
-    def __init__(self, site_id):
-        self.site_id_temp = site_id
-
-    def __enter__(self):
-        self.site_id_stable = getattr(settings, 'SITE_ID', None)
-        settings.SITE_ID = self.site_id_temp
-
-    def __exit__(self, *args):
-        settings.SITE_ID = self.site_id_stable
+from callisto_core.utils.sites import TempSiteID
+from callisto_core.wizard_builder.models import Page, SingleLineText
 
 
 class SiteIDTest(TestCase):

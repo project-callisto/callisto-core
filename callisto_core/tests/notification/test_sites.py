@@ -7,30 +7,16 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 
-from .. import test_base
-from ...notification.models import EmailNotification
+from callisto_core.notification.models import EmailNotification
+from callisto_core.tests.test_base import (
+    ReportFlowHelper as ReportFlowTestCase,
+)
+from callisto_core.utils.sites import TempSiteID
 
 User = get_user_model()
 
 
-class TempSiteID():
-    '''
-        with TempSiteID(1):
-            ...
-    '''
-
-    def __init__(self, site_id):
-        self.site_id_temp = site_id
-
-    def __enter__(self):
-        self.site_id_stable = getattr(settings, 'SITE_ID', None)
-        settings.SITE_ID = self.site_id_temp
-
-    def __exit__(self, *args):
-        settings.SITE_ID = self.site_id_stable
-
-
-class SiteIDTest(test_base.ReportFlowHelper):
+class SiteIDTest(ReportFlowTestCase):
 
     def setUp(self):
         super().setUp()
