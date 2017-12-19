@@ -1,5 +1,40 @@
 # History / Changelog
 
+## 0.19.7 (2017-12-18)
+
+* eval data filtering is being moved to the stats frontend
+
+    https://github.com/project-callisto/callisto-core/pull/357
+
+## 0.19.6 (2017-12-15)
+
+* the evaluation model is now used only for storing record actions
+* callisto gpg key encrypted data is now stored on the record model
+* delivery now has a model for storing callisto encrypted record data
+    * (this was previously the functionality of eval's encrypted field)
+
+    https://github.com/project-callisto/callisto-core/pull/356
+
+## 0.19.5 (2017-12-14)
+
+* add field for filtering eval data
+
+    https://github.com/project-callisto/callisto-core/pull/354
+
+## 0.19.4 (2017-12-13)
+
+* template display update
+
+    https://github.com/project-callisto/callisto-core/pull/352
+
+## 0.19.3 (2017-12-13)
+
+* wipe eval migrations, for better downstream support
+
+## 0.19.2 (2017-12-13)
+
+* add eval actions
+
 ## 0.19.1 (2017-12-11)
 
 * change api classes (back) to importing from a settings string

@@ -143,6 +143,11 @@ LOGGING = {
             'propagate': False,
             'level': 'INFO',
         },
+        'gnupg': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': 'ERROR',
+        },
     },
     'root': {
         'handlers': ['console'],
