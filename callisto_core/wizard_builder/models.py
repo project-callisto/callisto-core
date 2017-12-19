@@ -87,7 +87,6 @@ class FormQuestion(models.Model):
         on_delete=models.CASCADE,
     )
     position = models.PositiveSmallIntegerField("position", default=0)
-    skip_eval = models.BooleanField(default=True)
     type = models.TextField(
         choices=fields.get_field_options(),
         null=True,
