@@ -127,7 +127,7 @@ class RadioConditionalSelect(
     '''
         A radio button series with conditional fields
     '''
-    auto_id = False
+    self.auto_id = False
     pass
 
 
@@ -138,5 +138,5 @@ class CheckboxConditionalSelectMultiple(
     '''
         A checkbox series with conditional fields
     '''
-    auto_id = False
+    self.auto_id = False
     pass
