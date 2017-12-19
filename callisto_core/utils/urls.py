@@ -12,9 +12,6 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.views.generic import base as django_views
 
-from callisto_core.delivery import views as delivery_views
-from callisto_core.reporting import views as reporting_views
-
 urlpatterns = [
 
     # includes
