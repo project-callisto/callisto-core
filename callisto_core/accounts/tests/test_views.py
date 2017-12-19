@@ -10,6 +10,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from callisto_core.accounts.forms import ReportingVerificationEmailForm
+from callisto_core.accounts.models import Account
 from callisto_core.accounts.tokens import StudentVerificationTokenGenerator
 from callisto_core.accounts.views import CustomSignupView
 from callisto_core.tests.test_base import (
@@ -22,12 +23,18 @@ from callisto_core.wizard_builder.models import Page, SingleLineText
 User = get_user_model()
 
 
-class SignupViewIntegratedTest(ReportFlowTestCase):
+class AcccountsTestCase(ReportFlowTestCase):
+
+    def _setup_user(self, *args, **kwargs):
+        pass
+
+
+class SignupViewIntegratedTest(AcccountsTestCase):
     signup_url = reverse('signup')
 
     def test_signup_page_renders_signup_template(self):
         response = self.client.get(self.signup_url)
-        self.assertTemplateUsed(response, 'account/signup.html')
+        self.assertTemplateUsed(response, 'callisto_core/accounts/signup.html')
 
     def test_displays_signup_form(self):
         response = self.client.get(self.signup_url)
@@ -137,7 +144,7 @@ class SignupViewIntegratedTest(ReportFlowTestCase):
         self.assertRedirects(response, reverse('login'))
 
 
-class SignupViewUnitTest(ReportFlowTestCase):
+class SignupViewUnitTest(AcccountsTestCase):
 
     def setUp(self):
         super().setUp()
@@ -151,7 +158,6 @@ class SignupViewUnitTest(ReportFlowTestCase):
             'terms': 'true',
         }
         self.request.method = 'POST'
-        self.request.site = self.request.tenant.site
 
     def test_redirects_to_dashboard(self):
         response = CustomSignupView.as_view()(self.request)
@@ -164,12 +170,12 @@ class SignupViewUnitTest(ReportFlowTestCase):
         self.assertEqual(response.get('location'), reverse('report_new'))
 
 
-class LoginViewTest(ReportFlowTestCase):
+class LoginViewTest(AcccountsTestCase):
     login_url = reverse('login')
 
     def test_login_page_renders_login_template(self):
         response = self.client.get(self.login_url)
-        self.assertTemplateUsed(response, 'login.html')
+        self.assertTemplateUsed(response, 'callisto_core/accounts/login.html')
 
     def test_displays_login_form(self):
         response = self.client.get(self.login_url)
@@ -188,7 +194,9 @@ class LoginViewTest(ReportFlowTestCase):
 
     def test_user_gets_logged_in_if_authenticate_succeeds(self):
         with TempSiteID(1):
-            self.create_user(username='test_login', password='password')
+            user = User.objects.create_user(
+                username='test_login', password='password')
+            Account.objects.create(user=user)
             response = self.client.post(
                 self.login_url,
                 {
@@ -204,9 +212,11 @@ class LoginViewTest(ReportFlowTestCase):
     @skip('needs tenants')
     def test_user_on_non_default_site_can_login(self):
         with tenant_context(Tenant.objects.get(site_id=2)):
-            self.create_user(
+            user = User.objects.create_user(
                 username='test_login_site_2',
-                password='password',
+                password='password')
+            Account.objects.create(
+                user=user,
                 site_id=2)
         with TempSiteID(2):
             response = self.client.post(
@@ -223,7 +233,7 @@ class LoginViewTest(ReportFlowTestCase):
 
     @skip('needs tenants')
     def test_user_cannot_login_to_another_site(self):
-        self.create_user(
+        User.objects.create_user(
             username='test_login_site_2',
             password='password',
             site_id=2)
@@ -246,12 +256,21 @@ class LoginViewTest(ReportFlowTestCase):
         self.assertContains(response, 'You should have gotten an email')
 
 
-class StudentVerificationTest(ReportFlowTestCase):
+class StudentVerificationTest(AcccountsTestCase):
 
     def setUp(self):
         super().setUp()
-        self.user.account.school_email = 'tech@projectcallisto.org'
-        self.user.account.save()
+        self.user = User.objects.create_user(
+            username='username',
+            password='password')
+        Account.objects.create(
+            user=self.user,
+            school_email='tech@projectcallisto.org',
+        )
+        self.client.login(
+            username='username',
+            password='password',
+        )
         with TempSiteID(1):
             self.client_post_report_creation()
         self.verify_url = reverse(
