@@ -236,7 +236,7 @@ class ReportFlowHelper(
 
     @property
     def decrypted_report(self):
-        return self.report.decrypted_report(self.passphrase)
+        return self.report.decrypt_record(self.passphrase)
 
     def setUp(self):
         self._setup_sites()

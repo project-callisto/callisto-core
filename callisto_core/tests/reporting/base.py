@@ -46,7 +46,7 @@ class MatchSetup(TestCase):
 
     def create_match(self, user, identifier):
         report = Report(owner=user)
-        report.encrypt_report("test report 1", "key")
+        report.encrypt_record("test report 1", "key")
 
         match_report = MatchReport(report=report)
         match_report_content = MatchReportContent(
