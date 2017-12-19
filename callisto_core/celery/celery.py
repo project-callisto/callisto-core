@@ -5,7 +5,7 @@ import os
 
 from celery import Celery
 
-app = Celery('notification')
+app = Celery('celery')
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
