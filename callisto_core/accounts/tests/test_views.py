@@ -2,7 +2,6 @@ from unittest import skip
 
 from django.contrib.auth import SESSION_KEY, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-
 from django.http import HttpRequest
 from django.test.utils import override_settings
 from django.urls import reverse
