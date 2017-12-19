@@ -157,6 +157,7 @@ class SignupViewUnitTest(AcccountsTestCase):
             'password2': 'p@ssw0rd',
             'terms': 'true',
         }
+        self.request.site = Site.objects.first()
         self.request.method = 'POST'
 
     def test_redirects_to_dashboard(self):
