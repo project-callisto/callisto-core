@@ -114,7 +114,7 @@ class SignupViewIntegratedTest(ReportFlowTestCase):
         Site.objects.create()
         tem_site_id = 2
         with TempSiteID(tem_site_id):
-            self.client.post(
+            response = self.client.post(
                 self.signup_url,
                 {
                     'username': 'test',
@@ -124,6 +124,7 @@ class SignupViewIntegratedTest(ReportFlowTestCase):
                     'terms': 'true',
                 },
             )
+            self.assertIn(response.status_code, self.valid_statuses)
             self.assertEqual(
                 User.objects.get(username='test').account.site_id,
                 tem_site_id,
