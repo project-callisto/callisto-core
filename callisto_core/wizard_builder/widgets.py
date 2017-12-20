@@ -124,17 +124,19 @@ class RadioConditionalSelect(
     ConditionalSelectMixin,
     RadioSelect,
 ):
+    option_template_name = 'wizard_builder/wizard_radio_option.html'
+
     '''
         A radio button series with conditional fields
     '''
-    auto_id = False
 
 
 class CheckboxConditionalSelectMultiple(
     ConditionalSelectMixin,
     CheckboxSelectMultiple,
 ):
+    option_template_name = 'wizard_builder/wizard_checkbox_option.html'
+
     '''
         A checkbox series with conditional fields
     '''
-    auto_id = False
