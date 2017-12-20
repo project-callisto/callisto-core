@@ -14,9 +14,9 @@ class RecordIntegrationTest(TestCase):
 
     def test_record_functionality(self):
         report = Report.objects.create()
-        report.encrypt_report(record_data.EXAMPLE_SINGLE_LINE, self.passphrase)
+        report.encrypt_record(record_data.EXAMPLE_SINGLE_LINE, self.passphrase)
         report.refresh_from_db()
-        report_data = report.decrypted_report(self.passphrase)
+        report_data = report.decrypt_record(self.passphrase)
         self.assertEqual(report_data, record_data.EXPECTED_SINGLE_LINE)
 
 

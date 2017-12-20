@@ -20,11 +20,11 @@ class LegacyStorageFormatTest(
         self.client_post_login()
         self.report = models.Report.objects.create(owner=self.user)
         legacy_storage = {'data': {'catte': 'good'}}
-        self.report.encrypt_report(legacy_storage, self.passphrase)
+        self.report.encrypt_record(legacy_storage, self.passphrase)
         self.client_set_passphrase()
         self.client_post_answer_question()  # prompt code to initialize storage
         self.report.refresh_from_db()
-        self.storage = self.report.decrypted_report(self.passphrase)
+        self.storage = self.report.decrypt_record(self.passphrase)
 
     def test_form_data_populated(self):
         storage = self.storage
