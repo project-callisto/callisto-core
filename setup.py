@@ -48,8 +48,8 @@ setup(
     zip_safe=False,
     python_requires='>=3',
     install_requires=[
-        'celery==4.1.0',
-        'django_celery_results==1.0.1',
+        'celery>=4.1.0',
+        'django_celery_results>=1.0.1',
         'django',
         'django-nested-admin>=3',
         'django-polymorphic>=1.0',
