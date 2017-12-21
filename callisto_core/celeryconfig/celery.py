@@ -14,8 +14,8 @@ app = Celery('celeryconfig')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'callisto_core.utils.settings')
 os.environ.setdefault('DJANGO_CONFIGURATION', '')
 
-# Allow advanced django configurations:
-if os.environ.get('DJANGO_CONFIGURATION') is not '':
+# Allow advanced django configurations, and settings are not setup():
+if os.environ.get('DJANGO_CONFIGURATION') is not '' and not hasattr(settings, 'INSTALLED_APPS'):
     import configurations
     configurations.setup()
 
