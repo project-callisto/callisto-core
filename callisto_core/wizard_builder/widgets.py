@@ -127,8 +127,7 @@ class RadioConditionalSelect(
     '''
         A radio button series with conditional fields
     '''
-    template_name = 'wizard_builder/wizard_radio.html'
-    option_template_name = 'wizard_builder/wizard_radio_option.html'
+    pass
 
 
 class CheckboxConditionalSelectMultiple(
@@ -138,5 +137,4 @@ class CheckboxConditionalSelectMultiple(
     '''
         A checkbox series with conditional fields
     '''
-    template_name = 'wizard_builder/wizard_checkbox.html'
-    option_template_name = 'wizard_builder/wizard_checkbox_option.html'
+    pass
