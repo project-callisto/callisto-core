@@ -3,7 +3,6 @@ from __future__ import absolute_import, unicode_literals
 import logging
 import os
 
-import configurations
 from celery import Celery
 
 from django.conf import settings
@@ -13,9 +12,12 @@ app = Celery('celeryconfig')
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'callisto_core.utils.settings')
-os.environ.setdefault('DJANGO_CONFIGURATION', 'DevServerConfiguration')
+os.environ.setdefault('DJANGO_CONFIGURATION', '')
 
-configurations.setup()
+# Allow advanced django configurations:
+if os.environ.get('DJANGO_CONFIGURATION') is not '':
+    import configurations
+    configurations.setup()
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

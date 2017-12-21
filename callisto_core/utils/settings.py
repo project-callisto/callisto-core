@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'callisto_core.evaluation',
     'callisto_core.notification',
     'callisto_core.reporting',
+    'callisto_core.celeryconfig',
     'callisto_core.utils',
 ]
 
@@ -155,7 +156,5 @@ LOGGING = {
     },
 }
 CELERY_TASK_SERIALIZER = 'json'
-BROKER_URL = os.getenv('RABBITMQ_BIGWIG_TX_URL', default='amqp://localhost')
-CELERY_RESULT_BACKEND = os.getenv(
-    'RABBITMQ_BIGWIG_RX_URL',
-    default='amqp://localhost')
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_ALWAYS_EAGER = True
