@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_results',
     'nested_admin',
     'widget_tweaks',
     'callisto_core.wizard_builder',
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'callisto_core.evaluation',
     'callisto_core.notification',
     'callisto_core.reporting',
+    'callisto_core.celeryconfig',
     'callisto_core.utils',
 ]
 
@@ -154,3 +156,10 @@ LOGGING = {
         'level': os.getenv('LOG_LEVEL', default='DEBUG'),
     },
 }
+
+# Configs for celery testing
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_BROKER_BACKEND = 'memory'
+CELERY_BROKER_URL = 'memory://'
