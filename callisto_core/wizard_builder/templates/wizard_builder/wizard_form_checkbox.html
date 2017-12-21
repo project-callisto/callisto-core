@@ -1,0 +1,12 @@
+{% load wizard_builder %}
+
+
+<ul id="{{ field.auto_id }}">
+{% for check in field|add_aria_tags_to_field %}
+<li><label for="{{ check.id_for_label }}">
+  {{ check.tag }}
+  {{ check.choice_label }}
+  <span class="check-span"></span>
+</label></li>
+{% endfor %}
+</ul>
