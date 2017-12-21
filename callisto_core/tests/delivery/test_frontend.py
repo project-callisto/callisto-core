@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 import unittest
@@ -22,6 +23,8 @@ from callisto_core.wizard_builder.models import Choice
 from callisto_core.wizard_builder.tests import (
     test_frontend as wizard_builder_tests,
 )
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 SCREEN_DUMP_LOCATION = os.path.join(

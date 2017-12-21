@@ -75,7 +75,7 @@ class QuestionField(object):
             required=False,
             label=mark_safe(question.text),
             help_text=mark_safe(question.descriptive_text),
-            widget=wizard_builder_widgets.CheckboxConditionalSelectMultiple,
+            widget=wizard_builder_widgets.CheckboxConditionalSelectMultiple(attrs={'class': 'callisto-checkbox'}),
             choices=question.choices_pk_text_array,
             choice_datas=question.choices_data_array,
         )
@@ -86,7 +86,7 @@ class QuestionField(object):
             required=False,
             label=mark_safe(question.text),
             help_text=mark_safe(question.descriptive_text),
-            widget=wizard_builder_widgets.RadioConditionalSelect,
+            widget=wizard_builder_widgets.RadioConditionalSelect(attrs={'class': 'callisto-radio'}),
             choices=question.choices_pk_text_array,
             choice_datas=question.choices_data_array,
         )
