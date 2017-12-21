@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.forms',
     'nested_admin',
     'widget_tweaks',
     'callisto_core.wizard_builder',
