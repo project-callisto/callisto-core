@@ -73,6 +73,7 @@ class QuestionField(object):
     def checkbox(cls, question):
         return ConditionalMultipleChoiceField(
             required=False,
+            auto_id=True,
             label=mark_safe(question.text),
             help_text=mark_safe(question.descriptive_text),
             widget=wizard_builder_widgets.CheckboxConditionalSelectMultiple,
@@ -84,6 +85,7 @@ class QuestionField(object):
     def radiobutton(cls, question):
         return ConditionalChoiceField(
             required=False,
+            auto_id=True,
             label=mark_safe(question.text),
             help_text=mark_safe(question.descriptive_text),
             widget=wizard_builder_widgets.RadioConditionalSelect,
