@@ -1,5 +1,5 @@
 {% load wizard_builder %}
-<ul id="{{ field.auto_id }}">>
+<ul id="{{ field.auto_id }}">
 {% for radio in field|add_aria_tags_to_field %}
 <li><label for="{{ radio.id_for_label }}" >
   {{ radio.tag }}
