@@ -6,6 +6,12 @@
 
     https://github.com/project-callisto/callisto-core/pull/346
 
+## 0.19.8 (2017-12-20)
+
+* form html adjustments
+
+    https://github.com/project-callisto/callisto-core/pull/355
+
 ## 0.19.7 (2017-12-18)
 
 * eval data filtering is being moved to the stats frontend
