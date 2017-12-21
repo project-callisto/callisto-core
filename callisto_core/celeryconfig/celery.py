@@ -9,7 +9,7 @@ from celery import Celery
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
-app = Celery('celery')
+app = Celery('celeryconfig')
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'callisto_core.utils.settings')
