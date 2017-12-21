@@ -8,6 +8,6 @@ Demo Task for testing
 '''
 
 
-@shared_task(name="add")
-def add(x, y):
+@shared_task(name="add", bind=True)
+def add(self, x, y):
     return x + y
