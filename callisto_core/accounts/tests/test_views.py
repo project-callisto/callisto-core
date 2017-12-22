@@ -147,7 +147,7 @@ class SignupViewIntegratedTest(AccountsTestCase):
         self.assertRedirects(response, reverse('login'))
 
 
-class SignupViewUnitTest(AcccountsTestCase):
+class SignupViewUnitTest(AccountsTestCase):
 
     def setUp(self):
         super().setUp()
@@ -174,7 +174,7 @@ class SignupViewUnitTest(AcccountsTestCase):
         self.assertEqual(response.get('location'), reverse('report_new'))
 
 
-class LoginViewTest(AcccountsTestCase):
+class LoginViewTest(AccountsTestCase):
     login_url = reverse('login')
 
     def test_login_page_renders_login_template(self):
@@ -260,7 +260,7 @@ class LoginViewTest(AcccountsTestCase):
         self.assertContains(response, 'You should have gotten an email')
 
 
-class StudentVerificationTest(AcccountsTestCase):
+class StudentVerificationTest(AccountsTestCase):
 
     def setUp(self):
         super().setUp()
