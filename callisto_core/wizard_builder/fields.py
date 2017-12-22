@@ -73,13 +73,9 @@ class QuestionField(object):
     def checkbox(cls, question):
         return ConditionalMultipleChoiceField(
             required=False,
-            label=mark_safe(
-                question.text),
-            help_text=mark_safe(
-                question.descriptive_text),
-            widget=wizard_builder_widgets.CheckboxConditionalSelectMultiple(
-                attrs={
-                    'class': 'callisto-checkbox'}),
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
+            widget=wizard_builder_widgets.CheckboxConditionalSelectMultiple(attrs={'class': 'callisto-checkbox'}),
             choices=question.choices_pk_text_array,
             choice_datas=question.choices_data_array,
         )
@@ -88,13 +84,9 @@ class QuestionField(object):
     def radiobutton(cls, question):
         return ConditionalChoiceField(
             required=False,
-            label=mark_safe(
-                question.text),
-            help_text=mark_safe(
-                question.descriptive_text),
-            widget=wizard_builder_widgets.RadioConditionalSelect(
-                attrs={
-                    'class': 'callisto-radio'}),
+            label=mark_safe(question.text),
+            help_text=mark_safe(question.descriptive_text),
+            widget=wizard_builder_widgets.RadioConditionalSelect(attrs={'class': 'callisto-radio'}),
             choices=question.choices_pk_text_array,
             choice_datas=question.choices_data_array,
         )
