@@ -26,7 +26,6 @@ from ..views import CustomSignupView
 User = get_user_model()
 
 
-
 class AcccountsTestCase(ReportFlowTestCase):
 
     def _setup_user(self, *args, **kwargs):
