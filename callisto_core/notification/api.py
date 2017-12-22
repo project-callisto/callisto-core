@@ -14,7 +14,6 @@ from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
-from django.db import connection
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils import timezone
@@ -24,7 +23,6 @@ from django.utils.http import urlsafe_base64_encode
 from callisto_core.reporting.report_delivery import (
     PDFFullReport, PDFMatchReport,
 )
-from callisto_core.utils.tenant_api import CallistoCoreTenantApi
 
 logger = logging.getLogger(__name__)
 
@@ -303,6 +301,9 @@ class CallistoCoreNotificationApi(object):
         self.context.update({'EmailMessage': email})
 
     def log_action(self):
+        logger.info('meh {id}'.format(id=self.site_id))
+        print(self.site_id)
+
         logger.info('notification.send(subject={}, name={})'.format(
             self.context['subject'],
             self.context['notification_name'],
@@ -317,7 +318,7 @@ class CampusNotificationApi(CallistoCoreNotificationApi):
 
     @property
     def site_id(self):
-        return connection.tenant.site_id
+        return self.context['site_id']
 
     @property
     def from_email(self):
@@ -447,8 +448,7 @@ class CampusNotificationApi(CallistoCoreNotificationApi):
         ):
             return self.mail_domain
         else:
-            Tenant = get_tenant_model()
-            domain = Tenant.objects.get(site_id=self.site_id).domain_url
+            domain = Site.objects.get(id=self.site_id).domain
             partner_name = domain.split('.')[0]
 
             return f'{partner_name}mail.callistocampus.org'
