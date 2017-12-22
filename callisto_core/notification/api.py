@@ -5,15 +5,14 @@ import typing
 
 import gnupg
 import requests
-from config import env
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Image, PageBreak, Paragraph, Spacer
-from tenant_schemas.utils import get_tenant_model
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.db import connection
 from django.template import Context, Template
@@ -310,13 +309,6 @@ class CallistoCoreNotificationApi(object):
         ))
 
 
-class CampusTenantApi(CallistoCoreTenantApi):
-
-    @staticmethod
-    def site_settings(*args, **kwargs):
-        return env.site_settings(*args, **kwargs)
-
-
 class CampusNotificationApi(CallistoCoreNotificationApi):
 
     report_title = settings.NOTIFICATION_REPORT_TITLE
@@ -419,15 +411,13 @@ class CampusNotificationApi(CallistoCoreNotificationApi):
 
         # Set the domain URL, handle special case for staging:
         if settings.DEBUG:
-            domain = Tenant.objects.get(
-                site_id=user.account.site_id).domain_url
+            domain = Site.objects.get(id=user.account.site_id).domain
 
             domain_end = domain.split('.')[1] + '.' + domain.split('.')[2]
             domain = '{front}-staging.{back}'.format(
                 front=domain.split('.')[0], back=domain_end)
         else:
-            domain = Tenant.objects.get(
-                site_id=user.account.site_id).domain_url
+            domain = Site.objects.get(id=user.account.site_id).domain
 
         return domain
 
