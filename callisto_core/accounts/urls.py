@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^logout/$', view=views.CustomLogoutView.as_view(), name='logout'),
     url(r'^change_password/$',
         view=auth_views.PasswordChangeView.as_view(
-            template_name='password_change.html',
+            template_name='callisto_core/accounts/password_change.html',
             success_url=reverse_lazy('dashboard'),
             form_class=forms.FormattedPasswordChangeForm,
         ),
@@ -26,14 +26,14 @@ urlpatterns = [
         ),
     url(r'^forgot_password/sent/$',
         view=TemplateView.as_view(
-            template_name="password_reset_sent.html",
+            template_name="callisto_core/accounts/password_reset_sent.html",
         ),
         name='password_reset_sent',
         ),
     # TODO: DRY uid and token pattern
     url(r'^reset/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         view=auth_views.PasswordResetConfirmView.as_view(
-            template_name='password_reset_confirm.html',
+            template_name='callisto_core/accounts/password_reset_confirm.html',
             form_class=forms.FormattedSetPasswordForm,
             success_url=reverse_lazy('login'),
         ),
@@ -42,7 +42,7 @@ urlpatterns = [
     # TODO: DRY uid and token pattern
     url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         view=auth_views.PasswordResetConfirmView.as_view(
-            template_name='account_activation_confirm.html',
+            template_name='callisto_core/accounts/account_activation_confirm.html',
             form_class=forms.ActivateSetPasswordForm,
             success_url=reverse_lazy('login'),
         ),
