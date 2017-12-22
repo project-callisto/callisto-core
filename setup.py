@@ -59,6 +59,7 @@ setup(
         'PyNaCl>=1.0',
         'pytz>=2017',
         'reportlab>=3.0',
+        'requests',
         'six',
         'argon2_cffi',
     ],
