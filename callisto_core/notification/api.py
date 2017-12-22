@@ -407,8 +407,6 @@ class CampusNotificationApi(CallistoCoreNotificationApi):
         self.send()
 
     def _get_account_domain(self, domain, user):
-        Tenant = get_tenant_model()
-
         # Set the domain URL, handle special case for staging:
         if settings.DEBUG:
             domain = Site.objects.get(id=user.account.site_id).domain
