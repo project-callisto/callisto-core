@@ -124,4 +124,5 @@ class AccountEmailTest(ReportFlowTestCase):
         )
 
         self.assertNotIn('invalid_token', response.context)
-        self.assertTemplateUsed(response, 'account_activation_confirm.html')
+        self.assertTemplateUsed(
+            response, 'callisto_core/accounts/account_activation_confirm.html')
