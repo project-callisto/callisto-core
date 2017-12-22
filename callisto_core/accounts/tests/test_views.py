@@ -33,7 +33,7 @@ class AccountsTestCase(ReportFlowTestCase):
 
 
 class SignupViewIntegratedTest(AccountsTestCase):
-    signup_url = reverse('account/signup')
+    signup_url = reverse('signup')
 
     def test_signup_page_renders_signup_template(self):
         response = self.client.get(self.signup_url)
