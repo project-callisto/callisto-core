@@ -17,12 +17,14 @@ from callisto_core.tests.test_base import (
     ReportFlowHelper as ReportFlowTestCase,
 )
 from callisto_core.utils.api import NotificationApi
+from callisto_core.utils.sites import TempSiteID
 from callisto_core.wizard_builder.models import Page, SingleLineText
 
 from ..tokens import StudentVerificationTokenGenerator
 from ..views import CustomSignupView
 
 User = get_user_model()
+
 
 
 class AcccountsTestCase(ReportFlowTestCase):
