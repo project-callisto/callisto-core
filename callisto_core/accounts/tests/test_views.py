@@ -26,13 +26,13 @@ from ..views import CustomSignupView
 User = get_user_model()
 
 
-class AcccountsTestCase(ReportFlowTestCase):
+class AcccuntsTestCase(ReportFlowTestCase):
 
     def _setup_user(self, *args, **kwargs):
         pass
 
 
-class SignupViewIntegratedTest(AcccountsTestCase):
+class SignupViewIntegratedTest(AccountsTestCase):
     signup_url = reverse('signup')
 
     def test_signup_page_renders_signup_template(self):
