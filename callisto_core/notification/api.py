@@ -301,9 +301,6 @@ class CallistoCoreNotificationApi(object):
         self.context.update({'EmailMessage': email})
 
     def log_action(self):
-        logger.info('meh {id}'.format(id=self.site_id))
-        print(self.site_id)
-
         logger.info('notification.send(subject={}, name={})'.format(
             self.context['subject'],
             self.context['notification_name'],
