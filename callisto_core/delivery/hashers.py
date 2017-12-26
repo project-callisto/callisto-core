@@ -58,18 +58,14 @@ def identify_hasher(encoded):
     return get_hasher(algorithm)
 
 
-def make_key(encode_prefix, key, salt):
+def make_key(encode_prefix, key):
     iterations = None
     hasher = identify_hasher(encode_prefix)
 
-    if not encode_prefix:
-        assert salt is not None
-        iterations = settings.ORIGINAL_KEY_ITERATIONS
-    else:
-        salt = encode_prefix.rsplit('$', 1)[1]
+    salt = encode_prefix.rsplit('$', 1)[1]
 
     if encode_prefix and hasher.algorithm == 'pbkdf2_sha256':
-        iterations = encode_prefix.split('$')[1]
+        iterations = int(encode_prefix.split('$')[1])
 
     encoded = hasher.encode(key, salt, iterations=iterations)
     if hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(

@@ -73,8 +73,12 @@ class Report(models.Model):
         if not (self.encode_prefix or self.salt):
             key = self.encryption_setup(passphrase)
         else:
+            ''' if only salt, generate encode_prefix '''
+            self.encode_prefix = model_helpers.ensure_encode_prefix(
+                self.encode_prefix, self.salt
+            )
             _, key = hashers.make_key(
-                self.encode_prefix, passphrase, self.salt)
+                self.encode_prefix, passphrase)
 
         record_data_string = security.decrypt_text(key, self.encrypted)
 
@@ -221,10 +225,14 @@ class MatchReport(models.Model):
         '''
         decrypted_report = None
 
+        ''' if only salt, generate encode_prefix '''
+        self.encode_prefix = model_helpers.ensure_encode_prefix(
+            self.encode_prefix, self.salt
+        )
+
         prefix, stretched_identifier = hashers.make_key(
             self.encode_prefix,
             identifier,
-            self.salt,
         )
         try:
             decrypted_report = security.decrypt_text(
