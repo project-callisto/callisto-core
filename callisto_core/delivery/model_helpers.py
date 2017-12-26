@@ -1,14 +1,15 @@
 import json
 
 import gnupg
+
 from django.conf import settings
-from django.contrib.auth.hashers import (
-    PBKDF2PasswordHasher,
-)
+from django.contrib.auth.hashers import PBKDF2PasswordHasher
+
 
 def generate_legacy_prefix(salt):
     iterations = settings.ORIGINAL_KEY_ITERATIONS
     return "%s$%d$%s" % (PBKDF2PasswordHasher.algorithm, iterations, salt)
+
 
 def ensure_encode_prefix(encode_prefix, salt):
     if not encode_prefix:
@@ -16,6 +17,7 @@ def ensure_encode_prefix(encode_prefix, salt):
         return generate_legacy_prefix(salt)
     else:
         return encode_prefix
+
 
 def gpg_encrypt_data(data, key):
     data_string = json.dumps(data)
