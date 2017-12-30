@@ -16,10 +16,10 @@ def generate_legacy_prefix(salt):
 
 
 def ensure_encode_prefix(encode_prefix, salt):
-    if not encode_prefix:
-        return generate_legacy_prefix(salt)
-    elif not encode_prefix and not salt:
+    if not encode_prefix and not salt:
         raise EncodePrefixException
+    elif not encode_prefix:
+        return generate_legacy_prefix(salt)
     else:
         return encode_prefix
 
