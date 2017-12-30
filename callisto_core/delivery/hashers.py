@@ -68,12 +68,14 @@ def make_key(encode_prefix, key):
         iterations = int(encode_prefix.split('$')[1])
 
     encoded = hasher.encode(key, salt, iterations=iterations)
-    if hasher.algorithm == 'pbkdf2_sha256' and hasher.must_update(
-            encode_prefix):
+    if (
+        hasher.algorithm == 'pbkdf2_sha256' and
+        hasher.must_update(encode_prefix)
+    ):
         hasher.harden_runtime(key, encoded)
 
-    prefix, key = hasher.split_encoded(encoded)
-    return prefix, key
+    _, key = hasher.split_encoded(encoded)
+    return key
 
 
 class PBKDF2KeyHasher(PBKDF2PasswordHasher):
