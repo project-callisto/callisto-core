@@ -6,6 +6,10 @@ from django.conf import settings
 from django.contrib.auth.hashers import PBKDF2PasswordHasher
 
 
+class EncodePrefixException(BaseException):
+    pass
+
+
 def generate_legacy_prefix(salt):
     iterations = settings.ORIGINAL_KEY_ITERATIONS
     return "%s$%d$%s" % (PBKDF2PasswordHasher.algorithm, iterations, salt)
@@ -13,8 +17,9 @@ def generate_legacy_prefix(salt):
 
 def ensure_encode_prefix(encode_prefix, salt):
     if not encode_prefix:
-        assert salt is not None
         return generate_legacy_prefix(salt)
+    elif not encode_prefix and not salt:
+        raise EncodePrefixException
     else:
         return encode_prefix
 
