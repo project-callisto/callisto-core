@@ -59,13 +59,13 @@ def identify_hasher(encoded):
 
 
 def make_key(encode_prefix, key):
-    iterations = None
     hasher = identify_hasher(encode_prefix)
-
     salt = encode_prefix.rsplit('$', 1)[1]
 
-    if encode_prefix and hasher.algorithm == 'pbkdf2_sha256':
+    if hasher.algorithm == 'pbkdf2_sha256':
         iterations = int(encode_prefix.split('$')[1])
+    else:
+        iterations = None
 
     encoded = hasher.encode(key, salt, iterations=iterations)
     if (
