@@ -188,7 +188,7 @@ class ReportPostHelper(object):
 
     def client_post_matching_withdraw(self):
         url = reverse(
-            'report_matching_withdraw',
+            'matching_withdraw',
             kwargs={'uuid': self.report.uuid},
         )
         data = {'key': self.passphrase}
