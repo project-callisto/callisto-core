@@ -7,7 +7,8 @@ from django.urls import reverse
 
 from callisto_core.notification.models import EmailNotification
 
-from ..delivery import models
+from callisto_core.delivery import models
+from callisto_core.accounts.models import Account
 
 User = get_user_model()
 
@@ -34,6 +35,7 @@ class ReportPostHelper(object):
             username=self.username,
             password=self.password,
         )
+        Account.objects.create(user=self.user)
         url = reverse('login')
         data = {
             'username': self.username,
