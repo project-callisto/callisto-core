@@ -5,10 +5,9 @@ from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 
-from callisto_core.notification.models import EmailNotification
-
-from callisto_core.delivery import models
 from callisto_core.accounts.models import Account
+from callisto_core.delivery import models
+from callisto_core.notification.models import EmailNotification
 
 User = get_user_model()
 
