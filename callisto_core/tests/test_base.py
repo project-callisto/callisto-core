@@ -34,7 +34,7 @@ class ReportPostHelper(object):
             username=self.username,
             password=self.password,
         )
-        url = reverse('index')
+        url = reverse('login')
         data = {
             'username': self.username,
             'password': self.password,
