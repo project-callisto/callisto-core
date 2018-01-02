@@ -309,9 +309,9 @@ class CallistoCoreNotificationApi(object):
 
 class CampusNotificationApi(CallistoCoreNotificationApi):
 
-    report_title = settings.NOTIFICATION_REPORT_TITLE
-    report_filename = settings.NOTIFICATION_REPORT_FILENAME
-    mail_domain = settings.NOTIFICATION_MAIL_DOMAIN
+    report_title = 'report_{0}.pdf.gpg'
+    report_filename = 'Report'
+    mail_domain = settings.APP_URL
 
     @property
     def site_id(self):
