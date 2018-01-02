@@ -207,10 +207,10 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
-    def client_post_reporting_confirmation(self):
+    def client_post_reporting_end_step(self):
         response = self.client.post(
             reverse(
-                'reporting_confirmation',
+                'reporting_end_step',
                 kwargs={'uuid': self.report.uuid},
             ),
             data={
