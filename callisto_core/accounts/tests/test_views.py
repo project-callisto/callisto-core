@@ -20,9 +20,6 @@ from callisto_core.utils.api import NotificationApi
 from callisto_core.utils.sites import TempSiteID
 from callisto_core.wizard_builder.models import Page, SingleLineText
 
-from ..tokens import StudentVerificationTokenGenerator
-from ..views import CustomSignupView
-
 User = get_user_model()
 
 
@@ -34,6 +31,12 @@ class AccountsTestCase(ReportFlowTestCase):
 
 class SignupViewIntegratedTest(AccountsTestCase):
     signup_url = reverse('signup')
+    DEFAULT_POST = {
+        'username': 'test',
+        'password1': 'p@ssw0rd',
+        'password2': 'p@ssw0rd',
+        'terms': 'true',
+    }
 
     def test_signup_page_renders_signup_template(self):
         response = self.client.get(self.signup_url)
@@ -63,12 +66,7 @@ class SignupViewIntegratedTest(AccountsTestCase):
     def test_user_gets_logged_in_after_signup(self):
         response = self.client.post(
             self.signup_url,
-            {
-                'username': 'test',
-                'password1': 'p@ssw0rd',
-                'password2': 'p@ssw0rd',
-                'terms': 'true',
-            },
+            self.DEFAULT_POST,
         )
         self.assertEqual(
             response.client.session[SESSION_KEY],
@@ -81,12 +79,7 @@ class SignupViewIntegratedTest(AccountsTestCase):
         SingleLineText.objects.create(text="a question", page=page1)
         response = self.client.post(
             self.signup_url + '?next=' + reverse('report_new'),
-            {
-                'username': 'test',
-                'password1': 'p@ssw0rd',
-                'password2': 'p@ssw0rd',
-                'terms': 'true',
-            },
+            self.DEFAULT_POST,
         )
         self.assertRedirects(response, reverse('report_new'))
 
@@ -107,42 +100,33 @@ class SignupViewIntegratedTest(AccountsTestCase):
         )
 
     def test_newly_created_user_has_valid_account(self):
-        self.client.post(
-            self.signup_url, {
-                'username': 'test',
-                'password1': 'p@ssw0rd',
-                'password2': 'p@ssw0rd',
-                'terms': 'true',
-            },
-        )
+        self.client.post(self.signup_url, self.DEFAULT_POST)
         user = User.objects.get(username='test')
         self.assertIsNotNone(user.account)
         self.assertFalse(user.account.is_verified)
         self.assertFalse(user.account.invalid)
 
     def test_sets_site_id(self):
-        Site.objects.create()
-        tem_site_id = 2
-        with TempSiteID(tem_site_id):
-            response = self.client.post(
-                self.signup_url,
-                {
-                    'username': 'test',
-                    'email': 'test@email.in',
-                    'password1': 'p@ssw0rd',
-                    'password2': 'p@ssw0rd',
-                    'terms': 'true',
-                },
-            )
+        temp_site_id = 3
+        Site.objects.create(id=temp_site_id)
+        with TempSiteID(temp_site_id):
+            response = self.client.post(self.signup_url, self.DEFAULT_POST)
             self.assertIn(response.status_code, self.valid_statuses)
             self.assertEqual(
                 User.objects.get(username='test').account.site_id,
-                tem_site_id,
+                temp_site_id,
             )
+
+    def test_signup_disabled_doesnt_create_user(self):
+        temp_site_id = 2
+        Site.objects.create(id=temp_site_id)
+        with TempSiteID(temp_site_id):
+            response = self.client.post(self.signup_url, self.DEFAULT_POST)
+            self.assertFalse(User.objects.filter(username='test'))
 
     @override_settings(SITE_ID=2)
     def test_disable_signup_redirects_from_signup(self):
-        Site.objects.create()
+        Site.objects.create(id=2)
         response = self.client.get(self.signup_url)
         self.assertRedirects(response, reverse('login'))
 

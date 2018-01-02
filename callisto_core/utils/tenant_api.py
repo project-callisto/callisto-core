@@ -87,7 +87,9 @@ cL+QqgshFt79Yh0=
         site_values = {
             1: default_values,
             2: defaults_with_signup_disabled,
+            3: default_values,
         }.get(site_id, {})
+
         value = site_values.get(var, '')
         value = cast_string_to_type(value, cast)
 
