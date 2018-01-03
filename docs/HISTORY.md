@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.20.0 (2017-12-18)
+
+* add callisto_core/accounts application
+
+    https://github.com/project-callisto/callisto-core/pull/346
+
 ## 0.19.9 (2017-12-21)
 
 * add basic celery setup

@@ -81,5 +81,5 @@ class EvalViewTest(ReportFlowTestCase):
     def test_action_reporting(self):
         self.assertFalse(EvalRow.objects.filter(action='REPORTING').count())
         self.client_post_report_creation()
-        self.client_post_reporting_confirmation()
+        self.client_post_reporting_end_step()
         self.assertTrue(EvalRow.objects.filter(action='REPORTING').count())
