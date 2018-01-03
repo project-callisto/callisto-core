@@ -33,8 +33,8 @@ KEY_HASHERS = [
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        'NAME': 'db-default.sqlite3',
+        "ENGINE": 'django.db.backends.postgresql',
+        'NAME': 'callisto-core',
     },
 }
 

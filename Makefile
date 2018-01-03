@@ -59,7 +59,6 @@ pip-install:
 	pip install -r callisto_core/requirements/dev.txt --upgrade
 
 app-setup: ## setup the test application environment
-	- rm wizard_builder_test_app.sqlite3
 	- python manage.py flush --noinput
 	python manage.py migrate --noinput --database default
 	python manage.py create_admins
@@ -69,13 +68,13 @@ app-setup: ## setup the test application environment
 	python manage.py demo_user
 
 dev-setup:
+	- createdb callisto-core
 	- make osx-install
 	make pip-install
 	make app-setup
 
 wizard-update-fixture: ## update fixture with migrations added on the local branch
 	git checkout master
-	- rm wizard_builder_test_app.sqlite3
 	- python manage.py migrate
 	- python manage.py loaddata $(DATA_FILE) -i
 	git checkout @{-1}
