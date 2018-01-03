@@ -28,9 +28,22 @@ logger = logging.getLogger(__name__)
 
 class CallistoCoreNotificationApi(object):
 
-    report_title = 'report_{0}.pdf.gpg'
-    report_filename = 'Report'
-    mail_domain = settings.APP_URL
+    report_filename = "report_{0}.pdf.gpg"
+    report_title = 'Report'
+
+    def slack_notification(self, msg, channel):
+        pass
+
+    def send_ucb_activation_email(self, *args, **kwargs):
+        pass
+
+    @property
+    def from_email(self):
+        return '"Reports" <reports@{0}>'.format(self.mail_domain)
+
+    @property
+    def mail_domain(_):
+        return settings.APP_URL
 
     @property
     def model(_):

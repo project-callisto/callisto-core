@@ -10,5 +10,6 @@ pytz==2017.3
 reportlab==3.4.0
 six==1.11.0
 requests==2.18.4
+git+git://github.com/project-callisto/django-decorator-include.git
 
 -e .

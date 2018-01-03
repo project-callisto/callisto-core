@@ -55,6 +55,7 @@ setup(
         'django-polymorphic>=1.0',
         'django-ratelimit>=1.0',
         'django-widget-tweaks>=1.4',
+        'django-decorator-include>=1',
         'gnupg>=2.3',
         'PyNaCl>=1.0',
         'pytz>=2017',

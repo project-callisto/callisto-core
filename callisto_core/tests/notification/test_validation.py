@@ -3,8 +3,8 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
-from ...notification.models import EmailNotification
-from .test_sites import TempSiteID
+from callisto_core.notification.models import EmailNotification
+from callisto_core.utils.sites import TempSiteID
 
 
 class EmailValidationTest(TestCase):

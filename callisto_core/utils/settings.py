@@ -10,6 +10,10 @@ APP_URL = os.environ.get('APP_URL', 'localhost')
 LOGIN_REDIRECT_URL = '/reports/new/'
 
 
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MAX_LENGTH = 120
+
+
 def load_file(path):
     path = os.path.join(BASE_DIR, path)
     with open(path, 'r') as file_data:
@@ -50,6 +54,7 @@ INSTALLED_APPS = [
     'callisto_core.evaluation',
     'callisto_core.notification',
     'callisto_core.reporting',
+    'callisto_core.accounts',
     'callisto_core.celeryconfig',
     'callisto_core.utils',
 ]
