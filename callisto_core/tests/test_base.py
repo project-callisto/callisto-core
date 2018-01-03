@@ -34,7 +34,7 @@ class ReportPostHelper(object):
             username=self.username,
             password=self.password,
         )
-        Account.objects.create(user=self.user)
+        Account.objects.create(user=self.user, site_id=1)
         url = reverse('login')
         data = {
             'username': self.username,

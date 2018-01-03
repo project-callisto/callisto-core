@@ -44,7 +44,11 @@ class LoginForm(AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.request.site.id == 11:
+        if TenantApi.site_settings(
+            'DISABLE_SIGNUP',
+            cast=bool,
+            request=self.request,
+        ):
             label = 'Email Address'
         else:
             label = 'Username'
@@ -58,6 +62,11 @@ class LoginForm(AuthenticationForm):
         super().confirm_login_allowed(user)
         current_site_id = self.request.site.id
         if user.account.site_id is not current_site_id:
+            error_msg = 'user site_id not matching in login request'
+            if settings.DEBUG:
+                logger.error(error_msg)
+            else:
+                logger.warn(error_msg)
             raise ValidationError(
                 self.error_messages['invalid_login'],
                 code='invalid_login',

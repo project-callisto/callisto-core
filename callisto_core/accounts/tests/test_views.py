@@ -1,6 +1,6 @@
 from unittest import skip
 
-from django.contrib.auth import SESSION_KEY, get_user_model
+from django.contrib.auth import get_user, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.sites.models import Site
 from django.http import HttpRequest
@@ -69,7 +69,7 @@ class SignupViewIntegratedTest(AccountsTestCase):
             self.DEFAULT_POST,
         )
         self.assertEqual(
-            response.client.session[SESSION_KEY],
+            self.client.session.user,
             str(User.objects.get(username="test").pk),
         )
 
@@ -169,77 +169,45 @@ class LoginViewTest(AccountsTestCase):
         response = self.client.get(self.login_url)
         self.assertIsInstance(response.context['form'], AuthenticationForm)
 
-    def test_user_doesnt_get_logged_in_if_authenticate_fails(self):
-        response = self.client.post(
-            self.login_url,
-            {
-                'username': 'thisuserdoesntexist',
-                'password': 'password',
-            },
-        )
-        self.assertNotIn(SESSION_KEY, response.client.session)
-        self.assertFalse(response.context['form'].is_valid())
+    def test_user_login_basic_case(self):
+        auth_info = {
+            'username': 'test',
+            'password': 'p@ssw0rd',
+        }
+        user = User.objects.create_user(**auth_info)
+        Account.objects.create(user=user, site_id=1)
+        self.client.post(self.login_url, auth_info)
 
-    def test_user_gets_logged_in_if_authenticate_succeeds(self):
-        with TempSiteID(1):
-            user = User.objects.create_user(
-                username='test_login', password='password')
-            Account.objects.create(user=user)
-            response = self.client.post(
-                self.login_url,
-                {
-                    'username': 'test_login',
-                    'password': 'password',
-                },
-            )
-            self.assertEqual(
-                response.client.session[SESSION_KEY],
-                str(User.objects.get(username="test_login").pk),
-            )
+        self.assertTrue(get_user(self.client).is_authenticated)
 
-    @skip('needs tenants')
-    def test_user_on_non_default_site_can_login(self):
-        with tenant_context(Tenant.objects.get(site_id=2)):
-            user = User.objects.create_user(
-                username='test_login_site_2',
-                password='password')
-            Account.objects.create(
-                user=user,
-                site_id=2)
+    def test_user_login_blocked_for_other_sites(self):
+        auth_info = {
+            'username': 'test',
+            'password': 'p@ssw0rd',
+        }
+        user = User.objects.create_user(**auth_info)
+        Account.objects.create(user=user, site_id=2)
+        self.client.post(self.login_url, auth_info)
+
+        self.assertFalse(get_user(self.client).is_authenticated)
+
+    def test_login_login_for_non_default_site(self):
+        auth_info = {
+            'username': 'test',
+            'password': 'p@ssw0rd',
+        }
+        user = User.objects.create_user(**auth_info)
+        Account.objects.create(user=user, site_id=2)
         with TempSiteID(2):
-            response = self.client.post(
-                self.login_url,
-                {
-                    'username': 'test_login_site_2',
-                    'password': 'password',
-                },
-            )
-            self.assertEqual(
-                response.client.session[SESSION_KEY],
-                str(User.objects.get(username="test_login_site_2").pk),
-            )
+            Site.objects.create(id=2)
+            self.client.post(self.login_url, auth_info)
 
-    @skip('needs tenants')
-    def test_user_cannot_login_to_another_site(self):
-        User.objects.create_user(
-            username='test_login_site_2',
-            password='password',
-            site_id=2)
-        with TempSiteID(1):
-            response = self.client.post(
-                self.login_url,
-                {
-                    'username': 'test_login_site_2',
-                    'password': 'password',
-                },
-            )
-            self.assertNotIn(SESSION_KEY, response.client.session)
-            self.assertFalse(response.context['form'].is_valid())
+        self.assertTrue(get_user(self.client).is_authenticated)
 
-    @override_settings(SITE_ID=2)
     def test_disable_signups_has_special_instructions(self):
-        Site.objects.create()
-        response = self.client.get(self.login_url)
+        with TempSiteID(2):
+            Site.objects.create(id=2)
+            response = self.client.get(self.login_url)
         self.assertIsInstance(response.context['form'], AuthenticationForm)
         self.assertContains(response, 'You should have gotten an email')
 
@@ -250,7 +218,8 @@ class StudentVerificationTest(AccountsTestCase):
         super().setUp()
         self.user = User.objects.create_user(
             username='username',
-            password='password')
+            password='password',
+        )
         Account.objects.create(
             user=self.user,
             school_email='tech@projectcallisto.org',
@@ -273,8 +242,7 @@ class StudentVerificationTest(AccountsTestCase):
             ReportingVerificationEmailForm,
         )
 
-    @skip('skip pending NotificationApi update')
-    @override_settings(SITE_ID=1)
+    @skip('skip until https://github.com/project-callisto/callisto-core/pull/359 is merged')
     def test_verification_post(self):
         response = self.client.post(
             self.verify_url,
