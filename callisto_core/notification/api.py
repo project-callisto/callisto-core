@@ -100,6 +100,10 @@ class CallistoCoreNotificationApi(object):
     def slack_notification(self, msg, channel):
         pass
 
+    def send_with_kwargs(self, **kwargs):
+        self.context = {**kwargs}
+        self.send()
+
     def send_confirmation(
         self,
         email_type: str,
@@ -353,10 +357,6 @@ class CallistoCoreNotificationApi(object):
         self.pre_send()
         self.send_email()
         self.post_send()
-
-    def send_with_kwargs(self, **kwargs):
-        self.context = {**kwargs}
-        self.send()
 
     def post_send(self):
         self.log_action()
