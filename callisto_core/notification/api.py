@@ -33,12 +33,12 @@ class CallistoCoreNotificationApi(object):
 
     # utilities
 
-  @property
-    def mail_domain(_):
+    @property
+    def mail_domain(self):
         return settings.APP_URL
 
     @property
-    def model(_):
+    def model(self):
         from callisto_core.notification.models import EmailNotification
         return EmailNotification
 
@@ -53,9 +53,6 @@ class CallistoCoreNotificationApi(object):
     @property
     def mailgun_post_route(self):
         return f"https://api.mailgun.net/v3/{self.mail_domain}/messages"
-
-    def slack_notification(self, msg, channel):
-        pass
 
     def user_site_id(self, user):
         return user.account.site_id
@@ -128,7 +125,7 @@ class CallistoCoreNotificationApi(object):
             'from_email': from_email,
         }
         self.send()
-        
+
     def send_report_to_authority(
         self,
         sent_report,
