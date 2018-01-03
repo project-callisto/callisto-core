@@ -20,17 +20,12 @@ class Account(models.Model):
     is_verified = models.BooleanField(default=False)
     school_email = models.EmailField(blank=True)
     invalid = models.BooleanField(default=False)
-
-    site_id = models.PositiveSmallIntegerField(
-        default=0,
-    )
+    site_id = models.PositiveSmallIntegerField(blank=False)
 
 
 class BulkAccount(models.Model):
     emails = models.TextField()
-    site_id = models.PositiveSmallIntegerField(
-        default=11,  # UCB Comedy
-    )
+    site_id = models.PositiveSmallIntegerField(blank=False)
 
     def create_accounts(self):
         emails = self.emails.split(',')
