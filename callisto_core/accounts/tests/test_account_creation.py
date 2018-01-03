@@ -7,6 +7,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.contrib.sites.models import Site
 
 from callisto_core.tests.test_base import (
     ReportFlowHelper as ReportFlowTestCase,
@@ -23,6 +24,7 @@ class AccountEmailParsingTest(ReportFlowTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        Site.objects.create(id=2)
         BulkAccount.objects.create(
             emails='tech@projectcallisto.org',
             site_id=2,
