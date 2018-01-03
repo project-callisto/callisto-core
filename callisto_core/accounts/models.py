@@ -16,21 +16,15 @@ class Account(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE)
     uuid = models.UUIDField(default=uuid.uuid4)
-
     is_verified = models.BooleanField(default=False)
     school_email = models.EmailField(blank=True)
     invalid = models.BooleanField(default=False)
-
-    site_id = models.PositiveSmallIntegerField(
-        default=0,
-    )
+    site_id = models.PositiveSmallIntegerField(blank=False)
 
 
 class BulkAccount(models.Model):
     emails = models.TextField()
-    site_id = models.PositiveSmallIntegerField(
-        default=11,  # UCB Comedy
-    )
+    site_id = models.PositiveSmallIntegerField(blank=False)
 
     def create_accounts(self):
         emails = self.emails.split(',')
@@ -60,14 +54,14 @@ class BulkAccount(models.Model):
 
             account, _ = Account.objects.get_or_create(
                 user_id=user.id,
+                site_id=self.site_id,
             )
             Account.objects.filter(id=account.id).update(
                 is_verified=True,
                 school_email=email,
-                site_id=self.site_id,
             )
 
-            NotificationApi.send_ucb_activation_email(user, email)
+            NotificationApi.send_account_activation_email(user, email)
 
     def save(self, *args, **kwargs):
         self.create_accounts()

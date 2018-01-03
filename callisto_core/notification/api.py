@@ -31,7 +31,9 @@ class CallistoCoreNotificationApi(object):
     report_filename = "report_{0}.pdf.gpg"
     report_title = 'Report'
 
-    @property
+    # utilities
+
+  @property
     def mail_domain(_):
         return settings.APP_URL
 
@@ -98,6 +100,9 @@ class CallistoCoreNotificationApi(object):
 
     # entrypoints
 
+    def slack_notification(self, msg, channel):
+        pass
+
     def send_confirmation(
         self,
         email_type: str,
@@ -123,7 +128,7 @@ class CallistoCoreNotificationApi(object):
             'from_email': from_email,
         }
         self.send()
-
+        
     def send_report_to_authority(
         self,
         sent_report,
@@ -231,7 +236,7 @@ class CallistoCoreNotificationApi(object):
         }
         self.send()
 
-    def send_ucb_activation_email(self, user, email):
+    def send_account_activation_email(self, user, email):
         domain = self._get_account_domain(settings.APP_URL, user)
 
         # TODO: mirror send_password_reset_email
