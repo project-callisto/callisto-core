@@ -157,6 +157,7 @@ class CustomSetPasswordForm(SetPasswordForm):
         super().__init__(*args, **kwargs)
         self.fields['new_password1'] = CharField(
             max_length=64,
+            min_length=8,
             label=self.password1_label,
             widget=PasswordInput(),
             error_messages={'required': REQUIRED_ERROR.format("password")},
