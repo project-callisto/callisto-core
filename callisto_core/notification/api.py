@@ -31,16 +31,6 @@ class CallistoCoreNotificationApi(object):
     report_filename = "report_{0}.pdf.gpg"
     report_title = 'Report'
 
-    def slack_notification(self, msg, channel):
-        pass
-
-    def send_ucb_activation_email(self, *args, **kwargs):
-        pass
-
-    @property
-    def from_email(self):
-        return '"Reports" <reports@{0}>'.format(self.mail_domain)
-
     @property
     def mail_domain(_):
         return settings.APP_URL
@@ -61,6 +51,9 @@ class CallistoCoreNotificationApi(object):
     @property
     def mailgun_post_route(self):
         return f"https://api.mailgun.net/v3/{self.mail_domain}/messages"
+
+    def slack_notification(self, msg, channel):
+        pass
 
     def user_site_id(self, user):
         return user.account.site_id
