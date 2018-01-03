@@ -219,6 +219,7 @@ class StudentVerificationTest(AccountsTestCase):
         )
         Account.objects.create(
             user=self.user,
+            site_id=1,
             school_email='tech@projectcallisto.org',
         )
         self.client.login(

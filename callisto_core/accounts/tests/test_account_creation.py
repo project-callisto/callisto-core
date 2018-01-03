@@ -25,11 +25,13 @@ class AccountEmailParsingTest(ReportFlowTestCase):
         super().setUpTestData()
         BulkAccount.objects.create(
             emails='tech@projectcallisto.org',
+            site_id=2,
         )
 
     def test_case_lowered(self):
         BulkAccount.objects.create(
             emails='TECH@projectcallisto.org',
+            site_id=2,
         )
         self.assertEqual(Account.objects.filter(
             school_email='TECH@projectcallisto.org').count(), 0)
@@ -38,7 +40,9 @@ class AccountEmailParsingTest(ReportFlowTestCase):
 
     def test_empty_emails_not_sent(self):
         bulk_account = BulkAccount.objects.create(
-            emails=' , ')
+            emails=' , ',
+            site_id=2,
+        )
 
         self.assertEqual(
             bulk_account.parsed_emails,
@@ -48,6 +52,7 @@ class AccountEmailParsingTest(ReportFlowTestCase):
     def test_email_address_is_user_name(self):
         BulkAccount.objects.create(
             emails='tech@projectcallisto.org',
+            site_id=2,
         )
 
         self.assertTrue(
@@ -56,7 +61,9 @@ class AccountEmailParsingTest(ReportFlowTestCase):
 
     def test_spaces_allowed_in_email_list(self):
         bulk_account = BulkAccount.objects.create(
-            emails='first@example.com,  second@example.com')
+            emails='first@example.com,  second@example.com',
+            site_id=2,
+        )
 
         self.assertEqual(
             bulk_account.parsed_emails,
@@ -65,7 +72,9 @@ class AccountEmailParsingTest(ReportFlowTestCase):
 
     def test_special_characters_allowed_in_email(self):
         bulk_account = BulkAccount.objects.create(
-            emails='first!?#$%^&*@example.com')
+            emails='first!?#$%^&*@example.com',
+            site_id=2,
+        )
 
         self.assertEqual(
             bulk_account.parsed_emails,
@@ -74,7 +83,9 @@ class AccountEmailParsingTest(ReportFlowTestCase):
 
     def test_basic_case(self):
         bulk_account = BulkAccount.objects.create(
-            emails='first@example.com,second@example.com,third@example.com')
+            emails='first@example.com,second@example.com,third@example.com',
+            site_id=2,
+        )
 
         self.assertEqual(
             bulk_account.parsed_emails,
@@ -83,14 +94,18 @@ class AccountEmailParsingTest(ReportFlowTestCase):
 
     def test_can_run_multiple_times_on_one_account(self):
         bulk_account = BulkAccount.objects.create(
-            emails='first@example.com')
+            emails='first@example.com',
+            site_id=2,
+        )
         self.assertEqual(
             bulk_account.parsed_emails,
             ['first@example.com']
         )
 
         bulk_account = BulkAccount.objects.create(
-            emails='first@example.com')
+            emails='first@example.com',
+            site_id=2,
+        )
         self.assertEqual(
             bulk_account.parsed_emails,
             ['first@example.com']
@@ -101,7 +116,10 @@ class AccountEmailTest(ReportFlowTestCase):
 
     @skip('skip pending NotificationApi update')
     def test_gets_account_activation_email(self):
-        BulkAccount.objects.create(emails='tech@projectcallisto.org')
+        BulkAccount.objects.create(
+            emails='tech@projectcallisto.org',
+            site_id=2,
+        )
         self.assertEqual(len(self.cassette), 1)
         self.assertEqual(
             self.cassette.requests[0].uri,
@@ -109,7 +127,10 @@ class AccountEmailTest(ReportFlowTestCase):
         )
 
     def test_can_activate_account(self):
-        BulkAccount.objects.create(emails='tech@projectcallisto.org')
+        BulkAccount.objects.create(
+            emails='tech@projectcallisto.org',
+            site_id=2,
+        )
         account = Account.objects.get(school_email='tech@projectcallisto.org')
         uid = urlsafe_base64_encode(
             force_bytes(account.user.pk)).decode("utf-8")
