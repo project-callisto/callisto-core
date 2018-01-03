@@ -127,7 +127,7 @@ class MatchingRequiredViewTest(MatchingHelper):
 class ConfirmationViewTest(ReportingHelper):
 
     def request(self):
-        return self.client_post_reporting_confirmation()
+        return self.client_post_reporting_end_step()
 
     def test_creates_a_full_report(self):
         self.assertEqual(SentFullReport.objects.count(), 0)
