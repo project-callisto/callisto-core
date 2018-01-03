@@ -54,11 +54,11 @@ class BulkAccount(models.Model):
 
             account, _ = Account.objects.get_or_create(
                 user_id=user.id,
+                site_id=self.site_id,
             )
             Account.objects.filter(id=account.id).update(
                 is_verified=True,
                 school_email=email,
-                site_id=self.site_id,
             )
 
             NotificationApi.send_account_activation_email(user, email)
