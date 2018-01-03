@@ -6,13 +6,13 @@ from django.views.generic import TemplateView
 from . import forms, views
 
 urlpatterns = [
-    url(r'^signup/$', views.CustomSignupView.as_view(), name='signup'),
-    url(r'^login/$',
+    url(r'^signup/', views.CustomSignupView.as_view(), name='signup'),
+    url(r'^login/',
         view=views.CustomLoginView.as_view(),
         name='login',
         ),
-    url(r'^logout/$', view=views.CustomLogoutView.as_view(), name='logout'),
-    url(r'^change_password/$',
+    url(r'^logout/', view=views.CustomLogoutView.as_view(), name='logout'),
+    url(r'^change_password/',
         view=auth_views.PasswordChangeView.as_view(
             template_name='callisto_core/accounts/password_change.html',
             success_url=reverse_lazy('dashboard'),
@@ -20,7 +20,7 @@ urlpatterns = [
         ),
         name='change_password',
         ),
-    url(r'^forgot_password/$',
+    url(r'^forgot_password/',
         view=views.CustomPasswordResetView.as_view(),
         name='reset',
         ),

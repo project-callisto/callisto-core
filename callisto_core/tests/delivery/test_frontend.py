@@ -39,7 +39,7 @@ def headless_mode():
 class AuthMixin:
     passphrase = 'soooooo seekrit'
     username = 'demo'
-    password = 'demo'
+    password = 'demodemodemo123123'
 
 
 class AssertionsMixin(object):
@@ -151,7 +151,12 @@ class EncryptedFrontendTest(
         )
         self.browser.get(self.live_server_url)
         self.element.enter_username()
-        self.element.enter_password()
+        self.browser.find_element_by_css_selector(
+            '[name="password1"]').send_keys(self.password)
+        self.browser.find_element_by_css_selector(
+            '[name="password2"]').send_keys(self.password)
+        self.browser.find_element_by_css_selector(
+            '[name="terms"]').click()
         self.element.submit()
 
     def setup_report(self):
