@@ -16,7 +16,6 @@ class Account(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE)
     uuid = models.UUIDField(default=uuid.uuid4)
-
     is_verified = models.BooleanField(default=False)
     school_email = models.EmailField(blank=True)
     invalid = models.BooleanField(default=False)
@@ -62,7 +61,7 @@ class BulkAccount(models.Model):
                 site_id=self.site_id,
             )
 
-            NotificationApi.send_ucb_activation_email(user, email)
+            NotificationApi.send_account_activation_email(user, email)
 
     def save(self, *args, **kwargs):
         self.create_accounts()
