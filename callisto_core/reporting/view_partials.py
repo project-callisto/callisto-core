@@ -25,11 +25,13 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.edit import ModelFormMixin
 
-from callisto_core.accounts import forms as account_forms
+from callisto_core.accounts import (
+    forms as account_forms, tokens as account_tokens,
+)
 from callisto_core.delivery import view_partials as delivery_partials
 from callisto_core.utils.api import MatchingApi, NotificationApi, TenantApi
 
-from . import forms, tokens, validators, view_helpers
+from . import forms, validators, view_helpers
 
 
 class SubmissionPartial(
@@ -55,7 +57,7 @@ class SchoolEmailFormPartial(
     PasswordResetView,
 ):
     form_class = account_forms.ReportingVerificationEmailForm
-    token_generator = tokens.StudentVerificationTokenGenerator()
+    token_generator = account_tokens.StudentVerificationTokenGenerator()
     # success_url is used for inputting a valid school email address
     success_url = None
     # next_url is used for having your account already verified,
