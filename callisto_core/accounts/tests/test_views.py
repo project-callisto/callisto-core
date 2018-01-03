@@ -68,10 +68,7 @@ class SignupViewIntegratedTest(AccountsTestCase):
             self.signup_url,
             self.DEFAULT_POST,
         )
-        self.assertEqual(
-            self.client.session.user,
-            str(User.objects.get(username="test").pk),
-        )
+        self.assertTrue(get_user(self.client).is_authenticated)
 
     def test_redirects_to_next(self):
         page1 = Page.objects.create()
@@ -236,7 +233,7 @@ class StudentVerificationTest(AccountsTestCase):
         )
 
     def test_verification_get(self):
-        response = self.client.get(self.verify_url)
+        response = self.client.get(self.verify_url, follow=True)
         self.assertIsInstance(
             response.context['form'],
             ReportingVerificationEmailForm,

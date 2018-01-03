@@ -25,6 +25,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.edit import ModelFormMixin
 
+from callisto_core.accounts import forms as account_forms
 from callisto_core.delivery import view_partials as delivery_partials
 from callisto_core.utils.api import MatchingApi, NotificationApi, TenantApi
 
@@ -53,7 +54,7 @@ class SchoolEmailFormPartial(
     SubmissionPartial,
     PasswordResetView,
 ):
-    form_class = forms.ReportingVerificationEmailForm
+    form_class = account_forms.ReportingVerificationEmailForm
     token_generator = tokens.StudentVerificationTokenGenerator()
     # success_url is used for inputting a valid school email address
     success_url = None
@@ -78,7 +79,7 @@ class SchoolEmailFormPartial(
         return ModelFormMixin.form_valid(self, form)
 
     def email_is_verified(self):
-        return True  # downstream hook
+        return self.request.user.account.is_verified
 
     def _redirect_to_next(self):
         next_url = reverse(
@@ -93,7 +94,8 @@ class SchoolEmailConfirmationPartial(
 ):
 
     def verify_email(self):
-        pass  # downstream hook
+        self.request.user.account.is_verified = True
+        self.request.user.account.save()
 
     def dispatch(self, request, token=None, uidb64=None, *args, **kwargs):
         if self.token_generator.check_token(self.request.user, token):

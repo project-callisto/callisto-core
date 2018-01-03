@@ -19,8 +19,7 @@ from django.utils.safestring import mark_safe
 from callisto_core.accounts.tokens import StudentVerificationTokenGenerator
 from callisto_core.utils.api import NotificationApi, TenantApi
 
-from .models import Account
-from .validators import validate_school_email
+from . import validators
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -193,7 +192,9 @@ FormattedPasswordChangeForm.base_fields = OrderedDict(
 )
 
 
-class SendVerificationEmailForm(PasswordResetForm):
+class SendVerificationEmailForm(
+    PasswordResetForm,
+):
     # only used for testing currently
 
     def __init__(self, *args, **kwargs):
@@ -201,38 +202,40 @@ class SendVerificationEmailForm(PasswordResetForm):
             kwargs.pop('instance')
         self.view = kwargs.pop('view')
         super().__init__(*args, **kwargs)
-        school_email_domain = TenantApi.site_settings(
-            'SCHOOL_EMAIL_DOMAIN',
-            request=self.view.request,
-        )
-        self.fields['email'].label = "Your school email"
-        self.fields['email'].widget.attrs.update(
-            {'placeholder': ', '.join(
-                ['myname@' + x for x in school_email_domain.split(',')],
-            )},
-        )
+        email_field = self.fields['email']
+        email_field.label = "Your school email"
+        email_field.widget.attrs.update(**self.email_field_placeholder())
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        validate_school_email(email, request=self.view.request)
+        validators.validate_school_email(email, request=self.view.request)
         return email
 
     def send_mail(self):
-        pass  # TODO
-
-    def save(self, *args, **kwargs):
-        Account.objects.filter(
-            pk=self.view.request.user.account.pk,
-        ).update(
-            school_email=self.cleaned_data["email"],
-        )
-        self.send_mail()
+        pass
 
     def get_users(self, email):
         return[self.view.request.user]
 
+    def email_field_placeholder(self):
+        school_email_domain = TenantApi.site_settings(
+            'SCHOOL_EMAIL_DOMAIN',
+            request=self.view.request,
+        )
+        return {'placeholder': ', '.join(
+            ['myname@' + x for x in school_email_domain.split(',')],
+        )}
 
-class ReportingVerificationEmailForm(SendVerificationEmailForm):
+    def save(self, *args, **kwargs):
+        account = self.view.request.user.account
+        account.school_email = self.cleaned_data["email"]
+        account.save()
+        self.send_mail()
+
+
+class ReportingVerificationEmailForm(
+    SendVerificationEmailForm,
+):
     token_generator = StudentVerificationTokenGenerator()
 
     def send_mail(self):
