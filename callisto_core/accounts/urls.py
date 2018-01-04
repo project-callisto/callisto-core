@@ -30,8 +30,7 @@ urlpatterns = [
         ),
         name='password_reset_sent',
         ),
-    # TODO: DRY uid and token pattern
-    url(r'^reset/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    url(r'^reset/confirm/(?P<uidb64>.+)/(?P<token>.+)/$',
         view=auth_views.PasswordResetConfirmView.as_view(
             template_name='callisto_core/accounts/password_reset_confirm.html',
             form_class=forms.FormattedSetPasswordForm,
@@ -39,8 +38,7 @@ urlpatterns = [
         ),
         name='reset_confirm',
         ),
-    # TODO: DRY uid and token pattern
-    url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    url(r'^activate/(?P<uidb64>.+)/(?P<token>.+)/$',
         view=auth_views.PasswordResetConfirmView.as_view(
             template_name='callisto_core/accounts/account_activation_confirm.html',
             form_class=forms.ActivateSetPasswordForm,
