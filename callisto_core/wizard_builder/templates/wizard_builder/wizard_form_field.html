@@ -1,4 +1,8 @@
 {% load widget_tweaks %}
 {% load wizard_builder %}
 
-{{ field|add_aria_tags_to_field }}
+{% if field|is_checkbox_select %}
+   {% include "wizard_builder/wizard_form_checkbox.html" %}
+{% else %}
+   {{ field|add_aria_tags_to_field }}
+{% endif %}

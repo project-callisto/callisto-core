@@ -3,6 +3,10 @@ from widget_tweaks.templatetags.widget_tweaks import append_attr
 from django import template
 from django.forms.widgets import ChoiceWidget
 
+from callisto_core.wizard_builder.widgets import (
+    CheckboxConditionalSelectMultiple, RadioConditionalSelect,
+)
+
 register = template.Library()
 
 
@@ -26,3 +30,15 @@ def add_aria_tags_to_field(field):
 @register.filter(name='is_multiple_choice')
 def is_multiple_choice(field):
     return issubclass(field.field.widget.__class__, ChoiceWidget)
+
+
+@register.filter(name='is_radio_select')
+def is_radio_select(field):
+    return issubclass(field.field.widget.__class__, RadioConditionalSelect)
+
+
+@register.filter(name='is_checkbox_select')
+def is_checkbox_select(field):
+    return issubclass(
+        field.field.widget.__class__,
+        CheckboxConditionalSelectMultiple)
