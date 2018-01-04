@@ -4,7 +4,6 @@ import os
 import typing
 
 import gnupg
-import requests
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
@@ -19,6 +18,7 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from callisto_core.celeryconfig.tasks import tasks as celery_tasks
 from callisto_core.reporting.report_delivery import (
     PDFFullReport, PDFMatchReport,
 )
@@ -49,10 +49,6 @@ class CallistoCoreNotificationApi(object):
     @property
     def from_email(self):
         return f'"Callisto" <noreply@{self.mail_domain}>'
-
-    @property
-    def mailgun_post_route(self):
-        return f"https://api.mailgun.net/v3/{self.mail_domain}/messages"
 
     def user_site_id(self, user):
         return user.account.site_id
@@ -119,14 +115,10 @@ class CallistoCoreNotificationApi(object):
 
         Called if an email confirmation is requested
         '''
-        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(
-            self.mail_domain,
-        )
         self.context = {
             'notification_name': email_type,
             'to_addresses': to_addresses,
             'site_id': site_id,
-            'from_email': from_email,
         }
         self.send()
 
@@ -236,13 +228,11 @@ class CallistoCoreNotificationApi(object):
             match_report(MatchReport): MatchReport for which
                 a match has been found
         '''
-        from_email = f'"Callisto Matching" <notification@{self.mail_domain}>'
         user = match_report.report.owner
         self.send_with_kwargs(
             notification_name='match_notification',
             to_addresses=[match_report.report.contact_email],
             site_id=self.user_site_id(user),
-            from_email=from_email,
             report=match_report.report,
             user=user,
         )
@@ -321,7 +311,6 @@ class CallistoCoreNotificationApi(object):
                 to_addresses
         optional:
             self.context.
-                from_email
                 attachment
         '''
         self.pre_send()
@@ -386,18 +375,13 @@ class CallistoCoreNotificationApi(object):
             })
 
     def send_email(self):
-        request_params = {
-            'auth': ("api", settings.MAILGUN_API_KEY),
-            'data': {
-                "from": self.context.get('from_email', self.from_email),
-                "to": self.context['to_addresses'],
-                "subject": self.context['subject'],
-                "html": self.context['body'],
-                **self._extra_data(),
-            },
-            **self._mail_attachments(),
+        email_data = {
+            'to': self.context['to_addresses'],
+            'subject': self.context['subject'],
+            'html': self.context['body'],
+            **self._extra_data(),
         }
-        response = requests.post(self.mailgun_post_route, **request_params)
+        celery_tasks.send_email.delay(email_data, self._mail_attachments())
         self.context.update({
             'response': getattr(response, 'context', response),
             'response_status': response.status_code,
