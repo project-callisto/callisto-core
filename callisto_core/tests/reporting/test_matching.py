@@ -5,15 +5,14 @@ from mock import call, patch
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
-from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from callisto_core.tests.utils.api import CustomNotificationApi
 from callisto_core.utils.api import MatchingApi
 
-from .. import test_base
-from ...delivery.models import MatchReport
-from .base import MatchSetup
+from callisto_core.tests.test_base import ReportPostHelper
+from callisto_core.delivery.models import MatchReport
+from callisto_core.tests.reporting.base import MatchSetup
 
 User = get_user_model()
 
@@ -45,7 +44,7 @@ class MatchDiscoveryTest(MatchSetup):
 
 class MatchIntegratedTest(
     MatchSetup,
-    test_base.ReportPostHelper,
+    ReportPostHelper,
 ):
     fixtures = [
         'wizard_builder_data',
