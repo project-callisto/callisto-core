@@ -5,7 +5,7 @@ from mock import patch
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from callisto_core.notification.models import EmailNotification
 from callisto_core.tests.test_base import (
@@ -22,7 +22,6 @@ class SiteIDTest(ReportFlowTestCase):
         super().setUp()
         self.second_site = Site.objects.create(domain='generic_second_site')
 
-    @override_settings()
     def test_on_site_respects_SITE_ID_setting(self):
         site_1 = Site.objects.get(id=1)
         site_2 = Site.objects.create()
@@ -55,20 +54,6 @@ class SiteIDTest(ReportFlowTestCase):
                 site_2_email_count + site_2_emails,
             )
 
-    @override_settings()
-    def test_site_not_overriden_on_save(self):
-        site = Site.objects.create()
-        # site_id will be a string on live, since its an environment variable
-        site_id = str(site.id)
-        with TempSiteID(site_id):
-            email = EmailNotification.objects.create(name='test_name')
-            email.sites.add(2)
-            email.save()
-        self.assertEqual(email.sites.count(), 1)
-        self.assertNotEqual(email.sites.first().id, site_id)
-        self.assertEqual(email.sites.first().id, self.second_site.id)
-
-    @override_settings()
     def test_multiple_added_sites_are_reflected_by_on_site(self):
         site_2 = Site.objects.create()
         notification = EmailNotification.objects.create()

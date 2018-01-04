@@ -20,11 +20,7 @@ class CallistoCoreNotificationApi(object):
     report_filename = "report_{0}.pdf.gpg"
     report_title = 'Report'
 
-    def slack_notification(self, msg, channel):
-        pass
-
-    def send_ucb_activation_email(self, *args, **kwargs):
-        pass
+    # utilities
 
     @property
     def from_email(self):
@@ -63,6 +59,12 @@ class CallistoCoreNotificationApi(object):
             return addresses
 
     # entrypoints
+
+    def slack_notification(self, msg, channel):
+        pass
+
+    def send_account_activation_email(self, *args, **kwargs):
+        pass
 
     def send_report_to_authority(
         self,
