@@ -197,7 +197,7 @@ class ConfirmationPartial(
     def form_valid(self, form):
         output = super().form_valid(form)
         self._save_to_address(form)
-        self._send_report_emails()
+        self._send_report_alerts()
         return output
 
     def _send_report_to_authority(self, report):
@@ -216,15 +216,22 @@ class ConfirmationPartial(
             site_id=self.site_id,
         )
 
+    def _send_callisto_slack_notification(self):
+        NotificationApi.slack_notification(
+            msg='New Callisto Report',
+            type='submit_confirmation',
+        )
+
     def _save_to_address(self, form):
         sent_report = form.instance
         sent_report.to_address = self.coordinator_emails
         sent_report.save()
 
-    def _send_report_emails(self):
+    def _send_report_alerts(self):
         for sent_full_report in self.report.sentfullreport_set.all():
             self._send_report_to_authority(sent_full_report)
         self._send_confirmation_email()
+        self._send_callisto_slack_notification()
 
 
 class MatchingWithdrawPartial(

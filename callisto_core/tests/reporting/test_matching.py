@@ -7,12 +7,11 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.utils import timezone
 
-from callisto_core.tests.utils.api import CustomNotificationApi
-from callisto_core.utils.api import MatchingApi
-
-from callisto_core.tests.test_base import ReportPostHelper
 from callisto_core.delivery.models import MatchReport
 from callisto_core.tests.reporting.base import MatchSetup
+from callisto_core.tests.test_base import ReportPostHelper
+from callisto_core.tests.utils.api import CustomNotificationApi
+from callisto_core.utils.api import MatchingApi
 
 User = get_user_model()
 

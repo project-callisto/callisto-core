@@ -97,7 +97,12 @@ class CallistoCoreNotificationApi(object):
 
     # entrypoints
 
-    def slack_notification(self, msg, channel):
+    def slack_notification(
+        self,
+        msg: str,  # slack message
+        channel='',  # slack channel
+        type='',  # for test assertions
+    ):
         pass
 
     def send_with_kwargs(self, **kwargs):
