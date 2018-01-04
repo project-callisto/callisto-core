@@ -155,6 +155,10 @@ LOGGING = {
             'propagate': False,
             'level': 'ERROR',
         },
+        'parso': {
+            'handlers': [],
+            'propagate': False,
+        }
     },
     'root': {
         'handlers': ['console'],
