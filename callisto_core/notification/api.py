@@ -160,30 +160,44 @@ class CallistoCoreNotificationApi(object):
     def send_student_verification_email(self, form, *args, **kwargs):
         email = form.cleaned_data.get('email')
         for user in form.get_users(email):
-            self.context = {
-                'to_addresses': [email],
-                'email_subject': 'Verify your student email',
-                'email_name': 'student_verification_email',
-                'redirect_url': form.redirect_url,
-                'email_template_name': form.view.email_template_name,
-                'user': form.view.request.user,
-            }
-            self._send_verification_email(user, *args, **kwargs)
+            self.send_with_kwargs(
+                site_id=user.account.site_id,
+                to_addresses=[email],
+                email_subject='Verify your student email',
+                email_name='student_verification_email',
+                redirect_url=form.redirect_url,
+                email_template_name=form.view.email_template_name,
+                user=form.view.request.user,
+            )
 
     def send_password_reset_email(self, form, *args, **kwargs):
         email = form.cleaned_data.get('email')
         for user in form.get_users(email):
-            self.context = {
-                'to_addresses': [email],
-                'email_subject': 'Reset your password',
-                'email_name': 'password_reset_email',
-                'uid': args[2]['uid'],
-                'protocol': args[2]['protocol'],
-                'email_template_name': args[1],
-                'user': args[2]['user'],
-                'token': args[2]['token'],
-            }
-            self._send_verification_email(user, *args, **kwargs)
+            self.send_with_kwargs(
+                site_id=user.account.site_id,
+                to_addresses=[email],
+                email_subject='Reset your password',
+                email_name='password_reset_email',
+                uid=args[2]['uid'],
+                protocol=args[2]['protocol'],
+                email_template_name=args[1],
+                user=args[2]['user'],
+                token=args[2]['token'],
+            )
+
+    def send_account_activation_email(self, user, email):
+        # TODO: mirror send_password_reset_email
+        self.send_with_kwargs(
+            email_template_name='callisto_core/accounts/account_activation_email.html',
+            to_addresses=[email],
+            site_id=user.account.site_id,
+            user=user,
+            uid=urlsafe_base64_encode(force_bytes(user.pk)),
+            token=default_token_generator.make_token(copy.copy(user)),
+            protocol='http' if settings.DEBUG else 'https',  # TODO: not this
+            email_subject='Keep Our Community Safe with Callisto',
+            email_name='account_activation_email',
+        )
 
     def send_matching_report_to_authority(
         self,
@@ -222,38 +236,16 @@ class CallistoCoreNotificationApi(object):
             match_report(MatchReport): MatchReport for which
                 a match has been found
         '''
-        from_email = '"Callisto Matching" <notification@{0}>'.format(
-            self.mail_domain,
-        )
+        from_email = f'"Callisto Matching" <notification@{self.mail_domain}>'
         user = match_report.report.owner
-
-        self.context = {
-            'notification_name': 'match_notification',
-            'to_addresses': [match_report.report.contact_email],
-            'site_id': self.user_site_id(user),
-            'from_email': from_email,
-            'report': match_report.report,
-            'user': user,
-        }
-        self.send()
-
-    def send_account_activation_email(self, user, email):
-        domain = self._get_account_domain(settings.APP_URL, user)
-
-        # TODO: mirror send_password_reset_email
-        self.context = {
-            'domain': domain,
-            'email_template_name': 'account_activation_email.html',
-            'to_addresses': [email],
-            'site_id': user.account.site_id,
-            'user': user,
-            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': default_token_generator.make_token(copy.copy(user)),
-            'protocol': 'http' if settings.DEBUG else 'https',  # TODO: not this
-            'email_subject': 'Keep Our Community Safe with Callisto',
-            'email_name': 'ucb_activation_email',
-        }
-        self.send()
+        self.send_with_kwargs(
+            notification_name='match_notification',
+            to_addresses=[match_report.report.contact_email],
+            site_id=self.user_site_id(user),
+            from_email=from_email,
+            report=match_report.report,
+            user=user,
+        )
 
     # report attachment
 
@@ -313,28 +305,6 @@ class CallistoCoreNotificationApi(object):
             always_trust=True,
         ).data
 
-    def _send_verification_email(self, user, *args, **kwargs):
-        domain = self._get_account_domain(settings.APP_URL, user)
-
-        self.context.update({
-            'site_id': user.account.site_id,
-            'domain': domain,
-        })
-        self.send()
-
-    def _get_account_domain(self, domain, user):
-        # Set the domain URL, handle special case for staging:
-        if settings.DEBUG:
-            domain = Site.objects.get(id=user.account.site_id).domain
-
-            domain_end = domain.split('.')[1] + '.' + domain.split('.')[2]
-            domain = '{front}-staging.{back}'.format(
-                front=domain.split('.')[0], back=domain_end)
-        else:
-            domain = Site.objects.get(id=user.account.site_id).domain
-
-        return domain
-
     # send cycle
 
     def pre_send(self):
@@ -363,25 +333,10 @@ class CallistoCoreNotificationApi(object):
 
     # send cycle implementation
 
-    @property
-    def _mail_domain(self):
-        if (
-            settings.APP_URL in ['localhost', 'testserver'] or
-            settings.DEBUG
-        ):
-            return self.mail_domain
-        else:
-            domain = Site.objects.get(id=self.site_id).domain
-            partner_name = domain.split('.')[0]
-
-            return f'{partner_name}mail.callistocampus.org'
-
-    @property
     def _extra_data(self):
-        # for tests!
+        '''for tests'''
         return {}
 
-    @property
     def _mail_attachments(self):
         files = {'files': []}
         if self.context.get('attachment'):
@@ -393,10 +348,13 @@ class CallistoCoreNotificationApi(object):
         return files
 
     def set_domain(self):
-        from django.contrib.sites.models import Site
         if not self.context.get('domain'):
-            site = Site.objects.get(id=self.context.get('site_id'))
-            self.context.update({'domain': site.domain})
+            domain = Site.objects.get(id=self.context.get('site_id')).domain
+            if settings.DEBUG:
+                domain_start = domain.split('.')[0]
+                domain_end = domain.split('.')[1] + '.' + domain.split('.')[2]
+                domain = f'{domain_start}-staging.{domain_end}'
+            self.context.update({'domain': domain})
 
     def render_body(self):
         body_template = Template(self.context['body'])
@@ -428,18 +386,18 @@ class CallistoCoreNotificationApi(object):
             })
 
     def send_email(self):
-        response = requests.post(
-            self.mailgun_post_route,
-            auth=("api", settings.MAILGUN_API_KEY),
-            data={
+        request_params = {
+            'auth': ("api", settings.MAILGUN_API_KEY),
+            'data': {
                 "from": self.context.get('from_email', self.from_email),
                 "to": self.context['to_addresses'],
                 "subject": self.context['subject'],
                 "html": self.context['body'],
-                **self._extra_data,
+                **self._extra_data(),
             },
-            **self._mail_attachments,
-        )
+            **self._mail_attachments(),
+        }
+        response = requests.post(self.mailgun_post_route, **request_params)
         self.context.update({
             'response': getattr(response, 'context', response),
             'response_status': response.status_code,
@@ -471,7 +429,6 @@ class CallistoCoreNotificationApi(object):
 
 class LoggingNotificationApi(CallistoCoreNotificationApi):
 
-    @property
     def _extra_data(self):
         return {'o:testmode': 'yes'}
 

@@ -4,10 +4,10 @@ from django_migration_testcase import MigrationTest
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.models import Site
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from django.contrib.sites.models import Site
 
 from callisto_core.tests.test_base import (
     ReportFlowHelper as ReportFlowTestCase,
