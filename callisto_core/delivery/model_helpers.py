@@ -12,7 +12,9 @@ class EncodePrefixException(BaseException):
 
 
 def salt_to_encode_prefix(salt):
-    # form PBKDF2 prefix and key from the library and then return only the prefix
+    '''
+    form PBKDF2 prefix and key from the library and then return the prefix
+    '''
     hasher = PBKDF2KeyHasher()
     enc = hasher.encode('', salt, settings.ORIGINAL_KEY_ITERATIONS)
     prefix, _ = hasher.split_encoded(enc)
