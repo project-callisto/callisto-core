@@ -200,8 +200,10 @@ class CallistoCoreNotificationApi(object):
             to_addresses=[email],
             site_id=user.account.site_id,
             user=user,
-            uid=urlsafe_base64_encode(force_bytes(user.pk)),
-            token=default_token_generator.make_token(copy.copy(user)),
+            uid=urlsafe_base64_encode(
+                force_bytes(user.pk)),
+            token=default_token_generator.make_token(
+                copy.copy(user)),
             email_subject='Keep Our Community Safe with Callisto',
             email_name='account_activation_email',
         )
