@@ -229,7 +229,7 @@ class ConfirmationPartial(
 
     def _send_confirmation_slack_notification(self):
         NotificationApi.slack_notification(
-            msg='New Callisto Report',
+            msg='New Callisto Report (details will be sent via email)',
             type='submit_confirmation',
         )
 
