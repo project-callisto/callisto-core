@@ -16,6 +16,7 @@ class NotificationViewTest(
             self.client_post_reporting_end_step()
             api_logging.assert_has_calls([
                 call(email_name='submit_confirmation_callisto_team'),
+                call(report=self.report),
             ], any_order=True)
 
     def test_submit_confirmation_user_email(self):
