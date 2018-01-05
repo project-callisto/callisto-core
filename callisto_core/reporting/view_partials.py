@@ -216,7 +216,20 @@ class ConfirmationPartial(
             site_id=self.site_id,
         )
 
-    def _send_callisto_slack_notification(self):
+    def _send_confirmation_email_callisto(self):
+        NotificationApi.send_with_kwargs(
+            email_template_name='callisto_core/accounts/account_activation_email.html',
+            to_addresses=[email],
+            site_id=user.account.site_id,
+            user=user,
+            uid=urlsafe_base64_encode(force_bytes(user.pk)),
+            token=default_token_generator.make_token(copy.copy(user)),
+            protocol='http' if settings.DEBUG else 'https',  # TODO: not this
+            email_subject='Keep Our Community Safe with Callisto',
+            email_name='account_activation_email',
+        )
+
+    def _send_confirmation_slack_notification(self):
         NotificationApi.slack_notification(
             msg='New Callisto Report',
             type='submit_confirmation',
@@ -231,7 +244,8 @@ class ConfirmationPartial(
         for sent_full_report in self.report.sentfullreport_set.all():
             self._send_report_to_authority(sent_full_report)
         self._send_confirmation_email()
-        self._send_callisto_slack_notification()
+        self._send_confirmation_email_callisto()
+        self._send_confirmation_slack_notification()
 
 
 class MatchingWithdrawPartial(
