@@ -45,6 +45,7 @@ class ReportingMatchingView(
 ):
     template_name = 'callisto_core/reporting/submission.html'
     access_template_name = 'callisto_core/delivery/form.html'
+    admin_email_template_name = 'callisto_core/accounts/match_confirmation_callisto_team.html'
 
 
 class ReportingConfirmationView(
@@ -87,6 +88,7 @@ class MatchingEnterView(
 ):
     template_name = 'callisto_core/reporting/submission.html'
     access_template_name = 'callisto_core/delivery/form.html'
+    admin_email_template_name = 'callisto_core/accounts/match_confirmation_callisto_team.html'
 
 
 class MatchingWithdrawView(
