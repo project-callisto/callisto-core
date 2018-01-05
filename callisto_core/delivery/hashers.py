@@ -65,7 +65,7 @@ def make_key(encode_prefix, key):
     if hasher.algorithm == 'pbkdf2_sha256':
         iterations = int(encode_prefix.split('$')[1])
     else:
-        iterations = None
+        iterations = settings.ORIGINAL_KEY_ITERATIONS
 
     encoded = hasher.encode(key, salt, iterations=iterations)
     if (
