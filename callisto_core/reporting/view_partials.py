@@ -218,15 +218,12 @@ class ConfirmationPartial(
 
     def _send_confirmation_email_callisto(self):
         NotificationApi.send_with_kwargs(
-            email_template_name='callisto_core/accounts/account_activation_email.html',
-            to_addresses=[email],
-            site_id=user.account.site_id,
-            user=user,
-            uid=urlsafe_base64_encode(force_bytes(user.pk)),
-            token=default_token_generator.make_token(copy.copy(user)),
-            protocol='http' if settings.DEBUG else 'https',  # TODO: not this
-            email_subject='Keep Our Community Safe with Callisto',
-            email_name='account_activation_email',
+            email_template_name=self.admin_email_template_name,
+            to_addresses=NotificationApi.ALERT_LIST,
+            site_id=self.site_id,
+            report=self.report,
+            email_subject='New Callisto Report',
+            email_name='submit_confirmation_callisto_team',
         )
 
     def _send_confirmation_slack_notification(self):

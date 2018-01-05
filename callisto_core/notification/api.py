@@ -30,6 +30,9 @@ class CallistoCoreNotificationApi(object):
 
     report_filename = "report_{0}.pdf.gpg"
     report_title = 'Report'
+    ALERT_LIST = [
+        'tech@projectcallisto.org',
+    ]
 
     # utilities
 

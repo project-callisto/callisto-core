@@ -52,6 +52,7 @@ class ReportingConfirmationView(
 ):
     template_name = 'callisto_core/reporting/submission_confirm.html'
     access_template_name = 'callisto_core/delivery/form.html'
+    admin_email_template_name = 'callisto_core/accounts/submit_confirmation_callisto_team.html'
 
 
 #################
