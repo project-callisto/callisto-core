@@ -44,7 +44,9 @@ class ReportGPGEncryptionTest(
         self.assertEqual(data, {'rawr': 'cats'})
 
 
-class HistoricalSavingTest(ReportFlowTestCase):
+class HistoricalSavingTest(
+    ReportFlowTestCase,
+):
 
     def test_multiple_historical_records_saved(self):
         self.client_post_report_creation()
