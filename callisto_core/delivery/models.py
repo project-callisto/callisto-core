@@ -70,15 +70,13 @@ class Report(models.Model):
         passphrase: str,  # aka secret key aka passphrase
     ) -> dict or str:
         '''decrypts record text from record.encrypted, with the passphrase'''
-        if self.encode_prefix:
-            stretched_passphrase = hashers.make_key(
-                self.encode_prefix, passphrase)
-        elif self.salt:
-            self.encode_prefix, stretched_passphrase = model_helpers.salt_to_encode_prefix(
-                self.salt)
-        else:
-            stretched_passphrase = self.encryption_setup(passphrase)
+        if self.salt and not self.encode_prefix:
+            self.encode_prefix = model_helpers.salt_to_encode_prefix(self.salt)
+        elif not self.salt and not self.encode_prefix:
+            self.encryption_setup(passphrase)
 
+        stretched_passphrase = hashers.make_key(
+            self.encode_prefix, passphrase)
         record_data_string = security.decrypt_text(
             stretched_passphrase, self.encrypted)
 
