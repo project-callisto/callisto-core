@@ -72,7 +72,7 @@ class WizardReviewView(
 
 
 class DashboardView(
-    view_partials.PassphraseClearingPartial,
+    view_partials.DashboardPartial,
 ):
     template_name = "callisto_core/delivery/dashboard/index.html"
 
