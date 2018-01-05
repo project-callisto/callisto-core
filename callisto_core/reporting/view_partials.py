@@ -143,13 +143,32 @@ class _MatchingPartial(
         matches = self._get_matches(identifier)
 
         self._notify_owner_of_submission(identifier)
-        self._notify_authority_of_matches(matches, identifier)
-        self._notify_owners_of_matches(matches)
+        if matches:
+            self._notify_authority_of_matches(matches, identifier)
+            self._notify_owners_of_matches(matches)
+            self._slack_match_notification()
+            self._match_confirmation_email_to_callisto(matches)
 
         return response
 
     def _get_matches(self, identifier):
         return MatchingApi.find_matches(identifier)
+
+    def _slack_match_notification(self):
+        NotificationApi.slack_notification(
+            msg='New Callisto Matches (details will be sent via email)',
+            type='match_confirmation',
+        )
+
+    def _match_confirmation_email_to_callisto(self, matches):
+        NotificationApi.send_with_kwargs(
+            site_id=self.site_id,  # required in general
+            email_template_name=self.admin_email_template_name,  # the email template
+            to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
+            matches=matches,  # used in the email body
+            email_subject='New Callisto Matches',  # rendered as the email subject
+            email_name='match_confirmation_callisto_team',  # used in test assertions
+        )
 
     def _notify_owner_of_submission(self, identifier):
         if identifier:
@@ -160,13 +179,12 @@ class _MatchingPartial(
             )
 
     def _notify_authority_of_matches(self, matches, identifier):
-        if matches:
-            NotificationApi.send_matching_report_to_authority(
-                matches=matches,
-                identifier=identifier,
-                to_addresses=self.coordinator_emails,
-                public_key=self.coordinator_public_key,
-            )
+        NotificationApi.send_matching_report_to_authority(
+            matches=matches,
+            identifier=identifier,
+            to_addresses=self.coordinator_emails,
+            public_key=self.coordinator_public_key,
+        )
 
     def _notify_owners_of_matches(self, matches):
         for match in matches:
@@ -198,7 +216,7 @@ class ConfirmationPartial(
     def form_valid(self, form):
         output = super().form_valid(form)
         self._save_to_address(form)
-        self._send_report_emails()
+        self._send_report_alerts()
         return output
 
     def _send_report_to_authority(self, report):
@@ -217,15 +235,33 @@ class ConfirmationPartial(
             site_id=self.site_id,
         )
 
+    def _send_confirmation_email_to_callisto(self):
+        NotificationApi.send_with_kwargs(
+            site_id=self.site_id,  # required in general
+            email_template_name=self.admin_email_template_name,  # the email template
+            to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
+            report=self.report,  # used in the email body
+            email_subject='New Callisto Report',  # rendered as the email subject
+            email_name='submit_confirmation_callisto_team',  # used in test assertions
+        )
+
+    def _send_confirmation_slack_notification(self):
+        NotificationApi.slack_notification(
+            msg='New Callisto Report (details will be sent via email)',
+            type='submit_confirmation',
+        )
+
     def _save_to_address(self, form):
         sent_report = form.instance
         sent_report.to_address = self.coordinator_emails
         sent_report.save()
 
-    def _send_report_emails(self):
+    def _send_report_alerts(self):
         for sent_full_report in self.report.sentfullreport_set.all():
             self._send_report_to_authority(sent_full_report)
         self._send_confirmation_email()
+        self._send_confirmation_email_to_callisto()
+        self._send_confirmation_slack_notification()
 
 
 class MatchingWithdrawPartial(
