@@ -30,6 +30,9 @@ class CallistoCoreNotificationApi(object):
 
     report_filename = "report_{0}.pdf.gpg"
     report_title = 'Report'
+    ALERT_LIST = [
+        'tech@projectcallisto.org',
+    ]
 
     # utilities
 
@@ -97,7 +100,12 @@ class CallistoCoreNotificationApi(object):
 
     # entrypoints
 
-    def slack_notification(self, msg, channel):
+    def slack_notification(
+        self,
+        msg: str,  # slack message
+        channel='',  # slack channel
+        type='',  # for test assertions
+    ):
         pass
 
     def send_with_kwargs(self, **kwargs):
@@ -192,9 +200,10 @@ class CallistoCoreNotificationApi(object):
             to_addresses=[email],
             site_id=user.account.site_id,
             user=user,
-            uid=urlsafe_base64_encode(force_bytes(user.pk)),
-            token=default_token_generator.make_token(copy.copy(user)),
-            protocol='http' if settings.DEBUG else 'https',  # TODO: not this
+            uid=urlsafe_base64_encode(
+                force_bytes(user.pk)),
+            token=default_token_generator.make_token(
+                copy.copy(user)),
             email_subject='Keep Our Community Safe with Callisto',
             email_name='account_activation_email',
         )
@@ -308,6 +317,7 @@ class CallistoCoreNotificationApi(object):
     # send cycle
 
     def pre_send(self):
+        self.set_protocol()
         self.set_domain()
         self.set_notification()
         self.render_body()
@@ -346,6 +356,11 @@ class CallistoCoreNotificationApi(object):
                 ('attachment', (file_name, file_data)),
             )
         return files
+
+    def set_protocol(self):
+        if not self.context.get('protocol'):
+            protocol = 'http' if settings.DEBUG else 'https'  # TODO: not this
+            self.context.update({'protocol': protocol})
 
     def set_domain(self):
         if not self.context.get('domain'):
