@@ -11,8 +11,8 @@ class ModelHelpersTest(TestCase):
     EXPECTED_KEY = b'\x91\x05\x1a\x04\x1e\xf8D^\xfagG\x1eEA\xce\xe1\xa9\xb78<K!*l\x8bs\xa2\x0f\xd8M\x8f\x93'
 
     def check_salt_no_matter_with_prefix(self, salt):
-        pre = model_helpers.ensure_encode_prefix(self.TEST_PREFIX, salt)
-        self.assertEqual(self.TEST_PREFIX, pre)
+        prefix = model_helpers.ensure_encode_prefix(self.TEST_PREFIX, salt)
+        self.assertEqual(self.TEST_PREFIX, prefix)
 
     def test_ensure_encode_prefix_with_prefix(self):
         self.check_salt_no_matter_with_prefix(None)
@@ -24,18 +24,20 @@ class ModelHelpersTest(TestCase):
             model_helpers.ensure_encode_prefix(None, None)
 
     def test_ensure_encode_prefix_only_salt(self):
-        pre = model_helpers.ensure_encode_prefix(
+        prefix = model_helpers.ensure_encode_prefix(
             None,
             self.TEST_SALT
         )
         self.assertEqual(
-            "%s$%d$%s" %
-            (PBKDF2KeyHasher.algorithm,
-             settings.ORIGINAL_KEY_ITERATIONS,
-             self.TEST_SALT),
-            pre)
+            "%s$%d$%s" % (
+                PBKDF2KeyHasher.algorithm,
+                settings.ORIGINAL_KEY_ITERATIONS,
+                self.TEST_SALT,
+            ),
+            prefix,
+        )
         # ensure prefix compatible with our make_key operation
-        key = make_key(pre, '')
+        key = make_key(prefix, '')
         self.assertEqual(self.EXPECTED_KEY, key)
-        key = make_key(pre, "incorrect password")
+        key = make_key(prefix, "incorrect password")
         self.assertNotEqual(self.EXPECTED_KEY, key)
