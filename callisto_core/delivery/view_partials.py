@@ -58,13 +58,20 @@ class _PassphrasePartial(
         return self.storage_helper(self)
 
 
-class PassphraseClearingPartial(
+class _PassphraseClearingPartial(
+    EvalDataMixin,
     _PassphrasePartial,
 ):
 
     def get(self, request, *args, **kwargs):
         self.storage.clear_passphrases()
         return super().get(request, *args, **kwargs)
+
+
+class DashboardPartial(
+    _PassphraseClearingPartial,
+):
+    EVAL_ACTION_TYPE = 'DASHBOARD'
 
 
 ###################
@@ -78,7 +85,7 @@ class ReportBasePartial(
 ):
     model = models.Report
     storage_helper = view_helpers.EncryptedReportStorageHelper
-    EVAL_ACTION_TYPE = 'VIEW'  # fallback action, used rarely (if ever)
+    EVAL_ACTION_TYPE = 'VIEW'
 
     @property
     def site_id(self):
@@ -191,7 +198,7 @@ class _ReportAccessPartial(
             raise PermissionDenied
 
 
-class ReportUpdatePartial(
+class _ReportUpdatePartial(
     _ReportAccessPartial,
     views.edit.UpdateView,
 ):
@@ -209,7 +216,7 @@ class ReportUpdatePartial(
 
 
 class EncryptedWizardPartial(
-    ReportUpdatePartial,
+    _ReportUpdatePartial,
     wizard_builder_partials.WizardPartial,
 ):
     steps_helper = view_helpers.ReportStepsHelper
@@ -228,8 +235,8 @@ class EncryptedWizardPartial(
 ###################
 
 
-class ReportActionPartial(
-    ReportUpdatePartial,
+class _ReportActionPartial(
+    _ReportUpdatePartial,
 ):
     success_url = reverse_lazy('dashboard')
 
@@ -247,7 +254,7 @@ class ReportActionPartial(
 
 
 class ReportDeletePartial(
-    ReportActionPartial,
+    _ReportActionPartial,
 ):
     EVAL_ACTION_TYPE = 'DELETE'
 
@@ -256,8 +263,9 @@ class ReportDeletePartial(
 
 
 class WizardPDFPartial(
-    ReportActionPartial,
+    _ReportActionPartial,
 ):
+    EVAL_ACTION_TYPE = 'ACCESS_PDF'
 
     def form_valid(self, form):
         super().form_valid(form)
