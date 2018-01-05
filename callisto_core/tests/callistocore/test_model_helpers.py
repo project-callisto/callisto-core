@@ -23,11 +23,8 @@ class ModelHelpersTest(TestCase):
         with self.assertRaises(model_helpers.EncodePrefixException):
             model_helpers.ensure_encode_prefix(None, None)
 
-    def test_ensure_encode_prefix_only_salt(self):
-        prefix = model_helpers.ensure_encode_prefix(
-            None,
-            self.TEST_SALT
-        )
+    def test_prefix_format(self):
+        prefix = model_helpers.ensure_encode_prefix(None, self.TEST_SALT)
         self.assertEqual(
             "%s$%d$%s" % (
                 PBKDF2KeyHasher.algorithm,
@@ -36,8 +33,13 @@ class ModelHelpersTest(TestCase):
             ),
             prefix,
         )
-        # ensure prefix compatible with our make_key operation
+
+    def test_key_produces_repeatable_make_key_results(self):
+        prefix = model_helpers.ensure_encode_prefix(None, self.TEST_SALT)
         key = make_key(prefix, '')
         self.assertEqual(self.EXPECTED_KEY, key)
+
+    def test_key_mismatch_on_incorrect_password(self):
+        prefix = model_helpers.ensure_encode_prefix(None, self.TEST_SALT)
         key = make_key(prefix, "incorrect password")
         self.assertNotEqual(self.EXPECTED_KEY, key)
