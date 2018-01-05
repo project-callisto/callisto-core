@@ -1,5 +1,14 @@
 # History / Changelog
 
+## 0.20.1 (2018-01-05)
+
+* merge notification api from campus-client
+    * https://github.com/project-callisto/callisto-core/pull/359
+* add report and match alerting
+    * https://github.com/project-callisto/callisto-core/pull/371
+* update eval actions
+    * https://github.com/project-callisto/callisto-core/pull/372
+
 ## 0.20.0 (2017-12-18)
 
 * add callisto_core/accounts application
