@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 
@@ -16,12 +15,6 @@ class ReportAssertionHelper(object):
 
     def assert_report_exists(self):
         return bool(models.Report.objects.filter(pk=self.report.pk).count())
-
-    def match_report_email_assertions(self):
-        self.assertEqual(len(mail.outbox), 1)
-        message = mail.outbox[0]
-        self.assertEqual(message.subject, 'match_confirmation')
-        self.assertEqual(message.to, ['test@example.com'])
 
 
 class ReportPostHelper(object):

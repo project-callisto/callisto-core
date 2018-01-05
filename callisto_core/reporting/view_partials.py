@@ -34,12 +34,11 @@ from callisto_core.utils.api import MatchingApi, NotificationApi, TenantApi
 from . import forms, validators, view_helpers
 
 
-class SubmissionPartial(
+class _SubmissionPartial(
     view_helpers.ReportingSuccessUrlMixin,
-    delivery_partials.ReportUpdatePartial,
+    delivery_partials._ReportUpdatePartial,
 ):
     back_url = None
-    EVAL_ACTION_TYPE = 'SUBMISSION'
 
     @property
     def coordinator_emails(self):
@@ -53,7 +52,7 @@ class SubmissionPartial(
 
 
 class SchoolEmailFormPartial(
-    SubmissionPartial,
+    _SubmissionPartial,
     PasswordResetView,
 ):
     form_class = account_forms.ReportingVerificationEmailForm
@@ -63,7 +62,7 @@ class SchoolEmailFormPartial(
     # next_url is used for having your account already verified,
     # and inputting a correct account verification token
     next_url = None
-    EVAL_ACTION_TYPE = 'SCHOOL_EMAIL'
+    EVAL_ACTION_TYPE = 'SCHOOL_EMAIL_ENTRY'
 
     def dispatch(self, request, *args, **kwargs):
         if self.email_is_verified():
@@ -94,6 +93,7 @@ class SchoolEmailFormPartial(
 class SchoolEmailConfirmationPartial(
     SchoolEmailFormPartial,
 ):
+    EVAL_ACTION_TYPE = 'SCHOOL_EMAIL_CONFIRMATION'
 
     def verify_email(self):
         self.request.user.account.is_verified = True
@@ -108,14 +108,14 @@ class SchoolEmailConfirmationPartial(
 
 
 class PrepPartial(
-    SubmissionPartial,
+    _SubmissionPartial,
 ):
     form_class = forms.PrepForm
-    EVAL_ACTION_TYPE = 'CONTACT_PREP'
+    EVAL_ACTION_TYPE = 'CONTACT_INFO_PREPERATION'
 
 
-class ReportSubclassPartial(
-    SubmissionPartial,
+class _ReportSubclassPartial(
+    _SubmissionPartial,
 ):
 
     def get_form_kwargs(self):
@@ -124,11 +124,10 @@ class ReportSubclassPartial(
         return kwargs
 
 
-class MatchingPartial(
-    ReportSubclassPartial,
+class _MatchingPartial(
+    _ReportSubclassPartial,
 ):
     matching_validator_class = validators.Validators
-    EVAL_ACTION_TYPE = 'ENTER_MATCHING'
 
     def get_matching_validators(self, *args, **kwargs):
         return self.matching_validator_class()
@@ -177,22 +176,24 @@ class MatchingPartial(
 
 
 class OptionalMatchingPartial(
-    MatchingPartial,
+    _MatchingPartial,
 ):
+    EVAL_ACTION_TYPE = 'ENTER_MATCHING_OPTIONAL'
     form_class = forms.MatchingOptionalForm
 
 
 class RequiredMatchingPartial(
-    MatchingPartial,
+    _MatchingPartial,
 ):
+    EVAL_ACTION_TYPE = 'ENTER_MATCHING_REQUIRED'
     form_class = forms.MatchingRequiredForm
 
 
 class ConfirmationPartial(
-    ReportSubclassPartial,
+    _ReportSubclassPartial,
 ):
     form_class = forms.ConfirmationForm
-    EVAL_ACTION_TYPE = 'REPORTING'
+    EVAL_ACTION_TYPE = 'DIRECT_REPORTING_FINAL_CONFIRMATION'
 
     def form_valid(self, form):
         output = super().form_valid(form)
@@ -229,7 +230,7 @@ class ConfirmationPartial(
 
 class MatchingWithdrawPartial(
     view_helpers.ReportingSuccessUrlMixin,
-    delivery_partials.ReportActionPartial,
+    delivery_partials._ReportActionPartial,
 ):
     EVAL_ACTION_TYPE = 'MATCHING_WITHDRAW'
 
