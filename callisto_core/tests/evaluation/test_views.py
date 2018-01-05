@@ -56,10 +56,14 @@ class EvalViewTest(ReportFlowTestCase):
         self.assertTrue(EvalRow.objects.filter(action='VIEW_PDF').count())
 
     def test_action_contact_prep(self):
-        self.assertFalse(EvalRow.objects.filter(action='CONTACT_INFO_PREPERATION').count())
+        self.assertFalse(
+            EvalRow.objects.filter(
+                action='CONTACT_INFO_PREPERATION').count())
         self.client_post_report_creation()
         self.client_post_report_prep()
-        self.assertTrue(EvalRow.objects.filter(action='CONTACT_INFO_PREPERATION').count())
+        self.assertTrue(
+            EvalRow.objects.filter(
+                action='CONTACT_INFO_PREPERATION').count())
 
     def test_action_matching_enter(self):
         self.assertFalse(
@@ -79,7 +83,11 @@ class EvalViewTest(ReportFlowTestCase):
             EvalRow.objects.filter(action='MATCHING_WITHDRAW').count())
 
     def test_action_reporting(self):
-        self.assertFalse(EvalRow.objects.filter(action='DIRECT_REPORTING_FINAL_CONFIRMATION').count())
+        self.assertFalse(
+            EvalRow.objects.filter(
+                action='DIRECT_REPORTING_FINAL_CONFIRMATION').count())
         self.client_post_report_creation()
         self.client_post_reporting_end_step()
-        self.assertTrue(EvalRow.objects.filter(action='DIRECT_REPORTING_FINAL_CONFIRMATION').count())
+        self.assertTrue(
+            EvalRow.objects.filter(
+                action='DIRECT_REPORTING_FINAL_CONFIRMATION').count())

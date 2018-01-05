@@ -11,13 +11,10 @@ class EncodePrefixException(BaseException):
     pass
 
 
-UNUSED_PREFIX_PASSWORD = "unused in prefix"
-
-
 def salt_to_encode_prefix(salt):
     # form PBKDF2 prefix and key from the library and then return only the prefix
     hasher = PBKDF2KeyHasher()
-    enc = hasher.encode(UNUSED_PREFIX_PASSWORD, salt, settings.ORIGINAL_KEY_ITERATIONS)
+    enc = hasher.encode('', salt, settings.ORIGINAL_KEY_ITERATIONS)
     prefix, _ = hasher.split_encoded(enc)
     return prefix
 
