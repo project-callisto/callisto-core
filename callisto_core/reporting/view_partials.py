@@ -218,12 +218,12 @@ class ConfirmationPartial(
 
     def _send_confirmation_email_callisto(self):
         NotificationApi.send_with_kwargs(
-            email_template_name=self.admin_email_template_name,
-            to_addresses=NotificationApi.ALERT_LIST,
-            site_id=self.site_id,
-            report=self.report,
-            email_subject='New Callisto Report',
-            email_name='submit_confirmation_callisto_team',
+            site_id=self.site_id,  # required in general
+            email_template_name=self.admin_email_template_name,  # the email template
+            to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
+            report=self.report,  # used in the email body
+            email_subject='New Callisto Report',  # rendered as the email subject
+            email_name='submit_confirmation_callisto_team',  # used in test assertions
         )
 
     def _send_confirmation_slack_notification(self):
