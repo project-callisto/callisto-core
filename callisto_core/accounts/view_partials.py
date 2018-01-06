@@ -1,3 +1,25 @@
+'''
+
+View partials provide all the callisto-core front-end functionality.
+Subclass these partials with your own views if you are implementing
+callisto-core. Many of the view partials only provide a subset of the
+functionality required for a full HTML view.
+
+docs / reference:
+    - https://docs.djangoproject.com/en/1.11/topics/class-based-views/
+
+view_partials should define:
+    - forms
+    - models
+    - helper classes
+    - access checks
+    - redirect handlers
+
+and should not define:
+    - templates
+    - url names
+
+'''
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
 from django.shortcuts import redirect
