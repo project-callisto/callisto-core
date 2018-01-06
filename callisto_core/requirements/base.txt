@@ -1,4 +1,4 @@
-argon2_cffi==16.3.0
+argon2-cffi==18.1.0
 celery==4.1.0
 django==2.0.1
 django-polymorphic==1.3
