@@ -24,6 +24,7 @@ class LoginView(
     view_partials.LoginPartial,
 ):
     template_name = 'callisto_core/accounts/login.html'
+    signup_disabled_template_name = 'callisto_core/accounts/login_signup_disabled.html'
 
 
 class PasswordResetView(

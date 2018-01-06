@@ -73,7 +73,7 @@ class LoginPartial(
             cast=bool,
             request=self.request,
         ):
-            self.template_name = 'callisto_core/accounts/login_signup_disabled.html'
+            self.template_name = self.signup_disabled_template_name
         return super().get_template_names()
 
     def get_context_data(self, **kwargs):
