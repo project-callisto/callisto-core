@@ -29,6 +29,7 @@ class ChoiceInline(nested_admin.NestedStackedInline):
 
 
 class QuestionInline(admin.TabularInline):
+    id_cache = None
     extra = 0
 
     def question_link(self, obj):
