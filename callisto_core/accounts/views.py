@@ -13,6 +13,8 @@ views should define:
 '''
 from . import view_partials
 
+from django.views.generic import TemplateView
+
 
 class SignupView(
     view_partials.SignupPartial,
@@ -38,6 +40,12 @@ class PasswordChangeView(
     view_partials.PasswordChangePartial,
 ):
     template_name = 'callisto_core/accounts/password_change.html'
+
+
+class PasswordForgetSentView(
+    TemplateView,
+):
+    template_name = "callisto_core/accounts/password_reset_sent.html"
 
 
 class LogoutView(

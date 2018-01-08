@@ -27,9 +27,7 @@ urlpatterns = [
         name='reset',
         ),
     url(r'^forgot_password/sent/$',
-        view=TemplateView.as_view(
-            template_name="callisto_core/accounts/password_reset_sent.html",
-        ),
+        view=views.PasswordForgetSentView.as_view(),
         name='password_reset_sent',
         ),
     url(r'^reset/confirm/(?P<uidb64>.+)/(?P<token>.+)/$',

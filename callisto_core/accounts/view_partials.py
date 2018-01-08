@@ -20,8 +20,7 @@ and should not define:
     - url names
 
 '''
-from django.contrib.auth import login
-from django.contrib.auth import views as auth_views
+from django.contrib.auth import login, views as auth_views
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.http import is_safe_url
