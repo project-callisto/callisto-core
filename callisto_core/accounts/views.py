@@ -45,7 +45,7 @@ class PasswordChangeView(
 class PasswordForgetSentView(
     TemplateView,
 ):
-    template_name = "callisto_core/accounts/password_reset_sent.html"
+    template_name = 'callisto_core/accounts/password_reset_sent.html'
 
 
 class PasswordResetConfirmView(
