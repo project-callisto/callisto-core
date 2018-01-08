@@ -43,9 +43,6 @@ class QuestionInline(admin.TabularInline):
 
     question_link.allow_tags = True
 
-    def question_type(self, obj):
-        return type(obj).__name__
-
     model = FormQuestion
-    fields = ['question_link', 'question_type', 'position']
-    readonly_fields = ['question_link', 'question_type']
+    fields = ['question_link', 'type', 'position']
+    readonly_fields = ['question_link', 'type']
