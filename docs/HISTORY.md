@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.20.2 (2018-01-05)
+
+* update notification api for campus-client's use case
+* sync account view organization with delivery and reporting
+    * https://github.com/project-callisto/callisto-core/pull/377
+
 ## 0.20.1 (2018-01-05)
 
 * merge notification api from campus-client
