@@ -1,9 +1,6 @@
-import django.contrib.auth.views as auth_views
 from django.conf.urls import url
-from django.urls import reverse_lazy
-from django.views.generic import TemplateView
 
-from . import forms, views
+from . import views
 
 urlpatterns = [
     url(r'^signup/',
@@ -31,19 +28,11 @@ urlpatterns = [
         name='password_reset_sent',
         ),
     url(r'^reset/confirm/(?P<uidb64>.+)/(?P<token>.+)/$',
-        view=auth_views.PasswordResetConfirmView.as_view(
-            template_name='callisto_core/accounts/password_reset_confirm.html',
-            form_class=forms.FormattedSetPasswordForm,
-            success_url=reverse_lazy('login'),
-        ),
+        view=views.PasswordResetConfirmView.as_view(),
         name='reset_confirm',
         ),
     url(r'^activate/(?P<uidb64>.+)/(?P<token>.+)/$',
-        view=auth_views.PasswordResetConfirmView.as_view(
-            template_name='callisto_core/accounts/account_activation_confirm.html',
-            form_class=forms.ActivateSetPasswordForm,
-            success_url=reverse_lazy('login'),
-        ),
+        view=views.AccountActivationView.as_view(),
         name='activate_account',
         ),
 ]

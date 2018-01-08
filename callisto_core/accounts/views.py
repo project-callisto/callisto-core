@@ -11,9 +11,9 @@ views should define:
     - templates
 
 '''
-from . import view_partials
-
 from django.views.generic import TemplateView
+
+from . import view_partials
 
 
 class SignupView(
@@ -46,6 +46,18 @@ class PasswordForgetSentView(
     TemplateView,
 ):
     template_name = "callisto_core/accounts/password_reset_sent.html"
+
+
+class PasswordResetConfirmView(
+    view_partials.PasswordResetConfirmPartial,
+):
+    template_name = 'callisto_core/accounts/password_reset_confirm.html'
+
+
+class AccountActivationView(
+    view_partials.AccountActivationPartial,
+):
+    template_name = 'callisto_core/accounts/account_activation_confirm.html'
 
 
 class LogoutView(

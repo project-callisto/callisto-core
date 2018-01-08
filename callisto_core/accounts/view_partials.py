@@ -102,6 +102,20 @@ class PasswordChangePartial(
     success_url = reverse_lazy('dashboard')
 
 
+class PasswordResetConfirmPartial(
+    auth_views.PasswordResetConfirmView,
+):
+    form_class = forms.FormattedSetPasswordForm
+    success_url = reverse_lazy('login')
+
+
+class AccountActivationPartial(
+    auth_views.PasswordResetConfirmView,
+):
+    form_class = forms.ActivateSetPasswordForm
+    success_url = reverse_lazy('login')
+
+
 class LogoutPartial(
     auth_views.LogoutView,
 ):
