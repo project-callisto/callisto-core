@@ -21,11 +21,11 @@ and should not define:
 
 '''
 from django.contrib.auth import login
-from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView
+from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.http import is_safe_url
-from django.views.generic.edit import CreateView
+from django.views.generic import edit as edit_views
 
 from callisto_core.utils.api import TenantApi
 
@@ -33,7 +33,7 @@ from . import forms, models
 
 
 class SignupPartial(
-    CreateView,
+    edit_views.CreateView,
 ):
     form_class = forms.SignUpForm
     success_url = reverse_lazy('dashboard')
@@ -63,7 +63,7 @@ class SignupPartial(
 
 
 class LoginPartial(
-    LoginView,
+    auth_views.LoginView,
 ):
     authentication_form = forms.LoginForm
 
@@ -77,7 +77,7 @@ class LoginPartial(
         return super().get_template_names()
 
     def get_context_data(self, **kwargs):
-        context = super(LoginView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         current_site = self.request.site
         context.update({
             self.redirect_field_name: self.get_redirect_url(),
@@ -90,18 +90,25 @@ class LoginPartial(
 
 
 class PasswordResetPartial(
-    PasswordResetView,
+    auth_views.PasswordResetView,
 ):
     success_url = reverse_lazy('password_reset_sent')
     form_class = forms.FormattedPasswordResetForm
 
 
+class PasswordChangePartial(
+    auth_views.PasswordChangeView,
+):
+    form_class = forms.FormattedPasswordChangeForm
+    success_url = reverse_lazy('dashboard')
+
+
 class LogoutPartial(
-    LogoutView,
+    auth_views.LogoutView,
 ):
 
     def get_context_data(self, **kwargs):
-        context = super(LogoutView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         current_site = self.request.site
         context.update({
             'site': current_site,

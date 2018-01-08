@@ -34,6 +34,12 @@ class PasswordResetView(
     email_template_name = 'callisto_core/accounts/password_reset_email.html'
 
 
+class PasswordChangeView(
+    view_partials.PasswordChangePartial,
+):
+    template_name = 'callisto_core/accounts/password_change.html'
+
+
 class LogoutView(
     view_partials.LogoutPartial,
 ):
