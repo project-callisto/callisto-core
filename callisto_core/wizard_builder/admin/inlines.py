@@ -5,7 +5,9 @@ from django.contrib import admin
 from django.db import models
 from django.urls import reverse_lazy
 
-from callisto_core.wizard_builder.models import Choice, ChoiceOption, FormQuestion
+from callisto_core.wizard_builder.models import (
+    Choice, ChoiceOption, FormQuestion,
+)
 
 
 class ChoiceOptionInline(nested_admin.NestedStackedInline):
