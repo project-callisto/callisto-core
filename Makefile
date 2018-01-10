@@ -72,6 +72,8 @@ dev-setup:
 	make app-setup
 
 wizard-update-fixture: ## update fixture with migrations added on the local branch
+	- dropdb callisto-core
+	createdb callisto-core
 	git checkout master
 	- python manage.py migrate
 	- python manage.py loaddata callisto_core/wizard_builder/fixtures/wizard_builder_data.json -i
