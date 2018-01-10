@@ -1,7 +1,5 @@
 .DEFAULT_GOAL := help
 
-DATA_FILE := callisto_core/wizard_builder/fixtures/wizard_builder_data.json
-
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
@@ -76,8 +74,8 @@ dev-setup:
 wizard-update-fixture: ## update fixture with migrations added on the local branch
 	git checkout master
 	- python manage.py migrate
-	- python manage.py loaddata $(DATA_FILE) -i
+	- python manage.py loaddata callisto_core/wizard_builder/fixtures/wizard_builder_data.json -i
 	git checkout @{-1}
 	python manage.py migrate
-	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
-	npx json -f $(DATA_FILE) -I
+	python manage.py dumpdata wizard_builder -o callisto_core/wizard_builder/fixtures/wizard_builder_data.json
+	npx json -f callisto_core/wizard_builder/fixtures/wizard_builder_data.json -I
