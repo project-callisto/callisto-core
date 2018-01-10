@@ -30,23 +30,15 @@ class Page(
 
     def __str__(self):
         questions = self.formquestion_set.order_by('position')
-        if len(questions) > 0 and self.site_names:
+        if len(questions) > 0:
             question_str = "(Question 1: {})".format(questions[0].text)
-            site_str = "(Sites: {})".format(self.site_names)
-            return "{} {} {}".format(self.short_str, question_str, site_str)
-        elif len(questions) > 0:
-            question_str = "(Question 1: {})".format(questions[0].text)
-            return "{} {}".format(self.short_str, question_str)
         else:
-            return "{}".format(self.short_str)
+            question_str = "(Question 1: None)"
+        return "{} {}".format(self.short_str, question_str)
 
     @property
     def short_str(self):
         return "Page {}".format(self.position)
-
-    @property
-    def site_names(self):
-        return [site.name for site in self.sites.all()]
 
     @property
     def questions(self):
@@ -94,11 +86,8 @@ class FormQuestion(models.Model):
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
-        if self.site_names:
-            site_str = "(Sites: {})".format(self.site_names)
-            return "{} {} {}".format(self.short_str, type_str, site_str)
-        else:
-            return "{} {}".format(self.short_str, type_str)
+        site_str = "(Sites: {})".format(self.site_names)
+        return "{} {} {}".format(self.short_str, type_str, site_str)
 
     @property
     def field_id(self):
@@ -110,10 +99,7 @@ class FormQuestion(models.Model):
 
     @property
     def site_names(self):
-        if self.page:
-            return self.page.site_names
-        else:
-            return None
+        return [site.name for site in self.sites.all()]
 
     @property
     def section(self):
