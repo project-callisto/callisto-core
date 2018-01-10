@@ -1,6 +1,6 @@
 # History / Changelog
 
-## 0.20.3 (2018-01-10)
+## 0.20.3.1 (2018-01-10)
 
 * move wizard builder's site foreign key from `Page` to `FormQuestion`
     * https://github.com/project-callisto/callisto-core/pull/384
