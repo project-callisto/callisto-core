@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .. import forms, managers, models
+from callisto_core.wizard_builder import forms, managers, models
 
 
 class ManagerTest(TestCase):
