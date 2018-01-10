@@ -25,7 +25,6 @@ class Page(
     )
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
-    sites = models.ManyToManyField(Site)
 
     objects = managers.PageManager()
 
