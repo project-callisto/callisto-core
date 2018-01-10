@@ -63,7 +63,7 @@ class PageQuerySet(QuerySet):
         except Site.DoesNotExist:
             site_id = 1
         return self.filter(
-            sites__id__in=[site_id],
+            formquestion__sites__id__in=[site_id],
         )
 
 
