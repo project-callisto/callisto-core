@@ -29,9 +29,8 @@ class Page(
     objects = managers.PageManager()
 
     def __str__(self):
-        questions = self.formquestion_set.order_by('position')
-        if len(questions) > 0:
-            question_str = "(Question 1: {})".format(questions[0].text)
+        if len(self.questions) > 0:
+            question_str = "(Question 1: {})".format(self.questions[0].text)
         else:
             question_str = "(Question 1: None)"
         return "{} {}".format(self.short_str, question_str)
