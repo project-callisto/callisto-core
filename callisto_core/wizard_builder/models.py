@@ -41,7 +41,7 @@ class Page(
 
     @property
     def questions(self):
-        return list(self.formquestion_set.order_by('position'))
+        return list(self.formquestion_set.all())
 
     def save(self, *args, **kwargs):
         self.set_page_position()
@@ -122,7 +122,7 @@ class FormQuestion(models.Model):
     @property
     def choices(self):
         try:
-            return list(self.choice_set.all().order_by('position'))
+            return list(self.choice_set.all())
         except BaseException:
             return []
 
