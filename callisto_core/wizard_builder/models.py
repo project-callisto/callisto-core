@@ -85,7 +85,8 @@ class FormQuestion(models.Model):
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
-        site_str = "(Sites: {})".format([site.name for site in self.sites.all()])
+        site_str = "(Sites: {})".format(
+            [site.name for site in self.sites.all()])
         return "{} {} {}".format(self.short_str, type_str, site_str)
 
     @property
