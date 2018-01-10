@@ -253,8 +253,8 @@ class DropdownMigrationTest(MigrationTest):
 class SitePageQuestionMigrationTest(MigrationTest):
 
     app_name = 'wizard_builder'
-    before = '0049_copy_sites_from_page_to_question'
-    after = '0048_formquestion_sites'
+    before = '0048_formquestion_sites'
+    after = '0049_copy_sites_from_page_to_question'
 
     def migrate_kwargs(self):
         return {
