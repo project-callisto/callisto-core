@@ -22,7 +22,7 @@ class ManagerTest(TestCase):
     def test_accurate_number_of_forms_present(self):
         self.assertEqual(
             len(self.manager.get_form_models()),
-            len(models.Page.objects.wizard_set(1)),
+            len(models.Page.objects.on_site(1)),
         )
 
     def test_returns_page_form(self):

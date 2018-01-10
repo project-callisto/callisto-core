@@ -31,7 +31,7 @@ class FormManager(object):
     def _get_form_data_from_db(self):
         return [
             page.serialized_questions
-            for page in models.Page.objects.wizard_set(self.site_id)
+            for page in models.Page.objects.on_site(self.site_id)
         ]
 
     def _create_forms_via_data(self):
@@ -69,9 +69,6 @@ class PageQuerySet(QuerySet):
 
 class PageManager(Manager):
     _queryset_class = PageQuerySet
-
-    def wizard_set(self, site_id=None):
-        return self.on_site(site_id).order_by('position')
 
     def on_site(self, site_id=None):
         return self.get_queryset().on_site(site_id)
