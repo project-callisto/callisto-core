@@ -71,9 +71,6 @@ class SignupViewIntegratedTest(AccountsTestCase):
         self.assertTrue(get_user(self.client).is_authenticated)
 
     def test_redirects_to_next(self):
-        page1 = Page.objects.create()
-        page1.sites.add(self.site.id)
-        SingleLineText.objects.create(text="a question", page=page1)
         response = self.client.post(
             self.signup_url + '?next=' + reverse('report_new'),
             self.DEFAULT_POST,
