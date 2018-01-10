@@ -85,7 +85,7 @@ class FormQuestion(models.Model):
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
-        site_str = "(Sites: {})".format(self.site_names)
+        site_str = "(Sites: {})".format([site.name for site in self.sites.all()])
         return "{} {} {}".format(self.short_str, type_str, site_str)
 
     @property
@@ -95,10 +95,6 @@ class FormQuestion(models.Model):
     @property
     def short_str(self):
         return self.text
-
-    @property
-    def site_names(self):
-        return [site.name for site in self.sites.all()]
 
     @property
     def section(self):
@@ -111,6 +107,7 @@ class FormQuestion(models.Model):
     def serialized(self):
         data = model_to_dict(self)
         data.update({
+            'sites': [site.id for site in self.sites.all()],
             'question_text': self.text,
             'field_id': self.field_id,
             'choices': self.serialized_choices,
