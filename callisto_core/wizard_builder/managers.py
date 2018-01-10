@@ -64,7 +64,7 @@ class PageQuerySet(QuerySet):
             site_id = 1
         return self.filter(
             formquestion__sites__id__in=[site_id],
-        )
+        ).distinct()
 
 
 class PageManager(Manager):
