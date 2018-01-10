@@ -86,6 +86,7 @@ class FormQuestion(models.Model):
         blank=False,
         on_delete=models.CASCADE,
     )
+    sites = models.ManyToManyField(Site)
     position = models.PositiveSmallIntegerField("position", default=0)
     type = models.TextField(
         choices=fields.get_field_options(),
