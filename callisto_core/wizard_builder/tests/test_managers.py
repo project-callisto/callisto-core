@@ -51,11 +51,12 @@ class ManagerTest(TestCase):
     def test_only_questions_for_current_site_present(self):
         page = models.Page.objects.first()
         previous_questions = page.site_questions(site_id=1)
-        previous_all_questions = page.formquestion_set.all()
+        previous_all_questions = list(page.formquestion_set.all())
 
-        question = models.FormQuestion.objects.create(page=page)
-        Site.objects.create(id=2)
-        question.sites.add(2)
+        question = models.FormQuestion.objects.create(
+            text='second site question', page=page)
+        site = Site.objects.create(name='second.com', domain='second.com')
+        question.sites.add(site)
 
         self.assertEqual(
             previous_questions,
@@ -63,7 +64,7 @@ class ManagerTest(TestCase):
         )
         self.assertNotEqual(
             previous_questions,
-            page.site_questions(site_id=2),
+            page.site_questions(site_id=site.id),
         )
         self.assertGreater(
             len(page.formquestion_set.all()),
