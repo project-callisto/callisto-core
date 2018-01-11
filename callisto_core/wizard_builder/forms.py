@@ -12,7 +12,7 @@ class PageForm(forms.Form):
     def setup(cls, page, data):
         cls.base_fields = {
             question.field_id: question.make_field()
-            for question in page.questions
+            for question in page.mock_questions
         }
         self = cls(data)
         self.page = page
@@ -28,7 +28,7 @@ class PageForm(forms.Form):
     def serialized(self):
         return [
             question.serialized
-            for question in self.page.questions
+            for question in self.page.mock_questions
         ]
 
     def _clean_fields(self):
@@ -38,7 +38,7 @@ class PageForm(forms.Form):
         self._clean_conditional_fields()
 
     def _clean_conditional_fields(self):
-        for question in self.page.questions:
+        for question in self.page.mock_questions:
             for choice in question.choices:
                 self._clean_if_choice_conditional(choice.data)
 

@@ -14,7 +14,7 @@ class MockPage(object):
             self.section = data[0].get('section', 1)
         except BaseException:
             self.section = 1
-        self.questions = self._create_questions(data)
+        self.mock_questions = self._create_questions(data)
 
     def _create_questions(self, data):
         questions = []

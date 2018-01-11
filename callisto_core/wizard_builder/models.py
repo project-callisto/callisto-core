@@ -26,9 +26,9 @@ class Page(models.Model):
     objects = managers.PageManager()
 
     def __str__(self):
-        if len(self.all_questions) > 0:
-            question_str = "(Question 1: {})".format(
-                self.all_questions[0].text)
+        all_questions = list(self.formquestion_set.all())
+        if len(all_questions) > 0:
+            question_str = "(Question 1: {})".format(all_questions[0].text)
         else:
             question_str = "(Question 1: None)"
         return "{} {}".format(self.short_str, question_str)
@@ -37,11 +37,7 @@ class Page(models.Model):
     def short_str(self):
         return "Page {}".format(self.position)
 
-    @property
-    def all_questions(self):
-        return list(self.formquestion_set.all())
-
-    def questions(self, site_id):
+    def site_questions(self, site_id):
         return list(self.formquestion_set.filter(sites__id__in=[site_id]))
 
     def save(self, *args, **kwargs):
