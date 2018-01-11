@@ -30,13 +30,16 @@ class FormManager(object):
 
     def _get_form_data_from_db(self):
         return [
-            page.serialized_questions
+            [
+                question.serialized
+                for question in page.questions(self.site_id)
+            ]
             for page in models.Page.objects.on_site(self.site_id)
         ]
 
     def _create_forms_via_data(self):
         return [
-            self._transform_page_to_form(page)
+            forms.PageForm.setup(page, self.answer_data)
             for page in self._pages_via_form_data()
         ]
 
@@ -46,13 +49,6 @@ class FormManager(object):
             page = mocks.MockPage(page_questions)
             pages.append(page)
         return pages
-
-    def _transform_page_to_form(self, page):
-        FormClass = forms.PageForm.setup(page)
-        form = FormClass(self.answer_data)
-        form.page = page
-        form.full_clean()
-        return form
 
 
 class PageQuerySet(QuerySet):

@@ -9,12 +9,15 @@ User = get_user_model()
 class PageForm(forms.Form):
 
     @classmethod
-    def setup(cls, page):
+    def setup(cls, page, data):
         cls.base_fields = {
             question.field_id: question.make_field()
             for question in page.questions
         }
-        return cls
+        self = cls(data)
+        self.page = page
+        self.full_clean()
+        return self
 
     @property
     def sections(self):
@@ -23,7 +26,10 @@ class PageForm(forms.Form):
 
     @property
     def serialized(self):
-        return self.page.serialized_questions
+        return [
+            question.serialized
+            for question in self.page.questions
+        ]
 
     def _clean_fields(self):
         for name, field in self.fields.items():

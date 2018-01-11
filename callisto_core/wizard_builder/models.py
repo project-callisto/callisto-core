@@ -9,10 +9,7 @@ from . import fields, managers, model_helpers
 logger = logging.getLogger(__name__)
 
 
-class Page(
-    model_helpers.SerializedQuestionMixin,
-    models.Model,
-):
+class Page(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -29,8 +26,9 @@ class Page(
     objects = managers.PageManager()
 
     def __str__(self):
-        if len(self.questions) > 0:
-            question_str = "(Question 1: {})".format(self.questions[0].text)
+        if len(self.all_questions) > 0:
+            question_str = "(Question 1: {})".format(
+                self.all_questions[0].text)
         else:
             question_str = "(Question 1: None)"
         return "{} {}".format(self.short_str, question_str)
@@ -40,8 +38,11 @@ class Page(
         return "Page {}".format(self.position)
 
     @property
-    def questions(self):
+    def all_questions(self):
         return list(self.formquestion_set.all())
+
+    def questions(self, site_id):
+        return list(self.formquestion_set.filter(sites__id__in=[site_id]))
 
     def save(self, *args, **kwargs):
         self.set_page_position()

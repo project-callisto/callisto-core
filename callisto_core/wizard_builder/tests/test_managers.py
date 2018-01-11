@@ -1,3 +1,4 @@
+from django.contrib.sites.models import Site
 from django.test import TestCase
 
 from callisto_core.wizard_builder import forms, managers, models
@@ -46,3 +47,25 @@ class ManagerTest(TestCase):
             form_data_after[0][0]['question_text'],
         )
         self.assertEqual(form_data_before, form_data_after)
+
+    def test_only_questions_for_current_site_present(self):
+        page = models.Page.objects.first()
+        previous_questions = page.questions(site_id=1)
+        previous_question_all = page.all_questions
+
+        question = models.FormQuestion.objects.create(page=page)
+        Site.objects.create(id=2)
+        question.sites.add(2)
+
+        self.assertEqual(
+            previous_questions,
+            page.questions(site_id=1),
+        )
+        self.assertNotEqual(
+            previous_questions,
+            page.questions(site_id=2),
+        )
+        self.assertGreater(
+            len(page.all_questions),
+            len(previous_question_all),
+        )

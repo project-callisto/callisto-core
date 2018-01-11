@@ -2,13 +2,10 @@
 mocks are fake models, used in place of actual models when rendering forms
 '''
 
-from . import fields, model_helpers
+from . import fields
 
 
-class MockPage(
-    model_helpers.SerializedQuestionMixin,
-    object,
-):
+class MockPage(object):
     pk = None
     id = None
 
