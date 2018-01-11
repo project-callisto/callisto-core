@@ -30,13 +30,16 @@ class FormManager(object):
 
     def _get_form_data_from_db(self):
         return [
-            page.serialized_questions
-            for page in models.Page.objects.wizard_set(self.site_id)
+            [
+                question.serialized
+                for question in page.site_questions(self.site_id)
+            ]
+            for page in models.Page.objects.on_site(self.site_id)
         ]
 
     def _create_forms_via_data(self):
         return [
-            self._transform_page_to_form(page)
+            forms.PageForm.setup(page, self.answer_data)
             for page in self._pages_via_form_data()
         ]
 
@@ -47,13 +50,6 @@ class FormManager(object):
             pages.append(page)
         return pages
 
-    def _transform_page_to_form(self, page):
-        FormClass = forms.PageForm.setup(page)
-        form = FormClass(self.answer_data)
-        form.page = page
-        form.full_clean()
-        return form
-
 
 class PageQuerySet(QuerySet):
 
@@ -63,15 +59,12 @@ class PageQuerySet(QuerySet):
         except Site.DoesNotExist:
             site_id = 1
         return self.filter(
-            sites__id__in=[site_id],
-        )
+            formquestion__sites__id__in=[site_id],
+        ).distinct()
 
 
 class PageManager(Manager):
     _queryset_class = PageQuerySet
-
-    def wizard_set(self, site_id=None):
-        return self.on_site(site_id).order_by('position')
 
     def on_site(self, site_id=None):
         return self.get_queryset().on_site(site_id)

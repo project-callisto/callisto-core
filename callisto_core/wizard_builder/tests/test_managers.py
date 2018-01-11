@@ -1,6 +1,7 @@
+from django.contrib.sites.models import Site
 from django.test import TestCase
 
-from .. import forms, managers, models
+from callisto_core.wizard_builder import forms, managers, models
 
 
 class ManagerTest(TestCase):
@@ -22,7 +23,7 @@ class ManagerTest(TestCase):
     def test_accurate_number_of_forms_present(self):
         self.assertEqual(
             len(self.manager.get_form_models()),
-            len(models.Page.objects.wizard_set(1)),
+            len(models.Page.objects.on_site(1)),
         )
 
     def test_returns_page_form(self):
@@ -46,3 +47,26 @@ class ManagerTest(TestCase):
             form_data_after[0][0]['question_text'],
         )
         self.assertEqual(form_data_before, form_data_after)
+
+    def test_only_questions_for_current_site_present(self):
+        page = models.Page.objects.first()
+        previous_questions = page.site_questions(site_id=1)
+        previous_all_questions = list(page.formquestion_set.all())
+
+        question = models.FormQuestion.objects.create(
+            text='second site question', page=page)
+        site = Site.objects.create(name='second.com', domain='second.com')
+        question.sites.add(site)
+
+        self.assertEqual(
+            previous_questions,
+            page.site_questions(site_id=1),
+        )
+        self.assertNotEqual(
+            previous_questions,
+            page.site_questions(site_id=site.id),
+        )
+        self.assertGreater(
+            len(page.formquestion_set.all()),
+            len(previous_all_questions),
+        )
