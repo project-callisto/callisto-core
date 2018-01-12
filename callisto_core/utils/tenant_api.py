@@ -18,7 +18,7 @@ def cast_string_to_type(
 
 class CallistoCoreTenantApi(object):
 
-    def get_current_domain():
+    def get_current_domain(self):
         return None
 
     @staticmethod
