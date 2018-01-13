@@ -12,7 +12,7 @@ from django.utils.http import urlsafe_base64_encode
 from callisto_core.accounts.forms import ReportingVerificationEmailForm
 from callisto_core.accounts.models import Account
 from callisto_core.accounts.tokens import StudentVerificationTokenGenerator
-from callisto_core.accounts.views import CustomSignupView
+from callisto_core.accounts.views import SignupView
 from callisto_core.tests.test_base import (
     ReportFlowHelper as ReportFlowTestCase,
 )
@@ -71,9 +71,6 @@ class SignupViewIntegratedTest(AccountsTestCase):
         self.assertTrue(get_user(self.client).is_authenticated)
 
     def test_redirects_to_next(self):
-        page1 = Page.objects.create()
-        page1.sites.add(self.site.id)
-        SingleLineText.objects.create(text="a question", page=page1)
         response = self.client.post(
             self.signup_url + '?next=' + reverse('report_new'),
             self.DEFAULT_POST,
@@ -145,13 +142,13 @@ class SignupViewUnitTest(AccountsTestCase):
         self.request.method = 'POST'
 
     def test_redirects_to_dashboard(self):
-        response = CustomSignupView.as_view()(self.request)
+        response = SignupView.as_view()(self.request)
         self.assertEqual(response.get('location'), reverse('dashboard'))
 
     def test_redirects_to_next(self):
         self.request.GET['next'] = reverse('report_new')
 
-        response = CustomSignupView.as_view()(self.request)
+        response = SignupView.as_view()(self.request)
         self.assertEqual(response.get('location'), reverse('report_new'))
 
 

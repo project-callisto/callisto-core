@@ -15,5 +15,5 @@ class FormQuestionAdmin(
 ):
     form = QuestionAdminForm
     search_fields = ['short_str', 'type', 'page']
-    list_filter = ['page__sites']
+    list_filter = ['sites']
     inlines = [ChoiceInline]
