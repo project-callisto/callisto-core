@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.20.5 (2018-01-15)
+
+* add a `<p>` tag to record form multiple choice labels
+
 ## 0.20.4 (2018-01-10)
 
 * move wizard builder's site foreign key from `Page` to `FormQuestion`

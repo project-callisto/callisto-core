@@ -19,7 +19,7 @@
 {% endif %}
 {% include "django/forms/widgets/input.html" %}
 {% if wrap_label %}
-    {{ widget.label }}
+    <p>{{ widget.label }}</p>
 
     {% comment "Optional note" %}
         this entire section would be better off as a 'post_label_block' or
