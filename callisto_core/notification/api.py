@@ -81,7 +81,7 @@ class CallistoCoreNotificationApi(object):
         CoverPage = []
         logo = os.path.join(
             settings.BASE_DIR,
-            '../../assets/callisto_logo.png',
+            'staticfiles/images/callisto_logo.png',
         )
 
         image = Image(logo, 3 * inch, 3 * inch)
