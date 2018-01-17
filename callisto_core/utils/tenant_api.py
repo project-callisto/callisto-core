@@ -19,7 +19,7 @@ def cast_string_to_type(
 class CallistoCoreTenantApi(object):
 
     def get_current_domain(self):
-        return None
+        return 1
 
     @staticmethod
     def site_settings(var, cast=str, request=None, site_id=1):
