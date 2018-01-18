@@ -19,7 +19,7 @@ urlpatterns = [
         view=views.PasswordChangeView.as_view(),
         name='change_password',
         ),
-    url(r'^forgot_password/',
+    url(r'^forgot_password/$',
         view=views.PasswordResetView.as_view(),
         name='reset',
         ),
