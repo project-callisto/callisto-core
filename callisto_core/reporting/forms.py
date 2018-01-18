@@ -24,11 +24,11 @@ class PrepForm(
         required=False,
     )
     contact_email = forms.CharField(
-        label="Email Address",
+        label="Email Address*",
         required=True,
     )
     contact_phone = forms.CharField(
-        label="Phone Number",
+        label="Phone Number*",
         required=True,
     )
     contact_notes = forms.ChoiceField(
