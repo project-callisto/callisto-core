@@ -39,7 +39,7 @@ notifications:
   email: false
 deploy:
   on:
-    branch: production
+    branch: master
   provider: pypi
   user: shipypi
   password:
