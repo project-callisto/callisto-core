@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.20.6 (2018-01-15)
+
+* NotificationApi patches
+    * https://github.com/project-callisto/callisto-core/pull/385
+    * https://github.com/project-callisto/callisto-core/pull/387
+
 ## 0.20.5 (2018-01-15)
 
 * add a `<p>` tag to record form multiple choice labels
