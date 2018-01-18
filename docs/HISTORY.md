@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.20.8 (2018-01-15)
+
+* added "*" to required fields in reporting forms
+    * https://github.com/project-callisto/callisto-core/pull/389
+
 ## 0.20.7 (2018-01-15)
 
 * NotificationApi patches
