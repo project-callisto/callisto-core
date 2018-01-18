@@ -30,6 +30,7 @@ class CallistoCoreNotificationApi(object):
 
     report_filename = "callisto_report_{0}.pdf.gpg"
     report_title = 'Callisto Record'
+    logo_path = '../../assets/callisto_logo.png'
     ALERT_LIST = [
         'tech@projectcallisto.org',
     ]
@@ -81,7 +82,7 @@ class CallistoCoreNotificationApi(object):
         CoverPage = []
         logo = os.path.join(
             settings.BASE_DIR,
-            '../../assets/callisto_logo.png',
+            self.logo_path,
         )
 
         image = Image(logo, 3 * inch, 3 * inch)
