@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.20.9 (2018-01-15)
+
+* added "*" to required fields in matching form
+* removed placeholder text from matching form fields
+    * https://github.com/project-callisto/callisto-core/pull/390
+
 ## 0.20.8 (2018-01-15)
 
 * added "*" to required fields in reporting forms

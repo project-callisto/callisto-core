@@ -75,7 +75,7 @@ class MatchingBaseForm(
     perp_name = forms.CharField(
         label="Perpetrator's Name",
         required=False,
-        widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
+        widget=forms.TextInput(),
     )
 
     def __init__(self, *args, matching_validators=None, **kwargs):
