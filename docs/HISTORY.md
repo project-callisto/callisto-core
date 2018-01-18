@@ -1,6 +1,6 @@
 # History / Changelog
 
-## 0.20.6 (2018-01-15)
+## 0.20.7 (2018-01-15)
 
 * NotificationApi patches
     * https://github.com/project-callisto/callisto-core/pull/385
