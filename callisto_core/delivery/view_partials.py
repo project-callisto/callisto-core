@@ -26,6 +26,7 @@ import logging
 import ratelimit.mixins
 from nacl.exceptions import CryptoError
 
+from django.shortcuts import redirect
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
@@ -173,10 +174,14 @@ class _ReportAccessPartial(
 
     def dispatch(self, request, *args, **kwargs):
         logger.debug(f'{self.__class__.__name__} access check')
-        if (
-            self.access_granted or
-            self.access_form_valid
-        ):
+        nexturl = None
+
+        if 'next' in request.GET:
+            nexturl = request.GET['next']
+
+        if (self.access_granted or self.access_form_valid) and nexturl:
+            return self._redirect_from_passphrase(request)
+        elif self.access_granted or self.access_form_valid:
             return super().dispatch(request, *args, **kwargs)
         else:
             return self._render_access_form()
@@ -191,6 +196,9 @@ class _ReportAccessPartial(
         self.template_name = self.access_template_name
         context = self.get_context_data(form=self._get_access_form())
         return self.render_to_response(context)
+
+    def _redirect_from_passphrase(self, request):
+        return redirect(request.GET['next'])
 
     def _check_report_owner(self):
         if not self.report.owner == self.request.user:
