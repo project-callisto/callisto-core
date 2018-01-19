@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.20.10 (2018-01-18)
+
+* use a single mail domain (in prod)
+
 ## 0.20.9 (2018-01-15)
 
 * added "*" to required fields in matching form
