@@ -39,7 +39,7 @@ class CallistoCoreNotificationApi(object):
 
     @property
     def mail_domain(self):
-        return settings.APP_URL
+        return 'mail.callistocampus.org'
 
     @property
     def model(self):
