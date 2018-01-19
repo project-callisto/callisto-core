@@ -26,10 +26,10 @@ import logging
 import ratelimit.mixins
 from nacl.exceptions import CryptoError
 
-from django.shortcuts import redirect
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic as views
 
