@@ -1,5 +1,5 @@
 <div>
-    <form method="POST" action="#" novalidate>
+    <form method="POST" action="?next={{ request.path }}" novalidate>
         {% include 'callisto_core/delivery/form_fields.html' %}
         <input class='btn btn-primary btn-block' type="submit" name="wizard_goto_step" value="Submit" />
     </form>
