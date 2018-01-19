@@ -77,6 +77,7 @@ class LoginPartial(
 
     def get_context_data(self, **kwargs):
         # IMPORTANT! this super call cannot be reduced to super()
+        # TODO: add a test that fails with super()
         context = super(edit_views.FormView, self).get_context_data(**kwargs)
         current_site = self.request.site
         context.update({
