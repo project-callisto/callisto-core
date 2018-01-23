@@ -22,6 +22,7 @@ and should not define:
 
 '''
 import logging
+import re
 
 import ratelimit.mixins
 from nacl.exceptions import CryptoError
@@ -172,14 +173,17 @@ class _ReportAccessPartial(
         else:
             return False
 
+    def _passphrase_next_url(self, request):
+        next_url = None
+        if 'next' in request.GET:
+            if re.search('^/[\W/-]*', request.GET['next']):
+                next_url = request.GET['next']
+        return next_url
+
     def dispatch(self, request, *args, **kwargs):
         logger.debug(f'{self.__class__.__name__} access check')
-        nexturl = None
 
-        if 'next' in request.GET:
-            nexturl = request.GET['next']
-
-        if (self.access_granted or self.access_form_valid) and nexturl:
+        if (self.access_granted or self.access_form_valid) and self._passphrase_next_url(request):
             return self._redirect_from_passphrase(request)
         elif self.access_granted or self.access_form_valid:
             return super().dispatch(request, *args, **kwargs)
@@ -198,7 +202,7 @@ class _ReportAccessPartial(
         return self.render_to_response(context)
 
     def _redirect_from_passphrase(self, request):
-        return redirect(request.GET['next'])
+        return redirect(self._passphrase_next_url(request))
 
     def _check_report_owner(self):
         if not self.report.owner == self.request.user:
