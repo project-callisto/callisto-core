@@ -64,15 +64,15 @@ class AssertionsMixin(object):
         return assertion_valid
 
     def assertSelectorContains(self, css, text):
-        element_text = _getElements(css, text)
-        if not _selectorContains(element_text):
+        element_text = self._getElements(css, text)
+        if not self._selectorContains(element_text):
             raise AssertionError('''
                 '{}' not found in '{}'
             '''.format(text, element_text))
 
     def assertSelectorNotContains(self, css, text):
-        element_text = _getElements(css, text)
-        if _selectorContains(element_text):
+        element_text = self._getElements(css, text)
+        if self._selectorContains(element_text):
             raise AssertionError('''
                 '{}' found in '{}'
             '''.format(text, element_text))
