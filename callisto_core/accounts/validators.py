@@ -35,8 +35,6 @@ def validate_school_email(email, request=None, site_id=None):
         _domain.strip().strip('@').strip()
         for _domain in school_email_domain.split(',')
     ]
-    allowed.append('sexualhealthinnovations.org')
-    allowed.append('projectcallisto.org')
 
     if email_domain not in allowed and not settings.DEBUG:
         logger.warning(
