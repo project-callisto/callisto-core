@@ -65,29 +65,29 @@ class MatchingSchoolEmailFormView(
     view_partials.SchoolEmailFormPartial,
 ):
     template_name = 'callisto_core/reporting/submission.html'
-    access_template_name = 'callisto_core/delivery/form.html'
+    access_template_name = 'callisto_core/delivery/form_redirect.html'
     email_template_name = 'callisto_core/reporting/student_verification_email.html'
 
 
 class MatchingSchoolEmailConfirmationView(
     view_partials.SchoolEmailConfirmationPartial,
 ):
-    template_name = 'callisto_core/delivery/form.html'
-    access_template_name = 'callisto_core/delivery/form.html'
+    template_name = 'callisto_core/delivery/form_redirect.html'
+    access_template_name = 'callisto_core/delivery/form_redirect.html'
 
 
 class MatchingPrepView(
     view_partials.PrepPartial
 ):
     template_name = 'callisto_core/reporting/submission.html'
-    access_template_name = 'callisto_core/delivery/form.html'
+    access_template_name = 'callisto_core/delivery/form_redirect.html'
 
 
 class MatchingEnterView(
     view_partials.RequiredMatchingPartial
 ):
     template_name = 'callisto_core/reporting/submission.html'
-    access_template_name = 'callisto_core/delivery/form.html'
+    access_template_name = 'callisto_core/delivery/form_redirect.html'
     admin_email_template_name = 'callisto_core/accounts/match_confirmation_callisto_team.html'
 
 
@@ -95,4 +95,4 @@ class MatchingWithdrawView(
     view_partials.MatchingWithdrawPartial,
 ):
     template_name = 'callisto_core/reporting/submission.html'
-    access_template_name = 'callisto_core/delivery/form.html'
+    access_template_name = 'callisto_core/delivery/form_redirect.html'
