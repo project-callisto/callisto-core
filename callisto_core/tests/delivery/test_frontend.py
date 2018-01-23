@@ -468,6 +468,28 @@ class CallistoCoreCases(
         self.element.submit()
         self.assertSelectorContains('.dashboard', 'No Reports')
 
+    def test_reporting_flow_form_redirect(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text('Start reporting process').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.assertSelectorNotContains('.has-error', 'Error:')
+
+    def test_matching_flow_form_redirect(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text('Start matching process').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.assertSelectorNotContains('.has-error', 'Error:')
+
+    def test_matching_flow_form_error(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text('Start matching process').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.element.submit()
+        self.assertSelectorContains('.has-error', 'Error:')
+
     @unittest.skipIf(headless_mode(), 'Not supported headless browsers')
     def test_can_view_pdf(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
