@@ -475,21 +475,24 @@ class CallistoCoreCases(
 
     def test_reporting_flow_form_redirect(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
-        self.browser.find_element_by_link_text('Start reporting process').click()
+        self.browser.find_element_by_link_text(
+            'Start reporting process').click()
         self.element.enter_key()
         self.element.submit()
         self.assertSelectorNotContains('.has-error', 'Error:')
 
     def test_matching_flow_form_redirect(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
-        self.browser.find_element_by_link_text('Start matching process').click()
+        self.browser.find_element_by_link_text(
+            'Start matching process').click()
         self.element.enter_key()
         self.element.submit()
         self.assertSelectorNotContains('.has-error', 'Error:')
 
     def test_matching_flow_form_error(self):
         self.browser.get(self.live_server_url + reverse('dashboard'))
-        self.browser.find_element_by_link_text('Start matching process').click()
+        self.browser.find_element_by_link_text(
+            'Start matching process').click()
         self.element.enter_key()
         self.element.submit()
         self.element.submit()

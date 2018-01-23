@@ -183,7 +183,8 @@ class _ReportAccessPartial(
     def dispatch(self, request, *args, **kwargs):
         logger.debug(f'{self.__class__.__name__} access check')
 
-        if (self.access_granted or self.access_form_valid) and self._passphrase_next_url(request):
+        if (self.access_granted or self.access_form_valid) and self._passphrase_next_url(
+                request):
             return self._redirect_from_passphrase(request)
         elif self.access_granted or self.access_form_valid:
             return super().dispatch(request, *args, **kwargs)
