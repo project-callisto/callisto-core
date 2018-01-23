@@ -29,7 +29,7 @@ class ReportingSchoolEmailFormView(
 class ReportingSchoolEmailConfirmationView(
     view_partials.SchoolEmailConfirmationPartial,
 ):
-    template_name = 'callisto_core/delivery/form_redirect.html'
+    template_name = 'callisto_core/delivery/form.html'
     access_template_name = 'callisto_core/delivery/form_redirect.html'
 
 
