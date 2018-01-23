@@ -49,7 +49,7 @@ class AssertionsMixin(object):
             self.browser.find_elements_by_css_selector(css),
         )
 
-    def assertSelectorContains(self, css, text):
+    def _selectorContains(self, css, text):
         assertion_valid = False
         elements = list(self.browser.find_elements_by_css_selector(css)),
         elements = elements[0]
@@ -58,9 +58,18 @@ class AssertionsMixin(object):
             element_text += element.text
             if text in element.text:
                 assertion_valid = True
-        if not assertion_valid:
+        return assertion_valid
+
+    def assertSelectorContains(self, css, text):
+        if not _selectorContains(self, css, text):
             raise AssertionError('''
                 '{}' not found in '{}'
+            '''.format(text, element_text))
+
+    def assertSelectorNotContains(self, css, text):
+        if _selectorContains(self, css, text):
+            raise AssertionError('''
+                '{}' found in '{}'
             '''.format(text, element_text))
 
 
