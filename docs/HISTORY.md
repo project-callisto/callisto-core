@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.20.13 (2018-01-23)
+
+* made `NotificationApi.ALERT_LIST` a property
+
 ## 0.20.12 (2018-01-23)
 
 * fixed error display for matching and reporting flow
