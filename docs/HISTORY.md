@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.20.14 (2018-01-24)
+
+* added missing '*' for required fields
+* fixed spelling error on matching form
+    * https://github.com/project-callisto/callisto-core/pull/396
+
 ## 0.20.13 (2018-01-23)
 
 * made `NotificationApi.ALERT_LIST` a property
