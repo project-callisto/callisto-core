@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.20.13 (2018-01-24)
+* added missing '*' for required fields
+* fixed spelling error on matching form
+    * https://github.com/project-callisto/callisto-core/pull/396
+
 ## 0.20.12 (2018-01-23)
 
 * fixed error display for matching and reporting flow
