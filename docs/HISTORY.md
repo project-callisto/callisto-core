@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.20.12 (2018-01-23)
+
+* fixed error display for matching and reporting flow
+* fixed dashboard URL in navbar
+
 ## 0.20.10 (2018-01-18)
 
 * use a single mail domain (in prod)
