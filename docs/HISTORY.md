@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.20.15 (2018-01-24)
+
+* Added missing '*' to passphrase screens
+
 ## 0.20.14 (2018-01-24)
 
 * added missing '*' for required fields
