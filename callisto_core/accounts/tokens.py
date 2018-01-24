@@ -1,4 +1,8 @@
+import logging
+
 from django.core.signing import Signer
+
+logger = logging.getLogger(__name__)
 
 
 class StudentVerificationTokenGenerator(object):
@@ -9,11 +13,9 @@ class StudentVerificationTokenGenerator(object):
 
         Student account verification is spam prevention,
         rather than a security concern. So we can
-        make the token the user's signed username
-
-        pls dont spam us??? thanks
+        make the token the user's signed uuid
         '''
-        return Signer().sign(str(user.username)).split(':')[-1]
+        return Signer().sign(str(user.account.uuid)).split(':')[-1]
 
     def check_token(self, user, token):
         return bool(self.make_token(user) == token)

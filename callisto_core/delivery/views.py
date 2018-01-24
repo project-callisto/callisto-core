@@ -58,13 +58,21 @@ class EncryptedWizardView(
     done_template_name = 'callisto_core/delivery/review.html'
 
 
+class WizardReviewView(
+    view_partials.EncryptedWizardPartial,
+):
+    done_template_name = 'callisto_core/delivery/review.html'
+    access_template_name = 'callisto_core/delivery/form.html'
+    done_template_name = 'callisto_core/delivery/review.html'
+
+
 #############
 # dashboard #
 #############
 
 
 class DashboardView(
-    view_partials.PassphraseClearingPartial,
+    view_partials.DashboardPartial,
 ):
     template_name = "callisto_core/delivery/dashboard/index.html"
 

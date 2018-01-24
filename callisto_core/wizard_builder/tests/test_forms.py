@@ -14,6 +14,7 @@ class FormSerializationTest(TestCase):
         'id': 2,
         'page': 2,
         'position': 0,
+        'sites': [1],
         'question_text': 'do androids dream of electric sheep?',
         'text': 'do androids dream of electric sheep?',
         'type': 'singlelinetext',

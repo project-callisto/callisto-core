@@ -1,6 +1,6 @@
-argon2_cffi==16.3.0
+argon2-cffi==18.1.0
 celery==4.1.0
-django==2.0
+django==2.0.1
 django-polymorphic==1.3
 django-ratelimit==1.1.0
 django_celery_results==1.0.1
@@ -9,5 +9,7 @@ python-gnupg==0.4.1
 pytz==2017.3
 reportlab==3.4.0
 six==1.11.0
+requests==2.18.4
+git+git://github.com/project-callisto/django-decorator-include.git
 
 -e .

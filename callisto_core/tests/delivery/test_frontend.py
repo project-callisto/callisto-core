@@ -39,7 +39,7 @@ def headless_mode():
 class AuthMixin:
     passphrase = 'soooooo seekrit'
     username = 'demo'
-    password = 'demo'
+    password = 'demodemodemo123123'
 
 
 class AssertionsMixin(object):
@@ -49,18 +49,32 @@ class AssertionsMixin(object):
             self.browser.find_elements_by_css_selector(css),
         )
 
-    def assertSelectorContains(self, css, text):
-        assertion_valid = False
+    def _getElements(self, css, text):
         elements = list(self.browser.find_elements_by_css_selector(css)),
         elements = elements[0]
         element_text = ''
         for element in elements:
             element_text += element.text
-            if text in element.text:
-                assertion_valid = True
-        if not assertion_valid:
+        return element_text
+
+    def _selectorContains(self, text, element_text):
+        assertion_valid = False
+        if text in element_text:
+            assertion_valid = True
+        return assertion_valid
+
+    def assertSelectorContains(self, css, text):
+        element_text = self._getElements(css, text)
+        if not self._selectorContains(text, element_text):
             raise AssertionError('''
                 '{}' not found in '{}'
+            '''.format(text, element_text))
+
+    def assertSelectorNotContains(self, css, text):
+        element_text = self._getElements(css, text)
+        if self._selectorContains(text, element_text):
+            raise AssertionError('''
+                '{}' found in '{}'
             '''.format(text, element_text))
 
 
@@ -151,7 +165,12 @@ class EncryptedFrontendTest(
         )
         self.browser.get(self.live_server_url)
         self.element.enter_username()
-        self.element.enter_password()
+        self.browser.find_element_by_css_selector(
+            '[name="password1"]').send_keys(self.password)
+        self.browser.find_element_by_css_selector(
+            '[name="password2"]').send_keys(self.password)
+        self.browser.find_element_by_css_selector(
+            '[name="terms"]').click()
         self.element.submit()
 
     def setup_report(self):
@@ -453,6 +472,31 @@ class CallistoCoreCases(
         self.element.enter_key()
         self.element.submit()
         self.assertSelectorContains('.dashboard', 'No Reports')
+
+    def test_reporting_flow_form_redirect(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text(
+            'Start reporting process').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.assertSelectorNotContains('.has-error', 'Error:')
+
+    def test_matching_flow_form_redirect(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text(
+            'Start matching process').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.assertSelectorNotContains('.has-error', 'Error:')
+
+    def test_matching_flow_form_error(self):
+        self.browser.get(self.live_server_url + reverse('dashboard'))
+        self.browser.find_element_by_link_text(
+            'Start matching process').click()
+        self.element.enter_key()
+        self.element.submit()
+        self.element.submit()
+        self.assertSelectorContains('.has-error', 'Error:')
 
     @unittest.skipIf(headless_mode(), 'Not supported headless browsers')
     def test_can_view_pdf(self):

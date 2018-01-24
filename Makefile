@@ -1,7 +1,5 @@
 .DEFAULT_GOAL := help
 
-DATA_FILE := callisto_core/wizard_builder/fixtures/wizard_builder_data.json
-
 help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
@@ -59,7 +57,6 @@ pip-install:
 	pip install -r callisto_core/requirements/dev.txt --upgrade
 
 app-setup: ## setup the test application environment
-	- rm wizard_builder_test_app.sqlite3
 	- python manage.py flush --noinput
 	python manage.py migrate --noinput --database default
 	python manage.py create_admins
@@ -69,16 +66,18 @@ app-setup: ## setup the test application environment
 	python manage.py demo_user
 
 dev-setup:
+	- createdb callisto-core
 	- make osx-install
 	make pip-install
 	make app-setup
 
 wizard-update-fixture: ## update fixture with migrations added on the local branch
+	- dropdb callisto-core
+	createdb callisto-core
 	git checkout master
-	- rm wizard_builder_test_app.sqlite3
 	- python manage.py migrate
-	- python manage.py loaddata $(DATA_FILE) -i
+	- python manage.py loaddata callisto_core/wizard_builder/fixtures/wizard_builder_data.json -i
 	git checkout @{-1}
 	python manage.py migrate
-	python manage.py dumpdata wizard_builder -o $(DATA_FILE)
-	npx json -f $(DATA_FILE) -I
+	python manage.py dumpdata wizard_builder -o callisto_core/wizard_builder/fixtures/wizard_builder_data.json
+	npx json -f callisto_core/wizard_builder/fixtures/wizard_builder_data.json -I

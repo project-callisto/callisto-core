@@ -10,6 +10,10 @@ APP_URL = os.environ.get('APP_URL', 'localhost')
 LOGIN_REDIRECT_URL = '/reports/new/'
 
 
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MAX_LENGTH = 120
+
+
 def load_file(path):
     path = os.path.join(BASE_DIR, path)
     with open(path, 'r') as file_data:
@@ -29,8 +33,8 @@ KEY_HASHERS = [
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        'NAME': 'db-default.sqlite3',
+        "ENGINE": 'django.db.backends.postgresql',
+        'NAME': 'callisto-core',
     },
 }
 
@@ -50,6 +54,7 @@ INSTALLED_APPS = [
     'callisto_core.evaluation',
     'callisto_core.notification',
     'callisto_core.reporting',
+    'callisto_core.accounts',
     'callisto_core.celeryconfig',
     'callisto_core.utils',
 ]
@@ -150,6 +155,15 @@ LOGGING = {
             'propagate': False,
             'level': 'ERROR',
         },
+        'PIL': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': 'ERROR',
+        },
+        'parso': {
+            'handlers': [],
+            'propagate': False,
+        },
     },
     'root': {
         'handlers': ['console'],
@@ -163,3 +177,5 @@ CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_BROKER_BACKEND = 'memory'
 CELERY_BROKER_URL = 'memory://'
+
+MAILGUN_API_KEY = os.getenv('MAILGUN_API_KEY', default='')

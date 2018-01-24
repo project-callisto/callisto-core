@@ -1,13 +1,12 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 
+from callisto_core.accounts.models import Account
+from callisto_core.delivery import models
 from callisto_core.notification.models import EmailNotification
-
-from ..delivery import models
 
 User = get_user_model()
 
@@ -16,12 +15,6 @@ class ReportAssertionHelper(object):
 
     def assert_report_exists(self):
         return bool(models.Report.objects.filter(pk=self.report.pk).count())
-
-    def match_report_email_assertions(self):
-        self.assertEqual(len(mail.outbox), 1)
-        message = mail.outbox[0]
-        self.assertEqual(message.subject, 'match_confirmation')
-        self.assertEqual(message.to, ['test@example.com'])
 
 
 class ReportPostHelper(object):
@@ -34,7 +27,8 @@ class ReportPostHelper(object):
             username=self.username,
             password=self.password,
         )
-        url = reverse('index')
+        Account.objects.create(user=self.user, site_id=1)
+        url = reverse('login')
         data = {
             'username': self.username,
             'password': self.password,
@@ -188,7 +182,7 @@ class ReportPostHelper(object):
 
     def client_post_matching_withdraw(self):
         url = reverse(
-            'report_matching_withdraw',
+            'matching_withdraw',
             kwargs={'uuid': self.report.uuid},
         )
         data = {'key': self.passphrase}
@@ -207,10 +201,10 @@ class ReportPostHelper(object):
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
-    def client_post_reporting_confirmation(self):
+    def client_post_reporting_end_step(self):
         response = self.client.post(
             reverse(
-                'reporting_confirmation',
+                'reporting_end_step',
                 kwargs={'uuid': self.report.uuid},
             ),
             data={

@@ -4,10 +4,7 @@
     "pk": 1,
     "fields": {
       "position": 1,
-      "section": 1,
-      "sites": [
-        1
-      ]
+      "section": 1
     }
   },
   {
@@ -15,10 +12,7 @@
     "pk": 2,
     "fields": {
       "position": 2,
-      "section": 1,
-      "sites": [
-        1
-      ]
+      "section": 1
     }
   },
   {
@@ -26,10 +20,7 @@
     "pk": 3,
     "fields": {
       "position": 3,
-      "section": 1,
-      "sites": [
-        1
-      ]
+      "section": 1
     }
   },
   {
@@ -40,7 +31,10 @@
       "descriptive_text": "choose some!",
       "page": 1,
       "position": 0,
-      "type": "checkbox"
+      "type": "checkbox",
+      "sites": [
+        1
+      ]
     }
   },
   {
@@ -51,7 +45,10 @@
       "descriptive_text": "answer wisely",
       "page": 2,
       "position": 0,
-      "type": "singlelinetext"
+      "type": "singlelinetext",
+      "sites": [
+        1
+      ]
     }
   },
   {
@@ -62,7 +59,10 @@
       "descriptive_text": "",
       "page": 1,
       "position": 0,
-      "type": "singlelinetext"
+      "type": "singlelinetext",
+      "sites": [
+        1
+      ]
     }
   },
   {
@@ -73,7 +73,10 @@
       "descriptive_text": "pick a type",
       "page": 3,
       "position": 0,
-      "type": "radiobutton"
+      "type": "radiobutton",
+      "sites": [
+        1
+      ]
     }
   },
   {

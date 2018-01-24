@@ -25,18 +25,20 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.edit import ModelFormMixin
 
+from callisto_core.accounts import (
+    forms as account_forms, tokens as account_tokens,
+)
 from callisto_core.delivery import view_partials as delivery_partials
 from callisto_core.utils.api import MatchingApi, NotificationApi, TenantApi
 
-from . import forms, tokens, validators, view_helpers
+from . import forms, validators, view_helpers
 
 
-class SubmissionPartial(
+class _SubmissionPartial(
     view_helpers.ReportingSuccessUrlMixin,
-    delivery_partials.ReportUpdatePartial,
+    delivery_partials._ReportUpdatePartial,
 ):
     back_url = None
-    EVAL_ACTION_TYPE = 'SUBMISSION'
 
     @property
     def coordinator_emails(self):
@@ -50,17 +52,17 @@ class SubmissionPartial(
 
 
 class SchoolEmailFormPartial(
-    SubmissionPartial,
+    _SubmissionPartial,
     PasswordResetView,
 ):
-    form_class = forms.ReportingVerificationEmailForm
-    token_generator = tokens.StudentVerificationTokenGenerator()
+    form_class = account_forms.ReportingVerificationEmailForm
+    token_generator = account_tokens.StudentVerificationTokenGenerator()
     # success_url is used for inputting a valid school email address
     success_url = None
     # next_url is used for having your account already verified,
     # and inputting a correct account verification token
     next_url = None
-    EVAL_ACTION_TYPE = 'SCHOOL_EMAIL'
+    EVAL_ACTION_TYPE = 'SCHOOL_EMAIL_ENTRY'
 
     def dispatch(self, request, *args, **kwargs):
         if self.email_is_verified():
@@ -78,7 +80,7 @@ class SchoolEmailFormPartial(
         return ModelFormMixin.form_valid(self, form)
 
     def email_is_verified(self):
-        return True  # downstream hook
+        return self.request.user.account.is_verified
 
     def _redirect_to_next(self):
         next_url = reverse(
@@ -91,9 +93,11 @@ class SchoolEmailFormPartial(
 class SchoolEmailConfirmationPartial(
     SchoolEmailFormPartial,
 ):
+    EVAL_ACTION_TYPE = 'SCHOOL_EMAIL_CONFIRMATION'
 
     def verify_email(self):
-        pass  # downstream hook
+        self.request.user.account.is_verified = True
+        self.request.user.account.save()
 
     def dispatch(self, request, token=None, uidb64=None, *args, **kwargs):
         if self.token_generator.check_token(self.request.user, token):
@@ -104,14 +108,14 @@ class SchoolEmailConfirmationPartial(
 
 
 class PrepPartial(
-    SubmissionPartial,
+    _SubmissionPartial,
 ):
     form_class = forms.PrepForm
-    EVAL_ACTION_TYPE = 'CONTACT_PREP'
+    EVAL_ACTION_TYPE = 'CONTACT_INFO_PREPERATION'
 
 
-class ReportSubclassPartial(
-    SubmissionPartial,
+class _ReportSubclassPartial(
+    _SubmissionPartial,
 ):
 
     def get_form_kwargs(self):
@@ -120,11 +124,10 @@ class ReportSubclassPartial(
         return kwargs
 
 
-class MatchingPartial(
-    ReportSubclassPartial,
+class _MatchingPartial(
+    _ReportSubclassPartial,
 ):
     matching_validator_class = validators.Validators
-    EVAL_ACTION_TYPE = 'ENTER_MATCHING'
 
     def get_matching_validators(self, *args, **kwargs):
         return self.matching_validator_class()
@@ -140,13 +143,32 @@ class MatchingPartial(
         matches = self._get_matches(identifier)
 
         self._notify_owner_of_submission(identifier)
-        self._notify_authority_of_matches(matches, identifier)
-        self._notify_owners_of_matches(matches)
+        if matches:
+            self._notify_authority_of_matches(matches, identifier)
+            self._notify_owners_of_matches(matches)
+            self._slack_match_notification()
+            self._match_confirmation_email_to_callisto(matches)
 
         return response
 
     def _get_matches(self, identifier):
         return MatchingApi.find_matches(identifier)
+
+    def _slack_match_notification(self):
+        NotificationApi.slack_notification(
+            msg='New Callisto Matches (details will be sent via email)',
+            type='match_confirmation',
+        )
+
+    def _match_confirmation_email_to_callisto(self, matches):
+        NotificationApi.send_with_kwargs(
+            site_id=self.site_id,  # required in general
+            email_template_name=self.admin_email_template_name,  # the email template
+            to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
+            matches=matches,  # used in the email body
+            email_subject='New Callisto Matches',  # rendered as the email subject
+            email_name='match_confirmation_callisto_team',  # used in test assertions
+        )
 
     def _notify_owner_of_submission(self, identifier):
         if identifier:
@@ -157,13 +179,12 @@ class MatchingPartial(
             )
 
     def _notify_authority_of_matches(self, matches, identifier):
-        if matches:
-            NotificationApi.send_matching_report_to_authority(
-                matches=matches,
-                identifier=identifier,
-                to_addresses=self.coordinator_emails,
-                public_key=self.coordinator_public_key,
-            )
+        NotificationApi.send_matching_report_to_authority(
+            matches=matches,
+            identifier=identifier,
+            to_addresses=self.coordinator_emails,
+            public_key=self.coordinator_public_key,
+        )
 
     def _notify_owners_of_matches(self, matches):
         for match in matches:
@@ -173,27 +194,29 @@ class MatchingPartial(
 
 
 class OptionalMatchingPartial(
-    MatchingPartial,
+    _MatchingPartial,
 ):
+    EVAL_ACTION_TYPE = 'ENTER_MATCHING_OPTIONAL'
     form_class = forms.MatchingOptionalForm
 
 
 class RequiredMatchingPartial(
-    MatchingPartial,
+    _MatchingPartial,
 ):
+    EVAL_ACTION_TYPE = 'ENTER_MATCHING_REQUIRED'
     form_class = forms.MatchingRequiredForm
 
 
 class ConfirmationPartial(
-    ReportSubclassPartial,
+    _ReportSubclassPartial,
 ):
     form_class = forms.ConfirmationForm
-    EVAL_ACTION_TYPE = 'REPORTING'
+    EVAL_ACTION_TYPE = 'DIRECT_REPORTING_FINAL_CONFIRMATION'
 
     def form_valid(self, form):
         output = super().form_valid(form)
         self._save_to_address(form)
-        self._send_report_emails()
+        self._send_report_alerts()
         return output
 
     def _send_report_to_authority(self, report):
@@ -212,20 +235,38 @@ class ConfirmationPartial(
             site_id=self.site_id,
         )
 
+    def _send_confirmation_email_to_callisto(self):
+        NotificationApi.send_with_kwargs(
+            site_id=self.site_id,  # required in general
+            email_template_name=self.admin_email_template_name,  # the email template
+            to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
+            report=self.report,  # used in the email body
+            email_subject='New Callisto Report',  # rendered as the email subject
+            email_name='submit_confirmation_callisto_team',  # used in test assertions
+        )
+
+    def _send_confirmation_slack_notification(self):
+        NotificationApi.slack_notification(
+            msg='New Callisto Report (details will be sent via email)',
+            type='submit_confirmation',
+        )
+
     def _save_to_address(self, form):
         sent_report = form.instance
         sent_report.to_address = self.coordinator_emails
         sent_report.save()
 
-    def _send_report_emails(self):
+    def _send_report_alerts(self):
         for sent_full_report in self.report.sentfullreport_set.all():
             self._send_report_to_authority(sent_full_report)
         self._send_confirmation_email()
+        self._send_confirmation_email_to_callisto()
+        self._send_confirmation_slack_notification()
 
 
 class MatchingWithdrawPartial(
     view_helpers.ReportingSuccessUrlMixin,
-    delivery_partials.ReportActionPartial,
+    delivery_partials._ReportActionPartial,
 ):
     EVAL_ACTION_TYPE = 'MATCHING_WITHDRAW'
 
