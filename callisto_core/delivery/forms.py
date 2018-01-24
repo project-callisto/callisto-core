@@ -38,7 +38,7 @@ class ReportBaseForm(
     FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
-    key = fields.PassphraseField(label='Passphrase')
+    key = fields.PassphraseField(label='Passphrase', label_suffix='*')
 
     @property
     def report(self):
@@ -59,7 +59,7 @@ class ReportCreateForm(
     ReportBaseForm,
 ):
     message_confirmation_error = "passphrase and passphrase confirmation must match"
-    key_confirmation = fields.PassphraseField(label='Confirm Passphrase')
+    key_confirmation = fields.PassphraseField(label='Confirm Passphrase', label_suffix='*')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
