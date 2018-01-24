@@ -30,15 +30,19 @@ class CallistoCoreNotificationApi(object):
 
     report_filename = "callisto_report_{0}.pdf.gpg"
     report_title = 'Callisto Record'
-    ALERT_LIST = [
-        'tech@projectcallisto.org',
-    ]
+    logo_path = '../../assets/callisto_logo.png'
 
     # utilities
 
     @property
+    def ALERT_LIST(self):
+        return [
+            'tech@projectcallisto.org',
+        ]
+
+    @property
     def mail_domain(self):
-        return settings.APP_URL
+        return 'mail.callistocampus.org'
 
     @property
     def model(self):
@@ -81,7 +85,7 @@ class CallistoCoreNotificationApi(object):
         CoverPage = []
         logo = os.path.join(
             settings.BASE_DIR,
-            '../../assets/callisto_logo.png',
+            self.logo_path,
         )
 
         image = Image(logo, 3 * inch, 3 * inch)

@@ -120,7 +120,7 @@ def facebook_validation_function(url):
 '''
 facebook_validation_info = {
     'validation': facebook_validation_function,
-    'example': 'http://www.facebook.com/johnsmithfakename',
+    'example': 'http://www.facebook.com/perpetratorname',
     'unique_prefix': ''}
 
 '''
@@ -141,15 +141,15 @@ facebook_validation_info = {
 '''
 
 facebook_only = OrderedDict(
-    [('Facebook profile URL', facebook_validation_info)],
+    [('Facebook profile URL*', facebook_validation_info)],
 )
 twitter_only = OrderedDict(
-    [('Twitter username/profile URL', twitter_validation_info)],
+    [('Twitter username/profile URL*', twitter_validation_info)],
 )
 facebook_or_twitter = OrderedDict(
     [
-        ('Facebook profile URL', facebook_validation_info),
-        ('Twitter username/profile URL', twitter_validation_info),
+        ('Facebook profile URL*', facebook_validation_info),
+        ('Twitter username/profile URL*', twitter_validation_info),
     ],
 )
 

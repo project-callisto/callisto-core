@@ -1,5 +1,45 @@
 # History / Changelog
 
+## 0.20.14 (2018-01-24)
+
+* added missing '*' for required fields
+* fixed spelling error on matching form
+    * https://github.com/project-callisto/callisto-core/pull/396
+
+## 0.20.13 (2018-01-23)
+
+* made `NotificationApi.ALERT_LIST` a property
+
+## 0.20.12 (2018-01-23)
+
+* fixed error display for matching and reporting flow
+* fixed dashboard URL in navbar
+
+## 0.20.10 (2018-01-18)
+
+* use a single mail domain (in prod)
+
+## 0.20.9 (2018-01-15)
+
+* added "*" to required fields in matching form
+* removed placeholder text from matching form fields
+    * https://github.com/project-callisto/callisto-core/pull/390
+
+## 0.20.8 (2018-01-15)
+
+* added "*" to required fields in reporting forms
+    * https://github.com/project-callisto/callisto-core/pull/389
+
+## 0.20.7 (2018-01-15)
+
+* NotificationApi patches
+    * https://github.com/project-callisto/callisto-core/pull/385
+    * https://github.com/project-callisto/callisto-core/pull/387
+
+## 0.20.5 (2018-01-15)
+
+* add a `<p>` tag to record form multiple choice labels
+
 ## 0.20.4 (2018-01-10)
 
 * move wizard builder's site foreign key from `Page` to `FormQuestion`
