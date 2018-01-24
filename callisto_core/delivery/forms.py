@@ -38,7 +38,7 @@ class ReportBaseForm(
     FormViewExtensionMixin,
     forms.models.ModelForm,
 ):
-    key = fields.PassphraseField(label='Passphrase', label_suffix='*')
+    key = fields.PassphraseField(label='Passphrase')
 
     @property
     def report(self):
