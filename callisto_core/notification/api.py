@@ -31,11 +31,14 @@ class CallistoCoreNotificationApi(object):
     report_filename = "callisto_report_{0}.pdf.gpg"
     report_title = 'Callisto Record'
     logo_path = '../../assets/callisto_logo.png'
-    ALERT_LIST = [
-        'tech@projectcallisto.org',
-    ]
 
     # utilities
+
+    @property
+    def ALERT_LIST(self):
+        return [
+            'tech@projectcallisto.org',
+        ]
 
     @property
     def mail_domain(self):
