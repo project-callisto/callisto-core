@@ -59,7 +59,7 @@ class ReportCreateForm(
     ReportBaseForm,
 ):
     message_confirmation_error = "passphrase and passphrase confirmation must match"
-    key_confirmation = fields.PassphraseField(label='Confirm Passphrase', label_suffix='*')
+    key_confirmation = fields.PassphraseField(label='Confirm Passphrase')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
