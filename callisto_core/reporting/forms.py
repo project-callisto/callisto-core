@@ -128,19 +128,10 @@ class ConfirmationForm(
     ReportSubclassBaseForm,
 ):
     confirmation = forms.BooleanField(
-        label="Yes, I agree and I understand",
+        label="Yes, I agree and I understand*",
         initial=False,
         required=True,
     )
-    key = delivery_fields.PassphraseField(label='Passphrase')
-    field_order = [
-        'confirmation',
-        'key',
-    ]
-
-    def clean_key(self):
-        if not self.data.get('key') == self.view.storage.passphrase:
-            forms.ValidationError('Invalid key')
 
     class Meta:
         model = delivery_models.SentFullReport
