@@ -4,8 +4,7 @@ import logging
 from django import forms
 
 from callisto_core.delivery import (
-    fields as delivery_fields, forms as delivery_forms,
-    models as delivery_models,
+    forms as delivery_forms, models as delivery_models,
 )
 from callisto_core.utils.forms import NoRequiredLabelMixin
 
