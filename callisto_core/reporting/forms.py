@@ -128,7 +128,7 @@ class ConfirmationForm(
     ReportSubclassBaseForm,
 ):
     confirmation = forms.BooleanField(
-        label="Yes, I agree and I understand*",
+        label="Yes, I agree and I understand",
         initial=False,
         required=True,
     )
