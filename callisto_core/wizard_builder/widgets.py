@@ -2,7 +2,7 @@ import logging
 
 from django.forms.fields import ChoiceField, Field
 from django.forms.widgets import (
-    CheckboxSelectMultiple, RadioSelect, Select, Textarea,
+    CheckboxSelectMultiple, RadioSelect, Select, TextInput,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ class ConditionalField(object):
         }
         return Field(
             required=False,
-            widget=Textarea(attrs=attrs),
+            widget=TextInput(attrs=attrs),
         )
 
 
