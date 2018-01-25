@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.20.16 (2018-01-25)
+
+* remove passphrase requirement from reporting confirmation
+    * https://github.com/project-callisto/callisto-core/pull/400
+
 ## 0.20.15 (2018-01-24)
 
 * Added missing '*' to passphrase screens
