@@ -23,17 +23,6 @@ from django.views import generic as views
 from . import view_helpers
 
 
-class WizardRedirectPartial(
-    views.base.RedirectView
-):
-
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse_lazy(
-            'report_update',
-            kwargs={'step': self.step},
-        )
-
-
 class WizardFormPartial(
     views.edit.FormView,
 ):
