@@ -59,14 +59,18 @@ class MatchingViewTest(MatchingHelper):
         self.client_post_matching_enter()
 
     def test_multiple_emails_not_sent(self):
-        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+        with patch.object(CustomNotificationApi, '_logging') as api_logging:
             self.client_post_matching_enter()
 
-        self.assertEqual(api_logging.call_count, 1)
+        self.assertEqual(
+            api_logging.call_args_list.count(
+                call(notification_name='match_confirmation')
+            ), 1
+        )
 
     def test_emails_not_sent_when_no_key(self):
         self.client_clear_passphrase()
-        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+        with patch.object(CustomNotificationApi, '_logging') as api_logging:
             self.client_post_matching_enter()
 
         self.assertEqual(api_logging.call_count, 0)

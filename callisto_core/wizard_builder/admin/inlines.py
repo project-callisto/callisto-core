@@ -5,7 +5,9 @@ from django.contrib import admin
 from django.db import models
 from django.urls import reverse_lazy
 
-from ..models import Choice, ChoiceOption, FormQuestion
+from callisto_core.wizard_builder.models import (
+    Choice, ChoiceOption, FormQuestion,
+)
 
 
 class ChoiceOptionInline(nested_admin.NestedStackedInline):
@@ -18,7 +20,6 @@ class ChoiceOptionInline(nested_admin.NestedStackedInline):
 
 class ChoiceInline(nested_admin.NestedStackedInline):
     model = Choice
-    sortable_field_name = "position"
     extra = 0
     formfield_overrides = {
         models.TextField: {'widget': forms.TextInput},
@@ -26,12 +27,11 @@ class ChoiceInline(nested_admin.NestedStackedInline):
     inlines = [
         ChoiceOptionInline,
     ]
+    fields = ['text', 'position', 'extra_info_text']
 
 
 class QuestionInline(admin.TabularInline):
-    # hack because weird ghost FormQuestion version of this is called last
     id_cache = None
-    type_cache = None
     extra = 0
 
     def question_link(self, obj):
@@ -45,10 +45,6 @@ class QuestionInline(admin.TabularInline):
 
     question_link.allow_tags = True
 
-    def question_type(self, obj):
-        return type(obj).__name__
-
     model = FormQuestion
-    sortable_field_name = "position"
-    fields = ['question_link', 'question_type', 'position']
-    readonly_fields = ['question_link', 'question_type']
+    fields = ['question_link', 'type', 'position']
+    readonly_fields = ['question_link', 'type']

@@ -9,10 +9,7 @@ from . import fields, managers, model_helpers
 logger = logging.getLogger(__name__)
 
 
-class Page(
-    model_helpers.SerializedQuestionMixin,
-    models.Model,
-):
+class Page(models.Model):
     WHEN = 1
     WHERE = 2
     WHAT = 3
@@ -25,33 +22,23 @@ class Page(
     )
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
-    sites = models.ManyToManyField(Site)
 
     objects = managers.PageManager()
 
     def __str__(self):
-        questions = self.formquestion_set.order_by('position')
-        if len(questions) > 0 and self.site_names:
-            question_str = "(Question 1: {})".format(questions[0].text)
-            site_str = "(Sites: {})".format(self.site_names)
-            return "{} {} {}".format(self.short_str, question_str, site_str)
-        elif len(questions) > 0:
-            question_str = "(Question 1: {})".format(questions[0].text)
-            return "{} {}".format(self.short_str, question_str)
+        all_questions = list(self.formquestion_set.all())
+        if len(all_questions) > 0:
+            question_str = "(Question 1: {})".format(all_questions[0].text)
         else:
-            return "{}".format(self.short_str)
+            question_str = "(Question 1: None)"
+        return "{} {}".format(self.short_str, question_str)
 
     @property
     def short_str(self):
         return "Page {}".format(self.position)
 
-    @property
-    def site_names(self):
-        return [site.name for site in self.sites.all()]
-
-    @property
-    def questions(self):
-        return list(self.formquestion_set.order_by('position'))
+    def site_questions(self, site_id):
+        return list(self.formquestion_set.filter(sites__id__in=[site_id]))
 
     def save(self, *args, **kwargs):
         self.set_page_position()
@@ -86,6 +73,7 @@ class FormQuestion(models.Model):
         blank=False,
         on_delete=models.CASCADE,
     )
+    sites = models.ManyToManyField(Site)
     position = models.PositiveSmallIntegerField("position", default=0)
     type = models.TextField(
         choices=fields.get_field_options(),
@@ -94,11 +82,9 @@ class FormQuestion(models.Model):
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
-        if self.site_names:
-            site_str = "(Sites: {})".format(self.site_names)
-            return "{} {} {}".format(self.short_str, type_str, site_str)
-        else:
-            return "{} {}".format(self.short_str, type_str)
+        site_str = "(Sites: {})".format(
+            [site.name for site in self.sites.all()])
+        return "{} {} {}".format(self.short_str, type_str, site_str)
 
     @property
     def field_id(self):
@@ -107,13 +93,6 @@ class FormQuestion(models.Model):
     @property
     def short_str(self):
         return self.text
-
-    @property
-    def site_names(self):
-        if self.page:
-            return self.page.site_names
-        else:
-            return None
 
     @property
     def section(self):
@@ -126,6 +105,7 @@ class FormQuestion(models.Model):
     def serialized(self):
         data = model_to_dict(self)
         data.update({
+            'sites': [site.id for site in self.sites.all()],
             'question_text': self.text,
             'field_id': self.field_id,
             'choices': self.serialized_choices,
@@ -139,7 +119,7 @@ class FormQuestion(models.Model):
     @property
     def choices(self):
         try:
-            return list(self.choice_set.all().order_by('position'))
+            return list(self.choice_set.all())
         except BaseException:
             return []
 

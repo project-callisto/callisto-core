@@ -1,49 +1,38 @@
-import django.contrib.auth.views as auth_views
 from django.conf.urls import url
-from django.urls import reverse_lazy
-from django.views.generic import TemplateView
 
-from . import forms, views
+from . import views
 
 urlpatterns = [
-    url(r'^signup/', views.CustomSignupView.as_view(), name='signup'),
+    url(r'^signup/',
+        views.SignupView.as_view(),
+        name='signup',
+        ),
     url(r'^login/',
-        view=views.CustomLoginView.as_view(),
+        view=views.LoginView.as_view(),
         name='login',
         ),
-    url(r'^logout/', view=views.CustomLogoutView.as_view(), name='logout'),
-    url(r'^change_password/',
-        view=auth_views.PasswordChangeView.as_view(
-            template_name='callisto_core/accounts/password_change.html',
-            success_url=reverse_lazy('dashboard'),
-            form_class=forms.FormattedPasswordChangeForm,
+    url(r'^logout/',
+        view=views.LogoutView.as_view(),
+        name='logout',
         ),
+    url(r'^change_password/',
+        view=views.PasswordChangeView.as_view(),
         name='change_password',
         ),
-    url(r'^forgot_password/',
-        view=views.CustomPasswordResetView.as_view(),
+    url(r'^forgot_password/$',
+        view=views.PasswordResetView.as_view(),
         name='reset',
         ),
     url(r'^forgot_password/sent/$',
-        view=TemplateView.as_view(
-            template_name="callisto_core/accounts/password_reset_sent.html",
-        ),
+        view=views.PasswordForgetSentView.as_view(),
         name='password_reset_sent',
         ),
     url(r'^reset/confirm/(?P<uidb64>.+)/(?P<token>.+)/$',
-        view=auth_views.PasswordResetConfirmView.as_view(
-            template_name='callisto_core/accounts/password_reset_confirm.html',
-            form_class=forms.FormattedSetPasswordForm,
-            success_url=reverse_lazy('login'),
-        ),
+        view=views.PasswordResetConfirmView.as_view(),
         name='reset_confirm',
         ),
     url(r'^activate/(?P<uidb64>.+)/(?P<token>.+)/$',
-        view=auth_views.PasswordResetConfirmView.as_view(
-            template_name='callisto_core/accounts/account_activation_confirm.html',
-            form_class=forms.ActivateSetPasswordForm,
-            success_url=reverse_lazy('login'),
-        ),
+        view=views.AccountActivationView.as_view(),
         name='activate_account',
         ),
 ]

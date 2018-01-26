@@ -4,8 +4,7 @@ import logging
 from django import forms
 
 from callisto_core.delivery import (
-    fields as delivery_fields, forms as delivery_forms,
-    models as delivery_models,
+    forms as delivery_forms, models as delivery_models,
 )
 from callisto_core.utils.forms import NoRequiredLabelMixin
 
@@ -75,7 +74,7 @@ class MatchingBaseForm(
     perp_name = forms.CharField(
         label="Perpetrator's Name",
         required=False,
-        widget=forms.TextInput(attrs={'placeholder': 'ex. John Doe'}),
+        widget=forms.TextInput(),
     )
 
     def __init__(self, *args, matching_validators=None, **kwargs):
@@ -132,15 +131,6 @@ class ConfirmationForm(
         initial=False,
         required=True,
     )
-    key = delivery_fields.PassphraseField(label='Passphrase')
-    field_order = [
-        'confirmation',
-        'key',
-    ]
-
-    def clean_key(self):
-        if not self.data.get('key') == self.view.storage.passphrase:
-            forms.ValidationError('Invalid key')
 
     class Meta:
         model = delivery_models.SentFullReport
