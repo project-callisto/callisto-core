@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.20.17 (2018-01-26)
+
+* remove duplicate '*' from forms
+    * https://github.com/project-callisto/callisto-core/pull/401
+
 ## 0.20.16 (2018-01-25)
 
 * remove passphrase requirement from reporting confirmation

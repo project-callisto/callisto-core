@@ -141,15 +141,15 @@ facebook_validation_info = {
 '''
 
 facebook_only = OrderedDict(
-    [('Facebook profile URL*', facebook_validation_info)],
+    [('Facebook profile URL', facebook_validation_info)],
 )
 twitter_only = OrderedDict(
-    [('Twitter username/profile URL*', twitter_validation_info)],
+    [('Twitter username/profile URL', twitter_validation_info)],
 )
 facebook_or_twitter = OrderedDict(
     [
-        ('Facebook profile URL*', facebook_validation_info),
-        ('Twitter username/profile URL*', twitter_validation_info),
+        ('Facebook profile URL', facebook_validation_info),
+        ('Twitter username/profile URL', twitter_validation_info),
     ],
 )
 
