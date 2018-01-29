@@ -235,6 +235,7 @@ class StudentVerificationTest(AccountsTestCase):
             ReportingVerificationEmailForm,
         )
 
+    @override_settings(DEBUG=True)
     def test_verification_post(self):
         response = self.client.post(
             self.verify_url,
