@@ -33,4 +33,5 @@ class _SendEmail(CallistoCoreBaseTask):
                  soft_time_limit=5)
 def SendEmail(self, email_data, email_attachments):
     """Sends emails via the mailgun API"""
-    self._send_email(email_data, email_attachments)
+    response = self._send_email(email_data, email_attachments)
+    return response
