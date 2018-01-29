@@ -1,6 +1,6 @@
 # History / Changelog
 
-## 0.20.18 (2018-01-29)
+## 0.21.0 (2018-01-29)
 
 * Moved notification emails to celery
     * https://github.com/project-callisto/callisto-core/pull/369
