@@ -237,7 +237,6 @@ class StudentVerificationTest(AccountsTestCase):
             ReportingVerificationEmailForm,
         )
 
-    @skip('skip until https://github.com/project-callisto/callisto-core/pull/359 is merged')
     def test_verification_post(self):
         response = self.client.post(
             self.verify_url,
@@ -245,7 +244,7 @@ class StudentVerificationTest(AccountsTestCase):
             follow=True,
         )
         self.assertTemplateUsed(
-            response, 'callisto_site/school_email_sent.html')
+            response, 'callisto_core/accounts/school_email_sent.html')
 
         self.assertEqual(len(self.cassette), 1)
         self.assertEqual(
