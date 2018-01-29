@@ -4,6 +4,7 @@ import os
 import typing
 
 import gnupg
+
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
@@ -18,7 +19,8 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from callisto_core.celeryconfig.tasks import tasks as celery_tasks
+from callisto_core.notification import tasks
+
 from callisto_core.reporting.report_delivery import (
     PDFFullReport, PDFMatchReport,
 )
@@ -358,7 +360,8 @@ class CallistoCoreNotificationApi(object):
     def set_domain(self):
         if not self.context.get('domain'):
             domain = Site.objects.get(id=self.context.get('site_id')).domain
-            if settings.DEBUG:
+
+            if settings.DEBUG and domain != 'localhost':
                 domain_start = domain.split('.')[0]
                 domain_end = domain.split('.')[1] + '.' + domain.split('.')[2]
                 domain = f'{domain_start}-staging.{domain_end}'
@@ -400,12 +403,14 @@ class CallistoCoreNotificationApi(object):
             'html': self.context['body'],
             **self._extra_data(),
         }
-        celery_tasks.send_email.delay(email_data, self._mail_attachments())
+        tasks.SendEmail.delay(email_data, self._mail_attachments())
+        """
         self.context.update({
             'response': getattr(response, 'context', response),
             'response_status': response.status_code,
             'response_content': response.content,
         })
+        """
 
     def log_action(self):
         logger.info('notification.send(subject={}, name={})'.format(
@@ -425,6 +430,7 @@ class CallistoCoreNotificationApi(object):
             self.context.update({
                 'body': self.context['body'][:80]
             })
-
+        """
         if not self.context.get('response_status') == 200:
             logger.error(f'status_code!=200, context: {self.context}')
+        """
