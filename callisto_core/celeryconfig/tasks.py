@@ -7,7 +7,7 @@ from callisto_core.celeryconfig import celery_app
 logger = logging.getLogger(__name__)
 
 
-class CoreBaseTask(celery_app.Task):
+class CallistoCoreBaseTask(celery_app.Task):
     """Abstract base class for all callisto-core tasks"""
 
     abstract = True
@@ -20,17 +20,17 @@ class CoreBaseTask(celery_app.Task):
         logger.info(
             'CLERY TASK RETRY: {0!r} FAILED: {1!r}'.format(
                 task_id, exc))
-        super(CoreBaseTask, self).on_retry(exc, task_id, args, kwargs, einfo)
+        super().on_retry()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """Log the exception(s) on failure."""
         logger.error(
             'CLERY TASK FAILURE: {0!r} FAILED: {1!r}'.format(
                 task_id, exc))
-        super(CoreBaseTask, self).on_failure(exc, task_id, args, kwargs, einfo)
+        super().on_failure()
 
 
-@celery_app.task(base=CoreBaseTask,
+@celery_app.task(base=CallistoCoreBaseTask,
                  bind=True,
                  max_retries=5,
                  soft_time_limit=5)

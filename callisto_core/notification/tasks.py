@@ -3,10 +3,10 @@ import requests
 from django.conf import settings
 
 from callisto_core.celeryconfig import celery_app
-from callisto_core.celeryconfig.tasks import CoreBaseTask
+from callisto_core.celeryconfig.tasks import CallistoCoreBaseTask
 
 
-@celery_app.task(base=CoreBaseTask,
+@celery_app.task(base=CallistoCoreBaseTask,
                  bind=True,
                  max_retries=5,
                  soft_time_limit=5)
