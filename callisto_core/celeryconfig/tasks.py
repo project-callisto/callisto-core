@@ -33,7 +33,10 @@ class CoreBaseTask(celery_app.Task):
         super(CoreBaseTask, self).on_failure(exc, task_id, args, kwargs, einfo)
 
 
-@shared_task(name="add", bind=True)
+@celery_app.task(base=CoreBaseTask,
+                 bind=True,
+                 max_retries=5,
+                 soft_time_limit=5)
 def add(self, x, y):
     '''Demo Task for testing'''
     return x + y
