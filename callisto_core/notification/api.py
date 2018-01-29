@@ -359,7 +359,8 @@ class CallistoCoreNotificationApi(object):
         if not self.context.get('domain'):
             domain = Site.objects.get(id=self.context.get('site_id')).domain
 
-            if settings.DEBUG and (domain != 'localhost' and domain != 'testserver'):
+            if settings.DEBUG and (
+                    domain != 'localhost' and domain != 'testserver'):
                 domain_start = domain.split('.')[0]
                 domain_end = domain.split('.')[1] + '.' + domain.split('.')[2]
                 domain = f'{domain_start}-staging.{domain_end}'
