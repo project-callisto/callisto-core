@@ -20,14 +20,16 @@ class CallistoCoreBaseTask(celery_app.Task):
         logger.info(
             'CLERY TASK RETRY: {0!r} FAILED: {1!r}'.format(
                 task_id, exc))
-        super(CallistoCoreBaseTask, self).on_retry(exc, task_id, args, kwargs, einfo)
+        super(CallistoCoreBaseTask, self).on_retry(
+            exc, task_id, args, kwargs, einfo)
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """Log the exception(s) on failure."""
         logger.error(
             'CLERY TASK FAILURE: {0!r} FAILED: {1!r}'.format(
                 task_id, exc))
-        super(CallistoCoreBaseTask, self).on_failure(exc, task_id, args, kwargs, einfo)
+        super(CallistoCoreBaseTask, self).on_failure(
+            exc, task_id, args, kwargs, einfo)
 
 
 @celery_app.task(base=CallistoCoreBaseTask,

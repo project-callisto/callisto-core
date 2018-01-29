@@ -21,7 +21,7 @@ class _SendEmail(CallistoCoreBaseTask):
             **email_attachments,
         }
         try:
-            response = requests.post(mailgun_post_route, request_params)
+            response = requests.post(self.mailgun_post_route, request_params)
         except Exception as exc:
             raise self.retry(exc=exc)
         return response
