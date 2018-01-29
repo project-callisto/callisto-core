@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.contrib.auth import get_user, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.sites.models import Site
