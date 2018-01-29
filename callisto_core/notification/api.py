@@ -404,7 +404,7 @@ class CallistoCoreNotificationApi(object):
         }
         task_response = tasks.SendEmail.delay(
             email_data, self._mail_attachments())
-        self.context.update('task_id', task_response.task_id)
+        self.context.update({'task_id': task_response.task_id})
         """
         self.context.update({
             'response': getattr(response, 'context', response),
