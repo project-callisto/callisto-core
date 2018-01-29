@@ -245,11 +245,6 @@ class StudentVerificationTest(AccountsTestCase):
         self.assertTemplateUsed(
             response, 'callisto_core/accounts/school_email_sent.html')
 
-        self.assertEqual(len(self.cassette), 1)
-        self.assertEqual(
-            self.cassette.requests[0].uri,
-            NotificationApi.mailgun_post_route,
-        )
 
     def test_verification_get_confirmation(self):
         self.user.account.refresh_from_db()
