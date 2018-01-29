@@ -5,6 +5,7 @@ from django.conf import settings
 from callisto_core.celeryconfig import celery_app
 from callisto_core.celeryconfig.tasks import CoreBaseTask
 
+
 @celery_app.task(base=CoreBaseTask,
                  bind=True,
                  max_retries=5,
@@ -14,10 +15,10 @@ def SendEmail(self, email_data, email_attachments):
     mailgun_post_route = f'https://api.mailgun.net/v3/{settings.APP_URL}/messages'
     request_params = {
         'auth': ('api', settings.MAILGUN_API_KEY),
-            'data': {
-                'from': f'"Callisto" <noreply@{settings.APP_URL}>',
-                **email_data,
-            },
+        'data': {
+            'from': f'"Callisto" <noreply@{settings.APP_URL}>',
+            **email_data,
+        },
         **email_attachments,
     }
     try:

@@ -2,9 +2,6 @@ from __future__ import absolute_import
 
 import logging
 
-import requests
-from celery import shared_task
-
 from callisto_core.celeryconfig import celery_app
 
 logger = logging.getLogger(__name__)
