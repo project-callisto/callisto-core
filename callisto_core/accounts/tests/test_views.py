@@ -245,7 +245,6 @@ class StudentVerificationTest(AccountsTestCase):
         self.assertTemplateUsed(
             response, 'callisto_core/accounts/school_email_sent.html')
 
-
     def test_verification_get_confirmation(self):
         self.user.account.refresh_from_db()
         self.assertFalse(self.user.account.is_verified)
