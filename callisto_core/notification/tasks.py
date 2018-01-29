@@ -1,19 +1,27 @@
-from callisto_core.celeryconfig import celery_app
-from callisto_core.celeryconfig.tasks import CoreBaseTask
+import requests
 
 from django.conf import settings
 
+from callisto_core.celeryconfig import celery_app
+from callisto_core.celeryconfig.tasks import CoreBaseTask
 
-@celery_app.task(base=CoreBaseTask, bind=True)
-def send_email(email_data, email_attachments=None):
+@celery_app.task(base=CoreBaseTask,
+                 bind=True,
+                 max_retries=5,
+                 soft_time_limit=5)
+def SendEmail(self, email_data, email_attachments):
+    """Sends emails via the mailgun API"""
     mailgun_post_route = f'https://api.mailgun.net/v3/{settings.APP_URL}/messages'
     request_params = {
         'auth': ('api', settings.MAILGUN_API_KEY),
-        'data': {
-            'from': f'"Callisto" <noreply@{settings.APP_URL}>',
-            **email_data,
-        },
+            'data': {
+                'from': f'"Callisto" <noreply@{settings.APP_URL}>',
+                **email_data,
+            },
         **email_attachments,
     }
-    response = requests.post(self.mailgun_post_route, request_params)
+    try:
+        response = requests.post(mailgun_post_route, request_params)
+    except Exception as exc:
+        raise self.retry(exc=exc)
     return response
