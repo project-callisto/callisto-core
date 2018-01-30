@@ -7,6 +7,7 @@ class TestAsyncEmail(TestCase):
 
     def test_send_email_basic_case(self):
         tasks.SendEmail.delay(
+            domain='localhost',
             email_data={
                 'to': 'test@example.com',
                 'subject': 'test',
