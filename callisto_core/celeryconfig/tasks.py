@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import logging
 
-from callisto_core.celeryconfig import celery_app
+from callisto_core.celeryconfig.celery import celery_app
 
 logger = logging.getLogger(__name__)
 
