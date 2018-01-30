@@ -11,7 +11,6 @@ from reportlab.platypus import Image, PageBreak, Paragraph, Spacer
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.models import Site
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils import timezone

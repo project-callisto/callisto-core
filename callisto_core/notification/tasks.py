@@ -9,8 +9,8 @@ from callisto_core.celeryconfig.tasks import CallistoCoreBaseTask
 class _SendEmail(CallistoCoreBaseTask):
 
     def _setUp(self, domain, email_data, email_attachments):
-        _set_mailgun_route(domain)
-        _set_params(domain, email_data, email_attachments)
+        self._set_mailgun_route(domain)
+        self._set_params(domain, email_data, email_attachments)
 
     def _set_mailgun_route(self, domain):
         self.mailgun_post_route = f'https://api.mailgun.net/v3/{domain}/messages'
@@ -19,7 +19,7 @@ class _SendEmail(CallistoCoreBaseTask):
         self.request_params = {
             'auth': ('api', settings.MAILGUN_API_KEY),
             'data': {
-                'from': f'"Callisto" <noreply@{self.domain}>',
+                'from': f'"Callisto" <noreply@{domain}>',
                 **email_data,
             },
             **email_attachments,
@@ -41,7 +41,7 @@ class _SendEmail(CallistoCoreBaseTask):
                  soft_time_limit=5)
 def SendEmail(self, domain, email_data, email_attachments):
     """Sends emails via the mailgun API"""
-    self.setUp(domain, email_data, email_attachments)
+    self._setUp(domain, email_data, email_attachments)
 
     response = self._send_email()
     return response
