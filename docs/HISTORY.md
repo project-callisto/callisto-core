@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.21.0 (2018-01-29)
+
+* Moved notification emails to celery
+    * https://github.com/project-callisto/callisto-core/pull/369
+
 ## 0.20.17 (2018-01-26)
 
 * remove duplicate '*' from forms
