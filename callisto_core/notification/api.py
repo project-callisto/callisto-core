@@ -22,6 +22,7 @@ from callisto_core.notification import tasks
 from callisto_core.reporting.report_delivery import (
     PDFFullReport, PDFMatchReport,
 )
+from callisto_core.utils.api import TenantApi
 
 logger = logging.getLogger(__name__)
 
@@ -356,15 +357,7 @@ class CallistoCoreNotificationApi(object):
             self.context.update({'protocol': protocol})
 
     def set_domain(self):
-        if not self.context.get('domain'):
-            domain = Site.objects.get(id=self.context.get('site_id')).domain
-
-            if settings.DEBUG and (
-                    domain != 'localhost' and domain != 'testserver'):
-                domain_start = domain.split('.')[0]
-                domain_end = domain.split('.')[1] + '.' + domain.split('.')[2]
-                domain = f'{domain_start}-staging.{domain_end}'
-            self.context.update({'domain': domain})
+        self.context.update({'domain': TenantApi.get_current_domain()})
 
     def render_body(self):
         body_template = Template(self.context['body'])
