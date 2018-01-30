@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.21.1 (2018-01-30)
+
+* Moved celery to be loaded as worker, instead of fork
+    * https://github.com/project-callisto/callisto-core/pull/403
+
 ## 0.21.0 (2018-01-29)
 
 * Moved notification emails to celery
