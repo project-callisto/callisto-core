@@ -22,6 +22,7 @@ and should not define:
 
 '''
 import logging
+import re
 
 import ratelimit.mixins
 from nacl.exceptions import CryptoError
@@ -29,6 +30,7 @@ from nacl.exceptions import CryptoError
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic as views
 
@@ -171,12 +173,20 @@ class _ReportAccessPartial(
         else:
             return False
 
+    def _passphrase_next_url(self, request):
+        next_url = None
+        if 'next' in request.GET:
+            if re.search('^/[\W/-]*', request.GET['next']):
+                next_url = request.GET['next']
+        return next_url
+
     def dispatch(self, request, *args, **kwargs):
         logger.debug(f'{self.__class__.__name__} access check')
-        if (
-            self.access_granted or
-            self.access_form_valid
-        ):
+
+        if (self.access_granted or self.access_form_valid) and self._passphrase_next_url(
+                request):
+            return self._redirect_from_passphrase(request)
+        elif self.access_granted or self.access_form_valid:
             return super().dispatch(request, *args, **kwargs)
         else:
             return self._render_access_form()
@@ -191,6 +201,9 @@ class _ReportAccessPartial(
         self.template_name = self.access_template_name
         context = self.get_context_data(form=self._get_access_form())
         return self.render_to_response(context)
+
+    def _redirect_from_passphrase(self, request):
+        return redirect(self._passphrase_next_url(request))
 
     def _check_report_owner(self):
         if not self.report.owner == self.request.user:

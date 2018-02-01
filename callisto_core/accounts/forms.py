@@ -205,6 +205,7 @@ class SendVerificationEmailForm(
         super().__init__(*args, **kwargs)
         email_field = self.fields['email']
         email_field.label = "Your school email"
+        email_field.label_suffix = '*'
         email_field.widget.attrs.update(**self.email_field_placeholder())
 
     def clean_email(self):

@@ -13,5 +13,6 @@ class PassphraseField(forms.CharField):
         kwargs.update({
             'min_length': 8,
             'max_length': 128,
+            'label_suffix': '*',
         })
         super().__init__(*args, **kwargs)

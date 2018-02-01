@@ -66,6 +66,7 @@ app-setup: ## setup the test application environment
 	python manage.py demo_user
 
 dev-setup:
+	- dropdb callisto-core
 	- createdb callisto-core
 	- make osx-install
 	make pip-install
