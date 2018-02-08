@@ -1,4 +1,4 @@
-psycopg2==2.7.3.2
+psycopg2==2.7.4
 mock==2.0.0
 flake8==3.5.0
 PyPDF2==1.26.0
