@@ -6,7 +6,7 @@ django-ratelimit==1.1.0
 django_celery_results==1.0.1
 PyNaCl==1.2.1
 python-gnupg==0.4.1
-pytz==2017.3
+pytz==2018.3
 reportlab==3.4.0
 six==1.11.0
 requests==2.18.4
