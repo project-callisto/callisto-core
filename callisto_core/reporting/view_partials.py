@@ -114,6 +114,12 @@ class PrepPartial(
     EVAL_ACTION_TYPE = 'CONTACT_INFO_PREPERATION'
 
 
+class ResendPrepPartial(
+    PrepPartial,
+):
+    EVAL_ACTION_TYPE = 'RESEND_CONTACT_INFO_PREPERATION'
+
+
 class _ReportSubclassPartial(
     _SubmissionPartial,
 ):
@@ -262,6 +268,13 @@ class ConfirmationPartial(
         self._send_confirmation_email()
         self._send_confirmation_email_to_callisto()
         self._send_confirmation_slack_notification()
+
+
+class ResendConfirmationPartial(
+    ConfirmationPartial,
+):
+    form_class = forms.ConfirmedConfirmationForm
+    EVAL_ACTION_TYPE = 'RESEDING_FINAL_CONFIRMATION'
 
 
 class MatchingWithdrawPartial(

@@ -56,6 +56,26 @@ class ReportingConfirmationView(
     admin_email_template_name = 'callisto_core/accounts/submit_confirmation_callisto_team.html'
 
 
+##################
+# resending flow #
+##################
+
+
+class ResendingPrepView(
+    view_partials.ResendPrepPartial
+):
+    template_name = 'callisto_core/reporting/submission.html'
+    access_template_name = 'callisto_core/delivery/form_redirect.html'
+
+
+class ResendingConfirmationView(
+    view_partials.ResendConfirmationPartial
+):
+    template_name = 'callisto_core/reporting/submission_confirm.html'
+    access_template_name = 'callisto_core/delivery/form_redirect.html'
+    admin_email_template_name = 'callisto_core/accounts/submit_confirmation_callisto_team.html'
+
+
 #################
 # matching flow #
 #################

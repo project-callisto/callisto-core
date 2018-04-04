@@ -84,22 +84,15 @@ urlpatterns = [
     # /reporting
     # resending
     url(r'^uuid/(?P<uuid>.+)/resending/prep/$',
-        reporting_views.ReportingPrepView.as_view(
+        reporting_views.ResendingPrepView.as_view(
             back_url='dashboard',
-            reporting_success_url='resend_matching_enter',
+            reporting_success_url='resend_end_step',
         ),
         name="resend_prep",
         ),
-    url(r'^uuid/(?P<uuid>.+)/resending/matching/$',
-        reporting_views.ReportingMatchingView.as_view(
-            back_url='resend_prep',
-            reporting_success_url='resend_end_step',
-        ),
-        name="resend_matching_enter",
-        ),
     url(r'^uuid/(?P<uuid>.+)/resending/end/$',
-        reporting_views.ReportingConfirmationView.as_view(
-            back_url='resend_matching_enter',
+        reporting_views.ResendingConfirmationView.as_view(
+            back_url='resend_prep',
             success_url=reverse_lazy('dashboard'),
         ),
         name="resend_end_step",
