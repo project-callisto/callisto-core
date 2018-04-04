@@ -114,10 +114,10 @@ class PrepPartial(
     EVAL_ACTION_TYPE = 'CONTACT_INFO_PREPERATION'
 
 
-class ResendPrepPartial(
+class ResubmitPrepPartial(
     PrepPartial,
 ):
-    EVAL_ACTION_TYPE = 'RESEND_CONTACT_INFO_PREPERATION'
+    EVAL_ACTION_TYPE = 'RESUBMIT_CONTACT_INFO_PREPERATION'
 
 
 class _ReportSubclassPartial(
@@ -270,11 +270,11 @@ class ConfirmationPartial(
         self._send_confirmation_slack_notification()
 
 
-class ResendConfirmationPartial(
+class ResubmitConfirmationPartial(
     ConfirmationPartial,
 ):
     form_class = forms.ConfirmedConfirmationForm
-    EVAL_ACTION_TYPE = 'RESEDING_FINAL_CONFIRMATION'
+    EVAL_ACTION_TYPE = 'RESUBMIT_FINAL_CONFIRMATION'
 
 
 class MatchingWithdrawPartial(

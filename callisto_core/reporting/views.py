@@ -61,15 +61,15 @@ class ReportingConfirmationView(
 ##################
 
 
-class ResendingPrepView(
-    view_partials.ResendPrepPartial
+class ResubmitPrepView(
+    view_partials.ResubmitPrepPartial
 ):
     template_name = 'callisto_core/reporting/submission.html'
     access_template_name = 'callisto_core/delivery/form_redirect.html'
 
 
-class ResendingConfirmationView(
-    view_partials.ResendConfirmationPartial
+class ResubmitConfirmationView(
+    view_partials.ResubmitConfirmationPartial
 ):
     template_name = 'callisto_core/reporting/submission_confirm.html'
     access_template_name = 'callisto_core/delivery/form_redirect.html'

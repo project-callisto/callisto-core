@@ -23,7 +23,7 @@
                 <p>Send your saved record to COORDINATOR to let them know what happened. You'll need to verify your email address and provide your contact info so your school can reach out about next steps.</p>
                 {% if report.submitted_to_school %}
                     <div class="button">
-                        <a class="btn btn-primary btn-block" href="{% url 'resend_prep' report.uuid %}">Resubmit record</a>
+                        <a class="btn btn-primary btn-block" href="{% url 'resubmit_prep' report.uuid %}">Resubmit record</a>
                     </div>
                 {% else %}
                     <div class="button">
