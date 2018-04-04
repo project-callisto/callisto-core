@@ -9,9 +9,11 @@ cache: pip
 env:
   global:
   - DJANGO_111='Django>=1.11,<2.0'
+  - DJANGO_2='Django>=2.0,<2.1'
   - DJANGO_DEV='https://github.com/django/django/tarball/master'
   matrix:
   - DJANGO_VERSION=$DJANGO_111
+  - DJANGO_VERSION=$DJANGO_2
   - DJANGO_VERSION=$DJANGO_DEV
 matrix:
   fast_finish: true

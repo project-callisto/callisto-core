@@ -82,6 +82,22 @@ urlpatterns = [
         name="reporting_end_step",
         ),
     # /reporting
+    # resubmit
+    url(r'^uuid/(?P<uuid>.+)/resubmit/prep/$',
+        reporting_views.ResubmitPrepView.as_view(
+            back_url='dashboard',
+            reporting_success_url='resubmit_end_step',
+        ),
+        name="resubmit_prep",
+        ),
+    url(r'^uuid/(?P<uuid>.+)/resubmit/end/$',
+        reporting_views.ResubmitConfirmationView.as_view(
+            back_url='resubmit_prep',
+            success_url=reverse_lazy('dashboard'),
+        ),
+        name="resubmit_end_step",
+        ),
+    # /resubmit
     # matching
     url(r'^uuid/(?P<uuid>.+)/matching/confirmation/$',
         reporting_views.MatchingSchoolEmailFormView.as_view(

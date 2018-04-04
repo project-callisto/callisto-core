@@ -135,3 +135,17 @@ class ConfirmationForm(
     class Meta:
         model = delivery_models.SentFullReport
         fields = []
+
+
+class ConfirmedConfirmationForm(
+    ReportSubclassBaseForm,
+):
+    confirmation = forms.BooleanField(
+        label="Yes, I agree and I understand",
+        initial=True,
+        required=True,
+    )
+
+    class Meta:
+        model = delivery_models.SentFullReport
+        fields = []

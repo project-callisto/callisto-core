@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.21.2 (2018-04-04)
+
+* Added a "Resubmit" flow
+    * https://github.com/project-callisto/callisto-core/pull/410
+
 ## 0.21.1 (2018-01-30)
 
 * Moved celery to be loaded as worker, instead of fork
