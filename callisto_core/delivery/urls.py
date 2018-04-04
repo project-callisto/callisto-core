@@ -142,7 +142,7 @@ urlpatterns = [
         ),
     url(r'^dashboard/confirmation/$',
         django_views.TemplateView.as_view(
-            template_name="callisto_site/school_email_sent.html",
+            template_name="callisto_core/accounts/school_email_sent.html",
         ),
         name='email_confirmation_response',
         ),

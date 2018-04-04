@@ -25,10 +25,10 @@ class StudentVerificationTest(ReportFlowTestCase):
         self.request.method = 'POST'
         self.request.META['HTTP_HOST'] = 'testserver'
 
-    def test_student_email_accepted(self):
+    def test_callisto_not_accepted(self):
         good_data = {'email': 'myname@projectcallisto.org'}
         form = SendVerificationEmailForm(good_data, view=MockView(self))
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
 
     def test_subdomain_not_accepted(self):
         bad_data = {'email': 'myname@cats.projectcallisto.org'}
@@ -56,11 +56,6 @@ class StudentVerificationTest(ReportFlowTestCase):
             form.errors['email'],
             ['Enter a valid email address.']
         )
-
-    def test_SHI_accepted(self):
-        good_data = {'email': 'tech@projectcallisto.org'}
-        form = SendVerificationEmailForm(good_data, view=MockView(self))
-        self.assertTrue(form.is_valid())
 
     @override_settings(DEBUG=True)
     def test_debug(self):

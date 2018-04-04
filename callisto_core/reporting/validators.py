@@ -120,7 +120,7 @@ def facebook_validation_function(url):
 '''
 facebook_validation_info = {
     'validation': facebook_validation_function,
-    'example': 'http://www.facebook.com/johnsmithfakename',
+    'example': 'http://www.facebook.com/perpetratorname',
     'unique_prefix': ''}
 
 '''

@@ -1,5 +1,74 @@
 # History / Changelog
 
+## 0.21.1 (2018-01-30)
+
+* Moved celery to be loaded as worker, instead of fork
+    * https://github.com/project-callisto/callisto-core/pull/403
+
+## 0.21.0 (2018-01-29)
+
+* Moved notification emails to celery
+    * https://github.com/project-callisto/callisto-core/pull/369
+
+## 0.20.17 (2018-01-26)
+
+* remove duplicate '*' from forms
+    * https://github.com/project-callisto/callisto-core/pull/401
+
+## 0.20.16 (2018-01-25)
+
+* remove passphrase requirement from reporting confirmation
+    * https://github.com/project-callisto/callisto-core/pull/400
+
+## 0.20.15 (2018-01-24)
+
+* Added missing '*' to passphrase screens
+
+## 0.20.14 (2018-01-24)
+
+* added missing '*' for required fields
+* fixed spelling error on matching form
+    * https://github.com/project-callisto/callisto-core/pull/396
+
+## 0.20.13 (2018-01-23)
+
+* made `NotificationApi.ALERT_LIST` a property
+
+## 0.20.12 (2018-01-23)
+
+* fixed error display for matching and reporting flow
+* fixed dashboard URL in navbar
+
+## 0.20.10 (2018-01-18)
+
+* use a single mail domain (in prod)
+
+## 0.20.9 (2018-01-15)
+
+* added "*" to required fields in matching form
+* removed placeholder text from matching form fields
+    * https://github.com/project-callisto/callisto-core/pull/390
+
+## 0.20.8 (2018-01-15)
+
+* added "*" to required fields in reporting forms
+    * https://github.com/project-callisto/callisto-core/pull/389
+
+## 0.20.7 (2018-01-15)
+
+* NotificationApi patches
+    * https://github.com/project-callisto/callisto-core/pull/385
+    * https://github.com/project-callisto/callisto-core/pull/387
+
+## 0.20.5 (2018-01-15)
+
+* add a `<p>` tag to record form multiple choice labels
+
+## 0.20.4 (2018-01-10)
+
+* move wizard builder's site foreign key from `Page` to `FormQuestion`
+    * https://github.com/project-callisto/callisto-core/pull/384
+
 ## 0.20.2 (2018-01-05)
 
 * update notification api for campus-client's use case

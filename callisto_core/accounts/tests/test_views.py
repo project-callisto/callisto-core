@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.contrib.auth import get_user, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.sites.models import Site
@@ -71,9 +69,6 @@ class SignupViewIntegratedTest(AccountsTestCase):
         self.assertTrue(get_user(self.client).is_authenticated)
 
     def test_redirects_to_next(self):
-        page1 = Page.objects.create()
-        page1.sites.add(self.site.id)
-        SingleLineText.objects.create(text="a question", page=page1)
         response = self.client.post(
             self.signup_url + '?next=' + reverse('report_new'),
             self.DEFAULT_POST,
@@ -240,7 +235,7 @@ class StudentVerificationTest(AccountsTestCase):
             ReportingVerificationEmailForm,
         )
 
-    @skip('skip until https://github.com/project-callisto/callisto-core/pull/359 is merged')
+    @override_settings(DEBUG=True)
     def test_verification_post(self):
         response = self.client.post(
             self.verify_url,
@@ -248,13 +243,7 @@ class StudentVerificationTest(AccountsTestCase):
             follow=True,
         )
         self.assertTemplateUsed(
-            response, 'callisto_site/school_email_sent.html')
-
-        self.assertEqual(len(self.cassette), 1)
-        self.assertEqual(
-            self.cassette.requests[0].uri,
-            NotificationApi.mailgun_post_route,
-        )
+            response, 'callisto_core/accounts/school_email_sent.html')
 
     def test_verification_get_confirmation(self):
         self.user.account.refresh_from_db()

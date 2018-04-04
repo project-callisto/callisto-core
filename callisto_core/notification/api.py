@@ -4,7 +4,6 @@ import os
 import typing
 
 import gnupg
-import requests
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
@@ -12,16 +11,17 @@ from reportlab.platypus import Image, PageBreak, Paragraph, Spacer
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.models import Site
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from callisto_core.notification import tasks
 from callisto_core.reporting.report_delivery import (
     PDFFullReport, PDFMatchReport,
 )
+from callisto_core.utils.api import TenantApi
 
 logger = logging.getLogger(__name__)
 
@@ -30,15 +30,19 @@ class CallistoCoreNotificationApi(object):
 
     report_filename = "callisto_report_{0}.pdf.gpg"
     report_title = 'Callisto Record'
-    ALERT_LIST = [
-        'tech@projectcallisto.org',
-    ]
+    logo_path = '../../assets/callisto_logo.png'
 
     # utilities
 
     @property
+    def ALERT_LIST(self):
+        return [
+            'tech@projectcallisto.org',
+        ]
+
+    @property
     def mail_domain(self):
-        return settings.APP_URL
+        return 'mail.callistocampus.org'
 
     @property
     def model(self):
@@ -52,10 +56,6 @@ class CallistoCoreNotificationApi(object):
     @property
     def from_email(self):
         return f'"Callisto" <noreply@{self.mail_domain}>'
-
-    @property
-    def mailgun_post_route(self):
-        return f"https://api.mailgun.net/v3/{self.mail_domain}/messages"
 
     def user_site_id(self, user):
         return user.account.site_id
@@ -81,7 +81,7 @@ class CallistoCoreNotificationApi(object):
         CoverPage = []
         logo = os.path.join(
             settings.BASE_DIR,
-            '../../assets/callisto_logo.png',
+            self.logo_path,
         )
 
         image = Image(logo, 3 * inch, 3 * inch)
@@ -127,14 +127,10 @@ class CallistoCoreNotificationApi(object):
 
         Called if an email confirmation is requested
         '''
-        from_email = '"Callisto Confirmation" <confirmation@{0}>'.format(
-            self.mail_domain,
-        )
         self.context = {
             'notification_name': email_type,
             'to_addresses': to_addresses,
             'site_id': site_id,
-            'from_email': from_email,
         }
         self.send()
 
@@ -245,13 +241,11 @@ class CallistoCoreNotificationApi(object):
             match_report(MatchReport): MatchReport for which
                 a match has been found
         '''
-        from_email = f'"Callisto Matching" <notification@{self.mail_domain}>'
         user = match_report.report.owner
         self.send_with_kwargs(
             notification_name='match_notification',
             to_addresses=[match_report.report.contact_email],
             site_id=self.user_site_id(user),
-            from_email=from_email,
             report=match_report.report,
             user=user,
         )
@@ -331,7 +325,6 @@ class CallistoCoreNotificationApi(object):
                 to_addresses
         optional:
             self.context.
-                from_email
                 attachment
         '''
         self.pre_send()
@@ -363,13 +356,7 @@ class CallistoCoreNotificationApi(object):
             self.context.update({'protocol': protocol})
 
     def set_domain(self):
-        if not self.context.get('domain'):
-            domain = Site.objects.get(id=self.context.get('site_id')).domain
-            if settings.DEBUG:
-                domain_start = domain.split('.')[0]
-                domain_end = domain.split('.')[1] + '.' + domain.split('.')[2]
-                domain = f'{domain_start}-staging.{domain_end}'
-            self.context.update({'domain': domain})
+        self.context.update({'domain': TenantApi.get_current_domain()})
 
     def render_body(self):
         body_template = Template(self.context['body'])
@@ -401,23 +388,22 @@ class CallistoCoreNotificationApi(object):
             })
 
     def send_email(self):
-        request_params = {
-            'auth': ("api", settings.MAILGUN_API_KEY),
-            'data': {
-                "from": self.context.get('from_email', self.from_email),
-                "to": self.context['to_addresses'],
-                "subject": self.context['subject'],
-                "html": self.context['body'],
-                **self._extra_data(),
-            },
-            **self._mail_attachments(),
+        email_data = {
+            'to': self.context['to_addresses'],
+            'subject': self.context['subject'],
+            'html': self.context['body'],
+            **self._extra_data(),
         }
-        response = requests.post(self.mailgun_post_route, **request_params)
+        task_response = tasks.SendEmail.delay(
+            self.mail_domain, email_data, self._mail_attachments())
+        self.context.update({'task_id': task_response.task_id})
+        """
         self.context.update({
             'response': getattr(response, 'context', response),
             'response_status': response.status_code,
             'response_content': response.content,
         })
+        """
 
     def log_action(self):
         logger.info('notification.send(subject={}, name={})'.format(
@@ -437,6 +423,7 @@ class CallistoCoreNotificationApi(object):
             self.context.update({
                 'body': self.context['body'][:80]
             })
-
+        """
         if not self.context.get('response_status') == 200:
             logger.error(f'status_code!=200, context: {self.context}')
+        """
