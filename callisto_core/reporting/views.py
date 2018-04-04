@@ -21,7 +21,7 @@ from . import view_partials
 class ReportingSchoolEmailFormView(
     view_partials.SchoolEmailFormPartial,
 ):
-    template_name = 'callisto_core/reporting/submission.html'
+    template_name = 'callisto_core/reporting/prep.html'
     access_template_name = 'callisto_core/delivery/form_redirect.html'
     email_template_name = 'callisto_core/reporting/student_verification_email.html'
 
@@ -84,7 +84,7 @@ class ResubmitConfirmationView(
 class MatchingSchoolEmailFormView(
     view_partials.SchoolEmailFormPartial,
 ):
-    template_name = 'callisto_core/reporting/submission.html'
+    template_name = 'callisto_core/reporting/prep.html'
     access_template_name = 'callisto_core/delivery/form_redirect.html'
     email_template_name = 'callisto_core/reporting/student_verification_email.html'
 

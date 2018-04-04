@@ -6,11 +6,12 @@
         {% block submit-info %}{% endblock %}
         {% include 'callisto_core/delivery/form_fields.html' %}
         <div class="col-xs-4">
-            <a class='btn btn-primary btn-block' href="{% url view.back_url report.uuid %}"/>Back</a>
+            <a class='btn btn-primary btn-block' href="{% url view.back_url report.uuid %}">Back</a>
         </div>
         <div class="col-xs-4 col-xs-offset-4">
             <input class='btn btn-primary btn-block' type="submit" value="Next" />
         </div>
     </form>
+    {% block post-form %}{% endblock %}
 </div>
 {% endblock %}
