@@ -218,6 +218,7 @@ class ConfirmationPartial(
 ):
     form_class = forms.ConfirmationForm
     EVAL_ACTION_TYPE = 'DIRECT_REPORTING_FINAL_CONFIRMATION'
+    SLACK_ALERT_TEXT = 'New Callisto Report (details will be sent via email)'
 
     def form_valid(self, form):
         output = super().form_valid(form)
@@ -253,7 +254,7 @@ class ConfirmationPartial(
 
     def _send_confirmation_slack_notification(self):
         NotificationApi.slack_notification(
-            msg='New Callisto Report (details will be sent via email)',
+            msg=self.SLACK_ALERT_TEXT,
             type='submit_confirmation',
         )
 
@@ -275,6 +276,7 @@ class ResubmitConfirmationPartial(
 ):
     form_class = forms.ConfirmedConfirmationForm
     EVAL_ACTION_TYPE = 'RESUBMIT_FINAL_CONFIRMATION'
+    SLACK_ALERT_TEXT = 'Resubmitted Callisto Report (details will be sent via email)'
 
 
 class MatchingWithdrawPartial(
