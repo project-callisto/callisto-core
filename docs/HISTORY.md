@@ -1,5 +1,29 @@
 # History / Changelog
 
+## 0.21.1 (2018-01-30)
+
+* Moved celery to be loaded as worker, instead of fork
+    * https://github.com/project-callisto/callisto-core/pull/403
+
+## 0.21.0 (2018-01-29)
+
+* Moved notification emails to celery
+    * https://github.com/project-callisto/callisto-core/pull/369
+
+## 0.20.17 (2018-01-26)
+
+* remove duplicate '*' from forms
+    * https://github.com/project-callisto/callisto-core/pull/401
+
+## 0.20.16 (2018-01-25)
+
+* remove passphrase requirement from reporting confirmation
+    * https://github.com/project-callisto/callisto-core/pull/400
+
+## 0.20.15 (2018-01-24)
+
+* Added missing '*' to passphrase screens
+
 ## 0.20.14 (2018-01-24)
 
 * added missing '*' for required fields
