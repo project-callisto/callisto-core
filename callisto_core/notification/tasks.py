@@ -1,7 +1,5 @@
 import requests
 
-from django.conf import settings
-
 from callisto_core.celeryconfig.celery import celery_app
 from callisto_core.celeryconfig.tasks import CallistoCoreBaseTask
 

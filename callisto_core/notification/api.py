@@ -2,9 +2,9 @@ import copy
 import logging
 import os
 import typing
-import requests
 
 import gnupg
+import requests
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
@@ -18,7 +18,6 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from callisto_core.notification import tasks
 from callisto_core.reporting.report_delivery import (
     PDFFullReport, PDFMatchReport,
 )
