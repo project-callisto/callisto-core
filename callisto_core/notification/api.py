@@ -4,6 +4,7 @@ import os
 import typing
 
 import gnupg
+import requests
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
@@ -17,7 +18,6 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from callisto_core.notification import tasks
 from callisto_core.reporting.report_delivery import (
     PDFFullReport, PDFMatchReport,
 )
@@ -388,22 +388,24 @@ class CallistoCoreNotificationApi(object):
             })
 
     def send_email(self):
-        email_data = {
-            'to': self.context['to_addresses'],
-            'subject': self.context['subject'],
-            'html': self.context['body'],
-            **self._extra_data(),
+        mailgun_post_route = f'https://api.mailgun.net/v3/{self.mail_domain}/messages'
+        request_params = {
+            'auth': ('api', settings.MAILGUN_API_KEY),
+            'data': {
+                'from': f'"Callisto" <noreply@{self.mail_domain}>',
+                'to': self.context['to_addresses'],
+                'subject': self.context['subject'],
+                'html': self.context['body'],
+                **self._extra_data(),
+            },
+            **self._mail_attachments(),
         }
-        task_response = tasks.SendEmail.delay(
-            self.mail_domain, email_data, self._mail_attachments())
-        self.context.update({'task_id': task_response.task_id})
-        """
-        self.context.update({
-            'response': getattr(response, 'context', response),
-            'response_status': response.status_code,
-            'response_content': response.content,
-        })
-        """
+        # [ TODO ] REMOVE THIS WHEN CELERY CONFIG IS FINISHED
+        requests.post(mailgun_post_route, request_params)
+        # [ TODO ] / REMOVE THIS
+        # [ TODO ] ADD THIS BACK WHEN CELERY CONFIG IS FINISHED
+        # tasks.SendEmail.delay(mailgun_post_route, request_params)
+        # [ TODO ] / ADD THIS
 
     def log_action(self):
         logger.info('notification.send(subject={}, name={})'.format(
@@ -423,7 +425,3 @@ class CallistoCoreNotificationApi(object):
             self.context.update({
                 'body': self.context['body'][:80]
             })
-        """
-        if not self.context.get('response_status') == 200:
-            logger.error(f'status_code!=200, context: {self.context}')
-        """

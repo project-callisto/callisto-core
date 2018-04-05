@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.21.3 (2018-04-04)
+
+* Temporarily disable celery
+    * https://github.com/project-callisto/callisto-core/pull/411
+
 ## 0.21.2 (2018-04-04)
 
 * Added a "Resubmit" flow
