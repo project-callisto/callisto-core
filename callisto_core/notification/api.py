@@ -401,7 +401,12 @@ class CallistoCoreNotificationApi(object):
             **self._mail_attachments(),
         }
         # [ TODO ] REMOVE THIS WHEN CELERY CONFIG IS FINISHED
-        requests.post(mailgun_post_route, request_params)
+        response = requests.post(mailgun_post_route, request_params)
+        self.context.update({
+            'response': getattr(response, 'context', response),
+            'response_status': response.status_code,
+            'response_content': response.content,
+        })
         # [ TODO ] / REMOVE THIS
         # [ TODO ] ADD THIS BACK WHEN CELERY CONFIG IS FINISHED
         # tasks.SendEmail.delay(mailgun_post_route, request_params)
@@ -425,3 +430,8 @@ class CallistoCoreNotificationApi(object):
             self.context.update({
                 'body': self.context['body'][:80]
             })
+
+        # [ TODO ] REMOVE THIS WHEN CELERY CONFIG IS FINISHED
+        if not self.context.get('response_status') == 200:
+            logger.error(f'status_code!=200, context: {self.context}')
+        # [ TODO ] / REMOVE THIS
