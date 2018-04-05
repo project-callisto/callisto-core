@@ -2,6 +2,7 @@ import copy
 import logging
 import os
 import typing
+import requests
 
 import gnupg
 from reportlab.lib.enums import TA_CENTER
@@ -389,21 +390,23 @@ class CallistoCoreNotificationApi(object):
 
     def send_email(self):
         email_data = {
+            'from': f'"Callisto" <noreply@{self.mail_domain}>',
             'to': self.context['to_addresses'],
             'subject': self.context['subject'],
             'html': self.context['body'],
             **self._extra_data(),
         }
-        task_response = tasks.SendEmail.delay(
-            self.mail_domain, email_data, self._mail_attachments())
-        self.context.update({'task_id': task_response.task_id})
-        """
-        self.context.update({
-            'response': getattr(response, 'context', response),
-            'response_status': response.status_code,
-            'response_content': response.content,
-        })
-        """
+        requests.post(
+            f'https://api.mailgun.net/v3/{self.mail_domain}/messages',
+            {
+                'auth': ('api', settings.MAILGUN_API_KEY),
+                'data': **email_data,
+                **self._mail_attachments(),
+            },
+        )
+        # task_response = tasks.SendEmail.delay(
+        #     self.mail_domain, email_data, self._mail_attachments())
+        # self.context.update({'task_id': task_response.task_id})
 
     def log_action(self):
         logger.info('notification.send(subject={}, name={})'.format(
@@ -423,7 +426,3 @@ class CallistoCoreNotificationApi(object):
             self.context.update({
                 'body': self.context['body'][:80]
             })
-        """
-        if not self.context.get('response_status') == 200:
-            logger.error(f'status_code!=200, context: {self.context}')
-        """

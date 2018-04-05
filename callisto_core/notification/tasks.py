@@ -18,10 +18,7 @@ class _SendEmail(CallistoCoreBaseTask):
     def _set_params(self, domain, email_data, email_attachments):
         self.request_params = {
             'auth': ('api', settings.MAILGUN_API_KEY),
-            'data': {
-                'from': f'"Callisto" <noreply@{domain}>',
-                **email_data,
-            },
+            'data': **email_data,
             **email_attachments,
         }
 
