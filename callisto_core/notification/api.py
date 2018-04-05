@@ -402,12 +402,12 @@ class CallistoCoreNotificationApi(object):
             'data': email_data,
             **self._mail_attachments(),
         }
-        # REMOVE THIS WHEN CELERY CONFIG IS FINISHED
+        # [ TODO ] REMOVE THIS WHEN CELERY CONFIG IS FINISHED
         requests.post(mailgun_post_route, request_params)
-        # / REMOVE THIS
-        # ADD THIS BACK WHEN CELERY CONFIG IS FINISHED
+        # [ TODO ] / REMOVE THIS
+        # [ TODO ] ADD THIS BACK WHEN CELERY CONFIG IS FINISHED
         # tasks.SendEmail.delay(mailgun_post_route, request_params)
-        # / ADD THIS
+        # [ TODO ] / ADD THIS
 
     def log_action(self):
         logger.info('notification.send(subject={}, name={})'.format(
