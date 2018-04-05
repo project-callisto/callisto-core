@@ -18,7 +18,7 @@ class _SendEmail(CallistoCoreBaseTask):
         try:
             response = requests.post(self.mailgun_post_route, **self.request_params)
             if not response.status_code == 200:
-                logger.error(f'status_code!=200, content: {response.content}')
+                logger.error(f'status_code!=200, content: {response.content}, params: {self.request_params}')
         except Exception as exc:
             raise self.retry(exc=exc)
         return response
