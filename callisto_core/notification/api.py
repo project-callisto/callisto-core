@@ -389,6 +389,7 @@ class CallistoCoreNotificationApi(object):
             })
 
     def send_email(self):
+        mailgun_post_route = f'https://api.mailgun.net/v3/{self.mail_domain}/messages'
         email_data = {
             'from': f'"Callisto" <noreply@{self.mail_domain}>',
             'to': self.context['to_addresses'],
@@ -396,17 +397,17 @@ class CallistoCoreNotificationApi(object):
             'html': self.context['body'],
             **self._extra_data(),
         }
-        requests.post(
-            f'https://api.mailgun.net/v3/{self.mail_domain}/messages',
-            {
-                'auth': ('api', settings.MAILGUN_API_KEY),
-                'data': **email_data,
-                **self._mail_attachments(),
-            },
-        )
-        # task_response = tasks.SendEmail.delay(
-        #     self.mail_domain, email_data, self._mail_attachments())
-        # self.context.update({'task_id': task_response.task_id})
+        request_params = {
+            'auth': ('api', settings.MAILGUN_API_KEY),
+            'data': email_data,
+            **self._mail_attachments(),
+        }
+        # REMOVE THIS WHEN CELERY CONFIG IS FINISHED
+        requests.post(mailgun_post_route, request_params)
+        # / REMOVE THIS
+        # ADD THIS BACK WHEN CELERY CONFIG IS FINISHED
+        # tasks.SendEmail.delay(mailgun_post_route, request_params)
+        # / ADD THIS
 
     def log_action(self):
         logger.info('notification.send(subject={}, name={})'.format(
