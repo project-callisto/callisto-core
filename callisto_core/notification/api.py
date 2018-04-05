@@ -397,7 +397,7 @@ class CallistoCoreNotificationApi(object):
             **self._mail_attachments(),
         }
         # [ TODO ] REMOVE THIS WHEN CELERY CONFIG IS FINISHED
-        response = requests.post(mailgun_post_route, request_params)
+        response = requests.post(mailgun_post_route, **request_params)
         self.context.update({
             'response': getattr(response, 'context', response),
             'response_status': response.status_code,

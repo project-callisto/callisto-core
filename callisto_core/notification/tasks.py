@@ -1,7 +1,11 @@
+import logging
+
 import requests
 
 from callisto_core.celeryconfig.celery import celery_app
 from callisto_core.celeryconfig.tasks import CallistoCoreBaseTask
+
+logger = logging.getLogger(__name__)
 
 
 class _SendEmail(CallistoCoreBaseTask):
@@ -12,9 +16,9 @@ class _SendEmail(CallistoCoreBaseTask):
 
     def _send_email(self):
         try:
-            response = requests.post(
-                self.mailgun_post_route,
-                self.request_params)
+            response = requests.post(self.mailgun_post_route, **self.request_params)
+            if not response.status_code == 200:
+                logger.error(f'status_code!=200, content: {response.content}')
         except Exception as exc:
             raise self.retry(exc=exc)
         return response
