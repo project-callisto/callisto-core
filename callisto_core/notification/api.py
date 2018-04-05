@@ -41,10 +41,6 @@ class CallistoCoreNotificationApi(object):
         ]
 
     @property
-    def mail_domain(self):
-        return 'mail.callistocampus.org'
-
-    @property
     def model(self):
         from callisto_core.notification.models import EmailNotification
         return EmailNotification
@@ -55,7 +51,7 @@ class CallistoCoreNotificationApi(object):
 
     @property
     def from_email(self):
-        return f'"Callisto" <noreply@{self.mail_domain}>'
+        return f'"Callisto" <noreply@mail.callistocampus.org>'
 
     def user_site_id(self, user):
         return user.account.site_id
@@ -388,11 +384,11 @@ class CallistoCoreNotificationApi(object):
             })
 
     def send_email(self):
-        mailgun_post_route = f'https://api.mailgun.net/v3/{self.mail_domain}/messages'
+        mailgun_post_route = 'https://api.mailgun.net/v3/mail.callistocampus.org/messages'
         request_params = {
             'auth': ('api', settings.MAILGUN_API_KEY),
             'data': {
-                'from': f'"Callisto" <noreply@{self.mail_domain}>',
+                'from': '"Callisto" <noreply@mail.callistocampus.org>',
                 'to': self.context['to_addresses'],
                 'subject': self.context['subject'],
                 'html': self.context['body'],
