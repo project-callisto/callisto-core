@@ -214,6 +214,13 @@ class PDFReport(object):
             return 'Anonymous User'
 
 
+class PDFUserReviewReport(PDFReport):
+
+    def __init__(self, pdf_input_data):
+        super().__init__()
+        self.pdf_input_data = pdf_input_data
+
+
 class PDFFullReport(PDFReport):
 
     def __init__(self, report, report_data):
