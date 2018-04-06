@@ -63,6 +63,10 @@ class UserReviewPDFTest(
             self.report_contact_email,
             pdf_reader.getPage(1).extractText(),
         )
+        self.assertIn(
+            self.report_contact_phone,
+            pdf_reader.getPage(1).extractText(),
+        )
 
 
 class ReportPDFTest(

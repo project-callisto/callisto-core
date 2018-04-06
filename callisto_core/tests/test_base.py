@@ -150,6 +150,7 @@ class ReportPostHelper(object):
             },
             follow=True,
         )
+        self.report.refresh_from_db()
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
