@@ -100,8 +100,24 @@ class PDFReport(object):
     selected = u'\u2717'
     free_text = u'\u2756'
     no_bullet = ' '
-
     report_title = "Report"
+
+    @property
+    def headline_style(self):
+        styles = getSampleStyleSheet()
+        headline_style = styles["Heading1"]
+        headline_style.alignment = TA_CENTER
+        headline_style.fontSize = 48
+        return headline_style
+
+    @property
+    def subtitle_style(self):
+        styles = getSampleStyleSheet()
+        subtitle_style = styles["Heading2"]
+        subtitle_style.fontSize = 24
+        subtitle_style.leading = 26
+        subtitle_style.alignment = TA_CENTER
+        return subtitle_style
 
     def __init__(self):
         self.styles = self.set_up_styles()
@@ -218,19 +234,55 @@ class PDFReport(object):
             return 'Anonymous User'
 
 
-class PDFUserReviewReport(PDFReport):
+class ReportPageMixin(object):
+
+    def report_page(self, report):
+        return [
+            Paragraph(
+                "Report",
+                self.report_title_style,
+            ),
+            Paragraph(
+                "Report Metadata",
+                self.section_title_style,
+            ),
+            Paragraph(
+                f'''
+                    Reported by: {self.get_user_identifier(report.owner)}<br/>
+                    Submitted on: {report.submitted_to_school}<br/>
+                    Record Created: {report.added.strftime("%Y-%m-%d %H:%M")}<br />
+                ''',
+                self.body_style,
+            ),
+            Paragraph(
+                "Contact Preferences",
+                self.section_title_style,
+            ),
+            Paragraph(
+                f'''
+                    Name: {report.contact_name or "<i>None provided</i>"}<br />
+                    Phone: {report.contact_phone}<br />
+                    Voicemail preferences: {report.contact_voicemail or "None provided"}<br />
+                    Email: {report.contact_email}<br />
+                    Notes on preferred contact time of day, gender of admin, etc.:
+                ''',
+                self.body_style,
+            ),
+            Paragraph(
+                report.contact_notes or "None provided",
+                self.notes_style,
+            )
+        ]
+
+
+class PDFUserReviewReport(
+    PDFReport,
+    ReportPageMixin,
+):
 
     title = 'User Review Report'
 
     def cover_page(self):
-        styles = getSampleStyleSheet()
-        headline_style = styles["Heading1"]
-        headline_style.alignment = TA_CENTER
-        headline_style.fontSize = 48
-        subtitle_style = styles["Heading2"]
-        subtitle_style.fontSize = 24
-        subtitle_style.leading = 26
-        subtitle_style.alignment = TA_CENTER
         return [
             Image(
                 os.path.join(settings.BASE_DIR, api.NotificationApi.logo_path),
@@ -238,10 +290,10 @@ class PDFUserReviewReport(PDFReport):
                 3 * inch,
             ),
             Spacer(1, 18),
-            Paragraph("CONFIDENTIAL", headline_style),
+            Paragraph("CONFIDENTIAL", self.headline_style),
             Spacer(1, 30),
             Spacer(1, 40),
-            Paragraph(self.title, subtitle_style),
+            Paragraph(self.title, self.subtitle_style),
             Spacer(1, 40),
             # Paragraph(
             #     f"Intended for: {recipient}, Title IX Coordinator",
@@ -250,11 +302,17 @@ class PDFUserReviewReport(PDFReport):
             PageBreak(),
         ]
 
-    @classmethod
-    def generate(cls, pdf_input_data):
-        self = cls()
+    def report_pages(self, reports: list):
+        pages = []
+        for report in reports:
+            pages.extend(self.report_page(report))
+        return pages
 
+    @classmethod
+    def generate(cls, pdf_input_data: dict):
         # pre-setup
+        self = cls()
+        reports = pdf_input_data.get('reports', [])
         report_buffer = BytesIO()
         doc = SimpleDocTemplate(
             report_buffer,
@@ -265,6 +323,7 @@ class PDFUserReviewReport(PDFReport):
 
         # fill with content
         self.pdf_elements.extend(self.cover_page())
+        self.pdf_elements.extend(self.report_pages(reports))
 
         # post-setup
         doc.build(
@@ -276,64 +335,15 @@ class PDFUserReviewReport(PDFReport):
         return result
 
 
-class PDFFullReport(PDFReport):
+class PDFFullReport(
+    PDFReport,
+    ReportPageMixin,
+):
 
     def __init__(self, report, report_data):
         super().__init__()
         self.report = report
         self.report_data = report_data
-
-    def get_metadata_page(self, recipient):
-        MetadataPage = []
-        MetadataPage.append(Paragraph(
-            api.NotificationApi.report_title,
-            self.report_title_style,
-        ))
-
-        MetadataPage.append(Paragraph("Overview", self.section_title_style))
-
-        overview_body = "Reported by: {0}<br/>".format(
-            self.get_user_identifier(self.report.owner),
-        )
-        overview_body = overview_body + '''
-            Submitted on: {0}<br/>
-        '''.format(
-            self.report.submitted_to_school,
-        )
-        overview_body = overview_body + '''
-            Record Created: {0}<br />
-        '''.format(self.report.added.strftime("%Y-%m-%d %H:%M"))
-
-        MetadataPage.append(Paragraph(overview_body, self.body_style))
-
-        MetadataPage.append(Paragraph(
-            "Contact Preferences",
-            self.section_title_style,
-        ))
-
-        contact_body = '''
-            Name: {0}<br />
-            Phone: {1}<br />
-            Voicemail preferences: {2}<br />
-            Email: {3}<br />
-            Notes on preferred contact time of day, gender of admin, etc.:
-        '''.format(
-            self.report.contact_name or "<i>None provided</i>",
-            self.report.contact_phone,
-            self.report.contact_voicemail or "None provided",
-            self.report.contact_email,
-        )
-
-        MetadataPage.append(Paragraph(
-            contact_body,
-            self.body_style,
-        ))
-        MetadataPage.append(Paragraph(
-            self.report.contact_notes or "None provided",
-            self.notes_style,
-        ))
-
-        return MetadataPage
 
     def generate_pdf_report(self, report_id, recipient):
         # PREPARE PDF
@@ -354,7 +364,7 @@ class PDFFullReport(PDFReport):
         )
 
         # METADATA PAGE
-        self.pdf_elements.extend(self.get_metadata_page(recipient))
+        self.pdf_elements.extend(self.report_page(self.report))
 
         # REPORT
         self.pdf_elements.extend(
