@@ -2,8 +2,8 @@ from io import BytesIO
 
 import PyPDF2
 
-from .. import test_base
-from ...reporting import report_delivery
+from callisto_core.tests import test_base
+from callisto_core.reporting.report_delivery import report_as_pdf, PDFUserReviewReport
 
 # TODO: generate mock_report_data in wizard builder
 mock_report_data = [
@@ -14,11 +14,26 @@ mock_report_data = [
 ]
 
 
-class ReportPDFTest(test_base.ReportFlowHelper):
+class UserReviewPDFTest(
+    test_base.ReportFlowHelper,
+):
+
+    def test_title(self):
+        pdf = PDFUserReviewReport.generate({})
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        self.assertIn(
+            PDFUserReviewReport.title,
+            pdf_reader.getPage(0).extractText(),
+        )
+
+
+class ReportPDFTest(
+    test_base.ReportFlowHelper,
+):
 
     def test_report_pdf(self):
         self.client_post_report_creation()
-        pdf = report_delivery.report_as_pdf(
+        pdf = report_as_pdf(
             report=self.report,
             data=mock_report_data,
             recipient=None,

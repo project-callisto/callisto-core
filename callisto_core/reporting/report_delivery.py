@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 from collections import OrderedDict
@@ -7,7 +8,8 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from reportlab.lib.units import inch
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Image, PageBreak
 
 from django.conf import settings
 from django.utils import timezone
@@ -216,9 +218,60 @@ class PDFReport(object):
 
 class PDFUserReviewReport(PDFReport):
 
-    def __init__(self, pdf_input_data):
-        super().__init__()
-        self.pdf_input_data = pdf_input_data
+    title = 'User Review Report'
+
+    def cover_page(self):
+        styles = getSampleStyleSheet()
+        headline_style = styles["Heading1"]
+        headline_style.alignment = TA_CENTER
+        headline_style.fontSize = 48
+        subtitle_style = styles["Heading2"]
+        subtitle_style.fontSize = 24
+        subtitle_style.leading = 26
+        subtitle_style.alignment = TA_CENTER
+        return [
+            Image(
+                os.path.join(settings.BASE_DIR, api.NotificationApi.logo_path),
+                3 * inch,
+                3 * inch,
+            ),
+            Spacer(1, 18),
+            Paragraph("CONFIDENTIAL", headline_style),
+            Spacer(1, 30),
+            Spacer(1, 40),
+            Paragraph(self.title, subtitle_style),
+            Spacer(1, 40),
+            # Paragraph(
+            #     f"Intended for: {recipient}, Title IX Coordinator",
+            #     subtitle_style,
+            # ),
+            PageBreak(),
+        ]
+
+    @classmethod
+    def generate(cls, pdf_input_data):
+        self = cls()
+
+        # pre-setup
+        report_buffer = BytesIO()
+        doc = SimpleDocTemplate(
+            report_buffer,
+            pagesize=letter,
+            rightMargin=72, leftMargin=72,
+            topMargin=72, bottomMargin=72,
+        )
+
+        # fill with content
+        self.pdf_elements.extend(self.cover_page())
+
+        # post-setup
+        doc.build(
+            self.pdf_elements,
+            canvasmaker=NumberedCanvas,
+        )
+        result = report_buffer.getvalue()
+        report_buffer.close()
+        return result
 
 
 class PDFFullReport(PDFReport):
