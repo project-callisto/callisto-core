@@ -172,6 +172,13 @@ class ReportMetaFlowTest(test_base.ReportFlowHelper):
             models.MatchReport.objects.filter(report=self.report).count(),
         )
 
+    def test_report_prep_step(self):
+        self.client_post_report_creation()
+        self.client_post_report_prep()
+        self.assertEqual(
+            self.report_contact_email,
+            self.report.contact_email)
+
     def test_match_sends_report_immediately(self):
         self.client_post_report_creation()
         self.client_post_report_prep()
