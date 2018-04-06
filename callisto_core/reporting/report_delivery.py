@@ -428,7 +428,7 @@ class PDFMatchReport(PDFReport):
                 match,
                 MatchReportContent(**json.loads(match.get_match(self.identifier))),
             )
-            for match in self.sorted_matches
+            for match in sorted_matches
         ]
         # setup :: names
         names = ', '.join(OrderedDict.fromkeys([report.perp_name.strip(
