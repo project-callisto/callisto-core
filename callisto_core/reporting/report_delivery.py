@@ -280,7 +280,7 @@ class PDFUserReviewReport(
     ReportPageMixin,
 ):
 
-    title = 'User Review Report'
+    title = 'Submitted and Matched Reports'
 
     def cover_page(self):
         return [

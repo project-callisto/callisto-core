@@ -84,6 +84,22 @@ class UserReviewPDFTest(
             pdf_reader.getPage(2).extractText(),
         )
 
+    def test_output_file(self):
+        '''
+            for when you want to see what the file looks like
+            $ open UserReviewPDFTest.pdf
+        '''
+        self.client_post_report_creation()
+        self.client_post_report_prep()
+        pdf = PDFUserReviewReport.generate({
+            'reports': [self.report, self.report],
+        })
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        with open('UserReviewPDFTest.pdf', 'wb') as _file:
+            dst_pdf = PyPDF2.PdfFileWriter()
+            dst_pdf.appendPagesFromReader(pdf_reader)
+            dst_pdf.write(_file)
+
 
 class ReportPDFTest(
     test_base.ReportFlowHelper,

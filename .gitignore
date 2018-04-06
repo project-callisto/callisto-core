@@ -1,6 +1,7 @@
 screendumps
 *.sqlite3
 .pytest_cache/
+*Test.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
