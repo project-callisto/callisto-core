@@ -26,6 +26,14 @@ class UserReviewPDFTest(
             pdf_reader.getPage(0).extractText(),
         )
 
+    def test_random_content_not_present(self):
+        pdf = PDFUserReviewReport.generate({})
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        self.assertNotIn(
+            'aowdbaef aieuf aef rv a7fv isfv srifv ivf if7va7evada11111',
+            pdf_reader.getPage(0).extractText(),
+        )
+
 
 class ReportPDFTest(
     test_base.ReportFlowHelper,
