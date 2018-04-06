@@ -18,6 +18,11 @@ class UserReviewPDFTest(
     test_base.ReportFlowHelper,
 ):
 
+    def test_text_present(self):
+        pdf = PDFUserReviewReport.generate({})
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        self.assertTrue(pdf_reader.getPage(0).extractText())
+
     def test_title(self):
         pdf = PDFUserReviewReport.generate({})
         pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
