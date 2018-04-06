@@ -41,10 +41,6 @@ class CallistoCoreNotificationApi(object):
         ]
 
     @property
-    def mail_domain(self):
-        return 'mail.callistocampus.org'
-
-    @property
     def model(self):
         from callisto_core.notification.models import EmailNotification
         return EmailNotification
@@ -55,7 +51,7 @@ class CallistoCoreNotificationApi(object):
 
     @property
     def from_email(self):
-        return f'"Callisto" <noreply@{self.mail_domain}>'
+        return f'"Callisto" <noreply@mail.callistocampus.org>'
 
     def user_site_id(self, user):
         return user.account.site_id
@@ -388,11 +384,11 @@ class CallistoCoreNotificationApi(object):
             })
 
     def send_email(self):
-        mailgun_post_route = f'https://api.mailgun.net/v3/{self.mail_domain}/messages'
+        mailgun_post_route = 'https://api.mailgun.net/v3/mail.callistocampus.org/messages'
         request_params = {
             'auth': ('api', settings.MAILGUN_API_KEY),
             'data': {
-                'from': f'"Callisto" <noreply@{self.mail_domain}>',
+                'from': '"Callisto" <noreply@mail.callistocampus.org>',
                 'to': self.context['to_addresses'],
                 'subject': self.context['subject'],
                 'html': self.context['body'],
@@ -401,7 +397,12 @@ class CallistoCoreNotificationApi(object):
             **self._mail_attachments(),
         }
         # [ TODO ] REMOVE THIS WHEN CELERY CONFIG IS FINISHED
-        requests.post(mailgun_post_route, request_params)
+        response = requests.post(mailgun_post_route, **request_params)
+        self.context.update({
+            'response': getattr(response, 'context', response),
+            'response_status': response.status_code,
+            'response_content': response.content,
+        })
         # [ TODO ] / REMOVE THIS
         # [ TODO ] ADD THIS BACK WHEN CELERY CONFIG IS FINISHED
         # tasks.SendEmail.delay(mailgun_post_route, request_params)
@@ -425,3 +426,8 @@ class CallistoCoreNotificationApi(object):
             self.context.update({
                 'body': self.context['body'][:80]
             })
+
+        # [ TODO ] REMOVE THIS WHEN CELERY CONFIG IS FINISHED
+        if not self.context.get('response_status') == 200:
+            logger.error(f'status_code!=200, context: {self.context}')
+        # [ TODO ] / REMOVE THIS

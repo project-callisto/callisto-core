@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.21.4 (2018-04-04)
+
+* NotificationApi hotfix
+    * https://github.com/project-callisto/callisto-core/pull/412
+
 ## 0.21.3 (2018-04-04)
 
 * Temporarily disable celery
