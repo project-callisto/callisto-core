@@ -306,6 +306,7 @@ class PDFUserReviewReport(
         pages = []
         for report in reports:
             pages.extend(self.report_page(report))
+            pages.append(PageBreak())
         return pages
 
     @classmethod
