@@ -295,10 +295,6 @@ class PDFUserReviewReport(
             Spacer(1, 40),
             Paragraph(self.title, self.subtitle_style),
             Spacer(1, 40),
-            # Paragraph(
-            #     f"Intended for: {recipient}, Title IX Coordinator",
-            #     subtitle_style,
-            # ),
             PageBreak(),
         ]
 
