@@ -41,6 +41,29 @@ class UserReviewPDFTest(
             pdf_reader.getPage(0).extractText(),
         )
 
+    def test_report_reports_page(self):
+        self.client_post_report_creation()
+        pdf = PDFUserReviewReport.generate({
+            'reports': [self.report],
+        })
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        self.assertIn(
+            'Report',
+            pdf_reader.getPage(1).extractText(),
+        )
+
+    def test_report_contact_info_present(self):
+        self.client_post_report_creation()
+        self.client_post_report_prep()
+        pdf = PDFUserReviewReport.generate({
+            'reports': [self.report],
+        })
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        self.assertIn(
+            self.report_contact_email,
+            pdf_reader.getPage(1).extractText(),
+        )
+
 
 class ReportPDFTest(
     test_base.ReportFlowHelper,
