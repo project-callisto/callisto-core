@@ -1,15 +1,17 @@
-import os
 import json
 import logging
+import os
 from collections import OrderedDict
 from io import BytesIO
 
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
-from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Image, PageBreak
+from reportlab.pdfgen import canvas
+from reportlab.platypus import (
+    Image, PageBreak, Paragraph, SimpleDocTemplate, Spacer,
+)
 
 from django.conf import settings
 from django.utils import timezone
