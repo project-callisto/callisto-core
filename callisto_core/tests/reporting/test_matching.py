@@ -50,7 +50,7 @@ class MatchIntegratedTest(
         'callisto_core_notification_data',
     ]
 
-    def test_two_match_post_requests_trigger_matching(self):
+    def _setup_matches(self):
         self.passphrase = 'user 1 secret'
         self.client.login(username="test1", password="test")
         self.client_post_report_creation()
@@ -64,7 +64,14 @@ class MatchIntegratedTest(
         self.client_post_report_creation()
         self.client_post_matching_enter('https://www.facebook.com/callistoorg')
 
+    def test_two_match_post_requests_trigger_matching(self):
+        self._setup_matches()
         self.assert_matches_found_true()
+
+    def test_some_match_emails_sent(self):
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            self._setup_matches()
+            self.assertGreaterEqual(api_logging.call_count, 1)
 
 
 class MatchAlertingTest(MatchSetup):

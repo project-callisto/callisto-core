@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.22.0 (2018-04-06)
+
+* add PDFUserReviewReport, for generating PDFs of all reports and match reports
+    * https://github.com/project-callisto/callisto-core/pull/413
+
 ## 0.21.4 (2018-04-04)
 
 * NotificationApi hotfix

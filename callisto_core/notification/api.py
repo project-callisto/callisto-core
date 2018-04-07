@@ -19,7 +19,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from callisto_core.reporting.report_delivery import (
-    PDFFullReport, PDFMatchReport,
+    PDFFullReport, PDFMatchReport, PDFUserReviewReport,
 )
 from callisto_core.utils.api import TenantApi
 
@@ -148,7 +148,7 @@ class CallistoCoreNotificationApi(object):
             'to_addresses': to_addresses,
             'site_id': site_id,
         }
-        self.notification_with_full_report(
+        self._notification_with_full_report(
             sent_report, report_data, public_key, to_addresses)
         self.send()
 
@@ -222,7 +222,7 @@ class CallistoCoreNotificationApi(object):
             'site_id': self.user_site_id(user),
             'user': user,
         }
-        self.notification_with_match_report(
+        self._notification_with_match_report(
             matches, identifier, to_addresses, public_key)
         self.send()
 
@@ -246,9 +246,30 @@ class CallistoCoreNotificationApi(object):
             user=user,
         )
 
+    def send_user_review_nofication(
+        self,
+        reports: list,
+        matches: list,
+        to_addresses: typing.List[str],
+        public_key: str,
+        site_id: int,
+    ):
+        self.context = {
+            'email_template_name': 'callisto_core/notification/user_review.html',
+            'email_subject': 'Callisto Report Review Notification',
+            'to_addresses': to_addresses,
+            'site_id': site_id,
+        }
+        report_file = PDFUserReviewReport.generate({
+            'reports': reports,
+            'matches': matches,
+        })
+        self._notification_with_report('', report_file, public_key)
+        self.send()
+
     # report attachment
 
-    def notification_with_full_report(
+    def _notification_with_full_report(
         self,
         sent_report,
         report_data,
@@ -262,14 +283,14 @@ class CallistoCoreNotificationApi(object):
 
         self._notification_with_report(report_id, report_file, public_key)
 
-    def notification_with_match_report(
+    def _notification_with_match_report(
         self,
         matches,
         identifier,
         to_addresses,
         public_key,
     ):
-        # TODO: make match notification_with_full_report more closely
+        # TODO: make match _notification_with_full_report more closely
         from callisto_core.delivery.models import SentMatchReport
         sent_match_report = SentMatchReport.objects.create(
             to_address=self.context['to_addresses'][0],
@@ -317,7 +338,7 @@ class CallistoCoreNotificationApi(object):
         required:
             self.context.
                 site_id
-                notification_name
+                notification_name or email_template_name
                 to_addresses
         optional:
             self.context.
