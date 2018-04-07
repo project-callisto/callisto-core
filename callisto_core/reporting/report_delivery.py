@@ -65,6 +65,18 @@ class MatchReportContent(object):
             notes=form.instance.report.contact_notes,
         )
 
+    @classmethod
+    def empty(cls):
+        return cls(
+            identifier='',
+            perp_name='',
+            contact_name='',
+            email='',
+            phone='',
+            voicemail='',
+            notes='',
+        )
+
 
 class NumberedCanvas(canvas.Canvas):
 
@@ -289,69 +301,48 @@ class ReportPageMixin(object):
 
 class MatchPageMixin(object):
 
-    def match_pages(self, matches: list):
+    def match_pages(self, match_report_and_report_content: list):
         pages = []
-        for match in matches:
-            pages.extend(self.match_page(match))
+        for (match_report, match_content) in match_report_and_report_content:
+            pages.extend(self.match_page(match_report, match_content))
             pages.append(PageBreak())
         return pages
 
-    def match_page(self, match):
+    def match_page(self, match_report, match_content):
         return [
-        ]
-
-
-class PDFUserReviewReport(
-    PDFReport,
-    ReportPageMixin,
-    MatchPageMixin,
-):
-
-    title = 'Submitted and Matched Reports'
-
-    def cover_page(self):
-        return [
-            Image(
-                os.path.join(settings.BASE_DIR, api.NotificationApi.logo_path),
-                3 * inch,
-                3 * inch,
+            Paragraph(
+                f'''
+                    Perpetrator name given: {match_content.perp_name or "<i>Not available or none provided</i>"}<br />
+                    Reported by: {self.get_user_identifier(match_report.report.owner)}<br />
+                    Submitted to matching on: {match_report.added.strftime("%Y-%m-%d %H:%M")}<br />
+                    Record created: {match_report.report.added.strftime("%Y-%m-%d %H:%M")}<br />
+                    Full record submitted? {self._is_submitted(match_report)}<br />
+                    <br /><br />
+                    Name: {match_report.report.contact_name or "<i>None provided</i>"}<br />
+                    Phone: {match_report.report.contact_phone}<br />
+                    Voicemail preferences: {match_report.report.contact_voicemail or "<i>None provided</i>"}<br />
+                    Email: {match_report.report.contact_email}<br />
+                    Notes on preferred contact time of day, gender of admin, etc.:<br />
+                ''',
+                self.body_style,
             ),
-            Spacer(1, 18),
-            Paragraph("CONFIDENTIAL", self.headline_style),
-            Spacer(1, 30),
-            Spacer(1, 40),
-            Paragraph(self.title, self.subtitle_style),
-            Spacer(1, 40),
-            PageBreak(),
+            Paragraph(
+                match_report.report.contact_notes or "None provided",
+                self.notes_style,
+            ),
         ]
 
-    @classmethod
-    def generate(cls, pdf_input_data: dict):
-        # setup
-        self = cls()
-        reports = pdf_input_data.get('reports', [])
-        matches = pdf_input_data.get('matches', [])
-        report_buffer = BytesIO()
-        doc = SimpleDocTemplate(
-            report_buffer,
-            pagesize=letter,
-            rightMargin=72, leftMargin=72,
-            topMargin=72, bottomMargin=72,
-        )
-
-        # content fill
-        self.pdf_elements.extend(self.cover_page())
-        self.pdf_elements.extend(self.report_pages(reports))
-        self.pdf_elements.extend(self.match_pages(matches))
-
-        # teardown
-        doc.build(
-            self.pdf_elements,
-            canvasmaker=NumberedCanvas,
-        )
-        result = report_buffer.getvalue()
-        report_buffer.close()
-        return result
+    def _is_submitted(self, match_report):
+        if match_report.report.submitted_to_school:
+            sent_report = match_report.report.sentfullreport_set.first()
+            report_id = sent_report.get_report_id() if sent_report else "<i>Not found</i>"
+            return f'''
+                Yes<br />
+                Submitted to school on: {match_report.report.submitted_to_school}<br />
+                Submitted report ID: {report_id}
+            '''
+        else:
+            return "No"
 
 
 class PDFFullReport(
@@ -397,7 +388,10 @@ class PDFFullReport(
         return result
 
 
-class PDFMatchReport(PDFReport):
+class PDFMatchReport(
+    PDFReport,
+    MatchPageMixin,
+):
 
     report_title = "Match Report"
 
@@ -405,6 +399,21 @@ class PDFMatchReport(PDFReport):
         super().__init__()
         self.matches = matches
         self.identifier = identifier
+
+    def names_and_matching_identifiers(self, matches_with_reports):
+        names = ', '.join(
+            OrderedDict.fromkeys([
+                match_report_content.perp_name.strip()
+                for _, match_report_content in matches_with_reports
+                if match_report_content.perp_name
+            ])
+        )
+        if len(names) < 1:
+            names = '<i>None provided</i>'
+        return Paragraph(
+            f'Name(s): {names}<br/>Matching identifier: {self.identifier}',
+            self.body_style,
+        )
 
     def generate_match_report(self, report_id, recipient):
         '''
@@ -417,24 +426,19 @@ class PDFMatchReport(PDFReport):
           bytes: a PDF with the submitted perp information & contact information of the reporters for this match
 
         '''
-        # setup :: matches_with_reports
+        # setup :: matches
         sorted_matches = sorted(
             self.matches,
             key=lambda m: m.added.strftime("%Y-%m-%d %H:%M"),
             reverse=True,
         )
-        matches_with_reports = [
+        match_report_and_report_content = [
             (
                 match,
                 MatchReportContent(**json.loads(match.get_match(self.identifier))),
             )
             for match in sorted_matches
         ]
-        # setup :: names
-        names = ', '.join(OrderedDict.fromkeys([report.perp_name.strip(
-        ) for _, report in matches_with_reports if report.perp_name]))
-        if len(names) < 1:
-            names = '<i>None provided</i>'
         # setup :: pdf
         buffer = BytesIO()
         doc = SimpleDocTemplate(
@@ -456,65 +460,9 @@ class PDFMatchReport(PDFReport):
                 self.report_title_style,
             )
         )
-        self.pdf_elements.append(
-            Paragraph(
-                "Perpetrator",
-                self.section_title_style,
-            )
-        )
-        self.pdf_elements.append(
-            Paragraph(
-                f'Name(s): {names}<br/>Matching identifier: {self.identifier}',
-                self.body_style,
-            ),
-        )
-        # content fill :: reports
-        for idx, (match_report, match_report_content) in enumerate(matches_with_reports):
-            self.pdf_elements.append(
-                Paragraph(
-                    "Report " + str(idx + 1),
-                    self.section_title_style,
-                )
-            )
-
-            report = match_report.report
-            user = report.owner
-
-            if report.submitted_to_school:
-                sent_report = report.sentfullreport_set.first()
-                report_id = sent_report.get_report_id() if sent_report else "<i>Not found</i>"
-                is_submitted = f'''
-                    Yes<br />
-                    Submitted to school on: {report.submitted_to_school}<br />
-                    Submitted report ID: {report_id}
-                '''
-            else:
-                is_submitted = "No"
-
-            self.pdf_elements.append(
-                Paragraph(
-                    f'''
-                        Perpetrator name given: {match_report_content.perp_name or "<i>None provided</i>"}<br />
-                        Reported by: {self.get_user_identifier(user)}<br />
-                        Submitted to matching on: {match_report.added.strftime("%Y-%m-%d %H:%M")}<br />
-                        Record created: {report.added.strftime("%Y-%m-%d %H:%M")}<br />
-                        Full record submitted? {is_submitted}<br />
-                        <br /><br />
-                        Name: {match_report_content.contact_name or "<i>None provided</i>"}<br />
-                        Phone: {match_report_content.phone}<br />
-                        Voicemail preferences: {match_report_content.voicemail or "<i>None provided</i>"}<br />
-                        Email: {match_report_content.email}<br />
-                        Notes on preferred contact time of day, gender of admin, etc.:<br />
-                    ''',
-                    self.body_style,
-                ),
-            )
-            self.pdf_elements.append(
-                Paragraph(
-                    match_report_content.notes or "None provided",
-                    self.notes_style,
-                ),
-            )
+        self.pdf_elements.append(Paragraph("Perpetrator(s)", self.section_title_style))
+        self.pdf_elements.append(self.names_and_matching_identifiers(match_report_and_report_content))
+        self.pdf_elements.append(self.match_report_pages(match_report_and_report_content))
 
         # teardown
         doc.build(
@@ -525,4 +473,67 @@ class PDFMatchReport(PDFReport):
         )
         result = buffer.getvalue()
         buffer.close()
+        return result
+
+
+class PDFUserReviewReport(
+    PDFReport,
+    ReportPageMixin,
+    MatchPageMixin,
+):
+
+    title = 'Submitted and Matched Reports'
+
+    def cover_page(self):
+        return [
+            Image(
+                os.path.join(settings.BASE_DIR, api.NotificationApi.logo_path),
+                3 * inch,
+                3 * inch,
+            ),
+            Spacer(1, 18),
+            Paragraph("CONFIDENTIAL", self.headline_style),
+            Spacer(1, 30),
+            Spacer(1, 40),
+            Paragraph(self.title, self.subtitle_style),
+            Spacer(1, 40),
+            PageBreak(),
+        ]
+
+    def match_pages_empty_identifier(self, matches):
+        match_report_and_report_content = [
+            (
+                match,
+                MatchReportContent.empty(),
+            )
+            for match in matches
+        ]
+        return self.match_pages(match_report_and_report_content)
+
+    @classmethod
+    def generate(cls, pdf_input_data: dict):
+        # setup
+        self = cls()
+        reports = pdf_input_data.get('reports', [])
+        matches = pdf_input_data.get('matches', [])
+        report_buffer = BytesIO()
+        doc = SimpleDocTemplate(
+            report_buffer,
+            pagesize=letter,
+            rightMargin=72, leftMargin=72,
+            topMargin=72, bottomMargin=72,
+        )
+
+        # content fill
+        self.pdf_elements.extend(self.cover_page())
+        self.pdf_elements.extend(self.report_pages(reports))
+        self.pdf_elements.extend(self.match_pages_empty_identifier(matches))
+
+        # teardown
+        doc.build(
+            self.pdf_elements,
+            canvasmaker=NumberedCanvas,
+        )
+        result = report_buffer.getvalue()
+        report_buffer.close()
         return result
