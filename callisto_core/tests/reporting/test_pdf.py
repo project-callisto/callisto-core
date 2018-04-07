@@ -2,10 +2,12 @@ from io import BytesIO
 
 import PyPDF2
 
+from callisto_core.delivery.models import MatchReport
 from callisto_core.reporting.report_delivery import (
     PDFUserReviewReport, report_as_pdf,
 )
 from callisto_core.tests import test_base
+from callisto_core.tests.reporting.base import MatchSetup
 
 # TODO: generate mock_report_data in wizard builder
 mock_report_data = [
@@ -99,6 +101,57 @@ class UserReviewPDFTest(
             dst_pdf = PyPDF2.PdfFileWriter()
             dst_pdf.appendPagesFromReader(pdf_reader)
             dst_pdf.write(_file)
+
+
+class MatchingUserReviewPDFTest(
+    MatchSetup,
+):
+
+    def test_title(self):
+        matching_id = 'test1a08daw awd7awgd 1213123'
+        self.create_match(self.user1, matching_id)
+        self.create_match(self.user2, matching_id)
+        pdf = PDFUserReviewReport.generate({
+            'matches': MatchReport.objects.all(),
+        })
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        self.assertIn(
+            PDFUserReviewReport.title,
+            pdf_reader.getPage(0).extractText(),
+        )
+
+    def test_matching_id_not_present(self):
+        matching_id = 'test1a08daw awd7awgd 1213123'
+        self.create_match(self.user1, matching_id)
+        self.create_match(self.user2, matching_id)
+        pdf = PDFUserReviewReport.generate({
+            'matches': MatchReport.objects.all(),
+        })
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        self.assertNotIn(
+            matching_id,
+            pdf_reader.getPage(1).extractText(),
+        )
+        self.assertNotIn(
+            matching_id,
+            pdf_reader.getPage(2).extractText(),
+        )
+
+    def test_contact_info_present(self):
+        matching_id = 'test1a08daw awd7awgd 1213123'
+        contact_phone = '555-555-5555'
+        self.create_match(self.user1, matching_id)
+        self.create_match(self.user2, matching_id)
+        self.most_recent_report.contact_phone = contact_phone
+        self.most_recent_report.save()
+        pdf = PDFUserReviewReport.generate({
+            'matches': MatchReport.objects.all(),
+        })
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        self.assertIn(
+            contact_phone,
+            pdf_reader.getPage(2).extractText(),
+        )
 
 
 class ReportPDFTest(
