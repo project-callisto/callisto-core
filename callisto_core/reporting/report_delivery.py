@@ -311,7 +311,7 @@ class MatchPageMixin(object):
     def match_page(self, match_report, match_content):
         return [
             Paragraph(
-                'Matched Report',
+                'Matching Report Contents',
                 self.report_title_style,
             ),
             Paragraph(
