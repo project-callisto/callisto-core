@@ -1,13 +1,18 @@
 from io import BytesIO
 
 import PyPDF2
+from mock import patch
 
 from callisto_core.delivery.models import MatchReport
+from callisto_core.notification.management.commands.user_review_email import (
+    UserReviewCommandBackend,
+)
 from callisto_core.reporting.report_delivery import (
     PDFUserReviewReport, report_as_pdf,
 )
 from callisto_core.tests import test_base
 from callisto_core.tests.reporting.base import MatchSetup
+from callisto_core.tests.utils.api import CustomNotificationApi
 
 # TODO: generate mock_report_data in wizard builder
 mock_report_data = [
@@ -171,6 +176,19 @@ class MatchingUserReviewPDFTest(
             dst_pdf = PyPDF2.PdfFileWriter()
             dst_pdf.appendPagesFromReader(pdf_reader)
             dst_pdf.write(_file)
+
+
+class ManagementCommandTest(
+    MatchSetup,
+):
+
+    def test_action_logged(self):
+        matching_id = 'test1a08daw awd7awgd 1213123'
+        self.create_match(self.user1, matching_id)
+        self.create_match(self.user2, matching_id)
+        with patch.object(CustomNotificationApi, 'log_action') as api_logging:
+            UserReviewCommandBackend().send_user_review_email()
+            self.assertEqual(api_logging.call_count, 1)
 
 
 class ReportPDFTest(
