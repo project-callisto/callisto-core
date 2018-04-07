@@ -466,7 +466,7 @@ class PDFMatchReport(
         )
         self.pdf_elements.append(Paragraph("Perpetrator(s)", self.section_title_style))
         self.pdf_elements.append(self.names_and_matching_identifiers(match_report_and_report_content))
-        self.pdf_elements.append(self.match_pages(match_report_and_report_content))
+        self.pdf_elements.extend(self.match_pages(match_report_and_report_content))
 
         # teardown
         doc.build(
