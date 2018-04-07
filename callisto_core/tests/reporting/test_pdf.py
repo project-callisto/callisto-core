@@ -153,6 +153,25 @@ class MatchingUserReviewPDFTest(
             pdf_reader.getPage(2).extractText(),
         )
 
+    def test_output_file(self):
+        '''
+            for when you want to see what the file looks like
+            $ open MatchingUserReviewPDFTest.pdf
+        '''
+        matching_id = 'test1a08daw awd7awgd 1213123'
+        self.create_match(self.user1, matching_id)
+        self.create_match(self.user2, matching_id)
+        self.most_recent_report.contact_phone = '555-555-5555'
+        self.most_recent_report.save()
+        pdf = PDFUserReviewReport.generate({
+            'matches': MatchReport.objects.all(),
+        })
+        pdf_reader = PyPDF2.PdfFileReader(BytesIO(pdf))
+        with open('MatchingUserReviewPDFTest.pdf', 'wb') as _file:
+            dst_pdf = PyPDF2.PdfFileWriter()
+            dst_pdf.appendPagesFromReader(pdf_reader)
+            dst_pdf.write(_file)
+
 
 class ReportPDFTest(
     test_base.ReportFlowHelper,

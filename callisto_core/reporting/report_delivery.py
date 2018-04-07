@@ -311,6 +311,10 @@ class MatchPageMixin(object):
     def match_page(self, match_report, match_content):
         return [
             Paragraph(
+                'Matched Report',
+                self.report_title_style,
+            ),
+            Paragraph(
                 f'''
                     Perpetrator name given: {match_content.perp_name or "<i>Not available or none provided</i>"}<br />
                     Reported by: {self.get_user_identifier(match_report.report.owner)}<br />
