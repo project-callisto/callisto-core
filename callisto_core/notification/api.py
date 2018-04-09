@@ -50,6 +50,16 @@ class CallistoCoreNotificationApi(object):
         return self.context['site_id']
 
     @property
+    def models_on_site(self):
+        site_id = self.context.get('site_id')
+        name = self.context['notification_name']
+        models = self.model.objects.on_site(site_id).filter(name=name)
+        if len(models) != 1:
+            logger.warn(
+                f'{self.model.__name__}(site_id={site_id}, name="{name}") should equal 1, was {len(models)}')
+        return models
+
+    @property
     def from_email(self):
         return f'"Callisto" <noreply@mail.callistocampus.org>'
 
@@ -390,18 +400,16 @@ class CallistoCoreNotificationApi(object):
                 'subject': self.context['email_subject'],
                 'body': body,
             })
-        else:
-            site_id = self.context.get('site_id')
-            name = self.context['notification_name']
-            notifications = self.model.objects.on_site(
-                site_id).filter(name=name)
-            if len(notifications) != 1:
-                logger.warn(
-                    f'{self.model.__name__}(site_id={site_id}, name="{name}") should equal 1, was {len(notifications)}')
-            notification = notifications[0]
+        elif len(self.models_on_site) == 1:
+            notification = self.models_on_site[0]
             self.context.update({
                 'subject': notification.subject,
                 'body': notification.body,
+            })
+        else:
+            self.context.update({
+                'subject': self.context['notification_name'],
+                'body': self.context['notification_name'],
             })
 
     def send_email(self):
