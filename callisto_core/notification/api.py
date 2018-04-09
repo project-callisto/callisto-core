@@ -397,7 +397,7 @@ class CallistoCoreNotificationApi(object):
                 site_id).filter(name=name)
             if len(notifications) != 1:
                 logger.warn(
-                    f'too many results for {self.model.__name__}(site_id={site_id}, name={name})')
+                    f'{self.model.__name__}(site_id={site_id}, name="{name}") should equal 1, was {len(notifications)}')
             notification = notifications[0]
             self.context.update({
                 'subject': notification.subject,
