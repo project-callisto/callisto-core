@@ -161,20 +161,22 @@ class _MatchingPartial(
         return MatchingApi.find_matches(identifier)
 
     def _slack_match_notification(self):
-        NotificationApi.slack_notification(
-            msg='New Callisto Matches (details will be sent via email)',
-            type='match_confirmation',
-        )
+        if not TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool):
+            NotificationApi.slack_notification(
+                msg='New Callisto Matches (details will be sent via email)',
+                type='match_confirmation',
+            )
 
     def _match_confirmation_email_to_callisto(self, matches):
-        NotificationApi.send_with_kwargs(
-            site_id=self.site_id,  # required in general
-            email_template_name=self.admin_email_template_name,  # the email template
-            to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
-            matches=matches,  # used in the email body
-            email_subject='New Callisto Matches',  # rendered as the email subject
-            email_name='match_confirmation_callisto_team',  # used in test assertions
-        )
+        if not TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool):
+            NotificationApi.send_with_kwargs(
+                site_id=self.site_id,  # required in general
+                email_template_name=self.admin_email_template_name,  # the email template
+                to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
+                matches=matches,  # used in the email body
+                email_subject='New Callisto Matches',  # rendered as the email subject
+                email_name='match_confirmation_callisto_team',  # used in test assertions
+            )
 
     def _notify_owner_of_submission(self, identifier):
         if identifier:
@@ -253,10 +255,11 @@ class ConfirmationPartial(
             )
 
     def _send_confirmation_slack_notification(self):
-        NotificationApi.slack_notification(
-            msg=self.SLACK_ALERT_TEXT,
-            type='submit_confirmation',
-        )
+        if not TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool):
+            NotificationApi.slack_notification(
+                msg=self.SLACK_ALERT_TEXT,
+                type='submit_confirmation',
+            )
 
     def _save_to_address(self, form):
         sent_report = form.instance
