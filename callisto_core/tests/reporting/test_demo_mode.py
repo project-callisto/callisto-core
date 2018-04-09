@@ -3,6 +3,8 @@ from unittest.mock import call, patch
 from callisto_core.tests.utils.api import CustomNotificationApi
 from callisto_core.tests.test_base import ReportFlowHelper as ReportFlowTestCase
 
+from callisto_core.reporting.views import ReportingConfirmationView
+
 class ConfirmationViewTest(
     ReportFlowTestCase,
 ):
@@ -10,7 +12,7 @@ class ConfirmationViewTest(
     DEFAULT_CALLS = [
         call(notification_name='submit_confirmation'),
         call(notification_name='report_delivery'),
-        call(notification_name='submit_confirmation_callisto_team'),
+        call(notification_name=ReportingConfirmationView.admin_email_template_name),
     ]
 
     DEMO_MODE_CALLS = [
