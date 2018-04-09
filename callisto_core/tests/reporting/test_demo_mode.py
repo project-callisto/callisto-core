@@ -9,20 +9,16 @@ class ConfirmationViewTest(
     ReportFlowTestCase,
 ):
 
-    DEFAULT_CALLS = [
-        call(notification_name='submit_confirmation'),
-        call(notification_name='report_delivery'),
-        call(notification_name=ReportingConfirmationView.admin_email_template_name),
-    ]
-
-    DEMO_MODE_CALLS = [
-        call(notification_name='submit_confirmation'),
-        call(notification_name='report_delivery'),
-    ]
-
     def test_default_calls(self):
-        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+        with patch.object(CustomNotificationApi, 'send_email') as api_logging:
             self.client_post_report_creation()
             self.client_post_reporting_end_step()
 
-        api_logging.assert_has_calls(self.DEFAULT_CALLS, any_order=True)
+        self.assertEqual(api_logging.call_count, 3)
+
+    def test_demo_mode_calls(self):
+        with patch.object(CustomNotificationApi, 'send_email') as api_logging:
+            self.client_post_report_creation()
+            self.client_post_reporting_end_step()
+
+        self.assertEqual(api_logging.call_count, 2)
