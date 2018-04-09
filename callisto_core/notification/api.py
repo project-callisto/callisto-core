@@ -55,7 +55,7 @@ class CallistoCoreNotificationApi(object):
         name = self.context['notification_name']
         models = self.model.objects.on_site(site_id).filter(name=name)
         if len(models) != 1:
-            logger.warn(
+            logger.error(
                 f'{self.model.__name__}(site_id={site_id}, name="{name}") should equal 1, was {len(models)}')
         return models
 
