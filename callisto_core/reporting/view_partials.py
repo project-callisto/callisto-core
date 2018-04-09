@@ -243,13 +243,14 @@ class ConfirmationPartial(
         )
 
     def _send_confirmation_email_to_callisto(self):
-        NotificationApi.send_with_kwargs(
-            site_id=self.site_id,  # required in general
-            email_template_name=self.admin_email_template_name,  # the email template
-            to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
-            report=self.report,  # used in the email body
-            email_subject='New Callisto Report',  # rendered as the email subject
-        )
+        if not TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool):
+            NotificationApi.send_with_kwargs(
+                site_id=self.site_id,  # required in general
+                email_template_name=self.admin_email_template_name,  # the email template
+                to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
+                report=self.report,  # used in the email body
+                email_subject='New Callisto Report',  # rendered as the email subject
+            )
 
     def _send_confirmation_slack_notification(self):
         NotificationApi.slack_notification(
