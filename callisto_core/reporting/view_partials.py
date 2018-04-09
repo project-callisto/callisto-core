@@ -249,7 +249,7 @@ class ConfirmationPartial(
             to_addresses=NotificationApi.ALERT_LIST,  # addresses to send to
             report=self.report,  # used in the email body
             email_subject='New Callisto Report',  # rendered as the email subject
-            email_name='submit_confirmation_callisto_team',  # used in test assertions
+            notification_name='submit_confirmation_callisto_team',  # used in test assertions
         )
 
     def _send_confirmation_slack_notification(self):
