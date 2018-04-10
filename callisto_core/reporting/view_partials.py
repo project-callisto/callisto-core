@@ -41,6 +41,18 @@ class _SubmissionPartial(
     back_url = None
 
     @property
+    def all_user_emails(self):
+        return [
+            self.report.owner.email,
+            self.report.owner.account.school_email,
+            self.report.contact_email,
+        ]
+
+    @property
+    def in_demo_mode(self):
+        return TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool)
+
+    @property
     def coordinator_emails(self):
         return TenantApi.site_settings(
             'COORDINATOR_EMAIL', request=self.request)
@@ -161,14 +173,14 @@ class _MatchingPartial(
         return MatchingApi.find_matches(identifier)
 
     def _slack_match_notification(self):
-        if not TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool):
+        if not self.in_demo_mode:
             NotificationApi.slack_notification(
                 msg='New Callisto Matches (details will be sent via email)',
                 type='match_confirmation',
             )
 
     def _match_confirmation_email_to_callisto(self, matches):
-        if not TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool):
+        if not self.in_demo_mode:
             NotificationApi.send_with_kwargs(
                 site_id=self.site_id,  # required in general
                 email_template_name=self.admin_email_template_name,  # the email template
@@ -229,23 +241,29 @@ class ConfirmationPartial(
         return output
 
     def _send_report_to_authority(self, report):
-        NotificationApi.send_report_to_authority(
-            sent_report=report,
-            report_data=self.storage.cleaned_form_data,
-            site_id=self.site_id,
-            to_addresses=self.coordinator_emails,
-            public_key=self.coordinator_public_key,
-        )
+        kwargs = {
+            'sent_report': report,
+            'report_data': self.storage.cleaned_form_data,
+            'site_id': self.site_id,
+            'to_addresses': [self.coordinator_emails],
+            'public_key': self.coordinator_public_key,
+        }
+        if self.in_demo_mode:
+            kwargs['to_addresses'] += self.all_user_emails
+        NotificationApi.send_report_to_authority(**kwargs)
 
     def _send_confirmation_email(self):
-        NotificationApi.send_confirmation(
-            email_type='submit_confirmation',
-            to_addresses=[self.report.contact_email],
-            site_id=self.site_id,
-        )
+        kwargs = {
+            'email_type': 'submit_confirmation',
+            'to_addresses': [self.report.contact_email],
+            'site_id': self.site_id,
+        }
+        if self.in_demo_mode:
+            kwargs['to_addresses'] += self.all_user_emails
+        NotificationApi.send_confirmation(**kwargs)
 
     def _send_confirmation_email_to_callisto(self):
-        if not TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool):
+        if not self.in_demo_mode:
             NotificationApi.send_with_kwargs(
                 site_id=self.site_id,  # required in general
                 email_template_name=self.admin_email_template_name,  # the email template
@@ -255,7 +273,7 @@ class ConfirmationPartial(
             )
 
     def _send_confirmation_slack_notification(self):
-        if not TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool):
+        if not self.in_demo_mode:
             NotificationApi.slack_notification(
                 msg=self.SLACK_ALERT_TEXT,
                 type='submit_confirmation',
