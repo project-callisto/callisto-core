@@ -97,7 +97,7 @@ class SchoolEmailFormPartial(
         )
 
     def dispatch(self, request, *args, **kwargs):
-        if self.self.request.user.account.is_verified:
+        if self.request.user.account.is_verified:
             return self._redirect_to_next()
         else:
             return super().dispatch(request, *args, **kwargs)

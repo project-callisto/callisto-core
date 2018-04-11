@@ -193,7 +193,7 @@ class ReportingVerificationEmailForm(
     PasswordResetForm,
 ):
 
-    def __init__(self, school_email_domain, *args, **kwargs):
+    def __init__(self, *args, school_email_domain, **kwargs):
         self.school_email_domain = school_email_domain
         super().__init__(*args, **kwargs)
         email_field = self.fields['email']
