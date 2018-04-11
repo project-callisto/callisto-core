@@ -1,5 +1,12 @@
 # History / Changelog
 
+## 0.23.0 (2018-04-11)
+
+* add DEMO_MODE site setting
+* skip some notification emails while in demo mode
+* send some notification emails to more users while in demo mode
+    * https://github.com/project-callisto/callisto-core/pull/414
+
 ## 0.22.0 (2018-04-06)
 
 * add PDFUserReviewReport, for generating PDFs of all reports and match reports
