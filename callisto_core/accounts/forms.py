@@ -195,7 +195,7 @@ class ReportingVerificationEmailForm(
 
     def __init__(self, *args, school_email_domain, **kwargs):
         self.school_email_domain = school_email_domain
-        if kwargs.get('instance'): # TODO: remove
+        if kwargs.get('instance'):  # TODO: remove
             kwargs.pop('instance')
         super().__init__(*args, **kwargs)
         email_field = self.fields['email']
