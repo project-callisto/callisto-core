@@ -1,10 +1,10 @@
 from unittest.mock import ANY, call, patch
 
+from callisto_core.reporting.views import ReportingConfirmationView
 from callisto_core.tests.test_base import (
     ReportFlowHelper as ReportFlowTestCase,
 )
 from callisto_core.tests.utils.api import CustomNotificationApi
-from callisto_core.reporting.views import ReportingConfirmationView
 
 
 class NotificationViewTest(
