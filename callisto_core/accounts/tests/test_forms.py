@@ -28,21 +28,21 @@ class StudentVerificationTest(ReportFlowTestCase):
 
     def test_subdomain_not_accepted(self):
         form = ReportingVerificationEmailForm(
-            {'email': 'myname@cats.example.com'}
+            {'email': 'myname@cats.example.com'},
             school_email_domain='example.com',
         )
         self.assertFalse(form.is_valid())
 
     def test_domain_match_on_username_not_accepted(self):
         form = ReportingVerificationEmailForm(
-            {'email': 'example.com@gmail.com'}
+            {'email': 'example.com@gmail.com'},
             school_email_domain='example.com',
         )
         self.assertFalse(form.is_valid())
 
     def test_non_email_rejected(self):
         form = ReportingVerificationEmailForm(
-            {'email': 'notanemail'}
+            {'email': 'notanemail'},
             school_email_domain='example.com',
         )
         self.assertFalse(form.is_valid())
@@ -53,7 +53,7 @@ class StudentVerificationTest(ReportFlowTestCase):
 
     def test_control(self):
         form = ReportingVerificationEmailForm(
-            {'email': 'hello@example.com'}
+            {'email': 'hello@example.com'},
             school_email_domain='example.com',
         )
         self.assertTrue(form.is_valid())
@@ -61,14 +61,14 @@ class StudentVerificationTest(ReportFlowTestCase):
     @override_settings(DEBUG=True)
     def test_control_with_debug(self):
         form = ReportingVerificationEmailForm(
-            {'email': 'hello@example.com'}
+            {'email': 'hello@example.com'},
             school_email_domain='example.com',
         )
         self.assertTrue(form.is_valid())
 
     def test_multiple_domains(self):
         form = ReportingVerificationEmailForm(
-            {'email': 'hello@cats.com'}
+            {'email': 'hello@cats.com'},
             school_email_domain='example.com,cats.com,dogs.com',
         )
         self.assertTrue(form.is_valid())
