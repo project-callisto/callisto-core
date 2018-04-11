@@ -51,7 +51,8 @@ class _SubmissionPartial(
 
     @property
     def in_demo_mode(self):
-        return TenantApi.site_settings('DEMO_MODE', request=self.request, cast=bool)
+        return TenantApi.site_settings(
+            'DEMO_MODE', request=self.request, cast=bool)
 
     @property
     def coordinator_emails(self):

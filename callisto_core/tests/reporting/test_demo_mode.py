@@ -25,7 +25,6 @@ class DemoModeNotificationNameTest(
             call(notification_name=ReportingConfirmationView.admin_email_template_name),
         ], any_order=True)
 
-
     def test_demo_mode(self):
         Site.objects.get_or_create(id=4)
 
