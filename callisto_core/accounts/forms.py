@@ -216,8 +216,3 @@ class ReportingVerificationEmailForm(
             self.school_email_domain,
         )
         return self.data.get("email")
-
-    def save(self, *args, **kwargs):
-        account = self.user.account
-        account.school_email = self.cleaned_data["email"]
-        account.save()

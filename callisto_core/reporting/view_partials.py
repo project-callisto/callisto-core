@@ -113,10 +113,15 @@ class SchoolEmailFormPartial(
         return kwargs
 
     def form_valid(self, form):
-        self.send_mail(form)
+        self._update_email(form)
+        self._send_mail(form)
         return super().form_valid(form)
 
-    def send_mail(self, form):
+    def _update_email(self, form):
+        self.request.user.account.school_email = form.cleaned_data.get('email')
+        self.request.user.account.save()
+
+    def _send_mail(self, form):
         NotificationApi.send_with_kwargs(
             site_id=self.request.user.account.site_id,
             to_addresses=[form.cleaned_data.get('email')],
