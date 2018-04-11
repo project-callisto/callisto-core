@@ -72,3 +72,10 @@ class StudentVerificationTest(ReportFlowTestCase):
             school_email_domain='example.com,cats.com,dogs.com',
         )
         self.assertTrue(form.is_valid())
+
+    def test_empty_domain_allowed(self):
+        form = ReportingVerificationEmailForm(
+            {'email': 'hello@cats.com'},
+            school_email_domain='',
+        )
+        self.assertTrue(form.is_valid())

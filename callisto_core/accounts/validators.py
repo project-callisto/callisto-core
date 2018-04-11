@@ -8,6 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 def validate_school_email(email, school_email_domain):
+    if not school_email_domain: # demo sites use empty school email domains
+        return True
+
     input_email_domain = email.rsplit('@', 1)[-1].lower()
     allowed = [
         _domain.strip().strip('@').strip()
