@@ -197,6 +197,8 @@ class ReportingVerificationEmailForm(
         self.school_email_domain = school_email_domain
         if kwargs.get('instance'):  # TODO: remove
             kwargs.pop('instance')
+        if kwargs.get('view'):  # TODO: remove
+            kwargs.pop('view')
         super().__init__(*args, **kwargs)
         email_field = self.fields['email']
         email_field.label = "Your school email"
