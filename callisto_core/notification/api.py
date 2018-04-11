@@ -50,6 +50,16 @@ class CallistoCoreNotificationApi(object):
         return self.context['site_id']
 
     @property
+    def models_on_site(self):
+        site_id = self.context.get('site_id')
+        name = self.context['notification_name']
+        models = self.model.objects.on_site(site_id).filter(name=name)
+        if len(models) != 1:
+            logger.error(
+                f'{self.model.__name__}(site_id={site_id}, name="{name}") should equal 1, was {len(models)}')
+        return models
+
+    @property
     def from_email(self):
         return f'"Callisto" <noreply@mail.callistocampus.org>'
 
@@ -156,19 +166,6 @@ class CallistoCoreNotificationApi(object):
         # save report timestamp only if generation & email work
         sent_report.report.submitted_to_school = timezone.now()
         sent_report.report.save()
-
-    def send_student_verification_email(self, form, *args, **kwargs):
-        email = form.cleaned_data.get('email')
-        for user in form.get_users(email):
-            self.send_with_kwargs(
-                site_id=user.account.site_id,
-                to_addresses=[email],
-                email_subject='Verify your student email',
-                email_name='student_verification_email',
-                redirect_url=form.redirect_url,
-                email_template_name=form.view.email_template_name,
-                user=form.view.request.user,
-            )
 
     def send_password_reset_email(self, form, *args, **kwargs):
         email = form.cleaned_data.get('email')
@@ -390,18 +387,16 @@ class CallistoCoreNotificationApi(object):
                 'subject': self.context['email_subject'],
                 'body': body,
             })
-        else:
-            site_id = self.context.get('site_id')
-            name = self.context['notification_name']
-            notifications = self.model.objects.on_site(
-                site_id).filter(name=name)
-            if len(notifications) != 1:
-                logger.warn(
-                    f'too many results for {self.model.__name__}(site_id={site_id}, name={name})')
-            notification = notifications[0]
+        elif len(self.models_on_site) == 1:
+            notification = self.models_on_site[0]
             self.context.update({
                 'subject': notification.subject,
                 'body': notification.body,
+            })
+        else:
+            self.context.update({
+                'subject': self.context['notification_name'],
+                'body': self.context['notification_name'],
             })
 
     def send_email(self):

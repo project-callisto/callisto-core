@@ -42,7 +42,8 @@ class CallistoCoreTenantApi(object):
                 site_id = 1
 
         default_values = {
-            'DISABLE_SIGNUP': 'False',
+            'DEMO_MODE': False,
+            'DISABLE_SIGNUP': False,
             'SCHOOL_SHORTNAME': 'callisto-core',
             'COORDINATOR_NAME': 'COORDINATOR_NAME',
             'COORDINATOR_EMAIL': 'COORDINATOR_EMAIL@example.com',
@@ -82,15 +83,19 @@ cL+QqgshFt79Yh0=
         }
 
         defaults_with_signup_disabled = copy(default_values)
-        defaults_with_signup_disabled['DISABLE_SIGNUP'] = 'True'
+        defaults_with_signup_disabled['DISABLE_SIGNUP'] = True
+
+        defaults_with_demo_mode_enabled = copy(default_values)
+        defaults_with_demo_mode_enabled['DEMO_MODE'] = True
 
         site_values = {
             1: default_values,
             2: defaults_with_signup_disabled,
             3: default_values,
+            4: defaults_with_demo_mode_enabled,
         }.get(site_id, {})
 
         value = site_values.get(var, '')
-        value = cast_string_to_type(value, cast)
+        value = cast_string_to_type(str(value), cast)
 
         return value

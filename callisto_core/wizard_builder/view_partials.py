@@ -70,7 +70,7 @@ class WizardPartial(
 
     def get_form(self):
         if isinstance(self.steps.current, int):
-            return self.forms[self.steps.current]
+            return (self.forms or [None])[self.steps.current]
         else:
             return None
 
