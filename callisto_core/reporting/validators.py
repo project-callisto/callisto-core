@@ -3,13 +3,9 @@ from collections import OrderedDict
 
 from six.moves.urllib.parse import parse_qs, urlsplit
 
-from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import URLField
-from django.utils.safestring import mark_safe
-
-from callisto_core.utils.api import TenantApi
 
 logger = logging.getLogger(__name__)
 

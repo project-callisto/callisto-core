@@ -23,7 +23,8 @@ and should not define:
 from django.contrib.auth.views import PasswordResetView
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic.edit import ModelFormMixin
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from callisto_core.accounts import (
     forms as account_forms, tokens as account_tokens,
@@ -62,6 +63,11 @@ class _SubmissionPartial(
         return TenantApi.site_settings(
             'COORDINATOR_PUBLIC_KEY', request=self.request)
 
+    @property
+    def school_email_domain(self):
+        return TenantApi.site_settings(
+            'SCHOOL_EMAIL_DOMAIN', request=self.request)
+
 
 class SchoolEmailFormPartial(
     _SubmissionPartial,
@@ -76,8 +82,22 @@ class SchoolEmailFormPartial(
     next_url = None
     EVAL_ACTION_TYPE = 'SCHOOL_EMAIL_ENTRY'
 
+    @property
+    def student_confirmation_url(self):
+        uidb64 = urlsafe_base64_encode(
+            force_bytes(self.request.user.pk)).decode("utf-8")
+        token = self.token_generator.make_token(self.request.user)
+        return reverse(
+            self.request.resolver_match.view_name,
+            kwargs={
+                'uuid': self.report.uuid,
+                'uidb64': uidb64,
+                'token': token,
+            },
+        )
+
     def dispatch(self, request, *args, **kwargs):
-        if self.email_is_verified():
+        if self.self.request.user.account.is_verified:
             return self._redirect_to_next()
         else:
             return super().dispatch(request, *args, **kwargs)
@@ -85,14 +105,27 @@ class SchoolEmailFormPartial(
     def get_success_url(self):
         return reverse(self.success_url)
 
-    def form_valid(self, form):
-        '''
-        avoid saving the form twice (and thus sending emails twice)
-        '''
-        return ModelFormMixin.form_valid(self, form)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'school_email_domain': self.school_email_domain,
+        })
+        return kwargs
 
-    def email_is_verified(self):
-        return self.request.user.account.is_verified
+    def form_valid(self, form):
+        self.send_mail(form)
+        return super().form_valid(form)
+
+    def send_mail(self, form):
+        NotificationApi.send_with_kwargs(
+            site_id=self.request.user.account.site_id,
+            to_addresses=[form.cleaned_data.get('email')],
+            email_subject='Verify your student email',
+            email_name='student_verification_email',
+            redirect_url=self.student_confirmation_url,
+            email_template_name=self.email_template_name,
+            user=self.request.user,
+        )
 
     def _redirect_to_next(self):
         next_url = reverse(

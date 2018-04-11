@@ -167,19 +167,6 @@ class CallistoCoreNotificationApi(object):
         sent_report.report.submitted_to_school = timezone.now()
         sent_report.report.save()
 
-    def send_student_verification_email(self, form, *args, **kwargs):
-        email = form.cleaned_data.get('email')
-        for user in form.get_users(email):
-            self.send_with_kwargs(
-                site_id=user.account.site_id,
-                to_addresses=[email],
-                email_subject='Verify your student email',
-                email_name='student_verification_email',
-                redirect_url=form.redirect_url,
-                email_template_name=form.view.email_template_name,
-                user=form.view.request.user,
-            )
-
     def send_password_reset_email(self, form, *args, **kwargs):
         email = form.cleaned_data.get('email')
         for user in form.get_users(email):

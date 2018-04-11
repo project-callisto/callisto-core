@@ -11,12 +11,8 @@ from django.contrib.auth.forms import (
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
 from django.forms.widgets import PasswordInput, TextInput
-from django.urls import reverse
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
 from django.utils.safestring import mark_safe
 
-from callisto_core.accounts.tokens import StudentVerificationTokenGenerator
 from callisto_core.utils.api import NotificationApi, TenantApi
 
 from . import validators
@@ -193,66 +189,32 @@ FormattedPasswordChangeForm.base_fields = OrderedDict(
 )
 
 
-class SendVerificationEmailForm(
+class ReportingVerificationEmailForm(
     PasswordResetForm,
 ):
-    # only used for testing currently
 
-    def __init__(self, *args, **kwargs):
-        if kwargs.get('instance'):
-            kwargs.pop('instance')
-        self.view = kwargs.pop('view')
+    def __init__(self, school_email_domain, *args, **kwargs):
+        self.school_email_domain = school_email_domain
         super().__init__(*args, **kwargs)
         email_field = self.fields['email']
         email_field.label = "Your school email"
         email_field.label_suffix = '*'
-        email_field.widget.attrs.update(**self.email_field_placeholder())
+        email_field.widget.attrs.update(**self.create_placeholder())
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        validators.validate_school_email(email, request=self.view.request)
-        return email
-
-    def send_mail(self):
-        pass
-
-    def get_users(self, email):
-        return[self.view.request.user]
-
-    def email_field_placeholder(self):
-        school_email_domain = TenantApi.site_settings(
-            'SCHOOL_EMAIL_DOMAIN',
-            request=self.view.request,
-        )
+    def create_placeholder(self):
         return {'placeholder': ', '.join(
-            ['myname@' + x for x in school_email_domain.split(',')],
+            ['myname@' + x for x in self.school_email_domain.split(',')],
         )}
 
+    def clean_email(self):
+        validators.validate_school_email(
+            self.data.get('email'),
+            self.school_email_domain,
+        )
+        return self.data.get("email")
+
     def save(self, *args, **kwargs):
-        account = self.view.request.user.account
+        account = self.user.account
         account.school_email = self.cleaned_data["email"]
         account.save()
         self.send_mail()
-
-
-class ReportingVerificationEmailForm(
-    SendVerificationEmailForm,
-):
-    token_generator = StudentVerificationTokenGenerator()
-
-    def send_mail(self):
-        self.redirect_url = self._get_confirmation_url()
-        NotificationApi.send_student_verification_email(self)
-
-    def _get_confirmation_url(self):
-        uidb64 = urlsafe_base64_encode(
-            force_bytes(self.view.request.user.pk)).decode("utf-8")
-        token = self.token_generator.make_token(self.view.request.user)
-        return reverse(
-            self.view.request.resolver_match.view_name,
-            kwargs={
-                'uuid': self.view.report.uuid,
-                'uidb64': uidb64,
-                'token': token,
-            },
-        )
