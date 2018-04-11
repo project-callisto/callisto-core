@@ -221,4 +221,3 @@ class ReportingVerificationEmailForm(
         account = self.user.account
         account.school_email = self.cleaned_data["email"]
         account.save()
-        self.send_mail()
