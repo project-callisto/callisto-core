@@ -25,6 +25,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.views.generic.edit import FormView
 
 from callisto_core.accounts import (
     forms as account_forms, tokens as account_tokens,
@@ -70,9 +71,25 @@ class _SubmissionPartial(
             'SCHOOL_EMAIL_DOMAIN', request=self.request)
 
 
+class CallistoPasswordResetView(PasswordResetView, FormView):
+    def form_valid(self, form):
+        opts = {
+            'use_https': self.request.is_secure(),
+            'token_generator': self.token_generator,
+            'from_email': self.from_email,
+            'email_template_name': self.email_template_name,
+            'subject_template_name': self.subject_template_name,
+            'request': self.request,
+            'html_email_template_name': self.html_email_template_name,
+            'extra_email_context': self.extra_email_context,
+        }
+        form.save(**opts)
+        return super(FormView, self).form_valid(form)
+
+
 class SchoolEmailFormPartial(
     _SubmissionPartial,
-    PasswordResetView,
+    CallistoPasswordResetView,
 ):
     form_class = account_forms.ReportingVerificationEmailForm
     token_generator = account_tokens.StudentVerificationTokenGenerator()
