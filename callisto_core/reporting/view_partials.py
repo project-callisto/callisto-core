@@ -88,7 +88,7 @@ class CallistoPasswordResetView(PasswordResetView, FormView):
             'email_template_name': self.email_template_name,
             'subject_template_name': self.subject_template_name,
             'request': self.request,
-            'domain_override': self.request.tenant.domain_url,
+            'domain_override': self.request.site.domain,
             'html_email_template_name': self.html_email_template_name,
             'extra_email_context': self.extra_email_context,
         }
