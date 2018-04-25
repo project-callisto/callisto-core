@@ -21,6 +21,7 @@ and should not define:
 
 '''
 from django.contrib.auth.views import PasswordResetView
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.encoding import force_bytes
