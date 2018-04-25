@@ -21,6 +21,7 @@ and should not define:
 
 '''
 from django.contrib.auth.views import PasswordResetView
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.encoding import force_bytes
@@ -93,7 +94,12 @@ class CallistoPasswordResetView(PasswordResetView, FormView):
             'extra_email_context': self.extra_email_context,
         }
         form.save(**opts)
-        return super(FormView, self).form_valid(form)
+
+        # Do not call super() for our parents. They will all call save()
+        # wrong way again and cause us much sadness (broken notifications).
+        # Instead, we must call "HttpResponseRedirect" as per the parent
+        # Mixin class (see: django/views/generic/edit.py).
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class SchoolEmailFormPartial(
