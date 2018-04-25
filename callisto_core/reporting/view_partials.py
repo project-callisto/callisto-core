@@ -72,6 +72,14 @@ class _SubmissionPartial(
 
 
 class CallistoPasswordResetView(PasswordResetView, FormView):
+    '''
+    Workaround for bug in PasswordResetView's form_valid() function
+    where it calls get_current_site() from its save() method. To
+    workaround this we overload PasswordResetView's form_valid()
+    method and set save()'s 'domain_override' option in order to
+    bypass calls to get_current_site().
+    '''
+
     def form_valid(self, form):
         opts = {
             'use_https': self.request.is_secure(),
@@ -80,6 +88,7 @@ class CallistoPasswordResetView(PasswordResetView, FormView):
             'email_template_name': self.email_template_name,
             'subject_template_name': self.subject_template_name,
             'request': self.request,
+            'domain_override': self.request.tenant.domain_url,
             'html_email_template_name': self.html_email_template_name,
             'extra_email_context': self.extra_email_context,
         }
