@@ -31,6 +31,7 @@ class DemoModeNotificationSubjectTest(
             self.client_post_reporting_end_step()
 
         api_logging.assert_has_calls([
+            call(DEMO_MODE=True),
             call(subject='[DEMO] report_delivery'),
         ], any_order=True)
 

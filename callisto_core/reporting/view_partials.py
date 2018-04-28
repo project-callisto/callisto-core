@@ -288,6 +288,7 @@ class ConfirmationPartial(
             'public_key': self.coordinator_public_key,
         }
         if self.in_demo_mode:
+            kwargs['DEMO_MODE'] = True
             kwargs['to_addresses'] += self.all_user_emails
         NotificationApi.send_report_to_authority(**kwargs)
 
@@ -298,6 +299,7 @@ class ConfirmationPartial(
             'site_id': self.site_id,
         }
         if self.in_demo_mode:
+            kwargs['DEMO_MODE'] = True
             kwargs['to_addresses'] += self.all_user_emails
         NotificationApi.send_confirmation(**kwargs)
 
