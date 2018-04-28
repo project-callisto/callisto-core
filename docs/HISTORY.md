@@ -1,5 +1,15 @@
 # History / Changelog
 
+## 0.23.2 (2018-04-25)
+
+* fixes for calls to get_current_site from FormView's save()
+    * https://github.com/project-callisto/callisto-core/pull/418
+
+## 0.23.1 (2018-04-25)
+
+* fixes for calls to get_current_site from django.contrib.auth.forms
+    * https://github.com/project-callisto/callisto-core/pull/417
+
 ## 0.23.0 (2018-04-11)
 
 * add DEMO_MODE site setting
