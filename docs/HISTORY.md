@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.23.3 (2018-06-05)
+
+- make redirects not permanent (they were creating issues for other platform developement)
+
 ## 0.23.2 (2018-04-25)
 
 * fixes for calls to get_current_site from FormView's save()
