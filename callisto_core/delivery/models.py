@@ -235,6 +235,7 @@ class MatchReport(models.Model):
             pass
         return decrypted_report
 
+
 class PerpIDTypes(models.Model):
     '''Types of perpetrator IDs that we can match on'''
     name = models.TextField(null=True)
