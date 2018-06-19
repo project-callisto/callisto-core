@@ -203,11 +203,20 @@ class MatchReport(models.Model):
         salt = get_random_string()
 
         encoded = hasher.encode(identifier, salt)
+
         self.encode_prefix, stretched_identifier = hasher.split_encoded(
             encoded)
 
-        self.encrypted = security.pepper(
+        encrypted_firstround = security.pepper(
             security.encrypt_text(stretched_identifier, report_text),
+        )
+
+        id_type = 'EXAMPLE_TYPE'
+        id_encoded = hasher.encode(id_type, salt)
+        id_encode_prefix, streached_id_type = hasher.split_encoded(id_encoded)
+
+        self.encrypted = security.pepper(
+            security.encrypt_bin(streached_id_type, encrypted_firstround),
         )
         self.save()
 
@@ -221,11 +230,13 @@ class MatchReport(models.Model):
         '''
         decrypted_report = None
 
+        ''' For legacy support, attempt matching the old style first'''
         prefix, stretched_identifier = hashers.make_key(
             self.encode_prefix,
             identifier,
             self.salt,
         )
+
         try:
             decrypted_report = security.decrypt_text(
                 stretched_identifier,
@@ -233,7 +244,31 @@ class MatchReport(models.Model):
             )
         except CryptoError:
             pass
+
+        ''' Try the new method. The multi perp id method (double encryption)! '''
+        id_type = 'EXAMPLE_TYPE'
+        prefix, stretched_id_type = hashers.make_key(
+            self.encode_prefix,
+            id_type,
+            self.salt,
+        )
+        try:
+            encrypted_blob = security.decrypt_bin(
+                stretched_id_type,
+                security.unpepper(self.encrypted),
+            )
+            decrypted_report = security.decrypt_text(
+                stretched_identifier,
+                security.unpepper(encrypted_blob),
+            )
+        except CryptoError:
+            pass
         return decrypted_report
+
+
+class PerpIDTypes(models.Model):
+    '''Types of perpetrator IDs that we can match on'''
+    name = models.TextField(null=True)
 
 
 class SentFullReport(models.Model):
