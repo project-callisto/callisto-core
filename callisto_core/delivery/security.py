@@ -20,6 +20,22 @@ def encrypt_text(key, sensitive_text):
     return box.encrypt(message, nonce)
 
 
+def encrypt_bin(key, sensitive_text):
+    """
+    Encrypts a report using the given secret key.
+    Requires a stretched key with a length of 32 bytes.
+    The encryption uses PyNacl & Salsa20 stream cipher.
+
+    Returns:
+      bytes: the encrypted bytes of the sensitive_text
+
+    """
+    box = nacl.secret.SecretBox(key)
+    message = sensitive_text
+    nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
+    return box.encrypt(message, nonce)
+
+
 def decrypt_text(key, encrypted_text):
     """Decrypts an encrypted report.
 
@@ -33,6 +49,22 @@ def decrypt_text(key, encrypted_text):
     box = nacl.secret.SecretBox(key)
     # need to force to bytes bc BinaryField can return as memoryview
     decrypted = box.decrypt(bytes(encrypted_text)).decode('utf-8')
+    return decrypted
+
+
+def decrypt_bin(key, encrypted_bin):
+    """Decrypts an encrypted report.
+
+    Returns:
+      str: the decrypted encrypted_bin as a string
+
+    Raises:
+      CryptoError: In case of a failure to decrypt the encrypted_text
+
+    """
+    box = nacl.secret.SecretBox(key)
+    # need to force to bytes bc BinaryField can return as memoryview
+    decrypted = box.decrypt(bytes(encrypted_bin))
     return decrypted
 
 
