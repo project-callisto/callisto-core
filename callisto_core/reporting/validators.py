@@ -78,7 +78,7 @@ generic_fb_urls = [
 
 
 def facebook_validation_function(url):
-      try:
+    try:
         url_parts = _get_url_parts(url)
         # check if acceptable domain
         domain = url_parts[1]
