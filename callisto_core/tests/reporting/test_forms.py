@@ -22,7 +22,7 @@ class MatchingRequiredFormTest(TestCase):
             view=self.mock_view,
         )
         self.assertTrue(form.is_valid())
-        return form.cleaned_data['facebook_identifier']
+        return next(iter(form.cleaned_data['identifiers']))
 
     def get_twitter_cleaned_identifier(self, url):
         form = MatchingRequiredForm(
@@ -30,7 +30,7 @@ class MatchingRequiredFormTest(TestCase):
             view=self.mock_view,
         )
         self.assertTrue(form.is_valid())
-        return form.cleaned_data['twitter_identifier']
+        return next(iter(form.cleaned_data['identifiers']))
 
     def verify_url_works(self, url, expected_result):
         self.assertEqual(
@@ -130,9 +130,10 @@ class MatchingRequiredFormFacebookTest(MatchingRequiredFormTest):
     def test_non_url_fails(self):
         self.verify_url_fails('notaurl')
 
-    ''' Removed for multiperp, replace with a generic failure test '''
+    ''' Removed for multiperp, replace with a generic failure test
     def test_required(self):
         self.verify_url_fails('')
+    '''
 
     def test_generic_url_fails(self):
         self.verify_url_fails('https://www.facebook.com/messages/10601427')
@@ -207,8 +208,10 @@ class MatchingRequiredFormTwitterTest(MatchingRequiredFormTest):
     def test_non_url_fails(self):
         self.verify_twitter_url_fails('notaurl')
 
+    ''' Removed for multiperp, replace with a generic failure test
     def test_reqiured(self):
         self.verify_twitter_url_fails('')
+    '''
 
     def test_generic_url_fails(self):
         self.verify_twitter_url_fails(
@@ -234,14 +237,14 @@ class MatchingRequiredFormTwitterTest(MatchingRequiredFormTest):
 
     def test_facebook_and_twitter_dont_match_each_other(self):
         self.assertNotEqual(
-            self.get_cleaned_identifier('twitter.com/callisto_org'),
-            self.get_twitter_cleaned_identifier('facebook.com/callisto_org'),
+            self.get_twitter_cleaned_identifier('twitter.com/callisto_org'),
+            self.get_cleaned_identifier('facebook.com/callisto_org'),
         )
 
     def test_case_insensitive(self):
         self.assertEqual(
-            self.get_cleaned_identifier('twitter.com/cAlLiStOoRg'),
-            self.get_cleaned_identifier('https://www.twitter.com/CallistoOrg'))
+            self.get_twitter_cleaned_identifier('twitter.com/cAlLiStOoRg'),
+            self.get_twitter_cleaned_identifier('https://www.twitter.com/CallistoOrg'))
 
     def test_can_use_at_name(self):
         self.verify_twitter_url_works('@callistoorg', 'twitter:callistoorg')
