@@ -169,7 +169,7 @@ class ReportPostHelper(object):
             'reporting_matching_enter',
             kwargs={'uuid': self.report.uuid},
         )
-        data = {'identifier': ''}
+        data = {'facebook_identifier': ''}
         response = self.client.post(url, data, follow=True)
         self.assertIn(response.status_code, self.valid_statuses)
         return response
@@ -199,7 +199,7 @@ class ReportPostHelper(object):
             'matching_enter',
             kwargs={'uuid': self.report.uuid},
         )
-        data = {'identifier': identifier}
+        data = {'facebook_identifier': identifier}
         response = self.client.post(url, data, follow=True)
         self.assertIn(response.status_code, self.valid_statuses)
         return response
