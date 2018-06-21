@@ -87,9 +87,8 @@ class MatchingBaseForm(
                 matching_validators=validators.Validators(perp_identifiers[identifier_type]),
             )
 
-    def clean(self):
-        super().clean()
 
+    def clean(self):
         identifiers = set()
         identifier_type = ''
         identifier_types = validators.perp_identifiers()
@@ -97,15 +96,16 @@ class MatchingBaseForm(
         for identifier_type in identifier_types:
             i = 0
             field_name = '%s_identifier_%s' % (identifier_type, i)
-            while self.cleaned_data.get(field_name):
-                identifier = self.cleaned_data[field_name]
+
+            while self.data.get(field_name):
+                identifier = self.data.get(field_name)
                 identifiers.add(identifier)
                 i += 1
+                field_name = '%s_identifier_%s' % (identifier_type, i)
 
-            i = 0
             field_name = '%s_identifier' % (identifier_type)
             if self.cleaned_data.get(field_name):
-                identifier = self.cleaned_data[field_name]
+                identifier = self.data[field_name]
                 identifiers.add(identifier)
                 field_name = '%s_identifier' % (identifier_type)
 
