@@ -22,6 +22,18 @@ def _get_initial_path(url_parts):
     return url_parts[2].strip('/').split('/')[0].lower()
 
 
+def email_validation_function(value):
+    return value
+
+
+def phone_validation_function(value):
+    return value
+
+
+def instagram_validation_function(value):
+    return value
+
+
 generic_twitter_urls = [
     'i',
     'following',
@@ -106,31 +118,17 @@ def facebook_validation_function(url):
  identifiers are stored plain, with the prefix "www.facebook.com/" stripped. All other identifiers should be prefixed
  to allow for global uniqueness from Facebook profile identifiers.
 '''
-facebook_validation_info = {
-    'validation': facebook_validation_function,
-    'example': 'http://www.facebook.com/perpetratorname',
-    'unique_prefix': ''}
-
-'''
-    potential options for identifier_domain_info, used in SubmitToMatchingForm
-    identifier_domain_info is an ordered dictionary of matching identifiers
-        key:
-            the type of identifier requested
-                example: 'Facebook profile URL' for Facebook
-        value:
-            a dictionary with
-                a globally unique prefix (see note about Facebook's) to avoid cross-domain matches
-                a validation function
-                    should return None for invalid entries & return a minimal unique (within domain) path for valid
-                an example input
-
-    will return on first valid option tried
-    see MatchingValidation.facebook_only (default)
-'''
 
 
 def perp_identifiers():
     return {
+        'email': {
+            'label': 'WHAT IS THEIR TWITTER HANDLE?',
+            'id': 'email',
+            'validation_function': email_validation_function,
+            'example': '',
+            'unique_prefix': 'email',
+        },
         'twitter': {
             'label': 'WHAT IS THEIR TWITTER HANDLE?',
             'id': 'twitter',
@@ -143,19 +141,19 @@ def perp_identifiers():
             'id': 'facebook',
             'validation_function': facebook_validation_function,
             'example': 'http://www.facebook.com/perpetratorname',
-            'unique_prefix': '',
+            'unique_prefix': '',  # Left blank by DESIGN (backwards compat to original matching system)
         },
         'phone': {
             'label': 'WHAT IS THEIR MOBILE NUMBER?',
             'id': 'phone',
-            'validation_function': twitter_validation_function,
+            'validation_function': phone_validation_function,
             'example': '(xxx) xxx xxxx',
             'unique_prefix': 'phone',
         },
         'instagram': {
             'label': 'WHAT IS THEIR INSTAGRAM?',
             'id': 'instagram',
-            'validation_function': facebook_validation_function,
+            'validation_function': instagram_validation_function,
             'example': 'http://www.instagram.com/perpetratorname',
             'unique_prefix': 'instagram',
         },
