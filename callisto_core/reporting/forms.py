@@ -87,7 +87,6 @@ class MatchingBaseForm(
                 matching_validators=validators.Validators(perp_identifiers[identifier_type]),
             )
 
-
     def clean(self):
         identifiers = set()
         identifier_type = ''
@@ -107,7 +106,7 @@ class MatchingBaseForm(
                     raise ValidationError(('Invalid %(id_type)s'),
                                           code='invalid',
                                           params={'id_type': identifier_types[identifier_type]['id']},
-                    )
+                                          )
                 i += 1
                 field_name = '%s_identifier_%s' % (identifier_type, i)
 
