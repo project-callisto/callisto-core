@@ -145,12 +145,12 @@ def perp_identifiers():
             'example': 'http://www.facebook.com/perpetratorname',
             'unique_prefix': '',
         },
-        'mobile': {
+        'phone': {
             'label': 'WHAT IS THEIR MOBILE NUMBER?',
-            'id': 'mobile',
-            'validation_function': facebook_validation_function,
+            'id': 'phone',
+            'validation_function': twitter_validation_function,
             'example': '(xxx) xxx xxxx',
-            'unique_prefix': 'mobile',
+            'unique_prefix': 'phone',
         },
         'instagram': {
             'label': 'WHAT IS THEIR INSTAGRAM?',
