@@ -22,7 +22,7 @@ class MatchingRequiredFormTest(TestCase):
             view=self.mock_view,
         )
         self.assertTrue(form.is_valid())
-        return form.cleaned_data['identifier']
+        return form.cleaned_data['facebook_identifier']
 
     def verify_url_works(self, url, expected_result):
         self.assertEqual(
