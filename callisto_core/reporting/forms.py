@@ -92,6 +92,7 @@ class MatchingBaseForm(
         identifiers = set()
         identifier_type = ''
         identifier_types = validators.perp_identifiers()
+        from django.core.exceptions import ValidationError
 
         for identifier_type in identifier_types:
             i = 0
@@ -99,7 +100,14 @@ class MatchingBaseForm(
 
             while self.data.get(field_name):
                 identifier = self.data.get(field_name)
-                identifiers.add(identifier)
+                identifier = identifier_types[identifier_type]['validation_function'](identifier)
+                if identifier:
+                    identifiers.add(identifier)
+                else:
+                    raise ValidationError(('Invalid %(id_type)s'),
+                                          code='invalid',
+                                          params={'id_type': identifier_types[identifier_type]['id']},
+                    )
                 i += 1
                 field_name = '%s_identifier_%s' % (identifier_type, i)
 
