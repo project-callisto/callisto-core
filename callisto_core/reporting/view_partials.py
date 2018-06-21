@@ -216,27 +216,19 @@ class _ReportSubclassPartial(
 class _MatchingPartial(
     _ReportSubclassPartial,
 ):
-    matching_validator_class = validators.Validators
-
-    def get_matching_validators(self, *args, **kwargs):
-        return self.matching_validator_class()
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({'matching_validators': self.get_matching_validators()})
-        return kwargs
-
     def form_valid(self, form):
         response = super().form_valid(form)
-        identifier = form.cleaned_data.get('identifier')
-        matches = self._get_matches(identifier)
+        identifiers = form.cleaned_data.get('identifiers')
 
-        self._notify_owner_of_submission(identifier)
-        if matches:
-            self._notify_authority_of_matches(matches, identifier)
-            self._notify_owners_of_matches(matches)
-            self._slack_match_notification()
-            self._match_confirmation_email_to_callisto(matches)
+        self._notify_owner_of_submission(identifiers)
+        for identifier in identifiers:
+            matches = self._get_matches(identifier)
+
+            if matches:
+                self._notify_authority_of_matches(matches, identifier)
+                self._notify_owners_of_matches(matches)
+                self._slack_match_notification()
+                self._match_confirmation_email_to_callisto(matches)
 
         return response
 

@@ -57,12 +57,6 @@ def twitter_validation_function(value):
         return path
 
 
-twitter_validation_info = {
-    'validation': twitter_validation_function,
-    'example': 'https://twitter.com/twitter_handle or @twitter_handle',
-    'unique_prefix': 'twitter'}
-
-
 generic_fb_urls = [
     'messages',
     'hashtag',
@@ -84,7 +78,7 @@ generic_fb_urls = [
 
 
 def facebook_validation_function(url):
-    try:
+      try:
         url_parts = _get_url_parts(url)
         # check if acceptable domain
         domain = url_parts[1]
@@ -136,18 +130,38 @@ facebook_validation_info = {
     see MatchingValidation.facebook_only (default)
 '''
 
-facebook_only = OrderedDict(
-    [('Facebook profile URL', facebook_validation_info)],
-)
-twitter_only = OrderedDict(
-    [('Twitter username/profile URL', twitter_validation_info)],
-)
-facebook_or_twitter = OrderedDict(
-    [
-        ('Facebook profile URL', facebook_validation_info),
-        ('Twitter username/profile URL', twitter_validation_info),
-    ],
-)
+
+def perp_identifiers():
+    return {
+        'twitter': {
+            'label': 'WHAT IS THEIR TWITTER HANDLE?',
+            'id': 'twitter',
+            'validation_function': twitter_validation_function,
+            'example': 'http://www.twitter.com/perpetratorname or @perpetratorname',
+            'unique_prefix': 'twitter',
+        },
+        'facebook': {
+            'label': 'WHAT IS THEIR FACEBOOK URL?',
+            'id': 'facebook',
+            'validation_function': facebook_validation_function,
+            'example': 'http://www.facebook.com/perpetratorname',
+            'unique_prefix': '',
+        },
+        'mobile': {
+            'label': 'WHAT IS THEIR MOBILE NUMBER?',
+            'id': 'mobile',
+            'validation_function': facebook_validation_function,
+            'example': '(xxx) xxx xxxx',
+            'unique_prefix': 'mobile',
+        },
+        'instagram': {
+            'label': 'WHAT IS THEIR INSTAGRAM?',
+            'id': 'instagram',
+            'validation_function': facebook_validation_function,
+            'example': 'http://www.instagram.com/perpetratorname',
+            'unique_prefix': 'instagram',
+        },
+    }
 
 
 def join_list_with_or(lst):
@@ -160,25 +174,14 @@ def join_list_with_or(lst):
 
 class Validators(object):
 
-    def __init__(self):
-        self.validators = getattr(
-            settings,
-            'CALLISTO_IDENTIFIER_DOMAINS',
-            facebook_only,
-        )
+    def __init__(self, validator):
+        self.validator = validator
 
     def invalid(self):
-        return 'Please enter a valid ' + join_list_with_or(
-            list(self.validators))
+        return 'Please enter a valid ' + self.validator['id']
 
     def titled(self):
-        return "Perpetrator's " + join_list_with_or([
-            identifier.title()
-            for identifier in list(self.validators)
-        ])
+        return "Perpetrator's " + self.validator['id']
 
     def examples(self):
-        return 'ex. ' + join_list_with_or([
-            identifier_info['example']
-            for identifier_info in self.validators.values()
-        ])
+        return 'ex. ' + self.validator['example']
