@@ -104,7 +104,7 @@ class MatchingBaseForm(
                 field_name = '%s_identifier_%s' % (identifier_type, i)
 
             field_name = '%s_identifier' % (identifier_type)
-            if self.cleaned_data.get(field_name):
+            if self.data.get(field_name):
                 identifier = self.data[field_name]
                 identifiers.add(identifier)
                 field_name = '%s_identifier' % (identifier_type)
