@@ -18,7 +18,7 @@ class MatchingRequiredFormTest(TestCase):
 
     def get_cleaned_identifier(self, url):
         form = MatchingRequiredForm(
-            {'identifier': url},
+            {'facebook_identifier': url},
             view=self.mock_view,
         )
         self.assertTrue(form.is_valid())
@@ -32,7 +32,7 @@ class MatchingRequiredFormTest(TestCase):
 
     def verify_url_fails(self, url):
         form = MatchingRequiredForm(
-            {'identifier': url},
+            {'facebook_identifier': url},
             view=self.mock_view,
         )
         self.assertFalse(form.is_valid())
@@ -139,7 +139,6 @@ class MatchingRequiredFormFacebookTest(MatchingRequiredFormTest):
                 'https://www.facebook.com/callisto_org'))
 
 
-@override_settings(CALLISTO_IDENTIFIER_DOMAINS=validators.facebook_or_twitter)
 class MatchingRequiredFormTwitterTest(MatchingRequiredFormTest):
 
     def test_accept_twitter_url(self):
@@ -220,12 +219,6 @@ class MatchingRequiredFormTwitterTest(MatchingRequiredFormTest):
         self.assertNotEqual(
             self.get_cleaned_identifier('twitter.com/callisto_org'),
             self.get_cleaned_identifier('facebook.com/callisto_org'),
-        )
-
-    @override_settings(CALLISTO_IDENTIFIER_DOMAINS=validators.twitter_only)
-    def test_can_exclude_facebook(self):
-        self.verify_url_fails(
-            'https://www.facebook.com/callistoorg',
         )
 
     def test_case_insensitive(self):
