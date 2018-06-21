@@ -1,9 +1,7 @@
 import logging
-from collections import OrderedDict
 
 from six.moves.urllib.parse import parse_qs, urlsplit
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import URLField
 

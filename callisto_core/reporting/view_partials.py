@@ -34,7 +34,7 @@ from callisto_core.accounts import (
 from callisto_core.delivery import view_partials as delivery_partials
 from callisto_core.utils.api import MatchingApi, NotificationApi, TenantApi
 
-from . import forms, validators, view_helpers
+from . import forms, view_helpers
 
 
 class _SubmissionPartial(
