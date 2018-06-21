@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.24.0 (2018-06-20)
+
+- Multiple perp ID types [BETA]
+  - Ablity to match on: instagram, twitter, facebook, mobile, or email
+  - Ablity to have more than one of any field
+
 ## 0.23.3 (2018-06-05)
 
 - make redirects not permanent (they were creating issues for other platform developement)
