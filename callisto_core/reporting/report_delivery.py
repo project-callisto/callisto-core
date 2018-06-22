@@ -261,6 +261,7 @@ class ReportPageMixin(object):
         return pages
 
     def report_page(self, report):
+        voicemail_pref = 'Ok to leave voicemail' if match_report.report.contact_voicemail else "Not okay to leave voicemail"
         return [
             Paragraph(
                 "Report",
@@ -286,7 +287,7 @@ class ReportPageMixin(object):
                 f'''
                     Name: {report.contact_name or "<i>None provided</i>"}<br />
                     Phone: {report.contact_phone}<br />
-                    Voicemail preferences: {report.contact_voicemail or "None provided"}<br />
+                    Voicemail preferences: {voicemail_pref}<br />
                     Email: {report.contact_email}<br />
                     Notes on preferred contact time of day, gender of admin, etc.:
                 ''',
@@ -309,6 +310,7 @@ class MatchPageMixin(object):
         return pages
 
     def match_page(self, match_report, match_content):
+        voicemail_pref = 'Ok to leave voicemail' if match_report.report.contact_voicemail else "Not okay to leave voicemail"
         return [
             Paragraph(
                 'Matching Report Contents',
@@ -324,7 +326,7 @@ class MatchPageMixin(object):
                     <br /><br />
                     Name: {match_report.report.contact_name or "<i>None provided</i>"}<br />
                     Phone: {match_report.report.contact_phone}<br />
-                    Voicemail preferences: {match_report.report.contact_voicemail or "<i>None provided</i>"}<br />
+                    Voicemail preferences: {voicemail_pref}<br />
                     Email: {match_report.report.contact_email}<br />
                     Notes on preferred contact time of day, gender of admin, etc.:<br />
                 ''',
