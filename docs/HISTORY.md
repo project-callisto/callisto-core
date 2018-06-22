@@ -1,6 +1,6 @@
 # History / Changelog
 
-## 0.23.4 (2018-06-23)
+## 0.23.5 (2018-06-23)
 
 - made "voicemail preference" more clean on reporting flows (matching and full)
 
