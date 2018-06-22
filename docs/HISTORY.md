@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.23.4 (2018-06-23)
+
+- made "voicemail preference" more clean on reporting flows (matching and full)
+
 ## 0.23.3 (2018-06-22)
 
 - enforce password length on password change screen
