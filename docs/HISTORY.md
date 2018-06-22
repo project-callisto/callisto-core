@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.23.3 (2018-06-22)
+
+- enforce password length on password change screen
+
 ## 0.23.3 (2018-06-05)
 
 - make redirects not permanent (they were creating issues for other platform developement)
