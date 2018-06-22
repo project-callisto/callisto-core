@@ -261,7 +261,7 @@ class ReportPageMixin(object):
         return pages
 
     def report_page(self, report):
-        voicemail_pref = 'Ok to leave voicemail' if match_report.report.contact_voicemail else "Not okay to leave voicemail"
+        voicemail_pref = 'Ok to leave voicemail' if report.contact_voicemail else "Not okay to leave voicemail"
         return [
             Paragraph(
                 "Report",
