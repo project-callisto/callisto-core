@@ -1,5 +1,13 @@
 # History / Changelog
 
+## 0.23.5 (2018-06-23)
+
+- made "voicemail preference" more clean on reporting flows (matching and full)
+
+## 0.23.3 (2018-06-22)
+
+- enforce password length on password change screen
+
 ## 0.23.3 (2018-06-05)
 
 - make redirects not permanent (they were creating issues for other platform developement)
