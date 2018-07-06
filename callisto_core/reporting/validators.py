@@ -1,8 +1,10 @@
 import logging
+import re
 
 from six.moves.urllib.parse import parse_qs, urlsplit
 
 from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator
 from django.forms import URLField
 
 logger = logging.getLogger(__name__)
@@ -23,15 +25,30 @@ def _get_initial_path(url_parts):
 
 
 def email_validation_function(value):
+    validator = EmailValidator()
+    validator(value)
     return value
 
 
 def phone_validation_function(value):
-    return value
+    if sum(map(str.isdigit, value)) != 10:
+        raise ValidationError('Invalid phone number, must be 10 numbers long')
+    if sum(map(str.isdigit, value)) > 0:
+        raise ValidationError('Invalid phone number, phone number must be comprised of numbers')
+    phone = ''
+    for number in re.findall(r'\d+'):
+        phone = phone + number
+    return phone
 
 
 def instagram_validation_function(value):
-    return value
+    instagram_re = 'https?:\/\/(www\.)?instagram\.com\/\
+([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)'
+    instagram_url = re.match(instagram_re, value)
+    if instagram_url:
+        instagram_url = re.match.group(0)
+        return instagram_url
+    raise ValidationError('Invalid instagram account URL.')
 
 
 generic_twitter_urls = [
