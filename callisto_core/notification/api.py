@@ -63,6 +63,16 @@ class CallistoCoreNotificationApi(object):
     def from_email(self):
         return f'"Callisto" <noreply@mail.callistocampus.org>'
 
+    @property
+    def in_demo_mode(self):
+        return self.context.get('DEMO_MODE', False)
+
+    def prepend_subject_if_demo_mode(self, subject):
+        if self.in_demo_mode:
+            return f'[DEMO] {subject}'
+        else:
+            return subject
+
     def user_site_id(self, user):
         return user.account.site_id
 
@@ -123,6 +133,7 @@ class CallistoCoreNotificationApi(object):
         email_type: str,
         to_addresses: typing.List[str],
         site_id=0,
+        **kwargs,
     ) -> None:
         '''
         Send a matching or submission confirmation email to the user
@@ -137,6 +148,7 @@ class CallistoCoreNotificationApi(object):
             'notification_name': email_type,
             'to_addresses': to_addresses,
             'site_id': site_id,
+            **kwargs,
         }
         self.send()
 
@@ -147,6 +159,7 @@ class CallistoCoreNotificationApi(object):
         report_data: dict,
         public_key: str,
         site_id=0,
+        **kwargs,
     ) -> None:
         '''
         Send new full report to the reporting coordinator
@@ -157,6 +170,7 @@ class CallistoCoreNotificationApi(object):
             'notification_name': 'report_delivery',
             'to_addresses': to_addresses,
             'site_id': site_id,
+            **kwargs,
         }
         self._notification_with_full_report(
             sent_report, report_data, public_key, to_addresses)
@@ -384,18 +398,18 @@ class CallistoCoreNotificationApi(object):
                 self.context['email_template_name']).template.source
             self.context.update({
                 'notification_name': self.context['email_template_name'],
-                'subject': self.context['email_subject'],
+                'subject': self.prepend_subject_if_demo_mode(self.context['email_subject']),
                 'body': body,
             })
         elif len(self.models_on_site) == 1:
             notification = self.models_on_site[0]
             self.context.update({
-                'subject': notification.subject,
+                'subject': self.prepend_subject_if_demo_mode(notification.subject),
                 'body': notification.body,
             })
         else:
             self.context.update({
-                'subject': self.context['notification_name'],
+                'subject': self.prepend_subject_if_demo_mode(self.context['notification_name']),
                 'body': self.context['notification_name'],
             })
 

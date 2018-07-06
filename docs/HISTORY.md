@@ -1,10 +1,18 @@
 # History / Changelog
 
+## 0.23.7 (2018-07-06)
+
+- allowed login() to handle multiple auth backends
+
+## 0.23.6 (2018-06-23)
+
+- prepend "[DEMO]" to notification subject lines when in "DEMO_MODE"
+
 ## 0.23.5 (2018-06-23)
 
 - made "voicemail preference" more clean on reporting flows (matching and full)
 
-## 0.23.3 (2018-06-22)
+## 0.23.4 (2018-06-22)
 
 - enforce password length on password change screen
 
