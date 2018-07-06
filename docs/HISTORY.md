@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.23.8 (2018-07-08)
+
+- updated slack notifications to include SCHOOL_NAME for reporting
+
 ## 0.23.7 (2018-07-06)
 
 - allowed login() to handle multiple auth backends
