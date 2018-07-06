@@ -173,7 +173,8 @@ class FormattedPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['new_password1'] = CharField(
-            max_length=64,
+            min_length=settings.PASSWORD_MIN_LENGTH,
+            max_length=settings.PASSWORD_MAX_LENGTH,
             label="Enter your new password",
             widget=PasswordInput(),
             error_messages={'required': REQUIRED_ERROR.format("password")},

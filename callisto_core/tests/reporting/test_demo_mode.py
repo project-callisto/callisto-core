@@ -10,6 +10,32 @@ from callisto_core.tests.utils.api import CustomNotificationApi
 from callisto_core.utils.sites import TempSiteID
 
 
+class DemoModeNotificationSubjectTest(
+    ReportFlowTestCase,
+):
+
+    def test_default(self):
+        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+            self.client_post_report_creation()
+            self.client_post_reporting_end_step()
+
+        api_logging.assert_has_calls([
+            call(subject='report_delivery'),
+        ], any_order=True)
+
+    def test_demo_mode(self):
+        Site.objects.get_or_create(id=4)
+
+        with TempSiteID(4), patch.object(CustomNotificationApi, '_logging') as api_logging:
+            self.client_post_report_creation()
+            self.client_post_reporting_end_step()
+
+        api_logging.assert_has_calls([
+            call(DEMO_MODE=True),
+            call(subject='[DEMO] report_delivery'),
+        ], any_order=True)
+
+
 class DemoModeNotificationNameTest(
     ReportFlowTestCase,
 ):
