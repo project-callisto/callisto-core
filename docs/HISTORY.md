@@ -1,8 +1,12 @@
 # History / Changelog
 
+## 0.23.7 (2018-07-06)
+
+- allowed login() to handle multiple auth backends
+
 ## 0.23.6 (2018-06-23)
 
-- Prepend "[DEMO]" to notification subject lines when in "DEMO_MODE"
+- prepend "[DEMO]" to notification subject lines when in "DEMO_MODE"
 
 ## 0.23.5 (2018-06-23)
 
