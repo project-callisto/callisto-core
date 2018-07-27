@@ -26,7 +26,7 @@ class MatchingRequiredFormTest(TestCase):
 
     def get_twitter_cleaned_identifier(self, url):
         form = MatchingRequiredForm(
-            {'twitter_identifier': url},
+            {'twitter_identifier_0': url},
             view=self.mock_view,
         )
         self.assertTrue(form.is_valid())
