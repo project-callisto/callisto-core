@@ -18,7 +18,7 @@ class MatchingRequiredFormTest(TestCase):
 
     def get_cleaned_identifier(self, url):
         form = MatchingRequiredForm(
-            {'facebook_identifier': url},
+            {'facebook_identifier_0': url},
             view=self.mock_view,
         )
         self.assertTrue(form.is_valid())
