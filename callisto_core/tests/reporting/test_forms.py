@@ -22,7 +22,7 @@ class MatchingRequiredFormTest(TestCase):
             view=self.mock_view,
         )
         self.assertTrue(form.is_valid())
-        return next(iter(form.cleaned_data['identifiers']))
+        return next(iter(form.cleaned_data['facebook_identifier_0']))
 
     def get_twitter_cleaned_identifier(self, url):
         form = MatchingRequiredForm(
@@ -30,7 +30,7 @@ class MatchingRequiredFormTest(TestCase):
             view=self.mock_view,
         )
         self.assertTrue(form.is_valid())
-        return next(iter(form.cleaned_data['identifiers']))
+        return next(iter(form.cleaned_data['twitter_identifier_0']))
 
     def verify_url_works(self, url, expected_result):
         self.assertEqual(
