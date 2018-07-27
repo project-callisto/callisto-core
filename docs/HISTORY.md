@@ -1,5 +1,11 @@
 # History / Changelog
 
+## 0.24.0 (2018-06-20)
+
+- Multiple perp ID types [BETA]
+  - Ablity to match on: instagram, twitter, facebook, mobile, or email
+  - Ablity to have more than one of any field
+
 ## 0.23.8 (2018-07-08)
 
 - updated slack notifications to include SCHOOL_NAME for reporting
