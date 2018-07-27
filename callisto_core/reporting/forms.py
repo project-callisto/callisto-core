@@ -100,6 +100,8 @@ class MatchingBaseForm(
             while self.data.get(field_name):
                 identifier = self.data.get(field_name)
                 identifier = identifier_types[identifier_type]['validation_function'](identifier)
+                if identifier_types[identifier_type]['unique_prefix']:
+                    identifier = identifier_types[identifier_type]['unique_prefix'] + ':' + identifier
                 if identifier:
                     identifiers.add(identifier)
                 else:
