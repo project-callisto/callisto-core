@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.24.2 (2018-07-30)
+
+- fix for phone number validation function
+
 ## 0.24.1 (2018-07-30)
 
 - fix for phone number validation
