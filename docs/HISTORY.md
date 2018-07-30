@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.24.1 (2018-07-30)
+
+- fix for phone number validation
+
 ## 0.24.0 (2018-06-20)
 
 - Multiple perp ID types [BETA]

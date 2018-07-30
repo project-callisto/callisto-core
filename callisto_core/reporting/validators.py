@@ -33,8 +33,6 @@ def email_validation_function(value):
 def phone_validation_function(value):
     if sum(map(str.isdigit, value)) != 10:
         raise ValidationError('Invalid phone number, must be 10 numbers long')
-    if sum(map(str.isdigit, value)) > 0:
-        raise ValidationError('Invalid phone number, phone number must be comprised of numbers')
     phone = ''
     for number in re.findall(r'\d+'):
         phone = phone + number
