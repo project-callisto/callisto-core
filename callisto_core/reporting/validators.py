@@ -34,7 +34,7 @@ def phone_validation_function(value):
     if sum(map(str.isdigit, value)) != 10:
         raise ValidationError('Invalid phone number, must be 10 numbers long')
     phone = ''
-    for number in re.findall(r'\d+'):
+    for number in re.findall(value, r'\d+'):
         phone = phone + number
     return phone
 
