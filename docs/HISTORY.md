@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.24.3 (2018-07-31)
+
+- fix for instagram validation
+- fixed call to findall() in validation for matching
+
 ## 0.24.2 (2018-07-30)
 
 - fix for phone number validation function
