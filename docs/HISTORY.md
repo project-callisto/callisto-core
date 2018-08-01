@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.24.4 (2018-08-01)
+
+- updated package requirements
+
 ## 0.24.3 (2018-07-31)
 
 - fix for instagram validation
