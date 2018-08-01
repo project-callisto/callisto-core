@@ -99,9 +99,10 @@ class ReportBasePartial(
         return self.report.decrypt_record(self.storage.passphrase)
 
     def get_form_kwargs(self):
-        # TODO: remove
         kwargs = super().get_form_kwargs()
-        kwargs.update({'view': self})
+        kwargs.update({
+            'view': self,  # TODO: remove
+        })
         return kwargs
 
 

@@ -45,10 +45,9 @@ class MatchSetup(TestCase):
             assertion(match.match_found)
 
     def create_match(self, user, identifier):
-        report = Report(owner=user)
-        report.encrypt_record("test report 1", "key")
-
-        match_report = MatchReport(report=report)
+        self.most_recent_report = Report(owner=user)
+        self.most_recent_report.encrypt_record("test report 1", "key")
+        match_report = MatchReport(report=self.most_recent_report)
         match_report_content = MatchReportContent(
             identifier=identifier, perp_name=identifier,
             email='test@example.com', phone="123",

@@ -1,5 +1,89 @@
 # History / Changelog
 
+## 0.24.4 (2018-08-01)
+
+- updated package requirements
+
+## 0.24.3 (2018-07-31)
+
+- fix for instagram validation
+- fixed call to findall() in validation for matching
+
+## 0.24.2 (2018-07-30)
+
+- fix for phone number validation function
+
+## 0.24.1 (2018-07-30)
+
+- fix for phone number validation
+
+## 0.24.0 (2018-06-20)
+
+- Multiple perp ID types [BETA]
+  - Ablity to match on: instagram, twitter, facebook, mobile, or email
+  - Ablity to have more than one of any field
+
+## 0.23.8 (2018-07-08)
+
+- updated slack notifications to include SCHOOL_NAME for reporting
+
+## 0.23.7 (2018-07-06)
+
+- allowed login() to handle multiple auth backends
+
+## 0.23.6 (2018-06-23)
+
+- prepend "[DEMO]" to notification subject lines when in "DEMO_MODE"
+
+## 0.23.5 (2018-06-23)
+
+- made "voicemail preference" more clean on reporting flows (matching and full)
+
+## 0.23.4 (2018-06-22)
+
+- enforce password length on password change screen
+
+## 0.23.3 (2018-06-05)
+
+- make redirects not permanent (they were creating issues for other platform developement)
+
+## 0.23.2 (2018-04-25)
+
+* fixes for calls to get_current_site from FormView's save()
+    * https://github.com/project-callisto/callisto-core/pull/418
+
+## 0.23.1 (2018-04-25)
+
+* fixes for calls to get_current_site from django.contrib.auth.forms
+    * https://github.com/project-callisto/callisto-core/pull/417
+
+## 0.23.0 (2018-04-11)
+
+* add DEMO_MODE site setting
+* skip some notification emails while in demo mode
+* send some notification emails to more users while in demo mode
+    * https://github.com/project-callisto/callisto-core/pull/414
+
+## 0.22.0 (2018-04-06)
+
+* add PDFUserReviewReport, for generating PDFs of all reports and match reports
+    * https://github.com/project-callisto/callisto-core/pull/413
+
+## 0.21.4 (2018-04-04)
+
+* NotificationApi hotfix
+    * https://github.com/project-callisto/callisto-core/pull/412
+
+## 0.21.3 (2018-04-04)
+
+* Temporarily disable celery
+    * https://github.com/project-callisto/callisto-core/pull/411
+
+## 0.21.2 (2018-04-04)
+
+* Added a "Resubmit" flow
+    * https://github.com/project-callisto/callisto-core/pull/410
+
 ## 0.21.1 (2018-01-30)
 
 * Moved celery to be loaded as worker, instead of fork

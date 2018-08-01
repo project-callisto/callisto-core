@@ -1,5 +1,6 @@
 from unittest.mock import ANY, call, patch
 
+from callisto_core.reporting.views import ReportingConfirmationView
 from callisto_core.tests.test_base import (
     ReportFlowHelper as ReportFlowTestCase,
 )
@@ -15,7 +16,7 @@ class NotificationViewTest(
             self.client_post_report_creation()
             self.client_post_reporting_end_step()
             api_logging.assert_has_calls([
-                call(email_name='submit_confirmation_callisto_team'),
+                call(notification_name=ReportingConfirmationView.admin_email_template_name),
                 call(report=self.report),
             ], any_order=True)
 

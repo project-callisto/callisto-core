@@ -4,6 +4,7 @@ import os
 import typing
 
 import gnupg
+import requests
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
@@ -17,9 +18,8 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from callisto_core.notification import tasks
 from callisto_core.reporting.report_delivery import (
-    PDFFullReport, PDFMatchReport,
+    PDFFullReport, PDFMatchReport, PDFUserReviewReport,
 )
 from callisto_core.utils.api import TenantApi
 
@@ -41,10 +41,6 @@ class CallistoCoreNotificationApi(object):
         ]
 
     @property
-    def mail_domain(self):
-        return 'mail.callistocampus.org'
-
-    @property
     def model(self):
         from callisto_core.notification.models import EmailNotification
         return EmailNotification
@@ -54,8 +50,28 @@ class CallistoCoreNotificationApi(object):
         return self.context['site_id']
 
     @property
+    def models_on_site(self):
+        site_id = self.context.get('site_id')
+        name = self.context['notification_name']
+        models = self.model.objects.on_site(site_id).filter(name=name)
+        if len(models) != 1:
+            logger.error(
+                f'{self.model.__name__}(site_id={site_id}, name="{name}") should equal 1, was {len(models)}')
+        return models
+
+    @property
     def from_email(self):
-        return f'"Callisto" <noreply@{self.mail_domain}>'
+        return f'"Callisto" <noreply@mail.callistocampus.org>'
+
+    @property
+    def in_demo_mode(self):
+        return self.context.get('DEMO_MODE', False)
+
+    def prepend_subject_if_demo_mode(self, subject):
+        if self.in_demo_mode:
+            return f'[DEMO] {subject}'
+        else:
+            return subject
 
     def user_site_id(self, user):
         return user.account.site_id
@@ -117,6 +133,7 @@ class CallistoCoreNotificationApi(object):
         email_type: str,
         to_addresses: typing.List[str],
         site_id=0,
+        **kwargs,
     ) -> None:
         '''
         Send a matching or submission confirmation email to the user
@@ -131,6 +148,7 @@ class CallistoCoreNotificationApi(object):
             'notification_name': email_type,
             'to_addresses': to_addresses,
             'site_id': site_id,
+            **kwargs,
         }
         self.send()
 
@@ -141,6 +159,7 @@ class CallistoCoreNotificationApi(object):
         report_data: dict,
         public_key: str,
         site_id=0,
+        **kwargs,
     ) -> None:
         '''
         Send new full report to the reporting coordinator
@@ -151,8 +170,9 @@ class CallistoCoreNotificationApi(object):
             'notification_name': 'report_delivery',
             'to_addresses': to_addresses,
             'site_id': site_id,
+            **kwargs,
         }
-        self.notification_with_full_report(
+        self._notification_with_full_report(
             sent_report, report_data, public_key, to_addresses)
         self.send()
 
@@ -160,19 +180,6 @@ class CallistoCoreNotificationApi(object):
         # save report timestamp only if generation & email work
         sent_report.report.submitted_to_school = timezone.now()
         sent_report.report.save()
-
-    def send_student_verification_email(self, form, *args, **kwargs):
-        email = form.cleaned_data.get('email')
-        for user in form.get_users(email):
-            self.send_with_kwargs(
-                site_id=user.account.site_id,
-                to_addresses=[email],
-                email_subject='Verify your student email',
-                email_name='student_verification_email',
-                redirect_url=form.redirect_url,
-                email_template_name=form.view.email_template_name,
-                user=form.view.request.user,
-            )
 
     def send_password_reset_email(self, form, *args, **kwargs):
         email = form.cleaned_data.get('email')
@@ -226,7 +233,7 @@ class CallistoCoreNotificationApi(object):
             'site_id': self.user_site_id(user),
             'user': user,
         }
-        self.notification_with_match_report(
+        self._notification_with_match_report(
             matches, identifier, to_addresses, public_key)
         self.send()
 
@@ -250,9 +257,30 @@ class CallistoCoreNotificationApi(object):
             user=user,
         )
 
+    def send_user_review_nofication(
+        self,
+        reports: list,
+        matches: list,
+        to_addresses: typing.List[str],
+        public_key: str,
+        site_id: int,
+    ):
+        self.context = {
+            'email_template_name': 'callisto_core/notification/user_review.html',
+            'email_subject': 'Callisto Report Review Notification',
+            'to_addresses': to_addresses,
+            'site_id': site_id,
+        }
+        report_file = PDFUserReviewReport.generate({
+            'reports': reports,
+            'matches': matches,
+        })
+        self._notification_with_report('', report_file, public_key)
+        self.send()
+
     # report attachment
 
-    def notification_with_full_report(
+    def _notification_with_full_report(
         self,
         sent_report,
         report_data,
@@ -266,14 +294,14 @@ class CallistoCoreNotificationApi(object):
 
         self._notification_with_report(report_id, report_file, public_key)
 
-    def notification_with_match_report(
+    def _notification_with_match_report(
         self,
         matches,
         identifier,
         to_addresses,
         public_key,
     ):
-        # TODO: make match notification_with_full_report more closely
+        # TODO: make match _notification_with_full_report more closely
         from callisto_core.delivery.models import SentMatchReport
         sent_match_report = SentMatchReport.objects.create(
             to_address=self.context['to_addresses'][0],
@@ -321,7 +349,7 @@ class CallistoCoreNotificationApi(object):
         required:
             self.context.
                 site_id
-                notification_name
+                notification_name or email_template_name
                 to_addresses
         optional:
             self.context.
@@ -370,40 +398,45 @@ class CallistoCoreNotificationApi(object):
                 self.context['email_template_name']).template.source
             self.context.update({
                 'notification_name': self.context['email_template_name'],
-                'subject': self.context['email_subject'],
+                'subject': self.prepend_subject_if_demo_mode(self.context['email_subject']),
                 'body': body,
             })
-        else:
-            site_id = self.context.get('site_id')
-            name = self.context['notification_name']
-            notifications = self.model.objects.on_site(
-                site_id).filter(name=name)
-            if len(notifications) != 1:
-                logger.warn(
-                    f'too many results for {self.model.__name__}(site_id={site_id}, name={name})')
-            notification = notifications[0]
+        elif len(self.models_on_site) == 1:
+            notification = self.models_on_site[0]
             self.context.update({
-                'subject': notification.subject,
+                'subject': self.prepend_subject_if_demo_mode(notification.subject),
                 'body': notification.body,
+            })
+        else:
+            self.context.update({
+                'subject': self.prepend_subject_if_demo_mode(self.context['notification_name']),
+                'body': self.context['notification_name'],
             })
 
     def send_email(self):
-        email_data = {
-            'to': self.context['to_addresses'],
-            'subject': self.context['subject'],
-            'html': self.context['body'],
-            **self._extra_data(),
+        mailgun_post_route = 'https://api.mailgun.net/v3/mail.callistocampus.org/messages'
+        request_params = {
+            'auth': ('api', settings.MAILGUN_API_KEY),
+            'data': {
+                'from': '"Callisto" <noreply@mail.callistocampus.org>',
+                'to': self.context['to_addresses'],
+                'subject': self.context['subject'],
+                'html': self.context['body'],
+                **self._extra_data(),
+            },
+            **self._mail_attachments(),
         }
-        task_response = tasks.SendEmail.delay(
-            self.mail_domain, email_data, self._mail_attachments())
-        self.context.update({'task_id': task_response.task_id})
-        """
+        # [ TODO ] REMOVE THIS WHEN CELERY CONFIG IS FINISHED
+        response = requests.post(mailgun_post_route, **request_params)
         self.context.update({
             'response': getattr(response, 'context', response),
             'response_status': response.status_code,
             'response_content': response.content,
         })
-        """
+        # [ TODO ] / REMOVE THIS
+        # [ TODO ] ADD THIS BACK WHEN CELERY CONFIG IS FINISHED
+        # tasks.SendEmail.delay(mailgun_post_route, request_params)
+        # [ TODO ] / ADD THIS
 
     def log_action(self):
         logger.info('notification.send(subject={}, name={})'.format(
@@ -423,7 +456,8 @@ class CallistoCoreNotificationApi(object):
             self.context.update({
                 'body': self.context['body'][:80]
             })
-        """
+
+        # [ TODO ] REMOVE THIS WHEN CELERY CONFIG IS FINISHED
         if not self.context.get('response_status') == 200:
             logger.error(f'status_code!=200, context: {self.context}')
-        """
+        # [ TODO ] / REMOVE THIS

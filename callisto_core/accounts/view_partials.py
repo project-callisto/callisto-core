@@ -57,7 +57,7 @@ class SignupPartial(
             user=form.instance,
             site_id=self.request.site.id,
         )
-        login(self.request, form.instance)
+        login(self.request, form.instance, backend='django.contrib.auth.backends.ModelBackend')
         return response
 
 

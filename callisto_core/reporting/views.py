@@ -21,7 +21,7 @@ from . import view_partials
 class ReportingSchoolEmailFormView(
     view_partials.SchoolEmailFormPartial,
 ):
-    template_name = 'callisto_core/reporting/submission.html'
+    template_name = 'callisto_core/reporting/schoolemail.html'
     access_template_name = 'callisto_core/delivery/form_redirect.html'
     email_template_name = 'callisto_core/reporting/student_verification_email.html'
 
@@ -56,6 +56,26 @@ class ReportingConfirmationView(
     admin_email_template_name = 'callisto_core/accounts/submit_confirmation_callisto_team.html'
 
 
+##################
+# resending flow #
+##################
+
+
+class ResubmitPrepView(
+    view_partials.ResubmitPrepPartial
+):
+    template_name = 'callisto_core/reporting/submission.html'
+    access_template_name = 'callisto_core/delivery/form_redirect.html'
+
+
+class ResubmitConfirmationView(
+    view_partials.ResubmitConfirmationPartial
+):
+    template_name = 'callisto_core/reporting/submission_confirm.html'
+    access_template_name = 'callisto_core/delivery/form_redirect.html'
+    admin_email_template_name = 'callisto_core/accounts/submit_confirmation_callisto_team.html'
+
+
 #################
 # matching flow #
 #################
@@ -64,7 +84,7 @@ class ReportingConfirmationView(
 class MatchingSchoolEmailFormView(
     view_partials.SchoolEmailFormPartial,
 ):
-    template_name = 'callisto_core/reporting/submission.html'
+    template_name = 'callisto_core/reporting/schoolemail.html'
     access_template_name = 'callisto_core/delivery/form_redirect.html'
     email_template_name = 'callisto_core/reporting/student_verification_email.html'
 

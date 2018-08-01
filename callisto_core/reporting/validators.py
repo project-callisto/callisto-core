@@ -1,15 +1,11 @@
 import logging
-from collections import OrderedDict
+import re
 
 from six.moves.urllib.parse import parse_qs, urlsplit
 
-from django import forms
-from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator
 from django.forms import URLField
-from django.utils.safestring import mark_safe
-
-from callisto_core.utils.api import TenantApi
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +22,31 @@ def _get_url_parts(url):
 
 def _get_initial_path(url_parts):
     return url_parts[2].strip('/').split('/')[0].lower()
+
+
+def email_validation_function(value):
+    validator = EmailValidator()
+    validator(value)
+    return value
+
+
+def phone_validation_function(value):
+    if sum(map(str.isdigit, value)) != 10:
+        raise ValidationError('Invalid phone number, must be 10 numbers long')
+    phone = ''
+    for number in re.findall(r'\d+', value):
+        phone = phone + number
+    return phone
+
+
+def instagram_validation_function(value):
+    instagram_re = 'https?:\/\/(www\.)?instagram\.com\/\
+([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)'
+    instagram_url = re.match(instagram_re, value)
+    if instagram_url:
+        instagram_url = instagram_url.group(0)
+        return instagram_url
+    raise ValidationError('Invalid instagram account URL.')
 
 
 generic_twitter_urls = [
@@ -59,12 +80,6 @@ def twitter_validation_function(value):
         return None
     else:
         return path
-
-
-twitter_validation_info = {
-    'validation': twitter_validation_function,
-    'example': 'https://twitter.com/twitter_handle or @twitter_handle',
-    'unique_prefix': 'twitter'}
 
 
 generic_fb_urls = [
@@ -118,40 +133,46 @@ def facebook_validation_function(url):
  identifiers are stored plain, with the prefix "www.facebook.com/" stripped. All other identifiers should be prefixed
  to allow for global uniqueness from Facebook profile identifiers.
 '''
-facebook_validation_info = {
-    'validation': facebook_validation_function,
-    'example': 'http://www.facebook.com/perpetratorname',
-    'unique_prefix': ''}
 
-'''
-    potential options for identifier_domain_info, used in SubmitToMatchingForm
-    identifier_domain_info is an ordered dictionary of matching identifiers
-        key:
-            the type of identifier requested
-                example: 'Facebook profile URL' for Facebook
-        value:
-            a dictionary with
-                a globally unique prefix (see note about Facebook's) to avoid cross-domain matches
-                a validation function
-                    should return None for invalid entries & return a minimal unique (within domain) path for valid
-                an example input
 
-    will return on first valid option tried
-    see MatchingValidation.facebook_only (default)
-'''
-
-facebook_only = OrderedDict(
-    [('Facebook profile URL', facebook_validation_info)],
-)
-twitter_only = OrderedDict(
-    [('Twitter username/profile URL', twitter_validation_info)],
-)
-facebook_or_twitter = OrderedDict(
-    [
-        ('Facebook profile URL', facebook_validation_info),
-        ('Twitter username/profile URL', twitter_validation_info),
-    ],
-)
+def perp_identifiers():
+    return {
+        'email': {
+            'label': 'WHAT IS THEIR TWITTER HANDLE?',
+            'id': 'email',
+            'validation_function': email_validation_function,
+            'example': '',
+            'unique_prefix': 'email',
+        },
+        'twitter': {
+            'label': 'WHAT IS THEIR TWITTER HANDLE?',
+            'id': 'twitter',
+            'validation_function': twitter_validation_function,
+            'example': 'http://www.twitter.com/perpetratorname or @perpetratorname',
+            'unique_prefix': 'twitter',
+        },
+        'facebook': {
+            'label': 'WHAT IS THEIR FACEBOOK URL?',
+            'id': 'facebook',
+            'validation_function': facebook_validation_function,
+            'example': 'http://www.facebook.com/perpetratorname',
+            'unique_prefix': '',  # Left blank by DESIGN (backwards compat to original matching system)
+        },
+        'phone': {
+            'label': 'WHAT IS THEIR MOBILE NUMBER?',
+            'id': 'phone',
+            'validation_function': phone_validation_function,
+            'example': '(xxx) xxx xxxx',
+            'unique_prefix': 'phone',
+        },
+        'instagram': {
+            'label': 'WHAT IS THEIR INSTAGRAM?',
+            'id': 'instagram',
+            'validation_function': instagram_validation_function,
+            'example': 'http://www.instagram.com/perpetratorname',
+            'unique_prefix': 'instagram',
+        },
+    }
 
 
 def join_list_with_or(lst):
@@ -164,59 +185,14 @@ def join_list_with_or(lst):
 
 class Validators(object):
 
-    def __init__(self):
-        self.validators = getattr(
-            settings,
-            'CALLISTO_IDENTIFIER_DOMAINS',
-            facebook_only,
-        )
+    def __init__(self, validator):
+        self.validator = validator
 
     def invalid(self):
-        return 'Please enter a valid ' + join_list_with_or(
-            list(self.validators))
+        return 'Please enter a valid ' + self.validator['id']
 
     def titled(self):
-        return "Perpetrator's " + join_list_with_or([
-            identifier.title()
-            for identifier in list(self.validators)
-        ])
+        return "Perpetrator's " + self.validator['id']
 
     def examples(self):
-        return 'ex. ' + join_list_with_or([
-            identifier_info['example']
-            for identifier_info in self.validators.values()
-        ])
-
-
-def non_school_email_error(request=None, site_id=None):
-    return mark_safe(
-        '''
-        Please enter a valid {} student email.
-        If you're getting this message and you think you shouldn't be,
-        contact us at support@projectcallisto.org.
-    '''.format(
-            TenantApi.site_settings(
-                'SCHOOL_SHORTNAME',
-                request=request,
-                site_id=site_id),
-        ))
-
-
-def validate_school_email(email, request=None, site_id=None):
-    email_domain = email.rsplit('@', 1)[-1].lower()
-    school_email_domain = TenantApi.site_settings(
-        'SCHOOL_EMAIL_DOMAIN',
-        request=request,
-        site_id=site_id,
-    )
-
-    allowed = [_domain.strip() for _domain in school_email_domain.split(',')]
-    allowed.append('projectcallisto.org')
-
-    if email_domain not in allowed and not settings.DEBUG:
-        logger.warning(
-            "non school email used with domain {}".format(email_domain))
-        raise forms.ValidationError(non_school_email_error(
-            request=request,
-            site_id=site_id,
-        ))
+        return 'ex. ' + self.validator['example']

@@ -137,17 +137,20 @@ class ReportPostHelper(object):
         return response
 
     def client_post_report_prep(self):
+        self.report_contact_email = self.school_email
+        self.report_contact_phone = '555-555-5555'
         response = self.client.post(
             reverse(
                 'reporting_prep',
                 kwargs={'uuid': self.report.uuid},
             ),
             data={
-                'contact_email': 'test@example.com',
-                'contact_phone': '555-555-5555',
+                'contact_email': self.report_contact_email,
+                'contact_phone': self.report_contact_phone,
             },
             follow=True,
         )
+        self.report.refresh_from_db()
         self.assertIn(response.status_code, self.valid_statuses)
         return response
 
@@ -166,7 +169,7 @@ class ReportPostHelper(object):
             'reporting_matching_enter',
             kwargs={'uuid': self.report.uuid},
         )
-        data = {'identifier': ''}
+        data = {'facebook_identifier': ''}
         response = self.client.post(url, data, follow=True)
         self.assertIn(response.status_code, self.valid_statuses)
         return response
@@ -196,7 +199,7 @@ class ReportPostHelper(object):
             'matching_enter',
             kwargs={'uuid': self.report.uuid},
         )
-        data = {'identifier': identifier}
+        data = {'facebook_identifier': identifier}
         response = self.client.post(url, data, follow=True)
         self.assertIn(response.status_code, self.valid_statuses)
         return response
@@ -223,6 +226,7 @@ class ReportFlowHelper(
     ReportAssertionHelper,
 ):
     passphrase = 'super secret'
+    school_email = 'HUMAN_STUDENT_TOTALLY_NOT_A_WOLF@example.edu'
     fixtures = [
         'wizard_builder_data',
         'callisto_core_notification_data',
@@ -240,6 +244,11 @@ class ReportFlowHelper(
         self.user = User.objects.create_user(
             username='testing_122',
             password='testing_12',
+        )
+        Account.objects.create(
+            user=self.user,
+            site_id=1,
+            school_email=self.school_email,
         )
         self.client.login(
             username='testing_122',

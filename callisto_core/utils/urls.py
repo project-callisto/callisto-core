@@ -20,13 +20,13 @@ urlpatterns = [
 
     # login / signup
     url(r'^$', django_views.RedirectView.as_view(
-        url=reverse_lazy('signup'), permanent=True)),
+        url=reverse_lazy('signup'))),
     url(r'^signup/$', django_views.RedirectView.as_view(
-        url=reverse_lazy('signup'), permanent=True)),
+        url=reverse_lazy('signup'))),
     url(r'^logout/$', django_views.RedirectView.as_view(
-        url=reverse_lazy('logout'), permanent=True)),
+        url=reverse_lazy('logout'))),
     url(r'^login/$', django_views.RedirectView.as_view(
-        url=reverse_lazy('login'), permanent=True)),
+        url=reverse_lazy('login'))),
 
     # admin
     url(r'^nested_admin/', include('nested_admin.urls')),
