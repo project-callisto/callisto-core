@@ -1,5 +1,48 @@
 # History / Changelog
 
+## 0.24.3 (2018-07-31)
+
+- fix for instagram validation
+- fixed call to findall() in validation for matching
+
+## 0.24.2 (2018-07-30)
+
+- fix for phone number validation function
+
+## 0.24.1 (2018-07-30)
+
+- fix for phone number validation
+
+## 0.24.0 (2018-06-20)
+
+- Multiple perp ID types [BETA]
+  - Ablity to match on: instagram, twitter, facebook, mobile, or email
+  - Ablity to have more than one of any field
+
+## 0.23.8 (2018-07-08)
+
+- updated slack notifications to include SCHOOL_NAME for reporting
+
+## 0.23.7 (2018-07-06)
+
+- allowed login() to handle multiple auth backends
+
+## 0.23.6 (2018-06-23)
+
+- prepend "[DEMO]" to notification subject lines when in "DEMO_MODE"
+
+## 0.23.5 (2018-06-23)
+
+- made "voicemail preference" more clean on reporting flows (matching and full)
+
+## 0.23.4 (2018-06-22)
+
+- enforce password length on password change screen
+
+## 0.23.3 (2018-06-05)
+
+- make redirects not permanent (they were creating issues for other platform developement)
+
 ## 0.23.2 (2018-04-25)
 
 * fixes for calls to get_current_site from FormView's save()

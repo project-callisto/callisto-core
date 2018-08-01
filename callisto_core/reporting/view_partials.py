@@ -34,7 +34,7 @@ from callisto_core.accounts import (
 from callisto_core.delivery import view_partials as delivery_partials
 from callisto_core.utils.api import MatchingApi, NotificationApi, TenantApi
 
-from . import forms, validators, view_helpers
+from . import forms, view_helpers
 
 
 class _SubmissionPartial(
@@ -65,6 +65,11 @@ class _SubmissionPartial(
     def coordinator_public_key(self):
         return TenantApi.site_settings(
             'COORDINATOR_PUBLIC_KEY', request=self.request)
+
+    @property
+    def school_name(self):
+        return TenantApi.site_settings(
+            'SCHOOL_SHORTNAME', request=self.request)
 
     @property
     def school_email_domain(self):
@@ -216,27 +221,19 @@ class _ReportSubclassPartial(
 class _MatchingPartial(
     _ReportSubclassPartial,
 ):
-    matching_validator_class = validators.Validators
-
-    def get_matching_validators(self, *args, **kwargs):
-        return self.matching_validator_class()
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({'matching_validators': self.get_matching_validators()})
-        return kwargs
-
     def form_valid(self, form):
         response = super().form_valid(form)
-        identifier = form.cleaned_data.get('identifier')
-        matches = self._get_matches(identifier)
+        identifiers = form.cleaned_data.get('identifiers')
 
-        self._notify_owner_of_submission(identifier)
-        if matches:
-            self._notify_authority_of_matches(matches, identifier)
-            self._notify_owners_of_matches(matches)
-            self._slack_match_notification()
-            self._match_confirmation_email_to_callisto(matches)
+        self._notify_owner_of_submission(identifiers)
+        for identifier in identifiers:
+            matches = self._get_matches(identifier)
+
+            if matches:
+                self._notify_authority_of_matches(matches, identifier)
+                self._notify_owners_of_matches(matches)
+                self._slack_match_notification()
+                self._match_confirmation_email_to_callisto(matches)
 
         return response
 
@@ -303,7 +300,7 @@ class ConfirmationPartial(
 ):
     form_class = forms.ConfirmationForm
     EVAL_ACTION_TYPE = 'DIRECT_REPORTING_FINAL_CONFIRMATION'
-    SLACK_ALERT_TEXT = 'New Callisto Report (details will be sent via email)'
+    SLACK_ALERT_TEXT = 'New Callisto Report at {school_name} (details will be sent via email)'
 
     def form_valid(self, form):
         output = super().form_valid(form)
@@ -320,6 +317,7 @@ class ConfirmationPartial(
             'public_key': self.coordinator_public_key,
         }
         if self.in_demo_mode:
+            kwargs['DEMO_MODE'] = True
             kwargs['to_addresses'] += self.all_user_emails
         NotificationApi.send_report_to_authority(**kwargs)
 
@@ -330,6 +328,7 @@ class ConfirmationPartial(
             'site_id': self.site_id,
         }
         if self.in_demo_mode:
+            kwargs['DEMO_MODE'] = True
             kwargs['to_addresses'] += self.all_user_emails
         NotificationApi.send_confirmation(**kwargs)
 
@@ -346,7 +345,7 @@ class ConfirmationPartial(
     def _send_confirmation_slack_notification(self):
         if not self.in_demo_mode:
             NotificationApi.slack_notification(
-                msg=self.SLACK_ALERT_TEXT,
+                msg=self.SLACK_ALERT_TEXT.format(school_name=self.school_name),
                 type='submit_confirmation',
             )
 
@@ -368,7 +367,7 @@ class ResubmitConfirmationPartial(
 ):
     form_class = forms.ConfirmedConfirmationForm
     EVAL_ACTION_TYPE = 'RESUBMIT_FINAL_CONFIRMATION'
-    SLACK_ALERT_TEXT = 'Resubmitted Callisto Report (details will be sent via email)'
+    SLACK_ALERT_TEXT = 'Resubmitted Callisto Report at {school_name} (details will be sent via email)'
 
 
 class MatchingWithdrawPartial(
