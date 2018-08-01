@@ -34,7 +34,7 @@ def phone_validation_function(value):
     if sum(map(str.isdigit, value)) != 10:
         raise ValidationError('Invalid phone number, must be 10 numbers long')
     phone = ''
-    for number in re.findall(value, r'\d+'):
+    for number in re.findall(r'\d+', value):
         phone = phone + number
     return phone
 
@@ -44,7 +44,7 @@ def instagram_validation_function(value):
 ([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)'
     instagram_url = re.match(instagram_re, value)
     if instagram_url:
-        instagram_url = re.match.group(0)
+        instagram_url = instagram_url.group(0)
         return instagram_url
     raise ValidationError('Invalid instagram account URL.')
 
