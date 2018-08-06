@@ -7,7 +7,7 @@ django_celery_results==1.0.1
 PyNaCl==1.2.1
 python-gnupg==0.4.3
 pytz==2018.5
-reportlab==3.5.2
+reportlab==3.5.4
 six==1.11.0
 requests==2.19.1
 git+git://github.com/project-callisto/django-decorator-include.git
