@@ -167,7 +167,7 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': os.getenv('LOG_LEVEL', default='DEBUG'),
+        'level': os.getenv('LOG_LEVEL', default='INFO'),
     },
 }
 
