@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.24.5 (2018-10-09)
+
+- updated package requirements
+- set the default LOG_LEVEL to INFO from DEBUG
+
 ## 0.24.4 (2018-08-01)
 
 - updated package requirements
