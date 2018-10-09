@@ -123,7 +123,7 @@ LOGGING = {
         'gnupg': {
             'handlers': ['console'],
             'propagate': False,
-            'level': 'ERROR',
+            'level': 'INFO',
         },
         'django.db': {
             'handlers': ['console'],
@@ -167,7 +167,7 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': os.getenv('LOG_LEVEL', default='DEBUG'),
+        'level': os.getenv('LOG_LEVEL', default='INFO'),
     },
 }
 
