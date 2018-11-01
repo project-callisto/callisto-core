@@ -5,7 +5,7 @@ PyPDF2==1.26.0
 isort==4.3.4
 django-migration-testcase==0.0.13
 pytest-django==3.4.3
-selenium==3.14.1
+selenium==3.141.0
 coverage==4.5.1
 pytest-cov==2.6.0
 
