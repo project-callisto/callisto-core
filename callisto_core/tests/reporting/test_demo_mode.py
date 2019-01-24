@@ -1,6 +1,7 @@
 from unittest.mock import call, patch
 
 from django.contrib.sites.models import Site
+from django.test import override_settings
 
 from callisto_core.reporting.views import ReportingConfirmationView
 from callisto_core.tests.test_base import (
@@ -13,7 +14,7 @@ from callisto_core.utils.sites import TempSiteID
 class DemoModeNotificationSubjectTest(
     ReportFlowTestCase,
 ):
-
+    
     def test_default(self):
         with patch.object(CustomNotificationApi, '_logging') as api_logging:
             self.client_post_report_creation()
@@ -35,6 +36,15 @@ class DemoModeNotificationSubjectTest(
             call(subject='[DEMO] report_delivery'),
         ], any_order=True)
 
+    @override_settings(DEBUG=True)
+    def test_debug_mode(self):
+        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+            self.client_post_report_creation()
+            self.client_post_reporting_end_step()
+
+        api_logging.assert_has_calls([
+            call(subject='[DEBUG] report_delivery'),
+        ], any_order=True)
 
 class DemoModeNotificationNameTest(
     ReportFlowTestCase,
