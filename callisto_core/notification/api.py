@@ -128,6 +128,11 @@ class CallistoCoreNotificationApi(object):
         self.context = {**kwargs}
         self.send()
 
+    def send_from_template(self, template_name, **kwargs):
+        template_kwarg = 'email_template_name' if template_name.endswith('.html') else 'email_name'
+        kwargs[template_kwarg] = template_name
+        self.send_with_kwargs(**kwargs)
+
     def send_confirmation(
         self,
         email_type: str,
