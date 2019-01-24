@@ -67,9 +67,11 @@ class CallistoCoreNotificationApi(object):
     def in_demo_mode(self):
         return self.context.get('DEMO_MODE', False)
 
-    def prepend_subject_if_demo_mode(self, subject):
+    def prepend_subject_if_demo_debug_mode(self, subject):
         if self.in_demo_mode:
             return f'[DEMO] {subject}'
+        elif settings.DEBUG:
+            return f'[DEBUG] {subject}'
         else:
             return subject
 
@@ -398,18 +400,18 @@ class CallistoCoreNotificationApi(object):
                 self.context['email_template_name']).template.source
             self.context.update({
                 'notification_name': self.context['email_template_name'],
-                'subject': self.prepend_subject_if_demo_mode(self.context['email_subject']),
+                'subject': self.prepend_subject_if_demo_debug_mode(self.context['email_subject']),
                 'body': body,
             })
         elif len(self.models_on_site) == 1:
             notification = self.models_on_site[0]
             self.context.update({
-                'subject': self.prepend_subject_if_demo_mode(notification.subject),
+                'subject': self.prepend_subject_if_demo_debug_mode(notification.subject),
                 'body': notification.body,
             })
         else:
             self.context.update({
-                'subject': self.prepend_subject_if_demo_mode(self.context['notification_name']),
+                'subject': self.prepend_subject_if_demo_debug_mode(self.context['notification_name']),
                 'body': self.context['notification_name'],
             })
 
