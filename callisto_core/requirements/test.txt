@@ -1,6 +1,6 @@
 psycopg2==2.7.7
 mock==2.0.0
-flake8==3.7.0
+flake8==3.7.1
 PyPDF2==1.26.0
 isort==4.3.4
 django-migration-testcase==0.0.13
