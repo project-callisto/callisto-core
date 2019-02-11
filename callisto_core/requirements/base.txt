@@ -1,6 +1,6 @@
 argon2-cffi==19.1.0
 celery==4.2.1
-django==2.1.6
+django==2.1.7
 django-polymorphic==2.0.3
 django-ratelimit==2.0.0
 django-celery-results==1.0.4
