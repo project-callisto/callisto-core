@@ -1,6 +1,8 @@
-import argon2
-
 import base64
+
+import argon2
+import nacl.secret
+import nacl.utils
 
 from django.conf import settings
 from django.contrib.auth.hashers import (
@@ -10,8 +12,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 
-import nacl.secret
-import nacl.utils
 
 def encrypt_text(key, sensitive_text):
     """
@@ -90,6 +90,7 @@ def unpepper(peppered_report):
     decrypted = box.decrypt(bytes(peppered_report))
     return decrypted
 
+
 # Portions of the below implementation are copyright the Django Software Foundation and individual contributors, and
 # are under the BSD-3 Clause License:
 # https://github.com/django/django/blob/master/LICENSE
@@ -158,6 +159,7 @@ def make_key(encode_prefix, key, salt):
     prefix, key = hasher.split_encoded(encoded)
     return prefix, key
 
+
 class PBKDF2KeyHasher(PBKDF2PasswordHasher):
     """
     Key stretching using Django's PBKDF2 + SHA256 implementation.
@@ -182,6 +184,7 @@ class PBKDF2KeyHasher(PBKDF2PasswordHasher):
         prefix, b64stretched = encoded.rsplit('$', 1)
         stretched_key = base64.b64decode(b64stretched)
         return prefix, force_bytes(stretched_key)
+
 
 class Argon2KeyHasher(BasePasswordHasher):
     """
