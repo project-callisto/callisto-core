@@ -6,7 +6,7 @@ import nacl.utils
 from django.conf import settings
 from django.utils.crypto import get_random_string, pbkdf2
 
-from callisto_core.delivery import security
+from callisto_core.delivery import encryption
 
 
 def _legacy_encrypt_report(salt, key, report_text):
@@ -103,7 +103,7 @@ class LegacyMatchReportData(object):
 
         """
         self.salt = get_random_string()
-        self.encrypted = security.pepper(
+        self.encrypted = encryption.pepper(
             _legacy_encrypt_report(
                 salt=self.salt,
                 key=key,

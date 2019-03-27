@@ -27,8 +27,8 @@ CALLISTO_NOTIFICATION_API = 'callisto_core.tests.utils.api.CustomNotificationApi
 CALLISTO_TENANT_API = 'callisto_core.tests.utils.api.CustomTenantApi'
 
 KEY_HASHERS = [
-    "callisto_core.delivery.hashers.Argon2KeyHasher",
-    "callisto_core.delivery.hashers.PBKDF2KeyHasher"
+    "callisto_core.delivery.encryption.Argon2KeyHasher",
+    "callisto_core.delivery.encryption.PBKDF2KeyHasher"
 ]
 
 DATABASES = {

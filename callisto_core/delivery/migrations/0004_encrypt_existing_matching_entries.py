@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db import migrations
 from django.utils.crypto import get_random_string, pbkdf2
 
-from .. import security
+from .. import encryption
 from ...reporting.report_delivery import MatchReportContent
 
 
@@ -31,8 +31,8 @@ def encrypt_match_report(apps, schema_editor):
             match_report.salt,
             settings.ORIGINAL_KEY_ITERATIONS,
             digest=hashlib.sha256)
-        encrypted_match_report = security.pepper(
-            security.encrypt_report(
+        encrypted_match_report = encryption.pepper(
+            encryption.encrypt_report(
                 stretched_key=stretched_identifier,
                 report_text=json.dumps(
                     match_report_content.__dict__)))

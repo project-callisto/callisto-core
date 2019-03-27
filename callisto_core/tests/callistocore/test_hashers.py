@@ -5,38 +5,38 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 from django.utils.encoding import force_bytes
 
-import callisto_core.delivery.hashers as hashers
+import callisto_core.delivery.encryption as encryption
 
 
 class KeyHasherFunctionsTest(TestCase):
 
     @override_settings(
-        KEY_HASHERS=['callisto_core.delivery.hashers.BasePasswordHasher'])
+        KEY_HASHERS=['callisto_core.delivery.encryption.BasePasswordHasher'])
     def test_get_hashers_raises_improperly_configured_for_no_algorithm(self):
         with self.assertRaises(ImproperlyConfigured) as cm:
-            hashers.get_hashers()
+            encryption.get_hashers()
         ex = cm.exception
         self.assertEqual(
             str(ex), "hasher doesn't specify an algorithm name: "
-            "callisto_core.delivery.hashers.BasePasswordHasher")
+            "callisto_core.delivery.encryption.BasePasswordHasher")
 
     def test_get_hashers_returns_correct_hashers(self):
-        hs = hashers.get_hashers()
-        self.assertIsInstance(hs[0], hashers.Argon2KeyHasher)
-        self.assertIsInstance(hs[1], hashers.PBKDF2KeyHasher)
+        hs = encryption.get_hashers()
+        self.assertIsInstance(hs[0], encryption.Argon2KeyHasher)
+        self.assertIsInstance(hs[1], encryption.PBKDF2KeyHasher)
 
     def test_get_hasher_returns_correct_hasher(self):
         hs = []
-        hs.append(hashers.get_hasher())                 # argon2
-        hs.append(hashers.get_hasher("argon2"))         # argon2
-        hs.append(hashers.get_hasher("pbkdf2_sha256"))  # pbkdf2
-        self.assertIsInstance(hs.pop(), hashers.PBKDF2KeyHasher)
-        self.assertIsInstance(hs.pop(), hashers.Argon2KeyHasher)
-        self.assertIsInstance(hs.pop(), hashers.Argon2KeyHasher)
+        hs.append(encryption.get_hasher())                 # argon2
+        hs.append(encryption.get_hasher("argon2"))         # argon2
+        hs.append(encryption.get_hasher("pbkdf2_sha256"))  # pbkdf2
+        self.assertIsInstance(hs.pop(), encryption.PBKDF2KeyHasher)
+        self.assertIsInstance(hs.pop(), encryption.Argon2KeyHasher)
+        self.assertIsInstance(hs.pop(), encryption.Argon2KeyHasher)
 
     def test_get_hasher_raises_ValueError_on_unknown_algorithm(self):
         with self.assertRaises(ValueError) as cm:
-            hashers.get_hasher("sha420_8^)")
+            encryption.get_hasher("sha420_8^)")
         ex = cm.exception
         self.assertEqual(
             str(ex), "Unknown key hashing algorithm sha420_8^)."
@@ -45,23 +45,23 @@ class KeyHasherFunctionsTest(TestCase):
     def test_identify_hasher_returns_correct_hashers(self):
         hs = []
         # pbkdf2
-        hs.append(hashers.identify_hasher(None))
+        hs.append(encryption.identify_hasher(None))
         # pbkdf2
-        hs.append(hashers.identify_hasher(''))
-        hs.append(hashers.identify_hasher(
+        hs.append(encryption.identify_hasher(''))
+        hs.append(encryption.identify_hasher(
             "pbkdf2_sha256$100$a_salt_probably"))     # pbkdf2
-        hs.append(hashers.identify_hasher(
+        hs.append(encryption.identify_hasher(
             "argon2$argon2i$v=19$more,params$salt"))  # argon2
-        self.assertIsInstance(hs.pop(), hashers.Argon2KeyHasher)
-        self.assertIsInstance(hs.pop(), hashers.PBKDF2KeyHasher)
-        self.assertIsInstance(hs.pop(), hashers.PBKDF2KeyHasher)
-        self.assertIsInstance(hs.pop(), hashers.PBKDF2KeyHasher)
+        self.assertIsInstance(hs.pop(), encryption.Argon2KeyHasher)
+        self.assertIsInstance(hs.pop(), encryption.PBKDF2KeyHasher)
+        self.assertIsInstance(hs.pop(), encryption.PBKDF2KeyHasher)
+        self.assertIsInstance(hs.pop(), encryption.PBKDF2KeyHasher)
 
 
 class PBKDF2KeyHasherTest(TestCase):
 
     def setUp(self):
-        self.hasher = hashers.PBKDF2KeyHasher()
+        self.hasher = encryption.PBKDF2KeyHasher()
 
     def test_encode_requires_key_and_salt(self):
         with self.assertRaises(AssertionError):
@@ -119,7 +119,7 @@ class PBKDF2KeyHasherTest(TestCase):
 class Argon2KeyHasherTest(TestCase):
 
     def setUp(self):
-        self.hasher = hashers.Argon2KeyHasher()
+        self.hasher = encryption.Argon2KeyHasher()
 
     def test_encode_requires_key_and_salt(self):
         with self.assertRaises(AssertionError):

@@ -7,7 +7,7 @@ from mock import ANY, patch
 from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 
-from callisto_core.delivery import security
+from callisto_core.delivery import encryption
 from callisto_core.reporting.report_delivery import MatchReportContent
 from callisto_core.utils.api import MatchingApi
 
@@ -57,7 +57,7 @@ class MatchReportMigrationTest(MigrationTest):
             _legacy_decrypt_report(
                 match_report.salt,
                 identifier,
-                security.unpepper(
+                encryption.unpepper(
                     match_report.encrypted)))
         self.assertEqual(decrypted_report['identifier'], identifier)
         self.assertEqual(decrypted_report['perp_name'], perp_name)
@@ -106,7 +106,7 @@ class MatchReportMigrationTest(MigrationTest):
             email='email1@example.com',
             phone='555-555-1212')
         salt = get_random_string()
-        encrypted_report = security.pepper(
+        encrypted_report = encryption.pepper(
             _legacy_encrypt_report(
                 salt, identifier, json.dumps(
                     report_content.__dict__)))

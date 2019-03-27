@@ -9,7 +9,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
-from . import hashers, model_helpers, security, utils
+from . import encryption, model_helpers, utils
 
 logger = logging.getLogger(__name__)
 
@@ -73,10 +73,10 @@ class Report(models.Model):
         if not (self.encode_prefix or self.salt):
             key = self.encryption_setup(passphrase)
         else:
-            _, key = hashers.make_key(
+            _, key = encryption.make_key(
                 self.encode_prefix, passphrase, self.salt)
 
-        record_data_string = security.decrypt_text(key, self.encrypted)
+        record_data_string = encryption.decrypt_text(key, self.encrypted)
 
         try:
             decrypted_data = json.loads(record_data_string)
@@ -95,7 +95,7 @@ class Report(models.Model):
         '''Generates and stores a random salt'''
         if self.salt:
             self.salt = None
-        hasher = hashers.get_hasher()
+        hasher = encryption.get_hasher()
         encoded = hasher.encode(passphrase, get_random_string())
         self.encode_prefix, key = hasher.split_encoded(encoded)
         self.save()
@@ -133,7 +133,7 @@ class Report(models.Model):
         store user decryptable data and 500 the request on fails
         '''
         key = self.encryption_setup(passphrase)
-        self.encrypted = security.encrypt_text(key, json.dumps(record_data))
+        self.encrypted = encryption.encrypt_text(key, json.dumps(record_data))
 
     def _store_for_callisto_decryption(
         self,
@@ -199,15 +199,15 @@ class MatchReport(models.Model):
         '''
         if self.salt:
             self.salt = None
-        hasher = hashers.get_hasher()
+        hasher = encryption.get_hasher()
         salt = get_random_string()
 
         encoded = hasher.encode(identifier, salt)
         self.encode_prefix, stretched_identifier = hasher.split_encoded(
             encoded)
 
-        self.encrypted = security.pepper(
-            security.encrypt_text(stretched_identifier, report_text),
+        self.encrypted = encryption.pepper(
+            encryption.encrypt_text(stretched_identifier, report_text),
         )
         self.save()
 
@@ -221,15 +221,15 @@ class MatchReport(models.Model):
         '''
         decrypted_report = None
 
-        prefix, stretched_identifier = hashers.make_key(
+        prefix, stretched_identifier = encryption.make_key(
             self.encode_prefix,
             identifier,
             self.salt,
         )
         try:
-            decrypted_report = security.decrypt_text(
+            decrypted_report = encryption.decrypt_text(
                 stretched_identifier,
-                security.unpepper(self.encrypted),
+                encryption.unpepper(self.encrypted),
             )
         except CryptoError:
             pass

@@ -51,8 +51,8 @@ django settings.py minimum requirements
 
     # encryption handling
     KEY_HASHERS = [
-        "callisto_core.delivery.hashers.Argon2KeyHasher",
-        "callisto_core.delivery.hashers.PBKDF2KeyHasher"
+        "callisto_core.delivery.encryption.Argon2KeyHasher",
+        "callisto_core.delivery.encryption.PBKDF2KeyHasher"
     ]
 
     CALLISTO_EVAL_PUBLIC_KEY
