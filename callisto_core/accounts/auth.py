@@ -21,7 +21,7 @@ class EncryptedBackend:
 
     def authenticate(self, request, username, password):
         for user in Account.objects.find(username_index=index(username)):
-            if not user or if not bcrypt.checkpw(username, user.encrypted_username):
+            if not user or not bcrypt.checkpw(username, user.encrypted_username):
                 return None
 
             if not check_password(password, user.user.password):
