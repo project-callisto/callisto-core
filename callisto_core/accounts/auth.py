@@ -22,14 +22,17 @@ class EncryptedBackend:
     """Authenticates against encrypted credentials stored in the DB."""
 
     def authenticate(self, request, username, password):
-        for user in Account.objects.find(username_index=index(username)):
-            if not user or not bcrypt.checkpw(username, user.encrypted_username):
+        # TODO: do this in the frontend
+        username = sha256(username.encode('utf-8')).hexdigest()
+        username_index = index(username)
+        for user in Account.objects.filter(username_index=username_index):
+            if not user or not bcrypt.checkpw(username.encode('utf-8'), user.encrypted_username.encode('utf-8')):
                 return None
 
             if not check_password(password, user.user.password):
                 return None
 
-            return user
+            return self.get_user(user.user.id)
         return None
 
     def get_user(self, user_id):
