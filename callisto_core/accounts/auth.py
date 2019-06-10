@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 from hashlib import sha256
 
+import bcrypt
+
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
-
-import bcrypt
 
 from callisto_core.accounts.models import Account
 
