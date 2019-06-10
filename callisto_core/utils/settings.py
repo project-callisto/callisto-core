@@ -179,3 +179,7 @@ CELERY_BROKER_BACKEND = 'memory'
 CELERY_BROKER_URL = 'memory://'
 
 MAILGUN_API_KEY = os.getenv('MAILGUN_API_KEY', default='')
+
+AUTHENTICATION_BACKEND = [
+    'callisto_core.accounts.auth.EncryptedBackend',
+]
