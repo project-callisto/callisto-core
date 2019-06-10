@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.24.6 (2019-06-10)
+
+- Removed duplicate create site call from account creation tests
+
 ## 0.24.5 (2018-10-09)
 
 - updated package requirements
