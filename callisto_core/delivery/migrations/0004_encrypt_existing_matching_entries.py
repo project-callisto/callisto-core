@@ -9,8 +9,8 @@ from django.conf import settings
 from django.db import migrations
 from django.utils.crypto import get_random_string, pbkdf2
 
-from ...reporting.report_delivery import MatchReportContent
 from .. import security
+from ...reporting.report_delivery import MatchReportContent
 
 
 def encrypt_match_report(apps, schema_editor):
