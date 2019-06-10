@@ -32,6 +32,7 @@ install:
 - pip install -r callisto_core/requirements/test.txt --upgrade
 - pip install $DJANGO_VERSION
 script:
+- export INDEXING_KEY=thisisatest
 - make test
 after_success:
 - python setup.py tag
