@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 from hashlib import sha256
 
 import bcrypt
@@ -22,8 +22,6 @@ class EncryptedBackend:
     """Authenticates against encrypted credentials stored in the DB."""
 
     def authenticate(self, request, username, password):
-        # TODO: do this in the frontend
-        username = sha256(username.lower().encode('utf-8')).hexdigest()
         username_index = index(username)
         for user in Account.objects.filter(username_index=username_index):
             if not user or not bcrypt.checkpw(username.encode('utf-8'), user.encrypted_username.encode('utf-8')):
