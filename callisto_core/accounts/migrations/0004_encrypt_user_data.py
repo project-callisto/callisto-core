@@ -18,7 +18,7 @@ def encrypt_user_data(apps, schema_editor):
 
         # sha256 + bcrypt matches our current state of the art in other
         # platforms.
-        userhash = sha256(username.encode('utf-8')).hexdigest()
+        userhash = sha256(username.lower().encode('utf-8')).hexdigest()
         usercrypt = bcrypt.hashpw(userhash.encode('utf-8'), bcrypt.gensalt())
         userindex = index(userhash)
 
@@ -29,7 +29,7 @@ def encrypt_user_data(apps, schema_editor):
         if email:
             # sha256 + bcrypt matches our current state of the art in other
             # platforms.
-            emailhash = sha256(email.encode('utf-8')).hexdigest()
+            emailhash = sha256(email.lower().encode('utf-8')).hexdigest()
             emailcrypt = bcrypt.hashpw(emailhash.encode('utf-8'), bcrypt.gensalt())
             emailindex = index(emailhash)
 
