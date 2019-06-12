@@ -1,6 +1,6 @@
 # History / Changelog
 
-## 0.25 (2019-06-12)
+## 0.25.0 (2019-06-12)
 
 - Use encrypted backend instead of plaintext usernames/emails
 
