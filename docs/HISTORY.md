@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.25 (2019-06-12)
+
+- Use encrypted backend instead of plaintext usernames/emails
+
 ## 0.24.6 (2019-06-10)
 
 - Removed duplicate create site call from account creation tests
