@@ -33,7 +33,7 @@ test-suite:
 	pytest -vls callisto_core/ --ignore=callisto_core/tests/delivery/test_frontend.py
 
 test-integrated:
-	python manage.py test callisto_core/tests/delivery/test_frontend.py
+	pytest -vls callisto_core/tests/delivery/test_frontend.py
 
 test-fast: ## runs the test suite, with fast failures and a re-used database
 	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/tests/test_frontend.py

@@ -151,7 +151,6 @@ class EncryptedFrontendTest(
             cls.browser.quit()
         except (AttributeError, OSError):
             pass  # brower has already been quit!
-        super().tearDownClass()
 
     def wait_for_until_body_loaded(self):
         WebDriverWait(self.browser, 3).until(
