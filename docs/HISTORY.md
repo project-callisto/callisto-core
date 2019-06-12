@@ -1,10 +1,14 @@
 # History / Changelog
 
-## 0.24.6 (2019-06-12)
+## 0.24.7 (2019-06-12)
 
  - Updated PDF generation to remove "intended for" line
 
-## 0.24.5 (2019-06-10)
+## 0.24.6 (2019-06-10)
+
+- Removed duplicate create site call from account creation tests
+
+## 0.24.5 (2018-10-09)
 
 - updated package requirements
 - set the default LOG_LEVEL to INFO from DEBUG
