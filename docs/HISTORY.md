@@ -4,6 +4,10 @@
 
 - Use encrypted backend instead of plaintext usernames/emails
 
+## 0.24.7 (2019-06-12)
+
+ - Updated PDF generation to remove "intended for" line
+
 ## 0.24.6 (2019-06-10)
 
 - Removed duplicate create site call from account creation tests
