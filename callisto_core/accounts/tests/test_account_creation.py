@@ -24,7 +24,6 @@ class AccountEmailParsingTest(ReportFlowTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        Site.objects.create(id=2)
         BulkAccount.objects.create(
             emails='tech@projectcallisto.org',
             site_id=2,
@@ -118,7 +117,6 @@ class AccountEmailTest(ReportFlowTestCase):
 
     @skip('skip pending NotificationApi update')
     def test_gets_account_activation_email(self):
-        Site.objects.create(id=2)
         BulkAccount.objects.create(
             emails='tech@projectcallisto.org',
             site_id=2,
@@ -130,7 +128,6 @@ class AccountEmailTest(ReportFlowTestCase):
         )
 
     def test_can_activate_account(self):
-        Site.objects.create(id=2)
         BulkAccount.objects.create(
             emails='tech@projectcallisto.org',
             site_id=2,
