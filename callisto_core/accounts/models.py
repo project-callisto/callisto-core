@@ -21,6 +21,12 @@ class Account(models.Model):
     invalid = models.BooleanField(default=False)
     site_id = models.PositiveSmallIntegerField(blank=False)
 
+    encrypted_username = models.CharField(default=False, max_length=255)
+    username_index = models.CharField(default=False, max_length=255)
+
+    encrypted_email = models.CharField(default=False, max_length=255)
+    email_index = models.CharField(default=False, max_length=255)
+
 
 class BulkAccount(models.Model):
     emails = models.TextField()
