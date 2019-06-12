@@ -108,9 +108,9 @@ class CallistoCoreNotificationApi(object):
         CoverPage.append(Spacer(1, 40))
         CoverPage.append(Paragraph(title, subtitle_style))
         CoverPage.append(Spacer(1, 40))
-        paragraph = Paragraph(
-            f"Intended for: {recipient}, Title IX Coordinator", subtitle_style)
-        CoverPage.append(paragraph)
+        # paragraph = Paragraph(
+        #     f"Intended for: {recipient}, Title IX Coordinator", subtitle_style)
+        # CoverPage.append(paragraph)
         CoverPage.append(PageBreak())
         return CoverPage
 
