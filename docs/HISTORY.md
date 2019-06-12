@@ -1,6 +1,10 @@
 # History / Changelog
 
-## 0.24.5 (2018-10-09)
+## 0.24.6 (2019-06-12)
+
+ - Updated PDF generation to remove "intended for" line
+
+## 0.24.5 (2019-06-10)
 
 - updated package requirements
 - set the default LOG_LEVEL to INFO from DEBUG
