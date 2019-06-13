@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.25.0 (2019-06-12)
+
+- Use encrypted backend instead of plaintext usernames/emails
+
 ## 0.24.7 (2019-06-12)
 
 - Updated PDF generation to remove "intended for" line
