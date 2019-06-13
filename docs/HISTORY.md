@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.25.1 (2019-06-12)
+
+- Bumping to 0.25.1 due to PyPi issues
+
 ## 0.25.0 (2019-06-12)
 
 - Use encrypted backend instead of plaintext usernames/emails
