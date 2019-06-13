@@ -1,6 +1,8 @@
 # pypi
+setuptools
 wheel
 pypandoc
+twine
 
 # linting
 autopep8
