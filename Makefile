@@ -44,6 +44,7 @@ test: ## run the linters and the test suite
 	make test-integrated
 
 release: ## package and upload a release
+	make clean
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
 	python setup.py tag
