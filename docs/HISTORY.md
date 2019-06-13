@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.25.2 (2019-06-13)
+
+- Enabled EncryptedBackend for tests (if enabled)
+
 ## 0.25.1 (2019-06-12)
 
 - Bumping to 0.25.1 due to PyPi issues
