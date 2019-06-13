@@ -34,7 +34,6 @@ class ReportPostHelper(object):
             from hashlib import sha256
             import bcrypt
             from callisto_core.accounts.auth import index
-            from callisto_core.accounts.models import Account
 
             userhash = sha256(self.username.lower().encode('utf-8')).hexdigest()
             usercrypt = bcrypt.hashpw(userhash.encode('utf-8'), bcrypt.gensalt())
@@ -272,7 +271,6 @@ class ReportFlowHelper(
             from hashlib import sha256
             import bcrypt
             from callisto_core.accounts.auth import index
-            from callisto_core.accounts.models import Account
 
             userhash = sha256(username.lower().encode('utf-8')).hexdigest()
             usercrypt = bcrypt.hashpw(userhash.encode('utf-8'), bcrypt.gensalt())
