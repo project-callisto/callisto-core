@@ -177,7 +177,7 @@ class _ReportAccessPartial(
     def _passphrase_next_url(self, request):
         next_url = None
         if 'next' in request.GET:
-            if re.search('^/[\W/-]*', request.GET['next']):
+            if re.search(r'^/[\W/-]*', request.GET['next']):
                 next_url = request.GET['next']
         return next_url
 

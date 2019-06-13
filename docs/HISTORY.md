@@ -2,7 +2,7 @@
 
 ## 0.24.7 (2019-06-12)
 
- - Updated PDF generation to remove "intended for" line
+- Updated PDF generation to remove "intended for" line
 
 ## 0.24.6 (2019-06-10)
 
