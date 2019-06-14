@@ -1,6 +1,6 @@
 # History / Changelog
 
-## 0.25.1 (2019-06-14)
+## 0.25.3 (2019-06-14)
 
 - Update to cut through Django middleware to directly render PDF
 
