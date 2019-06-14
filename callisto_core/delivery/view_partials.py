@@ -38,6 +38,7 @@ from callisto_core.evaluation.view_partials import EvalDataMixin
 from callisto_core.reporting import report_delivery
 from callisto_core.wizard_builder import (
     view_partials as wizard_builder_partials,
+    data_helper
 )
 
 from . import forms, models, view_helpers
@@ -154,9 +155,14 @@ class _ReportAccessPartial(
     @property
     def access_granted(self):
         self._check_report_owner()
-        if self.storage.passphrase:
+        try:
+            passphrase = self.request.POST["key"]
+        except Exception:
+            return False
+
+        if passphrase:
             try:
-                self.decrypted_report
+                self.storage.report.decrypt_record(passphrase)
                 return True
             except CryptoError:
                 logger.warn(self.invalid_access_key_message)
@@ -286,9 +292,13 @@ class WizardPDFPartial(
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = self.content_disposition + \
             '; filename="report.pdf"'
+
+        data = self.report.decrypt_record(self.request.POST["key"])
+        data = data_helper.SerializedDataHelper.get_zipped_data(data["data"], data["wizard_form_serialized"])
+
         response.write(report_delivery.report_as_pdf(
             report=self.report,
-            data=self.storage.cleaned_form_data,
+            data=data,
             recipient=None,
         ))
         return response

@@ -316,6 +316,7 @@ class ConfirmationPartial(
             'to_addresses': [self.coordinator_emails],
             'public_key': self.coordinator_public_key,
         }
+        print(kwargs)
         if self.in_demo_mode:
             kwargs['DEMO_MODE'] = True
             kwargs['to_addresses'] += self.all_user_emails
