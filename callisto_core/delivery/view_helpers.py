@@ -55,11 +55,11 @@ class ReportStorageHelper(
         return self.report.decrypt_record(passphrase)
 
     def set_passphrase(self, key, report=None):
-        #self.passphrase = key
+        # self.passphrase = key
         pass
 
     def clear_passphrases(self):
-        #self.passphrase = ''
+        # self.passphrase = ''
         pass
 
 
