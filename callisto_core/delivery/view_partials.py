@@ -37,8 +37,7 @@ from django.views import generic as views
 from callisto_core.evaluation.view_partials import EvalDataMixin
 from callisto_core.reporting import report_delivery
 from callisto_core.wizard_builder import (
-    view_partials as wizard_builder_partials,
-    data_helper
+    data_helper, view_partials as wizard_builder_partials,
 )
 
 from . import forms, models, view_helpers
