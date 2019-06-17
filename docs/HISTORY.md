@@ -1,12 +1,25 @@
 # History / Changelog
 
+
 ## 0.25.3 (2019-06-14)
 
 - Update to cut through Django middleware to directly render PDF
 
+## 0.25.2 (2019-06-13)
+
+- Enabled EncryptedBackend for tests (if enabled)
+
+## 0.25.1 (2019-06-12)
+
+- Bumping to 0.25.1 due to PyPi issues
+
 ## 0.25.0 (2019-06-12)
 
 - Use encrypted backend instead of plaintext usernames/emails
+
+## 0.24.7 (2019-06-12)
+
+- Updated PDF generation to remove "intended for" line
 
 ## 0.24.6 (2019-06-10)
 

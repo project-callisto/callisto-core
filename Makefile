@@ -45,10 +45,9 @@ test: ## run the linters and the test suite
 
 release: ## package and upload a release
 	make clean
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+	python setup.py sdist bdist_wheel
+	twine upload dist/*
 	python setup.py tag
-	make clean
 
 osx-install:
 	brew install git pyenv postgres chromedriver
