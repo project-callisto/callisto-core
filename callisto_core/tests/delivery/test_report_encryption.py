@@ -1,5 +1,7 @@
 import json
 
+from unittest import skip
+
 import gnupg
 
 from django.test import TestCase, override_settings
@@ -10,7 +12,7 @@ from callisto_core.tests.test_base import (
     ReportFlowHelper as ReportFlowTestCase,
 )
 
-
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class ReportEncryptionTest(
     ReportFlowTestCase,
 ):
@@ -27,6 +29,7 @@ class ReportEncryptionTest(
         self.client_post_report_pdf_view()
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class ReportGPGEncryptionTest(
     TestCase,
 ):
@@ -44,6 +47,7 @@ class ReportGPGEncryptionTest(
         self.assertEqual(data, {'rawr': 'cats'})
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class HistoricalSavingTest(ReportFlowTestCase):
 
     def test_multiple_historical_records_saved(self):
