@@ -11,6 +11,7 @@ from callisto_core.tests import test_base
 from callisto_core.wizard_builder.forms import PageForm
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class LegacyStorageFormatTest(
     test_base.ReportFlowHelper,
 ):
@@ -46,6 +47,7 @@ class LegacyStorageFormatTest(
         self.assertFalse(storage.get('wizard_form_data', False))
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class NewReportFlowTest(test_base.ReportFlowHelper):
 
     def test_report_creation_renders_create_form(self):
@@ -124,6 +126,7 @@ class NewReportFlowTest(test_base.ReportFlowHelper):
         self.assertIsInstance(form, forms.ReportAccessForm)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class ReportMetaFlowTest(test_base.ReportFlowHelper):
 
     def test_report_action_passthrough_request(self):

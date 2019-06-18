@@ -1,5 +1,10 @@
 # History / Changelog
 
+
+## 0.25.3 (2019-06-14)
+
+- Update to cut through Django middleware to directly render PDF
+
 ## 0.25.2 (2019-06-13)
 
 - Enabled EncryptedBackend for tests (if enabled)

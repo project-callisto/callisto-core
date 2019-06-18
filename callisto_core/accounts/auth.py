@@ -22,6 +22,7 @@ class EncryptedBackend:
     """Authenticates against encrypted credentials stored in the DB."""
 
     def authenticate(self, request, username, password):
+        username = sha256(username.encode('utf-8')).hexdigest()
         username_index = index(username)
         for user in Account.objects.filter(username_index=username_index):
             if not user or not bcrypt.checkpw(username.encode('utf-8'), user.encrypted_username.encode('utf-8')):

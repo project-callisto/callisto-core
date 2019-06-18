@@ -41,11 +41,7 @@ class ReportStorageHelper(
     def __init__(self, view):
         self.view = view  # TODO: scope down input
 
-    @property
-    def passphrase(self) -> str:
-        passphrases = self.view.request.session.get('passphrases', {})
-        passphrase = passphrases.get(str(self.report.uuid), '')
-        return passphrase
+    passphrase = ''
 
     @property
     def report(self):
@@ -54,20 +50,17 @@ class ReportStorageHelper(
         except BaseException:
             return _MockReport
 
-    @property
-    def decrypted_report(self) -> dict:
-        return self.report.decrypt_record(self.passphrase)
+    def decrypt_report(self, passphrase) -> dict:
+        self.passphrase = passphrase
+        return self.report.decrypt_record(passphrase)
 
     def set_passphrase(self, key, report=None):
-        if not report:
-            report = self.report
-        passphrases = self.view.request.session.get('passphrases', {})
-        passphrases[str(report.uuid)] = key
-        self.view.request.session['passphrases'] = passphrases
+        # self.passphrase = key
+        pass
 
     def clear_passphrases(self):
-        if self.view.request.session.get('passphrases'):
-            del self.view.request.session['passphrases']
+        # self.passphrase = ''
+        pass
 
 
 class _LegacyReportStorageHelper(

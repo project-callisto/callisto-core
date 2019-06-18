@@ -1,5 +1,7 @@
 import json
 
+from unittest import skip
+
 import gnupg
 
 from django.test import override_settings
@@ -12,6 +14,7 @@ from callisto_core.tests.test_base import (
 )
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class EvalViewTest(ReportFlowTestCase):
 
     def test_some_eval_rows_created(self):
