@@ -1,5 +1,14 @@
 # History / Changelog
 
+## 0.25.6 (2019-06-19)
+
+- Updates to the PDF copy
+- Changed the PDF filename
+
+## 0.25.5 (2019-06-19)
+
+- Removed title from PDF
+
 ## 0.25.4 (2019-06-19)
 
 - Updates to the PDF copy
