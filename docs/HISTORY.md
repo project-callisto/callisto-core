@@ -1,5 +1,8 @@
 # History / Changelog
 
+## 0.25.4 (2019-06-19)
+
+- Updates to the PDF copy
 
 ## 0.25.3 (2019-06-14)
 
