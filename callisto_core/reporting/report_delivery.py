@@ -384,7 +384,7 @@ class PDFFullReport(
         self.pdf_elements.extend(self.report_page(self.report))
         self.pdf_elements.append(
             Paragraph(
-                "Report Questions",
+                "Record Questions",
                 self.section_title_style))
         self.render_questions(self.report_data)
 

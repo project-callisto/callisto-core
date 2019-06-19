@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 class CallistoCoreNotificationApi(object):
 
-    report_filename = "callisto_report_{0}.pdf.gpg"
+    report_filename = "callisto_record_{0}.pdf.gpg"
     report_title = 'Callisto Record'
     logo_path = '../../assets/callisto_logo.png'
 
