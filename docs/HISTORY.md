@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.25.7 (2019-06-19)
+
+- Changed the PDF filename's MIME
+
 ## 0.25.6 (2019-06-19)
 
 - Updates to the PDF copy
