@@ -290,7 +290,7 @@ class WizardPDFPartial(
         super().form_valid(form)
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = self.content_disposition + \
-            '; filename="report.pdf"'
+            '; filename="record.pdf"'
 
         data = self.report.decrypt_record(self.request.POST["key"])
         data = data_helper.SerializedDataHelper.get_zipped_data(data["data"], data["wizard_form_serialized"])
