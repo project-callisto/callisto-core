@@ -9,31 +9,25 @@ import callisto_core.wizard_builder.model_helpers
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0037_auto_20171028_0142'),
-    ]
+    dependencies = [("wizard_builder", "0037_auto_20171028_0142")]
 
     operations = [
         migrations.CreateModel(
-            name='Checkbox',
+            name="Checkbox",
             fields=[],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
+            options={"proxy": True, "indexes": []},
             bases=(
                 callisto_core.wizard_builder.model_helpers.ProxyQuestion,
-                'wizard_builder.formquestion'),
+                "wizard_builder.formquestion",
+            ),
         ),
         migrations.CreateModel(
-            name='RadioButton',
+            name="RadioButton",
             fields=[],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
+            options={"proxy": True, "indexes": []},
             bases=(
                 callisto_core.wizard_builder.model_helpers.ProxyQuestion,
-                'wizard_builder.formquestion'),
+                "wizard_builder.formquestion",
+            ),
         ),
     ]

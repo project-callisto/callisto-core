@@ -7,24 +7,16 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0010_remove_pagebase_attrs'),
-    ]
+    dependencies = [("wizard_builder", "0010_remove_pagebase_attrs")]
 
     operations = [
         migrations.RenameField(
-            model_name='questionpage',
-            old_name='new_position',
-            new_name='position',
+            model_name="questionpage", old_name="new_position", new_name="position"
         ),
         migrations.RenameField(
-            model_name='questionpage',
-            old_name='new_section',
-            new_name='section',
+            model_name="questionpage", old_name="new_section", new_name="section"
         ),
         migrations.RenameField(
-            model_name='questionpage',
-            old_name='new_sites',
-            new_name='sites',
+            model_name="questionpage", old_name="new_sites", new_name="sites"
         ),
     ]

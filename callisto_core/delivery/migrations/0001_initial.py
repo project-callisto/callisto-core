@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -24,124 +24,150 @@ class Migration(migrations.Migration):
         #     ],
         # ),
         migrations.CreateModel(
-            name='MatchReport',
+            name="MatchReport",
             fields=[
-                ('id', models.AutoField(verbose_name='ID',
-                                        primary_key=True, serialize=False, auto_created=True)),
-                ('contact_phone', models.CharField(max_length=256)),
-                ('contact_voicemail', models.TextField(null=True, blank=True)),
-                ('contact_name', models.TextField(null=True, blank=True)),
-                ('contact_email', models.EmailField(max_length=256)),
-                ('contact_notes', models.TextField(null=True, blank=True)),
-                ('identifier', models.CharField(max_length=500)),
-                ('name', models.CharField(null=True, max_length=500, blank=True)),
-                ('added', models.DateTimeField(auto_now_add=True)),
-                ('seen', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        primary_key=True,
+                        serialize=False,
+                        auto_created=True,
+                    ),
+                ),
+                ("contact_phone", models.CharField(max_length=256)),
+                ("contact_voicemail", models.TextField(null=True, blank=True)),
+                ("contact_name", models.TextField(null=True, blank=True)),
+                ("contact_email", models.EmailField(max_length=256)),
+                ("contact_notes", models.TextField(null=True, blank=True)),
+                ("identifier", models.CharField(max_length=500)),
+                ("name", models.CharField(null=True, max_length=500, blank=True)),
+                ("added", models.DateTimeField(auto_now_add=True)),
+                ("seen", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='Report',
+            name="Report",
             fields=[
-                ('id', models.AutoField(verbose_name='ID',
-                                        primary_key=True, serialize=False, auto_created=True)),
-                ('encrypted', models.BinaryField()),
-                ('added', models.DateTimeField(auto_now_add=True)),
-                ('last_edited', models.DateTimeField(null=True, blank=True)),
-                ('salt', models.CharField(max_length=256)),
-                ('submitted_to_school', models.DateTimeField(null=True, blank=True)),
-                ('contact_phone', models.CharField(
-                    null=True, max_length=256, blank=True)),
-                ('contact_voicemail', models.TextField(null=True, blank=True)),
-                ('contact_email', models.EmailField(
-                    null=True, max_length=256, blank=True)),
-                ('contact_notes', models.TextField(null=True, blank=True)),
-                ('contact_name', models.TextField(null=True, blank=True)),
-                ('match_found', models.BooleanField(default=False)),
-                ('owner', models.ForeignKey(
-                    to=settings.AUTH_USER_MODEL,
-                    on_delete=django.db.models.deletion.SET_NULL,
-                )),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        primary_key=True,
+                        serialize=False,
+                        auto_created=True,
+                    ),
+                ),
+                ("encrypted", models.BinaryField()),
+                ("added", models.DateTimeField(auto_now_add=True)),
+                ("last_edited", models.DateTimeField(null=True, blank=True)),
+                ("salt", models.CharField(max_length=256)),
+                ("submitted_to_school", models.DateTimeField(null=True, blank=True)),
+                (
+                    "contact_phone",
+                    models.CharField(null=True, max_length=256, blank=True),
+                ),
+                ("contact_voicemail", models.TextField(null=True, blank=True)),
+                (
+                    "contact_email",
+                    models.EmailField(null=True, max_length=256, blank=True),
+                ),
+                ("contact_notes", models.TextField(null=True, blank=True)),
+                ("contact_name", models.TextField(null=True, blank=True)),
+                ("match_found", models.BooleanField(default=False)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        to=settings.AUTH_USER_MODEL,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                    ),
+                ),
             ],
-            options={
-                'ordering': ('-added',),
-            },
+            options={"ordering": ("-added",)},
         ),
         migrations.CreateModel(
-            name='SentReport',
+            name="SentReport",
             fields=[
-                ('id', models.AutoField(verbose_name='ID',
-                                        primary_key=True, serialize=False, auto_created=True)),
-                ('sent', models.DateTimeField(auto_now_add=True)),
-                ('to_address', models.EmailField(max_length=256)),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        primary_key=True,
+                        serialize=False,
+                        auto_created=True,
+                    ),
+                ),
+                ("sent", models.DateTimeField(auto_now_add=True)),
+                ("to_address", models.EmailField(max_length=256)),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='SentFullReport',
+            name="SentFullReport",
             fields=[
-                ('sentreport_ptr',
-                 models.OneToOneField(
-                     to='delivery.SentReport',
-                     primary_key=True,
-                     auto_created=True,
-                     serialize=False,
-                     parent_link=True,
-                     on_delete=django.db.models.deletion.SET_NULL,
-                 )),
-                ('report', models.ForeignKey(
-                    to='delivery.Report',
-                    blank=True,
-                    on_delete=django.db.models.deletion.SET_NULL,
-                    null=True,
-                )),
+                (
+                    "sentreport_ptr",
+                    models.OneToOneField(
+                        to="delivery.SentReport",
+                        primary_key=True,
+                        auto_created=True,
+                        serialize=False,
+                        parent_link=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                    ),
+                ),
+                (
+                    "report",
+                    models.ForeignKey(
+                        to="delivery.Report",
+                        blank=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        null=True,
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
-            bases=('delivery.sentreport',),
+            options={"abstract": False},
+            bases=("delivery.sentreport",),
         ),
         migrations.CreateModel(
-            name='SentMatchReport',
+            name="SentMatchReport",
             fields=[
-                ('sentreport_ptr',
-                 models.OneToOneField(
-                     to='delivery.SentReport',
-                     primary_key=True,
-                     auto_created=True,
-                     serialize=False,
-                     parent_link=True,
-                     on_delete=django.db.models.deletion.SET_NULL,
-                 )),
+                (
+                    "sentreport_ptr",
+                    models.OneToOneField(
+                        to="delivery.SentReport",
+                        primary_key=True,
+                        auto_created=True,
+                        serialize=False,
+                        parent_link=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                    ),
+                )
             ],
-            options={
-                'abstract': False,
-            },
-            bases=('delivery.sentreport',),
+            options={"abstract": False},
+            bases=("delivery.sentreport",),
         ),
         migrations.AddField(
-            model_name='sentreport',
-            name='polymorphic_ctype',
+            model_name="sentreport",
+            name="polymorphic_ctype",
             field=models.ForeignKey(
-                to='contenttypes.ContentType',
+                to="contenttypes.ContentType",
                 null=True,
-                related_name='polymorphic_delivery.sentreport_set+',
+                related_name="polymorphic_delivery.sentreport_set+",
                 editable=False,
                 on_delete=django.db.models.deletion.SET_NULL,
             ),
         ),
         migrations.AddField(
-            model_name='matchreport',
-            name='report',
+            model_name="matchreport",
+            name="report",
             field=models.ForeignKey(
-                to='delivery.Report',
-                on_delete=django.db.models.deletion.SET_NULL,
+                to="delivery.Report", on_delete=django.db.models.deletion.SET_NULL
             ),
         ),
         migrations.AddField(
-            model_name='sentmatchreport',
-            name='reports',
-            field=models.ManyToManyField(to='delivery.MatchReport'),
+            model_name="sentmatchreport",
+            name="reports",
+            field=models.ManyToManyField(to="delivery.MatchReport"),
         ),
     ]

@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0015_matchreport_identifier'),
-    ]
+    dependencies = [("delivery", "0015_matchreport_identifier")]
 
     operations = [
         migrations.AlterField(
-            model_name='report',
-            name='contact_voicemail',
+            model_name="report",
+            name="contact_voicemail",
             field=models.TextField(default=True),
-        ),
+        )
     ]

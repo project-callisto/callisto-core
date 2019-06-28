@@ -10,13 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class FormManager(object):
-
     @classmethod
     def get_serialized_forms(cls, site_id=1):
-        return [
-            form.serialized
-            for form in cls.get_form_models(site_id=site_id)
-        ]
+        return [form.serialized for form in cls.get_form_models(site_id=site_id)]
 
     @classmethod
     def get_form_models(cls, form_data={}, answer_data={}, site_id=1):
@@ -30,10 +26,7 @@ class FormManager(object):
 
     def _get_form_data_from_db(self):
         return [
-            [
-                question.serialized
-                for question in page.site_questions(self.site_id)
-            ]
+            [question.serialized for question in page.site_questions(self.site_id)]
             for page in models.Page.objects.on_site(self.site_id)
         ]
 
@@ -52,15 +45,12 @@ class FormManager(object):
 
 
 class PageQuerySet(QuerySet):
-
     def on_site(self, site_id=None):
         try:
             site_id = site_id or Site.objects.get_current().id
         except Site.DoesNotExist:
             site_id = 1
-        return self.filter(
-            formquestion__sites__id__in=[site_id],
-        ).distinct()
+        return self.filter(formquestion__sites__id__in=[site_id]).distinct()
 
 
 class PageManager(Manager):

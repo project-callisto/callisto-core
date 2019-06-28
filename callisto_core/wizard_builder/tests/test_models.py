@@ -5,13 +5,17 @@ from django.test import TestCase
 
 from .. import mocks, models
 from ..models import (
-    Checkbox, Choice, ChoiceOption, FormQuestion, Page, RadioButton,
+    Checkbox,
+    Choice,
+    ChoiceOption,
+    FormQuestion,
+    Page,
+    RadioButton,
     SingleLineText,
 )
 
 
 class PageTest1(TestCase):
-
     def test_page_can_have_position(self):
         Page.objects.create()
         page = Page.objects.create(position=10)
@@ -39,22 +43,15 @@ class PageTest1(TestCase):
 
 
 class ItemTestCase(TestCase):
-
     def setUp(self):
         self.page = Page.objects.create()
 
 
 class FormQuestionModelTest(ItemTestCase):
-
     def test_question_text_serializes_correctly(self):
-        question = FormQuestion.objects.create(
-            text='This is a question to be answered',
-        )
+        question = FormQuestion.objects.create(text="This is a question to be answered")
         serialized_q = question.serialized
-        self.assertEqual(
-            serialized_q['question_text'],
-            question.text,
-        )
+        self.assertEqual(serialized_q["question_text"], question.text)
 
     def test_questions_have_position(self):
         SingleLineText.objects.create(text="some question")
@@ -66,34 +63,24 @@ class FormQuestionModelTest(ItemTestCase):
 
 
 class SingleLineTextModelTestCase(ItemTestCase):
-
     def test_question_text_serializes_correctly(self):
-        question = FormQuestion.objects.create(
-            text='This is a question to be answered',
-        )
+        question = FormQuestion.objects.create(text="This is a question to be answered")
         serialized_q = question.serialized
-        self.assertEqual(
-            serialized_q['question_text'],
-            question.text,
-        )
+        self.assertEqual(serialized_q["question_text"], question.text)
 
 
 class RadioButtonTestCase(ItemTestCase):
-
     def setUp(self):
         super(RadioButtonTestCase, self).setUp()
         self.question = RadioButton.objects.create(
-            text="this is a radio button question")
+            text="this is a radio button question"
+        )
         for i in range(5):
-            Choice.objects.create(
-                text="This is choice %i" %
-                i, question=self.question)
+            Choice.objects.create(text="This is choice %i" % i, question=self.question)
 
     def test_can_retrieve_choices(self):
         self.assertEqual(self.question.choice_set.count(), 5)
-        self.assertEqual(
-            self.question.choice_set.first().text,
-            "This is choice 0")
+        self.assertEqual(self.question.choice_set.first().text, "This is choice 0")
 
     def test_generates_radio_button(self):
         field = mocks.MockQuestion(self.question.serialized).make_field()
@@ -114,49 +101,37 @@ class RadioButtonTestCase(ItemTestCase):
     def test_choices_serialized(self):
         object_ids = [choice.pk for choice in self.question.choice_set.all()]
         serialized_q = self.question.serialized
-        self.assertEqual(type(serialized_q['choices']), list)
-        self.assertTrue(len(serialized_q['choices']))
+        self.assertEqual(type(serialized_q["choices"]), list)
+        self.assertTrue(len(serialized_q["choices"]))
 
     def test_choice_extra_info_serialized(self):
         choice = self.question.choices[0]
-        choice.extra_info_text = 'cats are good'
+        choice.extra_info_text = "cats are good"
         choice.save()
         serialized_q = self.question.serialized
-        self.assertIn('extra_info_text', str(serialized_q))
-        self.assertIn('cats are good', str(serialized_q))
+        self.assertIn("extra_info_text", str(serialized_q))
+        self.assertIn("cats are good", str(serialized_q))
 
     def test_choice_extra_dropdown_serialized(self):
         choice = self.question.choices[0]
-        ChoiceOption.objects.create(
-            text='lizards are cool',
-            choice=choice,
-        )
-        ChoiceOption.objects.create(
-            text='birds can skateboard',
-            choice=choice,
-        )
+        ChoiceOption.objects.create(text="lizards are cool", choice=choice)
+        ChoiceOption.objects.create(text="birds can skateboard", choice=choice)
         serialized_q = self.question.serialized
-        self.assertIn('options', str(serialized_q))
-        self.assertIn('lizards are cool', str(serialized_q))
-        self.assertIn('birds can skateboard', str(serialized_q))
+        self.assertIn("options", str(serialized_q))
+        self.assertIn("lizards are cool", str(serialized_q))
+        self.assertIn("birds can skateboard", str(serialized_q))
 
 
 class CheckboxTestCase(ItemTestCase):
-
     def setUp(self):
         self.page = Page.objects.create()
-        self.question = Checkbox.objects.create(
-            text="this is a checkbox question")
+        self.question = Checkbox.objects.create(text="this is a checkbox question")
         for i in range(5):
-            Choice.objects.create(
-                text="This is choice %i" %
-                i, question=self.question)
+            Choice.objects.create(text="This is choice %i" % i, question=self.question)
 
     def test_can_retrieve_choices(self):
         self.assertEqual(self.question.choice_set.count(), 5)
-        self.assertEqual(
-            self.question.choice_set.first().text,
-            "This is choice 0")
+        self.assertEqual(self.question.choice_set.first().text, "This is choice 0")
 
     def test_generates_checkbox(self):
         field = mocks.MockQuestion(self.question.serialized).make_field()

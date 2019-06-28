@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0013_remove_matchreport_contact_email'),
-    ]
+    dependencies = [("delivery", "0013_remove_matchreport_contact_email")]
 
     operations = [
         migrations.AlterField(
-            model_name='report',
-            name='contact_notes',
-            field=models.TextField(default='No Preference'),
-        ),
+            model_name="report",
+            name="contact_notes",
+            field=models.TextField(default="No Preference"),
+        )
     ]

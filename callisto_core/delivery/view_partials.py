@@ -1,4 +1,4 @@
-'''
+"""
 
 View partials provide all the callisto-core front-end functionality.
 Subclass these partials with your own views if you are implementing
@@ -20,7 +20,7 @@ and should not define:
     - templates
     - url names
 
-'''
+"""
 import logging
 import re
 
@@ -37,7 +37,8 @@ from django.views import generic as views
 from callisto_core.evaluation.view_partials import EvalDataMixin
 from callisto_core.reporting import report_delivery
 from callisto_core.wizard_builder import (
-    data_helper, view_partials as wizard_builder_partials,
+    data_helper,
+    view_partials as wizard_builder_partials,
 )
 
 from . import forms, models, view_helpers
@@ -50,9 +51,7 @@ logger = logging.getLogger(__name__)
 #######################
 
 
-class _PassphrasePartial(
-    views.base.TemplateView,
-):
+class _PassphrasePartial(views.base.TemplateView):
     storage_helper = view_helpers.ReportStorageHelper
 
     @property
@@ -60,20 +59,14 @@ class _PassphrasePartial(
         return self.storage_helper(self)
 
 
-class _PassphraseClearingPartial(
-    EvalDataMixin,
-    _PassphrasePartial,
-):
-
+class _PassphraseClearingPartial(EvalDataMixin, _PassphrasePartial):
     def get(self, request, *args, **kwargs):
         self.storage.clear_passphrases()
         return super().get(request, *args, **kwargs)
 
 
-class DashboardPartial(
-    _PassphraseClearingPartial,
-):
-    EVAL_ACTION_TYPE = 'DASHBOARD'
+class DashboardPartial(_PassphraseClearingPartial):
+    EVAL_ACTION_TYPE = "DASHBOARD"
 
 
 ###################
@@ -81,13 +74,10 @@ class DashboardPartial(
 ###################
 
 
-class ReportBasePartial(
-    EvalDataMixin,
-    wizard_builder_partials.WizardFormPartial,
-):
+class ReportBasePartial(EvalDataMixin, wizard_builder_partials.WizardFormPartial):
     model = models.Report
     storage_helper = view_helpers.EncryptedReportStorageHelper
-    EVAL_ACTION_TYPE = 'VIEW'
+    EVAL_ACTION_TYPE = "VIEW"
 
     @property
     def site_id(self):
@@ -100,33 +90,22 @@ class ReportBasePartial(
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update({
-            'view': self,  # TODO: remove
-        })
+        kwargs.update({"view": self})  # TODO: remove
         return kwargs
 
 
-class ReportCreatePartial(
-    ReportBasePartial,
-    views.edit.CreateView,
-):
+class ReportCreatePartial(ReportBasePartial, views.edit.CreateView):
     form_class = forms.ReportCreateForm
-    EVAL_ACTION_TYPE = 'CREATE'
+    EVAL_ACTION_TYPE = "CREATE"
 
     def get_success_url(self):
-        return reverse(
-            self.success_url,
-            kwargs={'step': 0, 'uuid': self.object.uuid},
-        )
+        return reverse(self.success_url, kwargs={"step": 0, "uuid": self.object.uuid})
 
 
-class _ReportDetailPartial(
-    ReportBasePartial,
-    views.detail.DetailView,
-):
-    context_object_name = 'report'
-    slug_field = 'uuid'
-    slug_url_kwarg = 'uuid'
+class _ReportDetailPartial(ReportBasePartial, views.detail.DetailView):
+    context_object_name = "report"
+    slug_field = "uuid"
+    slug_url_kwarg = "uuid"
 
     @property
     def report(self):
@@ -135,19 +114,16 @@ class _ReportDetailPartial(
 
 
 class _ReportLimitedDetailPartial(
-    _ReportDetailPartial,
-    ratelimit.mixins.RatelimitMixin,
+    _ReportDetailPartial, ratelimit.mixins.RatelimitMixin
 ):
-    ratelimit_key = 'user'
+    ratelimit_key = "user"
     ratelimit_rate = settings.DECRYPT_THROTTLE_RATE
 
 
-class _ReportAccessPartial(
-    _ReportLimitedDetailPartial,
-):
-    invalid_access_key_message = 'Invalid key in access request'
-    invalid_access_user_message = 'Invalid user in access request'
-    invalid_access_no_key_message = 'No key in access request'
+class _ReportAccessPartial(_ReportLimitedDetailPartial):
+    invalid_access_key_message = "Invalid key in access request"
+    invalid_access_user_message = "Invalid user in access request"
+    invalid_access_no_key_message = "No key in access request"
     form_class = forms.ReportAccessForm
     access_form_class = forms.ReportAccessForm
 
@@ -181,16 +157,17 @@ class _ReportAccessPartial(
 
     def _passphrase_next_url(self, request):
         next_url = None
-        if 'next' in request.GET:
-            if re.search(r'^/[\W/-]*', request.GET['next']):
-                next_url = request.GET['next']
+        if "next" in request.GET:
+            if re.search(r"^/[\W/-]*", request.GET["next"]):
+                next_url = request.GET["next"]
         return next_url
 
     def dispatch(self, request, *args, **kwargs):
-        logger.debug(f'{self.__class__.__name__} access check')
+        logger.debug(f"{self.__class__.__name__} access check")
 
-        if (self.access_granted or self.access_form_valid) and self._passphrase_next_url(
-                request):
+        if (
+            self.access_granted or self.access_form_valid
+        ) and self._passphrase_next_url(request):
             return self._redirect_from_passphrase(request)
         elif self.access_granted or self.access_form_valid:
             return super().dispatch(request, *args, **kwargs)
@@ -199,7 +176,7 @@ class _ReportAccessPartial(
 
     def _get_access_form(self):
         form_kwargs = self.get_form_kwargs()
-        form_kwargs.update({'instance': self.get_object()})
+        form_kwargs.update({"instance": self.get_object()})
         return self.access_form_class(**form_kwargs)
 
     def _render_access_form(self):
@@ -217,10 +194,7 @@ class _ReportAccessPartial(
             raise PermissionDenied
 
 
-class _ReportUpdatePartial(
-    _ReportAccessPartial,
-    views.edit.UpdateView,
-):
+class _ReportUpdatePartial(_ReportAccessPartial, views.edit.UpdateView):
     back_url = None
 
     @property
@@ -235,18 +209,17 @@ class _ReportUpdatePartial(
 
 
 class EncryptedWizardPartial(
-    _ReportUpdatePartial,
-    wizard_builder_partials.WizardPartial,
+    _ReportUpdatePartial, wizard_builder_partials.WizardPartial
 ):
     steps_helper = view_helpers.ReportStepsHelper
-    EVAL_ACTION_TYPE = 'EDIT'
+    EVAL_ACTION_TYPE = "EDIT"
 
     def dispatch(self, request, *args, **kwargs):
         self._dispatch_processing()
         return super().dispatch(request, *args, **kwargs)
 
     def _rendering_done_hook(self):
-        self.eval_action('REVIEW')
+        self.eval_action("REVIEW")
 
 
 ###################
@@ -254,13 +227,11 @@ class EncryptedWizardPartial(
 ###################
 
 
-class _ReportActionPartial(
-    _ReportUpdatePartial,
-):
-    success_url = reverse_lazy('dashboard')
+class _ReportActionPartial(_ReportUpdatePartial):
+    success_url = reverse_lazy("dashboard")
 
     def form_valid(self, form):
-        logger.debug(f'{self.__class__.__name__} form valid')
+        logger.debug(f"{self.__class__.__name__} form valid")
         output = super().form_valid(form)
         self.view_action()
         return output
@@ -272,46 +243,39 @@ class _ReportActionPartial(
         pass
 
 
-class ReportDeletePartial(
-    _ReportActionPartial,
-):
-    EVAL_ACTION_TYPE = 'DELETE'
+class ReportDeletePartial(_ReportActionPartial):
+    EVAL_ACTION_TYPE = "DELETE"
 
     def view_action(self):
         self.report.delete()
 
 
-class WizardPDFPartial(
-    _ReportActionPartial,
-):
-    EVAL_ACTION_TYPE = 'ACCESS_PDF'
+class WizardPDFPartial(_ReportActionPartial):
+    EVAL_ACTION_TYPE = "ACCESS_PDF"
 
     def form_valid(self, form):
         super().form_valid(form)
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = self.content_disposition + \
-            '; filename="record.pdf"'
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = (
+            self.content_disposition + '; filename="record.pdf"'
+        )
 
         data = self.report.decrypt_record(self.request.POST["key"])
-        data = data_helper.SerializedDataHelper.get_zipped_data(data["data"], data["wizard_form_serialized"])
+        data = data_helper.SerializedDataHelper.get_zipped_data(
+            data["data"], data["wizard_form_serialized"]
+        )
 
-        response.write(report_delivery.report_as_pdf(
-            report=self.report,
-            data=data,
-            recipient=None,
-        ))
+        response.write(
+            report_delivery.report_as_pdf(report=self.report, data=data, recipient=None)
+        )
         return response
 
 
-class ViewPDFPartial(
-    WizardPDFPartial,
-):
-    content_disposition = 'inline'
-    EVAL_ACTION_TYPE = 'VIEW_PDF'
+class ViewPDFPartial(WizardPDFPartial):
+    content_disposition = "inline"
+    EVAL_ACTION_TYPE = "VIEW_PDF"
 
 
-class DownloadPDFPartial(
-    WizardPDFPartial,
-):
-    content_disposition = 'attachment'
-    EVAL_ACTION_TYPE = 'DOWNLOAD_PDF'
+class DownloadPDFPartial(WizardPDFPartial):
+    content_disposition = "attachment"
+    EVAL_ACTION_TYPE = "DOWNLOAD_PDF"

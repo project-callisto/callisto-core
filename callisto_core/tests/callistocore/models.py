@@ -23,12 +23,10 @@ def _legacy_encrypt_report(salt, key, report_text):
 
     """
     stretched_key = pbkdf2(
-        key,
-        salt,
-        settings.ORIGINAL_KEY_ITERATIONS,
-        digest=hashlib.sha256)
+        key, salt, settings.ORIGINAL_KEY_ITERATIONS, digest=hashlib.sha256
+    )
     box = nacl.secret.SecretBox(stretched_key)
-    message = report_text.encode('utf-8')
+    message = report_text.encode("utf-8")
     nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
     return box.encrypt(message, nonce)
 
@@ -49,14 +47,12 @@ def _legacy_decrypt_report(salt, key, encrypted):
 
     """
     stretched_key = pbkdf2(
-        key,
-        salt,
-        settings.ORIGINAL_KEY_ITERATIONS,
-        digest=hashlib.sha256)
+        key, salt, settings.ORIGINAL_KEY_ITERATIONS, digest=hashlib.sha256
+    )
     box = nacl.secret.SecretBox(stretched_key)
     # need to force to bytes bc BinaryField can return as memoryview
     decrypted = box.decrypt(bytes(encrypted))
-    return decrypted.decode('utf-8')
+    return decrypted.decode("utf-8")
 
 
 class LegacyReportData(object):
@@ -65,6 +61,7 @@ class LegacyReportData(object):
     Uses the old encryption scheme before support for new hashers & increased iterations, for testing that old records
     can still be decrypted.
     """
+
     encrypted = None
     salt = None
 
@@ -81,7 +78,8 @@ class LegacyReportData(object):
         if not self.salt:
             self.salt = get_random_string()
         self.encrypted = _legacy_encrypt_report(
-            salt=self.salt, key=key, report_text=report_text)
+            salt=self.salt, key=key, report_text=report_text
+        )
 
 
 class LegacyMatchReportData(object):
@@ -91,6 +89,7 @@ class LegacyMatchReportData(object):
     Uses the old encryption scheme before support for new hashers & increased iterations, for testing that old records
     can still be decrypted.
     """
+
     encrypted = None
     salt = None
 
@@ -104,7 +103,5 @@ class LegacyMatchReportData(object):
         """
         self.salt = get_random_string()
         self.encrypted = security.pepper(
-            _legacy_encrypt_report(
-                salt=self.salt,
-                key=key,
-                report_text=report_text))
+            _legacy_encrypt_report(salt=self.salt, key=key, report_text=report_text)
+        )

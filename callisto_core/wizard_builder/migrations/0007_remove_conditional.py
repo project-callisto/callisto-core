@@ -7,20 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0006_many_sites'),
-    ]
+    dependencies = [("wizard_builder", "0006_many_sites")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='conditional',
-            name='page',
-        ),
-        migrations.RemoveField(
-            model_name='conditional',
-            name='question',
-        ),
-        migrations.DeleteModel(
-            name='Conditional',
-        ),
+        migrations.RemoveField(model_name="conditional", name="page"),
+        migrations.RemoveField(model_name="conditional", name="question"),
+        migrations.DeleteModel(name="Conditional"),
     ]

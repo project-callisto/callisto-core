@@ -13,7 +13,6 @@ from callisto_core.tests.utils.api import CustomNotificationApi
 
 
 class ReportingHelper(test_base.ReportFlowHelper):
-
     def setUp(self):
         super().setUp()
         self.client_post_report_creation()
@@ -21,31 +20,26 @@ class ReportingHelper(test_base.ReportFlowHelper):
     def recovers_from_no_passphrase(self):
         self.client_clear_passphrase()
         response = self.request()
-        self.assertIsInstance(response.context['form'], ReportAccessForm)
+        self.assertIsInstance(response.context["form"], ReportAccessForm)
 
 
 @skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class SubmissionViewTest(ReportingHelper):
-
     def setUp(self):
         super().setUp()
 
     def request(self):
         return self.client_post_report_prep()
- 
+
     def test_submission_template_used(self):
         response = self.request()
-        self.assertTemplateUsed(
-            response,
-            'callisto_core/reporting/submission.html',
-        )
+        self.assertTemplateUsed(response, "callisto_core/reporting/submission.html")
 
     def test_recovers_from_no_passphrase(self):
         self.recovers_from_no_passphrase()
 
 
 class MatchingHelper(ReportingHelper):
-
     def does_not_create_a_full_report(self):
         self.assertEqual(SentFullReport.objects.count(), 0)
         self.request()
@@ -54,25 +48,25 @@ class MatchingHelper(ReportingHelper):
 
 @skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class MatchingViewTest(MatchingHelper):
-
     def test_multiple_email_copies_resolved(self):
-        email = EmailNotification.objects.create(name='match_confirmation')
+        email = EmailNotification.objects.create(name="match_confirmation")
         email.sites.add(1)
         self.client_post_matching_enter()
 
     def test_multiple_emails_not_sent(self):
-        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+        with patch.object(CustomNotificationApi, "_logging") as api_logging:
             self.client_post_matching_enter()
 
         self.assertEqual(
             api_logging.call_args_list.count(
-                call(notification_name='match_confirmation')
-            ), 1
+                call(notification_name="match_confirmation")
+            ),
+            1,
         )
 
     def test_emails_not_sent_when_no_key(self):
         self.client_clear_passphrase()
-        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+        with patch.object(CustomNotificationApi, "_logging") as api_logging:
             self.client_post_matching_enter()
 
         self.assertEqual(api_logging.call_count, 0)
@@ -80,7 +74,6 @@ class MatchingViewTest(MatchingHelper):
 
 @skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class MatchingOptionalViewTest(MatchingHelper):
-
     def request(self):
         return self.client_post_matching_enter_empty()
 
@@ -91,10 +84,10 @@ class MatchingOptionalViewTest(MatchingHelper):
 
     def test_empty_form_advances_page(self):
         response = self.request()
-        self.assertIsInstance(response.context['form'], ConfirmationForm)
+        self.assertIsInstance(response.context["form"], ConfirmationForm)
 
     def test_sends_no_email(self):
-        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+        with patch.object(CustomNotificationApi, "_logging") as api_logging:
             self.request()
 
         self.assertEqual(api_logging.call_count, 0)
@@ -108,7 +101,6 @@ class MatchingOptionalViewTest(MatchingHelper):
 
 @skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class MatchingRequiredViewTest(MatchingHelper):
-
     def request(self):
         return self.client_post_matching_enter()
 
@@ -118,12 +110,12 @@ class MatchingRequiredViewTest(MatchingHelper):
         self.assertEqual(MatchReport.objects.count(), 1)
 
     def test_sends_match_confirmation_email(self):
-        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+        with patch.object(CustomNotificationApi, "_logging") as api_logging:
             self.request()
 
-        api_logging.assert_has_calls([
-            call(notification_name='match_confirmation'),
-        ], any_order=True)
+        api_logging.assert_has_calls(
+            [call(notification_name="match_confirmation")], any_order=True
+        )
 
     def test_does_not_create_a_full_report(self):
         self.does_not_create_a_full_report()
@@ -134,7 +126,6 @@ class MatchingRequiredViewTest(MatchingHelper):
 
 @skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class ConfirmationViewTest(ReportingHelper):
-
     def request(self):
         return self.client_post_reporting_end_step()
 
@@ -144,10 +135,13 @@ class ConfirmationViewTest(ReportingHelper):
         self.assertEqual(SentFullReport.objects.count(), 1)
 
     def test_sends_emails(self):
-        with patch.object(CustomNotificationApi, '_logging') as api_logging:
+        with patch.object(CustomNotificationApi, "_logging") as api_logging:
             self.request()
 
-        api_logging.assert_has_calls([
-            call(notification_name='submit_confirmation'),
-            call(notification_name='report_delivery'),
-        ], any_order=True)
+        api_logging.assert_has_calls(
+            [
+                call(notification_name="submit_confirmation"),
+                call(notification_name="report_delivery"),
+            ],
+            any_order=True,
+        )

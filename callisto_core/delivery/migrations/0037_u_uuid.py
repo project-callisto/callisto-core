@@ -9,7 +9,7 @@ from django.db import migrations
 
 def copy_attrs(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    Report = apps.get_model('delivery.Report')
+    Report = apps.get_model("delivery.Report")
     for row in Report.objects.using(current_database):
         row.uuid = uuid.uuid4()
         row.save()
@@ -17,13 +17,8 @@ def copy_attrs(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0036_auto_20171122_1454'),
-    ]
+    dependencies = [("delivery", "0036_auto_20171122_1454")]
 
     operations = [
-        migrations.RunPython(
-            copy_attrs,
-            reverse_code=migrations.RunPython.noop,
-        ),
+        migrations.RunPython(copy_attrs, reverse_code=migrations.RunPython.noop)
     ]

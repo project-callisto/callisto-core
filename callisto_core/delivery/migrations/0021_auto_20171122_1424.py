@@ -8,37 +8,33 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0020_remove_matchreport_seen'),
-    ]
+    dependencies = [("delivery", "0020_remove_matchreport_seen")]
 
     operations = [
         migrations.AddField(
-            model_name='sentfullreport',
-            name='new_sent',
+            model_name="sentfullreport",
+            name="new_sent",
             field=models.DateTimeField(
-                auto_now_add=True,
-                default=django.utils.timezone.now),
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='sentfullreport',
-            name='new_to_address',
-            field=models.TextField(
-                null=True),
+            model_name="sentfullreport",
+            name="new_to_address",
+            field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='sentmatchreport',
-            name='new_sent',
+            model_name="sentmatchreport",
+            name="new_sent",
             field=models.DateTimeField(
-                auto_now_add=True,
-                default=django.utils.timezone.now),
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='sentmatchreport',
-            name='new_to_address',
-            field=models.TextField(
-                null=True),
+            model_name="sentmatchreport",
+            name="new_to_address",
+            field=models.TextField(null=True),
         ),
     ]

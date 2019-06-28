@@ -7,39 +7,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0004_encrypt_existing_matching_entries'),
-    ]
+    dependencies = [("delivery", "0004_encrypt_existing_matching_entries")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='matchreport',
-            name='contact_name',
-        ),
-        migrations.RemoveField(
-            model_name='matchreport',
-            name='contact_notes',
-        ),
-        migrations.RemoveField(
-            model_name='matchreport',
-            name='contact_phone',
-        ),
-        migrations.RemoveField(
-            model_name='matchreport',
-            name='contact_voicemail',
-        ),
-        migrations.RemoveField(
-            model_name='matchreport',
-            name='name',
+        migrations.RemoveField(model_name="matchreport", name="contact_name"),
+        migrations.RemoveField(model_name="matchreport", name="contact_notes"),
+        migrations.RemoveField(model_name="matchreport", name="contact_phone"),
+        migrations.RemoveField(model_name="matchreport", name="contact_voicemail"),
+        migrations.RemoveField(model_name="matchreport", name="name"),
+        migrations.AlterField(
+            model_name="matchreport", name="encrypted", field=models.BinaryField()
         ),
         migrations.AlterField(
-            model_name='matchreport',
-            name='encrypted',
-            field=models.BinaryField(),
-        ),
-        migrations.AlterField(
-            model_name='matchreport',
-            name='salt',
+            model_name="matchreport",
+            name="salt",
             field=models.CharField(max_length=256),
         ),
     ]

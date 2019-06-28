@@ -7,28 +7,30 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0029_auto_20171122_1448'),
-    ]
+    dependencies = [("delivery", "0029_auto_20171122_1448")]
 
     operations = [
         migrations.CreateModel(
-            name='NewSentMatchReport',
+            name="NewSentMatchReport",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sent', models.DateTimeField(auto_now_add=True)),
-                ('to_address', models.TextField(null=True)),
-                ('reports', models.ManyToManyField(to='delivery.MatchReport')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("sent", models.DateTimeField(auto_now_add=True)),
+                ("to_address", models.TextField(null=True)),
+                ("reports", models.ManyToManyField(to="delivery.MatchReport")),
             ],
         ),
         migrations.CreateModel(
-            name='ProxySentMatchReport',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
-            bases=('delivery.newsentmatchreport',),
+            name="ProxySentMatchReport",
+            fields=[],
+            options={"proxy": True, "indexes": []},
+            bases=("delivery.newsentmatchreport",),
         ),
     ]

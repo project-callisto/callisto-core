@@ -6,42 +6,46 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0039_auto_20171208_0039'),
-    ]
+    dependencies = [("delivery", "0039_auto_20171208_0039")]
 
     operations = [
         migrations.CreateModel(
-            name='RecordHistorical',
+            name="RecordHistorical",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('encrypted_eval', models.BinaryField(null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("encrypted_eval", models.BinaryField(null=True)),
             ],
         ),
         migrations.AddField(
-            model_name='report',
-            name='encrypted_eval',
+            model_name="report",
+            name="encrypted_eval",
             field=models.BinaryField(blank=True),
         ),
         migrations.AlterField(
-            model_name='report',
-            name='encode_prefix',
-            field=models.TextField(null=True),
+            model_name="report", name="encode_prefix", field=models.TextField(null=True)
         ),
         migrations.AlterField(
-            model_name='report',
-            name='encrypted',
-            field=models.BinaryField(blank=True),
+            model_name="report", name="encrypted", field=models.BinaryField(blank=True)
         ),
         migrations.AlterField(
-            model_name='report',
-            name='last_edited',
+            model_name="report",
+            name="last_edited",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='recordhistorical',
-            name='record',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='delivery.Report'),
+            model_name="recordhistorical",
+            name="record",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="delivery.Report"
+            ),
         ),
     ]

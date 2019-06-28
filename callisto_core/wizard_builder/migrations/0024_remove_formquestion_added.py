@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0023_formquest_text_tinymce'),
-    ]
+    dependencies = [("wizard_builder", "0023_formquest_text_tinymce")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='formquestion',
-            name='added',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="formquestion", name="added")]

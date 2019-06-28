@@ -1,4 +1,4 @@
-'''
+"""
 
 View helpers contain functionality shared between several view partials.
 None of these classes provide full view functionality.
@@ -6,7 +6,7 @@ None of these classes provide full view functionality.
 docs / reference:
     - https://github.com/project-callisto/callisto-core/blob/master/callisto_core/wizard_builder/view_helpers.py
 
-'''
+"""
 import logging
 
 from django.urls import reverse
@@ -20,28 +20,19 @@ class _MockReport:
     uuid = None
 
 
-class ReportStepsHelper(
-    wizard_builder_helpers.StepsHelper,
-):
-
+class ReportStepsHelper(wizard_builder_helpers.StepsHelper):
     def url(self, step):
         return reverse(
             self.view.request.resolver_match.view_name,
-            kwargs={
-                'step': step,
-                'uuid': self.view.report.uuid,
-            },
+            kwargs={"step": step, "uuid": self.view.report.uuid},
         )
 
 
-class ReportStorageHelper(
-    object,
-):
-
+class ReportStorageHelper(object):
     def __init__(self, view):
         self.view = view  # TODO: scope down input
 
-    passphrase = ''
+    passphrase = ""
 
     @property
     def report(self):
@@ -63,10 +54,7 @@ class ReportStorageHelper(
         pass
 
 
-class _LegacyReportStorageHelper(
-    ReportStorageHelper,
-):
-
+class _LegacyReportStorageHelper(ReportStorageHelper):
     def _initialize_storage(self):
         if not self.report.encrypted:
             self._create_new_report_storage()
@@ -86,7 +74,7 @@ class _LegacyReportStorageHelper(
     def _translate_legacy_report_storage(self):
         decrypted_report = self.report.decrypt_record(self.passphrase)
         self._create_storage(decrypted_report[self.storage_data_key])
-        logger.debug('translated legacy report storage')
+        logger.debug("translated legacy report storage")
 
     def _create_storage(self, data):
         storage = {
@@ -97,19 +85,15 @@ class _LegacyReportStorageHelper(
 
 
 class EncryptedReportStorageHelper(
-    wizard_builder_helpers.StorageHelper,
-    _LegacyReportStorageHelper,
+    wizard_builder_helpers.StorageHelper, _LegacyReportStorageHelper
 ):
 
     # WARNING: do not change! record data is keyed on this value
-    storage_data_key = 'data'
+    storage_data_key = "data"
 
     @classmethod
     def empty_storage(cls) -> dict:
-        return {
-            cls.storage_data_key: {},
-            cls.storage_form_key: {},
-        }
+        return {cls.storage_data_key: {}, cls.storage_form_key: {}}
 
     def current_data_from_storage(self) -> dict:
         if self.passphrase:

@@ -7,13 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0034_auto_20171122_1454'),
-    ]
+    dependencies = [("delivery", "0034_auto_20171122_1454")]
 
     operations = [
         migrations.RenameModel(
-            old_name='NewSentMatchReport',
-            new_name='SentMatchReport',
-        ),
+            old_name="NewSentMatchReport", new_name="SentMatchReport"
+        )
     ]

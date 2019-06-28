@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0005_delete_encrypted_fields_from_match_report'),
-    ]
+    dependencies = [("delivery", "0005_delete_encrypted_fields_from_match_report")]
 
     operations = [
         migrations.AddField(
-            model_name='report',
-            name='autosaved',
+            model_name="report",
+            name="autosaved",
             field=models.BooleanField(default=False, null=False),
-        ),
+        )
     ]

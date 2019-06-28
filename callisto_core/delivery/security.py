@@ -15,7 +15,7 @@ def encrypt_text(key, sensitive_text):
 
     """
     box = nacl.secret.SecretBox(key)
-    message = sensitive_text.encode('utf-8')
+    message = sensitive_text.encode("utf-8")
     nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
     return box.encrypt(message, nonce)
 
@@ -32,7 +32,7 @@ def decrypt_text(key, encrypted_text):
     """
     box = nacl.secret.SecretBox(key)
     # need to force to bytes bc BinaryField can return as memoryview
-    decrypted = box.decrypt(bytes(encrypted_text)).decode('utf-8')
+    decrypted = box.decrypt(bytes(encrypted_text)).decode("utf-8")
     return decrypted
 
 

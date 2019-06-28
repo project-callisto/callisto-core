@@ -20,13 +20,11 @@ clean-build: ## clean the local files for a release
 	find callisto_core -type d -name "__pycache__" -exec rm -rf {} +
 
 clean-lint: ## cleanup / display issues with isort and pep8
-	autopep8 callisto_core/ -raai
-	isort -rc callisto_core/
+	black callisto_core/
 	make test-lint
 
 test-lint: ## check style with pep8 and isort
-	flake8 callisto_core/
-	isort --check-only --diff --quiet -rc callisto_core/
+	black --check callisto_core/
 
 test-suite:
 	python manage.py check
@@ -39,7 +37,7 @@ test-fast: ## runs the test suite, with fast failures and a re-used database
 	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/tests/test_frontend.py
 
 test: ## run the linters and the test suite
-	# make test-lint
+	make test-lint
 	make test-suite
 	make test-integrated
 

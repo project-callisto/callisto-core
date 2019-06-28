@@ -7,34 +7,26 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0032_move_question_dropdown'),
-    ]
+    dependencies = [("wizard_builder", "0032_move_question_dropdown")]
 
     operations = [
         migrations.AddField(
-            model_name='checkbox',
-            name='temp_04',
+            model_name="checkbox", name="temp_04", field=models.TextField(null=True)
+        ),
+        migrations.AddField(
+            model_name="multiplechoice",
+            name="temp_03",
             field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='multiplechoice',
-            name='temp_03',
+            model_name="radiobutton", name="temp_05", field=models.TextField(null=True)
+        ),
+        migrations.AddField(
+            model_name="singlelinetext",
+            name="temp_01",
             field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='radiobutton',
-            name='temp_05',
-            field=models.TextField(null=True),
-        ),
-        migrations.AddField(
-            model_name='singlelinetext',
-            name='temp_01',
-            field=models.TextField(null=True),
-        ),
-        migrations.AddField(
-            model_name='textarea',
-            name='temp_02',
-            field=models.TextField(null=True),
+            model_name="textarea", name="temp_02", field=models.TextField(null=True)
         ),
     ]

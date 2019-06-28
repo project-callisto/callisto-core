@@ -9,17 +9,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0011_report_uuid'),
-    ]
+    dependencies = [("delivery", "0011_report_uuid")]
 
     operations = [
         migrations.AlterField(
-            model_name='report',
-            name='owner',
+            model_name="report",
+            name="owner",
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                to=settings.AUTH_USER_MODEL),
-        ),
+                to=settings.AUTH_USER_MODEL,
+            ),
+        )
     ]

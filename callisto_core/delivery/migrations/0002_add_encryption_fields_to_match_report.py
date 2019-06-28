@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0001_initial'),
-    ]
+    dependencies = [("delivery", "0001_initial")]
 
     operations = [
         migrations.AddField(
-            model_name='matchreport',
-            name='encrypted',
+            model_name="matchreport",
+            name="encrypted",
             field=models.BinaryField(null=True),
         ),
         migrations.AddField(
-            model_name='matchreport',
-            name='salt',
+            model_name="matchreport",
+            name="salt",
             field=models.CharField(max_length=256, null=True),
         ),
     ]

@@ -9,38 +9,31 @@ import callisto_core.wizard_builder.model_helpers
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0038_checkbox_radiobutton'),
-    ]
+    dependencies = [("wizard_builder", "0038_checkbox_radiobutton")]
 
     operations = [
         migrations.CreateModel(
-            name='Dropdown',
+            name="Dropdown",
             fields=[],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
+            options={"proxy": True, "indexes": []},
             bases=(
                 callisto_core.wizard_builder.model_helpers.ProxyQuestion,
-                'wizard_builder.formquestion'),
+                "wizard_builder.formquestion",
+            ),
         ),
         migrations.AlterField(
-            model_name='formquestion',
-            name='type',
+            model_name="formquestion",
+            name="type",
             field=models.TextField(
                 choices=[
-                    ('checkbox',
-                     'checkbox'),
-                    ('dropdown',
-                     'dropdown'),
-                    ('radiobutton',
-                     'radiobutton'),
-                    ('singlelinetext',
-                     'singlelinetext'),
-                    ('textarea',
-                     'textarea')],
-                default='singlelinetext',
-                null=True),
+                    ("checkbox", "checkbox"),
+                    ("dropdown", "dropdown"),
+                    ("radiobutton", "radiobutton"),
+                    ("singlelinetext", "singlelinetext"),
+                    ("textarea", "textarea"),
+                ],
+                default="singlelinetext",
+                null=True,
+            ),
         ),
     ]

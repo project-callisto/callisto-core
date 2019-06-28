@@ -8,18 +8,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0033_add_temps'),
-    ]
+    dependencies = [("wizard_builder", "0033_add_temps")]
 
     operations = [
         migrations.AddField(
-            model_name='choice',
-            name='new_question',
+            model_name="choice",
+            name="new_question",
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name='example2',
-                to='wizard_builder.FormQuestion'),
-        ),
+                related_name="example2",
+                to="wizard_builder.FormQuestion",
+            ),
+        )
     ]

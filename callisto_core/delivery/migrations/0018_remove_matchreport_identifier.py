@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0017_remove_report_autosaved'),
-    ]
+    dependencies = [("delivery", "0017_remove_report_autosaved")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='matchreport',
-            name='identifier',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="matchreport", name="identifier")]

@@ -7,17 +7,11 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0029_populate_type'),
-    ]
+    dependencies = [("wizard_builder", "0029_populate_type")]
 
     operations = [
+        migrations.AlterModelOptions(name="checkbox", options={}),
         migrations.AlterModelOptions(
-            name='checkbox',
-            options={},
-        ),
-        migrations.AlterModelOptions(
-            name='formquestion',
-            options={'ordering': ['position']},
+            name="formquestion", options={"ordering": ["position"]}
         ),
     ]

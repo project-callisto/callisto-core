@@ -8,14 +8,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sites', '0001_initial'),
-        ('notification', '0001_initial_create_email_notification'),
+        ("sites", "0001_initial"),
+        ("notification", "0001_initial_create_email_notification"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='emailnotification',
-            name='sites',
-            field=models.ManyToManyField(to='sites.Site'),
-        ),
+            model_name="emailnotification",
+            name="sites",
+            field=models.ManyToManyField(to="sites.Site"),
+        )
     ]

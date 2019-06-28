@@ -5,7 +5,6 @@ from .models import BulkAccount
 
 
 class AccountCreationAdmin(admin.ModelAdmin):
-
     def changelist_view(self, *args, **kwargs):
         return super().add_view(*args, *kwargs)
 

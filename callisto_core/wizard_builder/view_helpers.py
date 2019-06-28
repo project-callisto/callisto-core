@@ -10,16 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 class StepsHelper(object):
-    done_name = 'done'
-    review_name = 'Review'
-    next_name = 'Next'
-    back_name = 'Back'
-    wizard_goto_name = 'wizard_goto_step'
-    wizard_current_name = 'wizard_current_step'
-    wizard_form_fields = [
-        wizard_current_name,
-        wizard_goto_name,
-    ]
+    done_name = "done"
+    review_name = "Review"
+    next_name = "Next"
+    back_name = "Back"
+    wizard_goto_name = "wizard_goto_step"
+    wizard_current_name = "wizard_current_step"
+    wizard_form_fields = [wizard_current_name, wizard_goto_name]
 
     def __init__(self, view):
         self.view = view
@@ -30,7 +27,7 @@ class StepsHelper(object):
 
     @property
     def current(self):
-        step = getattr(self.view, 'curent_step', 0)
+        step = getattr(self.view, "curent_step", 0)
         if isinstance(step, str):
             return step
         elif step <= self.last:
@@ -93,8 +90,7 @@ class StepsHelper(object):
 
     def url(self, step):
         return reverse(
-            self.view.request.resolver_match.view_name,
-            kwargs={'step': step},
+            self.view.request.resolver_match.view_name, kwargs={"step": step}
         )
 
     def overflowed(self, step):
@@ -126,10 +122,10 @@ class StorageHelper(object):
     form_manager = FormManager
 
     # NOTE: overriden to 'data' by EncryptedReportStorageHelper
-    storage_data_key = 'wizard_form_data'
+    storage_data_key = "wizard_form_data"
 
     # WARNING: do not change! record data is keyed on this value
-    storage_form_key = 'wizard_form_serialized'
+    storage_form_key = "wizard_form_serialized"
 
     def __init__(self, view):
         # TODO: scope down inputs
@@ -142,8 +138,7 @@ class StorageHelper(object):
     def cleaned_form_data(self):
         storage = self.current_data_from_storage()
         return self.data_manager.get_zipped_data(
-            data=storage[self.storage_data_key],
-            forms=storage[self.storage_form_key],
+            data=storage[self.storage_data_key], forms=storage[self.storage_form_key]
         )
 
     @property
@@ -174,9 +169,9 @@ class StorageHelper(object):
         )
 
     def update(self):
-        '''
+        """
         primary class functionality method, updates the data in storage
-        '''
+        """
         self.add_data_to_storage(self.answers_for_current_step)
 
     def current_data_from_storage(self):
@@ -189,14 +184,8 @@ class StorageHelper(object):
         self.session[self.storage_data_key] = answer_data
 
     def init_storage(self):
-        self.session.setdefault(
-            self.storage_form_key,
-            self.serialized_forms,
-        )
-        self.session.setdefault(
-            self.storage_data_key,
-            {},
-        )
+        self.session.setdefault(self.storage_form_key, self.serialized_forms)
+        self.session.setdefault(self.storage_data_key, {})
 
 
 class WizardViewTemplateHelpers(object):

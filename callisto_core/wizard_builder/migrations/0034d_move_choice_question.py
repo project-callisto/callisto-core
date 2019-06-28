@@ -8,7 +8,7 @@ from django.db import migrations, models
 
 def move_choice_question(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    Choice = apps.get_model('wizard_builder.Choice')
+    Choice = apps.get_model("wizard_builder.Choice")
     for choice in Choice.objects.using(current_database):
         base_question = choice.question.formquestion_ptr
         choice.new_question = base_question
@@ -17,13 +17,6 @@ def move_choice_question(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0034c_move_choice_question'),
-    ]
+    dependencies = [("wizard_builder", "0034c_move_choice_question")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='choice',
-            name='question',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="choice", name="question")]

@@ -7,12 +7,10 @@ User = get_user_model()
 
 
 class PageForm(forms.Form):
-
     @classmethod
     def setup(cls, page, data):
         cls.base_fields = {
-            question.field_id: question.make_field()
-            for question in page.mock_questions
+            question.field_id: question.make_field() for question in page.mock_questions
         }
         self = cls(data)
         self.page = page
@@ -22,19 +20,18 @@ class PageForm(forms.Form):
     @property
     def sections(self):
         from .models import Page
+
         return dict(Page.SECTION_CHOICES)
 
     @property
     def serialized(self):
-        return [
-            question.serialized
-            for question in self.page.mock_questions
-        ]
+        return [question.serialized for question in self.page.mock_questions]
 
     def _clean_fields(self):
         for name, field in self.fields.items():
             self.cleaned_data[name] = field.widget.value_from_datadict(
-                self.data, self.files, self.add_prefix(name))
+                self.data, self.files, self.add_prefix(name)
+            )
         self._clean_conditional_fields()
 
     def _clean_conditional_fields(self):
@@ -47,4 +44,5 @@ class PageForm(forms.Form):
         if field:
             name = widgets.conditional_id(choice)
             self.cleaned_data[name] = field.widget.value_from_datadict(
-                self.data, self.files, name)
+                self.data, self.files, name
+            )

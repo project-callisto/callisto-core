@@ -7,21 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0009_pagebase_to_questionpage'),
-    ]
+    dependencies = [("wizard_builder", "0009_pagebase_to_questionpage")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='pagebase',
-            name='position',
-        ),
-        migrations.RemoveField(
-            model_name='pagebase',
-            name='section',
-        ),
-        migrations.RemoveField(
-            model_name='pagebase',
-            name='sites',
-        ),
+        migrations.RemoveField(model_name="pagebase", name="position"),
+        migrations.RemoveField(model_name="pagebase", name="section"),
+        migrations.RemoveField(model_name="pagebase", name="sites"),
     ]
