@@ -36,6 +36,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            invalidate_unencrypted_data, reverse_code=revalidate_unencrypted_data,
+            invalidate_unencrypted_data, reverse_code=revalidate_unencrypted_data
         )
     ]
