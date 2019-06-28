@@ -21,12 +21,10 @@ clean-build: ## clean the local files for a release
 
 clean-lint: ## cleanup / display issues with isort and pep8
 	black callisto_core/
-	isort -rc callisto_core/
 	make test-lint
 
 test-lint: ## check style with pep8 and isort
 	black --check callisto_core/
-	isort --check-only --diff --quiet -rc callisto_core/
 
 test-suite:
 	python manage.py check
