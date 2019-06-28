@@ -4,9 +4,6 @@ wheel
 pypandoc
 twine
 
-# linting
-autopep8
-
 # dev tools
 django-extensions
 ptipython
