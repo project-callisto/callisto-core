@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.25.10 (2019-06-28)
+
+- Ensure that only encrypted user data is being used, by invalidating the plaintext data.
+
 ## 0.25.9 (2019-06-28)
 
 - Upgraded linter from isort/autopep8/flake8 to black
