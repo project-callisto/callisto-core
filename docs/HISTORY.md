@@ -4,6 +4,10 @@
 
 - Upgraded linter from isort/autopep8/flake8 to black
 
+## 0.25.8 (2019-06-28)
+
+- Updated requirements
+
 ## 0.25.7 (2019-06-19)
 
 - Changed the PDF filename's MIME
