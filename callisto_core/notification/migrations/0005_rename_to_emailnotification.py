@@ -7,13 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('notification', '0004_delete_old_email_notification'),
-    ]
+    dependencies = [("notification", "0004_delete_old_email_notification")]
 
     operations = [
         migrations.RenameModel(
-            old_name='TempEmailNotification',
-            new_name='EmailNotification',
-        ),
+            old_name="TempEmailNotification", new_name="EmailNotification"
+        )
     ]

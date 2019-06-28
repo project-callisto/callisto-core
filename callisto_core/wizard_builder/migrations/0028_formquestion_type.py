@@ -7,24 +7,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0027_textarea'),
-    ]
+    dependencies = [("wizard_builder", "0027_textarea")]
 
     operations = [
         migrations.AddField(
-            model_name='formquestion',
-            name='type',
+            model_name="formquestion",
+            name="type",
             field=models.TextField(
                 choices=[
-                    ('checkbox',
-                     'checkbox'),
-                    ('radiobutton',
-                     'radiobutton'),
-                    ('singlelinetext',
-                     'singlelinetext'),
-                    ('textarea',
-                     'textarea')],
-                null=True),
-        ),
+                    ("checkbox", "checkbox"),
+                    ("radiobutton", "radiobutton"),
+                    ("singlelinetext", "singlelinetext"),
+                    ("textarea", "textarea"),
+                ],
+                null=True,
+            ),
+        )
     ]

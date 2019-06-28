@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 def move_dropdown(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    RadioButton = apps.get_model('wizard_builder.RadioButton')
+    RadioButton = apps.get_model("wizard_builder.RadioButton")
     for radiobutton in RadioButton.objects.using(current_database):
         formquestion = radiobutton.formquestion_ptr
         formquestion.is_dropdown = radiobutton.is_dropdown
@@ -16,22 +16,14 @@ def move_dropdown(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0031_formquestion_choices_default'),
-    ]
+    dependencies = [("wizard_builder", "0031_formquestion_choices_default")]
 
     operations = [
         migrations.AddField(
-            model_name='formquestion',
-            name='is_dropdown',
+            model_name="formquestion",
+            name="is_dropdown",
             field=models.BooleanField(default=False),
         ),
-        migrations.RunPython(
-            move_dropdown,
-            migrations.RunPython.noop,
-        ),
-        migrations.RemoveField(
-            model_name='radiobutton',
-            name='is_dropdown',
-        ),
+        migrations.RunPython(move_dropdown, migrations.RunPython.noop),
+        migrations.RemoveField(model_name="radiobutton", name="is_dropdown"),
     ]

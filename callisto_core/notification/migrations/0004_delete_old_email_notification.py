@@ -7,16 +7,9 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('notification', '0003_tempemailnotification'),
-    ]
+    dependencies = [("notification", "0003_tempemailnotification")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='emailnotification',
-            name='sites',
-        ),
-        migrations.DeleteModel(
-            name='EmailNotification',
-        ),
+        migrations.RemoveField(model_name="emailnotification", name="sites"),
+        migrations.DeleteModel(name="EmailNotification"),
     ]

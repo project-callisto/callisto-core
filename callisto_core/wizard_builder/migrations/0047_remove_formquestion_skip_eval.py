@@ -5,13 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0046_formquestion_skip_eval'),
-    ]
+    dependencies = [("wizard_builder", "0046_formquestion_skip_eval")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='formquestion',
-            name='skip_eval',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="formquestion", name="skip_eval")]

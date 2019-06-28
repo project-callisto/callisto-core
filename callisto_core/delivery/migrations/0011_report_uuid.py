@@ -9,14 +9,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0010_email_notification_data_migration'),
-    ]
+    dependencies = [("delivery", "0010_email_notification_data_migration")]
 
     operations = [
         migrations.AddField(
-            model_name='report',
-            name='uuid',
-            field=models.UUIDField(default=uuid.uuid4),
-        ),
+            model_name="report", name="uuid", field=models.UUIDField(default=uuid.uuid4)
+        )
     ]

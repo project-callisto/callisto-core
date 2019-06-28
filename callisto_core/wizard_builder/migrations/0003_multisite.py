@@ -12,35 +12,30 @@ import callisto_core.wizard_builder.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sites', '0001_initial'),
-        ('wizard_builder', '0002_remove_formquestion_example'),
+        ("sites", "0001_initial"),
+        ("wizard_builder", "0002_remove_formquestion_example"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='questionpage',
+            name="questionpage",
             managers=[
-                ('objects',
-                 django.db.models.manager.Manager()),
-                ('base_objects',
-                 django.db.models.manager.Manager()),
+                ("objects", django.db.models.manager.Manager()),
+                ("base_objects", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='textpage',
+            name="textpage",
             managers=[
-                ('objects',
-                 django.db.models.manager.Manager()),
-                ('base_objects',
-                 django.db.models.manager.Manager()),
+                ("objects", django.db.models.manager.Manager()),
+                ("base_objects", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AddField(
-            model_name='pagebase',
-            name='site',
+            model_name="pagebase",
+            name="site",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                to='sites.Site',
-                null=True),
+                on_delete=django.db.models.deletion.CASCADE, to="sites.Site", null=True
+            ),
         ),
     ]

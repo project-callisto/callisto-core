@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0025_auto_20170915_0948'),
-    ]
+    dependencies = [("wizard_builder", "0025_auto_20170915_0948")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='page',
-            name='infobox',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="page", name="infobox")]

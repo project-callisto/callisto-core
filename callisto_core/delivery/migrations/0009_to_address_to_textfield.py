@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0008_make_salt_nullable'),
-    ]
+    dependencies = [("delivery", "0008_make_salt_nullable")]
 
     operations = [
         migrations.AlterField(
-            model_name='sentreport',
-            name='to_address',
+            model_name="sentreport",
+            name="to_address",
             field=models.CharField(max_length=4096),
-        ),
+        )
     ]

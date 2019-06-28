@@ -7,13 +7,8 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0018_remove_multilinetext'),
-    ]
+    dependencies = [("wizard_builder", "0018_remove_multilinetext")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='choice',
-            name='extra_info_placeholder',
-        ),
+        migrations.RemoveField(model_name="choice", name="extra_info_placeholder")
     ]

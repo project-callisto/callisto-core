@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 def copy_to_question_page(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    QuestionPage = apps.get_model('wizard_builder.QuestionPage')
+    QuestionPage = apps.get_model("wizard_builder.QuestionPage")
     for page in QuestionPage.objects.using(current_database):
         page.new_position = page.position
         page.new_section = page.section
@@ -19,28 +19,29 @@ def copy_to_question_page(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sites', '0002_alter_domain_unique'),
-        ('wizard_builder', '0008_remove_textpage'),
+        ("sites", "0002_alter_domain_unique"),
+        ("wizard_builder", "0008_remove_textpage"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='questionpage',
-            name='new_position',
-            field=models.PositiveSmallIntegerField(default=0, verbose_name='position'),
+            model_name="questionpage",
+            name="new_position",
+            field=models.PositiveSmallIntegerField(default=0, verbose_name="position"),
         ),
         migrations.AddField(
-            model_name='questionpage',
-            name='new_section',
-            field=models.IntegerField(choices=[(1, 'When'), (2, 'Where'), (3, 'What'), (4, 'Who')], default=1),
+            model_name="questionpage",
+            name="new_section",
+            field=models.IntegerField(
+                choices=[(1, "When"), (2, "Where"), (3, "What"), (4, "Who")], default=1
+            ),
         ),
         migrations.AddField(
-            model_name='questionpage',
-            name='new_sites',
-            field=models.ManyToManyField(to='sites.Site'),
+            model_name="questionpage",
+            name="new_sites",
+            field=models.ManyToManyField(to="sites.Site"),
         ),
         migrations.RunPython(
-            copy_to_question_page,
-            reverse_code=migrations.RunPython.noop,
+            copy_to_question_page, reverse_code=migrations.RunPython.noop
         ),
     ]

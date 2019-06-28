@@ -7,16 +7,9 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0025_auto_20171122_1444'),
-    ]
+    dependencies = [("delivery", "0025_auto_20171122_1444")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='sentfullreport',
-            name='sentreport_ptr',
-        ),
-        migrations.DeleteModel(
-            name='SentFullReport',
-        ),
+        migrations.RemoveField(model_name="sentfullreport", name="sentreport_ptr"),
+        migrations.DeleteModel(name="SentFullReport"),
     ]

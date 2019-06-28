@@ -7,27 +7,11 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0003_multisite'),
-    ]
+    dependencies = [("wizard_builder", "0003_multisite")]
 
     operations = [
-        migrations.AlterModelManagers(
-            name='questionpage',
-            managers=[
-            ],
-        ),
-        migrations.AlterModelManagers(
-            name='textpage',
-            managers=[
-            ],
-        ),
-        migrations.RemoveField(
-            model_name='formquestion',
-            name='polymorphic_ctype',
-        ),
-        migrations.RemoveField(
-            model_name='pagebase',
-            name='polymorphic_ctype',
-        ),
+        migrations.AlterModelManagers(name="questionpage", managers=[]),
+        migrations.AlterModelManagers(name="textpage", managers=[]),
+        migrations.RemoveField(model_name="formquestion", name="polymorphic_ctype"),
+        migrations.RemoveField(model_name="pagebase", name="polymorphic_ctype"),
     ]

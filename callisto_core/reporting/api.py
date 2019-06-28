@@ -4,10 +4,10 @@ logger = logging.getLogger(__name__)
 
 
 class CallistoCoreMatchingApi(object):
-
     @property
     def match_reports(_):
         from callisto_core.delivery.models import MatchReport
+
         return MatchReport.objects.all()
 
     @property
@@ -24,11 +24,11 @@ class CallistoCoreMatchingApi(object):
         self.identifier = identifier
         match_list = self.match_reports
 
-        logger.debug(f'all reports => match_reports:{len(match_list)}')
+        logger.debug(f"all reports => match_reports:{len(match_list)}")
         for func in self.transforms:
             if match_list:
                 match_list = func(match_list)
-                logger.debug(f'post {func.__name__} => {match_list}')
+                logger.debug(f"post {func.__name__} => {match_list}")
 
         if match_list:
             logger.info(f"matches found => match_reports:{len(match_list)}")

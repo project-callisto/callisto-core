@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0016_report_contact_voicemail'),
-    ]
+    dependencies = [("delivery", "0016_report_contact_voicemail")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='report',
-            name='autosaved',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="report", name="autosaved")]

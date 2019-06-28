@@ -8,135 +8,83 @@ from .. import managers, view_helpers
 class DataHelperTest(TestCase):
     data_manager = view_helpers.SerializedDataHelper
     manager = managers.FormManager
-    fixtures = [
-        'wizard_builder_data',
-    ]
+    fixtures = ["wizard_builder_data"]
 
     def test_data_generates(self):
         form = self.manager.get_form_models()[1]
         zipped_data = self.data_manager.get_zipped_data(
-            data={'question_2': 'owlette ipsum cattree'},
-            forms=[form.serialized],
+            data={"question_2": "owlette ipsum cattree"}, forms=[form.serialized]
         )
         self.assertIsInstance(zipped_data, list)
 
     def test_data_textbox(self):
         form = self.manager.get_form_models()[1]
         zipped_data = self.data_manager.get_zipped_data(
-            data={'question_2': 'owlette ipsum cattree'},
-            forms=[form.serialized],
+            data={"question_2": "owlette ipsum cattree"}, forms=[form.serialized]
         )
         self.assertIn(
-            {'do androids dream of electric sheep?':
-                ['owlette ipsum cattree'],
-             },
+            {"do androids dream of electric sheep?": ["owlette ipsum cattree"]},
             zipped_data,
         )
 
     def test_data_multiple_choice(self):
         form = self.manager.get_form_models()[0]
         zipped_data = self.data_manager.get_zipped_data(
-            data={'question_1': ['3']},
-            forms=[form.serialized],
+            data={"question_1": ["3"]}, forms=[form.serialized]
         )
-        self.assertIn(
-            {'food options': ['sugar']},
-            zipped_data,
-        )
+        self.assertIn({"food options": ["sugar"]}, zipped_data)
 
     def test_data_non_does_not_raise_error(self):
         form = self.manager.get_form_models()[0]
         zipped_data = self.data_manager.get_zipped_data(
-            data={'question_1': None},
-            forms=[form.serialized],
+            data={"question_1": None}, forms=[form.serialized]
         )
 
     def test_data_multiple_choice_multiple_options(self):
         form = self.manager.get_form_models()[0]
         zipped_data = self.data_manager.get_zipped_data(
-            data={'question_1': ['1', '2']},
-            forms=[form.serialized],
+            data={"question_1": ["1", "2"]}, forms=[form.serialized]
         )
-        self.assertIn(
-            {'food options': ['vegetables', 'apples']},
-            zipped_data,
-        )
+        self.assertIn({"food options": ["vegetables", "apples"]}, zipped_data)
 
     def test_data_multiple_choice_string(self):
         form = self.manager.get_form_models()[0]
         zipped_data = self.data_manager.get_zipped_data(
-            data={'question_1': '3'},
-            forms=[form.serialized],
+            data={"question_1": "3"}, forms=[form.serialized]
         )
-        self.assertIn(
-            {'food options': ['sugar']},
-            zipped_data,
-        )
+        self.assertIn({"food options": ["sugar"]}, zipped_data)
 
     def test_data_multiple_choice_extra_info_empty(self):
         form = self.manager.get_form_models()[0]
         zipped_data = self.data_manager.get_zipped_data(
-            data={
-                'question_1': ['1'],
-            },
-            forms=[form.serialized],
+            data={"question_1": ["1"]}, forms=[form.serialized]
         )
-        self.assertEqual(
-            {'food options': ['vegetables']},
-            zipped_data[0],
-        )
+        self.assertEqual({"food options": ["vegetables"]}, zipped_data[0])
 
     def test_data_multiple_choice_extra_info_filled(self):
         form = self.manager.get_form_models()[0]
         zipped_data = self.data_manager.get_zipped_data(
-            data={
-                'question_1': ['1'],
-                'choice_1': 'beets'
-            },
-            forms=[form.serialized],
+            data={"question_1": ["1"], "choice_1": "beets"}, forms=[form.serialized]
         )
-        self.assertEqual(
-            {'food options': ['vegetables: beets']},
-            zipped_data[0],
-        )
+        self.assertEqual({"food options": ["vegetables: beets"]}, zipped_data[0])
 
     def test_data_multiple_choice_dropdown_empty(self):
         form = self.manager.get_form_models()[0]
         zipped_data = self.data_manager.get_zipped_data(
-            data={
-                'question_1': ['2'],
-            },
-            forms=[form.serialized],
+            data={"question_1": ["2"]}, forms=[form.serialized]
         )
-        self.assertEqual(
-            {'food options': ['apples']},
-            zipped_data[0],
-        )
+        self.assertEqual({"food options": ["apples"]}, zipped_data[0])
 
     def test_data_multiple_choice_dropdown_list_input(self):
         form = self.manager.get_form_models()[0]
         zipped_data = self.data_manager.get_zipped_data(
-            data={
-                'question_1': ['2'],
-                'choice_2': ['2'],
-            },
-            forms=[form.serialized],
+            data={"question_1": ["2"], "choice_2": ["2"]}, forms=[form.serialized]
         )
-        self.assertEqual(
-            {'food options': ['apples: red']},
-            zipped_data[0],
-        )
+        self.assertEqual({"food options": ["apples: red"]}, zipped_data[0])
 
     def test_data_multiple_choice_dropdown_string_input(self):
         form = self.manager.get_form_models()[0]
         zipped_data = self.data_manager.get_zipped_data(
-            data={
-                'question_1': ['2'],
-                'choice_2': '2',
-            },
-            forms=[form.serialized],
+            data={"question_1": ["2"], "choice_2": "2"}, forms=[form.serialized]
         )
-        self.assertEqual(
-            {'food options': ['apples: red']},
-            zipped_data[0],
-        )
+        self.assertEqual({"food options": ["apples: red"]}, zipped_data[0])

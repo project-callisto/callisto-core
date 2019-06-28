@@ -7,14 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0021_choiceoption'),
-    ]
+    dependencies = [("wizard_builder", "0021_choiceoption")]
 
     operations = [
         migrations.RenameField(
-            model_name='choiceoption',
-            old_name='question',
-            new_name='choice',
-        ),
+            model_name="choiceoption", old_name="question", new_name="choice"
+        )
     ]

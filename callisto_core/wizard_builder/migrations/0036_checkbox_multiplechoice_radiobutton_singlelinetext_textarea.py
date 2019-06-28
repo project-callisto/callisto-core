@@ -9,31 +9,25 @@ import callisto_core.wizard_builder.model_helpers
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0035_auto_20171025_0014'),
-    ]
+    dependencies = [("wizard_builder", "0035_auto_20171025_0014")]
 
     operations = [
         migrations.CreateModel(
-            name='SingleLineText',
+            name="SingleLineText",
             fields=[],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
+            options={"proxy": True, "indexes": []},
             bases=(
                 callisto_core.wizard_builder.model_helpers.ProxyQuestion,
-                'wizard_builder.formquestion'),
+                "wizard_builder.formquestion",
+            ),
         ),
         migrations.CreateModel(
-            name='TextArea',
+            name="TextArea",
             fields=[],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
+            options={"proxy": True, "indexes": []},
             bases=(
                 callisto_core.wizard_builder.model_helpers.ProxyQuestion,
-                'wizard_builder.formquestion'),
+                "wizard_builder.formquestion",
+            ),
         ),
     ]

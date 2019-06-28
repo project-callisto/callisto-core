@@ -8,13 +8,11 @@ from .models import EmailNotification
 class EmailNotificationAdmin(admin.ModelAdmin):
 
     # UX change, doesn't change functionality any
-    formfield_overrides = {
-        models.ManyToManyField: {'widget': CheckboxSelectMultiple},
-    }
+    formfield_overrides = {models.ManyToManyField: {"widget": CheckboxSelectMultiple}}
 
-    list_display = ['name', 'sitenames']
-    search_fields = ['name', 'subject', 'body']
-    list_filter = ['sites']
+    list_display = ["name", "sitenames"]
+    search_fields = ["name", "subject", "body"]
+    list_filter = ["sites"]
 
 
 admin.site.register(EmailNotification, EmailNotificationAdmin)

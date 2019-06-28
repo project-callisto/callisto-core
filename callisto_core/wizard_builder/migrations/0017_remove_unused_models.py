@@ -7,15 +7,9 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0016_checkboxes'),
-    ]
+    dependencies = [("wizard_builder", "0016_checkboxes")]
 
     operations = [
-        migrations.DeleteModel(
-            name='Date',
-        ),
-        migrations.DeleteModel(
-            name='SingleLineTextWithMap',
-        ),
+        migrations.DeleteModel(name="Date"),
+        migrations.DeleteModel(name="SingleLineTextWithMap"),
     ]

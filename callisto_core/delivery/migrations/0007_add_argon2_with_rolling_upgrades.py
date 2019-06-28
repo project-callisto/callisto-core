@@ -7,29 +7,27 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0006_report_autosaved'),
-    ]
+    dependencies = [("delivery", "0006_report_autosaved")]
 
     operations = [
         migrations.AddField(
-            model_name='matchreport',
-            name='encode_prefix',
+            model_name="matchreport",
+            name="encode_prefix",
             field=models.CharField(max_length=500, blank=True),
         ),
         migrations.AddField(
-            model_name='report',
-            name='encode_prefix',
+            model_name="report",
+            name="encode_prefix",
             field=models.CharField(max_length=500, blank=True),
         ),
         migrations.AlterField(
-            model_name='matchreport',
-            name='salt',
+            model_name="matchreport",
+            name="salt",
             field=models.CharField(max_length=256, blank=False),
         ),
         migrations.AlterField(
-            model_name='report',
-            name='salt',
+            model_name="report",
+            name="salt",
             field=models.CharField(max_length=256, blank=False),
         ),
     ]

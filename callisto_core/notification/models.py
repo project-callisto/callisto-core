@@ -7,6 +7,7 @@ from .validators import validate_email_unique
 
 class EmailNotification(models.Model):
     """Record of Email constructed in and sent via the project"""
+
     name = models.CharField(blank=False, max_length=50)
     subject = models.CharField(blank=False, max_length=77)
     body = models.TextField(blank=False)

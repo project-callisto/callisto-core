@@ -7,8 +7,8 @@ from django.db import migrations
 
 def copy_attrs(apps, schema_editor):
     current_database = schema_editor.connection.alias
-    SentFullReport = apps.get_model('delivery.SentFullReport')
-    NewSentFullReport = apps.get_model('delivery.NewSentFullReport')
+    SentFullReport = apps.get_model("delivery.SentFullReport")
+    NewSentFullReport = apps.get_model("delivery.NewSentFullReport")
     for instance in SentFullReport.objects.using(current_database):
         NewSentFullReport.objects.create(
             report_id=instance.report_id,
@@ -19,13 +19,8 @@ def copy_attrs(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0024_newsentfullreport'),
-    ]
+    dependencies = [("delivery", "0024_newsentfullreport")]
 
     operations = [
-        migrations.RunPython(
-            copy_attrs,
-            reverse_code=migrations.RunPython.noop,
-        ),
+        migrations.RunPython(copy_attrs, reverse_code=migrations.RunPython.noop)
     ]

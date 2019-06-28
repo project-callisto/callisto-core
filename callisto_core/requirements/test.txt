@@ -1,12 +1,11 @@
-psycopg2==2.7.5
-mock==2.0.0
-flake8==3.5.0
+psycopg2==2.8.3
+mock==3.0.5
 PyPDF2==1.26.0
-isort==4.3.4
-django-migration-testcase==0.0.13
-pytest-django==3.4.3
-selenium==3.14.1
-coverage==4.5.1
-pytest-cov==2.6.0
+black==19.3b0
+django-migration-testcase==0.0.14
+pytest-django==3.5.0
+selenium==3.141.0
+coverage==4.5.3
+pytest-cov==2.7.1
 
 -r base.txt

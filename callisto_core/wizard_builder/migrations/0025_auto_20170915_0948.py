@@ -7,24 +7,18 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0024_remove_formquestion_added'),
-    ]
+    dependencies = [("wizard_builder", "0024_remove_formquestion_added")]
 
     operations = [
         migrations.AlterField(
-            model_name='formquestion',
-            name='descriptive_text',
+            model_name="formquestion",
+            name="descriptive_text",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='formquestion',
-            name='text',
-            field=models.TextField(blank=True),
+            model_name="formquestion", name="text", field=models.TextField(blank=True)
         ),
         migrations.AlterField(
-            model_name='page',
-            name='infobox',
-            field=models.TextField(blank=True),
+            model_name="page", name="infobox", field=models.TextField(blank=True)
         ),
     ]

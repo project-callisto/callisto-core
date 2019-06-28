@@ -1,4 +1,4 @@
-'''
+"""
 
 docs / reference:
     - https://docs.djangoproject.com/en/1.11/topics/class-based-views/
@@ -14,7 +14,7 @@ and should not define:
     - templates
     - url names
 
-'''
+"""
 from django.contrib.sites.models import Site
 from django.http.response import HttpResponseRedirect
 from django.views import generic as views
@@ -22,9 +22,7 @@ from django.views import generic as views
 from . import view_helpers
 
 
-class WizardFormPartial(
-    views.edit.FormView,
-):
+class WizardFormPartial(views.edit.FormView):
     storage_helper = view_helpers.StorageHelper
 
     @property
@@ -52,10 +50,7 @@ class WizardFormPartial(
         self.forms = self.get_forms()
 
 
-class WizardPartial(
-    WizardFormPartial,
-    view_helpers.WizardViewTemplateHelpers,
-):
+class WizardPartial(WizardFormPartial, view_helpers.WizardViewTemplateHelpers):
     site_id = None
     url_name = None
     steps_helper = view_helpers.StepsHelper
@@ -89,8 +84,8 @@ class WizardPartial(
         if self.steps.current_is_done:
             self._rendering_done_hook()
             self.template_name = self.done_template_name
-            kwargs['form'] = None
-            kwargs['form_data'] = self.storage.cleaned_form_data
+            kwargs["form"] = None
+            kwargs["form_data"] = self.storage.cleaned_form_data
             return super().get_context_data(**kwargs)
         else:
             return super().get_context_data(**kwargs)
@@ -115,7 +110,7 @@ class WizardPartial(
 
     def _dispatch_processing(self):
         super()._dispatch_processing()
-        step = self.kwargs.get('step')
+        step = self.kwargs.get("step")
         if step:
             self.curent_step = self.steps.parse_step(step)
 

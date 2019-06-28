@@ -23,6 +23,6 @@ def add_aria_tags_to_field(field):
 
 
 # TODO: remove, replace with widget template
-@register.filter(name='is_multiple_choice')
+@register.filter(name="is_multiple_choice")
 def is_multiple_choice(field):
     return issubclass(field.field.widget.__class__, ChoiceWidget)

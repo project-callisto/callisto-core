@@ -7,19 +7,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='EmailNotification',
+            name="EmailNotification",
             fields=[
-                ('name', models.CharField(max_length=50, primary_key=True, serialize=False)),
-                ('subject', models.CharField(max_length=77)),
-                ('body', models.TextField()),
+                (
+                    "name",
+                    models.CharField(max_length=50, primary_key=True, serialize=False),
+                ),
+                ("subject", models.CharField(max_length=77)),
+                ("body", models.TextField()),
             ],
-            options={
-                'abstract': False,
-            },
-        ),
+            options={"abstract": False},
+        )
     ]
