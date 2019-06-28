@@ -9,6 +9,7 @@ from callisto_core.tests import test_base
 from callisto_core.wizard_builder import models, view_helpers
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class FormPersistenceTest(
     test_base.ReportFlowHelper,
 ):
@@ -81,6 +82,7 @@ class FormPersistenceTest(
         self.assertEqual(form_before, form_after)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class ViewTest(
     test_base.ReportFlowHelper,
 ):

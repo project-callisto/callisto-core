@@ -6,6 +6,8 @@ from datetime import datetime
 from distutils.util import strtobool
 from urllib.parse import urlparse
 
+from unittest import skip
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
@@ -104,6 +106,7 @@ class ElementHelper(
             '[name="password"]').send_keys(self.username)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 @override_settings(DEBUG=True)
 class EncryptedFrontendTest(
     AuthMixin,
@@ -151,7 +154,6 @@ class EncryptedFrontendTest(
             cls.browser.quit()
         except (AttributeError, OSError):
             pass  # brower has already been quit!
-        super().tearDownClass()
 
     def wait_for_until_body_loaded(self):
         WebDriverWait(self.browser, 3).until(
@@ -237,6 +239,7 @@ class EncryptedFrontendTest(
             timestamp=timestamp)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class ExtraInfoNameClashCases(
     EncryptedFrontendTest,
 ):
@@ -293,6 +296,7 @@ class ExtraInfoNameClashCases(
         self.assertSelectorContains('body', self.text_input_two)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class WizardFrontendCases(
     EncryptedFrontendTest,
 ):
@@ -451,6 +455,7 @@ class WizardFrontendCases(
         self.assertSelectorContains('body', '[ Not Answered ]')
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class CallistoCoreCases(
     EncryptedFrontendTest,
 ):

@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 class CallistoCoreNotificationApi(object):
 
-    report_filename = "callisto_report_{0}.pdf.gpg"
+    report_filename = "callisto_record_{0}.pdf.gpg"
     report_title = 'Callisto Record'
     logo_path = '../../assets/callisto_logo.png'
 
@@ -83,7 +83,7 @@ class CallistoCoreNotificationApi(object):
             return addresses
 
     def get_cover_page(self, report_id, recipient):
-        title = f"{self.report_title} No.: {report_id}"
+        # title = f"{self.report_title} No.: {report_id}"
 
         styles = getSampleStyleSheet()
         headline_style = styles["Heading1"]
@@ -104,13 +104,9 @@ class CallistoCoreNotificationApi(object):
         CoverPage.append(image)
         CoverPage.append(Spacer(1, 18))
         CoverPage.append(Paragraph("CONFIDENTIAL", headline_style))
-        CoverPage.append(Spacer(1, 30))
-        CoverPage.append(Spacer(1, 40))
-        CoverPage.append(Paragraph(title, subtitle_style))
-        CoverPage.append(Spacer(1, 40))
-        paragraph = Paragraph(
-            f"Intended for: {recipient}, Title IX Coordinator", subtitle_style)
-        CoverPage.append(paragraph)
+        # paragraph = Paragraph(
+        #     f"Intended for: {recipient}, Title IX Coordinator", subtitle_style)
+        # CoverPage.append(paragraph)
         CoverPage.append(PageBreak())
         return CoverPage
 

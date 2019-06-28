@@ -236,10 +236,6 @@ class PDFReport(object):
             canvas.drawString(margin, height - margin, "CONFIDENTIAL")
             canvas.drawRightString(
                 width - margin, height - margin, str(timezone.now()))
-            canvas.drawString(
-                margin, margin,
-                f"Intended for: Title IX Coordinator {recipient}",
-            )
             canvas.restoreState()
         return func
 
@@ -268,16 +264,16 @@ class ReportPageMixin(object):
 
         return [
             Paragraph(
-                "Report",
+                "Record",
                 self.report_title_style,
             ),
             Paragraph(
-                "Report Metadata",
+                "Record Metadata",
                 self.section_title_style,
             ),
             Paragraph(
                 f'''
-                    Reported by: {self.get_user_identifier(report.owner)}<br/>
+                    Recorded by: {self.get_user_identifier(report.owner)}<br/>
                     Submitted on: {report.submitted_to_school}<br/>
                     Record Created: {report.added.strftime("%Y-%m-%d %H:%M")}<br />
                 ''',
@@ -293,7 +289,6 @@ class ReportPageMixin(object):
                     Phone: {report.contact_phone}<br />
                     Voicemail preferences: {voicemail_pref}<br />
                     Email: {report.contact_email}<br />
-                    Notes on preferred contact time of day, gender of admin, etc.:
                 ''',
                 self.body_style,
             ),
@@ -389,7 +384,7 @@ class PDFFullReport(
         self.pdf_elements.extend(self.report_page(self.report))
         self.pdf_elements.append(
             Paragraph(
-                "Report Questions",
+                "Record Questions",
                 self.section_title_style))
         self.render_questions(self.report_data)
 

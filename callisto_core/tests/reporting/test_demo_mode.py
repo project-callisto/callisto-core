@@ -1,3 +1,4 @@
+from unittest import skip
 from unittest.mock import call, patch
 
 from django.contrib.sites.models import Site
@@ -10,6 +11,7 @@ from callisto_core.tests.utils.api import CustomNotificationApi
 from callisto_core.utils.sites import TempSiteID
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class DemoModeNotificationSubjectTest(
     ReportFlowTestCase,
 ):
@@ -36,6 +38,7 @@ class DemoModeNotificationSubjectTest(
         ], any_order=True)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class DemoModeNotificationNameTest(
     ReportFlowTestCase,
 ):
@@ -64,6 +67,7 @@ class DemoModeNotificationNameTest(
         ], any_order=True)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class DemoModeNotificationCallCountTest(
     ReportFlowTestCase,
 ):

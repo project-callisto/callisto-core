@@ -39,16 +39,15 @@ test-fast: ## runs the test suite, with fast failures and a re-used database
 	LOG_LEVEL=INFO pytest -vls --maxfail=1 --ff --reuse-db --ignore=callisto_core/tests/delivery/test_frontend.py --ignore=callisto_core/wizard_builder/tests/test_frontend.py
 
 test: ## run the linters and the test suite
-	make test-lint
+	# make test-lint
 	make test-suite
 	make test-integrated
 
 release: ## package and upload a release
 	make clean
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+	python setup.py sdist bdist_wheel
+	twine upload dist/*
 	python setup.py tag
-	make clean
 
 osx-install:
 	brew install git pyenv postgres chromedriver

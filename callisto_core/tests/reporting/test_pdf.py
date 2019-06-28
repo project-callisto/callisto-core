@@ -1,4 +1,5 @@
 from io import BytesIO
+from unittest import skip
 
 import PyPDF2
 from mock import patch
@@ -23,6 +24,7 @@ mock_report_data = [
 ]
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class UserReviewPDFTest(
     test_base.ReportFlowHelper,
 ):
@@ -108,6 +110,7 @@ class UserReviewPDFTest(
             dst_pdf.write(_file)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class MatchingUserReviewPDFTest(
     MatchSetup,
 ):
@@ -178,6 +181,7 @@ class MatchingUserReviewPDFTest(
             dst_pdf.write(_file)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class ManagementCommandTest(
     MatchSetup,
 ):
@@ -191,6 +195,7 @@ class ManagementCommandTest(
             self.assertEqual(api_logging.call_count, 1)
 
 
+@skip("disabled for 2019 summer maintenance - record creation is no longer supported")
 class ReportPDFTest(
     test_base.ReportFlowHelper,
 ):
