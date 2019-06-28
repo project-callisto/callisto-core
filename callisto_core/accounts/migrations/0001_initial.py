@@ -11,33 +11,50 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-    ]
+    dependencies = [migrations.swappable_dependency(settings.AUTH_USER_MODEL)]
 
     operations = [
         migrations.CreateModel(
-            name='BulkAccount',
+            name="BulkAccount",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('emails', models.TextField()),
-                ('site_id', models.PositiveSmallIntegerField(default=11)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("emails", models.TextField()),
+                ("site_id", models.PositiveSmallIntegerField(default=11)),
             ],
-            options={
-                'verbose_name': 'Bulk Account',
-                'managed': False,
-            },
+            options={"verbose_name": "Bulk Account", "managed": False},
         ),
         migrations.CreateModel(
-            name='Account',
+            name="Account",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4)),
-                ('is_verified', models.BooleanField(default=False)),
-                ('school_email', models.EmailField(blank=True, max_length=254)),
-                ('invalid', models.BooleanField(default=False)),
-                ('site_id', models.PositiveSmallIntegerField(default=0)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("uuid", models.UUIDField(default=uuid.uuid4)),
+                ("is_verified", models.BooleanField(default=False)),
+                ("school_email", models.EmailField(blank=True, max_length=254)),
+                ("invalid", models.BooleanField(default=False)),
+                ("site_id", models.PositiveSmallIntegerField(default=0)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

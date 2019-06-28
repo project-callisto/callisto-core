@@ -8,8 +8,6 @@ def gpg_encrypt_data(data, key):
     gpg = gnupg.GPG()
     imported_keys = gpg.import_keys(key)
     encrypted = gpg.encrypt(
-        data_string,
-        imported_keys.fingerprints[0],
-        armor=True,
-        always_trust=True)
+        data_string, imported_keys.fingerprints[0], armor=True, always_trust=True
+    )
     return encrypted.data

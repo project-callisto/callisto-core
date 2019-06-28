@@ -5,13 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0049_copy_sites_from_page_to_question'),
-    ]
+    dependencies = [("wizard_builder", "0049_copy_sites_from_page_to_question")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='page',
-            name='sites',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="page", name="sites")]

@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0043_multiplechoice'),
-    ]
+    dependencies = [("wizard_builder", "0043_multiplechoice")]
 
     operations = [
         migrations.AlterField(
-            model_name='formquestion',
-            name='descriptive_text',
+            model_name="formquestion",
+            name="descriptive_text",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='formquestion',
-            name='text',
+            model_name="formquestion",
+            name="text",
             field=models.TextField(blank=True, null=True),
         ),
     ]

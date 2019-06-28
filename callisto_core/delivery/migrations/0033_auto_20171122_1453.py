@@ -7,22 +7,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0032_auto_20171122_1453'),
-    ]
+    dependencies = [("delivery", "0032_auto_20171122_1453")]
 
     operations = [
-        migrations.DeleteModel(
-            name='ProxySentMatchReport',
-        ),
+        migrations.DeleteModel(name="ProxySentMatchReport"),
         migrations.CreateModel(
-            name='SentMatchReport',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
-            bases=('delivery.newsentmatchreport',),
+            name="SentMatchReport",
+            fields=[],
+            options={"proxy": True, "indexes": []},
+            bases=("delivery.newsentmatchreport",),
         ),
     ]

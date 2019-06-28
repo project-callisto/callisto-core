@@ -7,15 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder',
-         '0019_remove_choice_extra_info_placeholder'),
-    ]
+    dependencies = [("wizard_builder", "0019_remove_choice_extra_info_placeholder")]
 
     operations = [
         migrations.AddField(
-            model_name='choice',
-            name='extra_info_text',
+            model_name="choice",
+            name="extra_info_text",
             field=models.TextField(blank=True),
-        ),
+        )
     ]

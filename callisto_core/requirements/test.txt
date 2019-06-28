@@ -2,7 +2,6 @@ psycopg2==2.7.5
 mock==2.0.0
 black==19.3b0
 PyPDF2==1.26.0
-isort==4.3.4
 django-migration-testcase==0.0.13
 pytest-django==3.4.3
 selenium==3.14.1

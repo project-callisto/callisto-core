@@ -6,16 +6,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0038_uuid_unique_constraint'),
-    ]
+    dependencies = [("delivery", "0038_uuid_unique_constraint")]
 
     operations = [
         migrations.AlterField(
-            model_name='matchreport',
-            name='report',
+            model_name="matchreport",
+            name="report",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                to='delivery.Report'),
-        ),
+                on_delete=django.db.models.deletion.CASCADE, to="delivery.Report"
+            ),
+        )
     ]

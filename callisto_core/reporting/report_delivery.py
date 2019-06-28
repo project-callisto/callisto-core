@@ -9,9 +9,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ListStyle, ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
-from reportlab.platypus import (
-    Image, PageBreak, Paragraph, SimpleDocTemplate, Spacer,
-)
+from reportlab.platypus import Image, PageBreak, Paragraph, SimpleDocTemplate, Spacer
 
 from django.conf import settings
 from django.utils import timezone
@@ -23,27 +21,29 @@ logger = logging.getLogger(__name__)
 
 
 def report_as_pdf(report, data, recipient):
-    return PDFFullReport(
-        report=report,
-        report_data=data,
-    ).generate_pdf_report(
-        recipient=recipient,
-        report_id=report.id,
+    return PDFFullReport(report=report, report_data=data).generate_pdf_report(
+        recipient=recipient, report_id=report.id
     )
 
 
 class MatchReportContent(object):
-    '''
+    """
         Class to structure contact information collected
         from match submission form for report
-    '''
+    """
 
     # This constructor is called with keyword arguments populated by
     # encrypted data. Existing arguments should not be removed or renamed,
     # and new arguments must have default values.
     def __init__(
-        self, identifier, perp_name, email, phone,
-        contact_name=None, voicemail=None, notes=None,
+        self,
+        identifier,
+        perp_name,
+        email,
+        phone,
+        contact_name=None,
+        voicemail=None,
+        notes=None,
     ):
         self.identifier = conditional_escape(identifier)
         self.perp_name = conditional_escape(perp_name)
@@ -56,8 +56,8 @@ class MatchReportContent(object):
     @classmethod
     def from_form(cls, form):
         return cls(
-            identifier=form.cleaned_data.get('identifier'),
-            perp_name=form.cleaned_data.get('perp_name'),
+            identifier=form.cleaned_data.get("identifier"),
+            perp_name=form.cleaned_data.get("perp_name"),
             contact_name=form.instance.report.contact_name,
             email=form.instance.report.contact_email,
             phone=form.instance.report.contact_phone,
@@ -68,18 +68,17 @@ class MatchReportContent(object):
     @classmethod
     def empty(cls):
         return cls(
-            identifier='',
-            perp_name='',
-            contact_name='',
-            email='',
-            phone='',
-            voicemail='',
-            notes='',
+            identifier="",
+            perp_name="",
+            contact_name="",
+            email="",
+            phone="",
+            voicemail="",
+            notes="",
         )
 
 
 class NumberedCanvas(canvas.Canvas):
-
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
         self._saved_page_states = []
@@ -89,7 +88,7 @@ class NumberedCanvas(canvas.Canvas):
         self._startPage()
 
     def save(self):
-        '''add page info to each page (page x of y)'''
+        """add page info to each page (page x of y)"""
         num_pages = len(self._saved_page_states)
         for state in self._saved_page_states:
             self.__dict__.update(state)
@@ -100,18 +99,18 @@ class NumberedCanvas(canvas.Canvas):
     def draw_page_number(self, page_count):
         width, height = letter
         margin = 0.66 * 72
-        self.setFillColor('gray')
+        self.setFillColor("gray")
         self.drawRightString(
-            width - margin, margin, "Page %d of %d" %
-            (self._pageNumber, page_count))
+            width - margin, margin, "Page %d of %d" % (self._pageNumber, page_count)
+        )
 
 
 class PDFReport(object):
 
-    unselected = u'\u2610'
-    selected = u'\u2717'
-    free_text = u'\u2756'
-    no_bullet = ' '
+    unselected = "\u2610"
+    selected = "\u2717"
+    free_text = "\u2756"
+    no_bullet = " "
     report_title = "Report"
 
     @property
@@ -133,16 +132,16 @@ class PDFReport(object):
 
     def __init__(self):
         self.styles = self.set_up_styles()
-        self.notes_style = self.styles['Notes']
-        self.answers_style = self.styles['Answers']
-        self.answers_list_style = self.styles['AnswersList']
-        self.body_style = self.styles['Normal']
-        self.section_title_style = self.styles['Heading4']
-        self.report_title_style = self.styles['Heading3']
+        self.notes_style = self.styles["Notes"]
+        self.answers_style = self.styles["Answers"]
+        self.answers_list_style = self.styles["AnswersList"]
+        self.body_style = self.styles["Normal"]
+        self.section_title_style = self.styles["Heading4"]
+        self.report_title_style = self.styles["Heading3"]
         self.pdf_elements = []
 
     def set_up_styles(self, *args, **kwargs):
-        '''
+        """
         Helper formatting methods assume the following styles have been defined:
             * Normal: format_question, get_metadata_page
             * Notes: get_metadata_page
@@ -153,9 +152,10 @@ class PDFReport(object):
         If you override this method but don't define these styles, you will need to also override init and potentially
         the corresponding formatting methods.
         :return: a ReportLab stylesheet
-        '''
+        """
+
         def get_font_location(filename):
-            return settings.APPS_DIR.path('fonts')(filename)
+            return settings.APPS_DIR.path("fonts")(filename)
 
         styles = getSampleStyleSheet()
         headline_style = styles["Heading1"]
@@ -183,39 +183,34 @@ class PDFReport(object):
         body_style.leading = 17
         body_style.leftIndent = 25
 
-        styles.add(ParagraphStyle(
-            name='Notes',
-            parent=styles['Normal'],
-            fontSize=10,
-            leading=14,
-            leftIndent=45,
-            alias='notes',
-        ))
-        styles.add(ListStyle(
-            name='AnswersList',
-        ))
-        styles.add(ParagraphStyle(
-            name='Answers',
-            parent=styles['Normal'],
-            leftIndent=0,
-            alias='answers',
-        ))
+        styles.add(
+            ParagraphStyle(
+                name="Notes",
+                parent=styles["Normal"],
+                fontSize=10,
+                leading=14,
+                leftIndent=45,
+                alias="notes",
+            )
+        )
+        styles.add(ListStyle(name="AnswersList"))
+        styles.add(
+            ParagraphStyle(
+                name="Answers", parent=styles["Normal"], leftIndent=0, alias="answers"
+            )
+        )
 
         return styles
 
     # FORMATTING HELPERS
 
     def add_question(self, question):
-        self.pdf_elements.append(
-            Paragraph(question, self.body_style),
-        )
+        self.pdf_elements.append(Paragraph(question, self.body_style))
         self.pdf_elements.append(Spacer(1, 4))
 
     def add_answer_list(self, answers):
         for answer in answers:
-            self.pdf_elements.append(
-                Paragraph(answer, self.notes_style),
-            )
+            self.pdf_elements.append(Paragraph(answer, self.notes_style))
             self.pdf_elements.append(Spacer(1, 1))
 
     def render_question(self, question, answers):
@@ -232,11 +227,11 @@ class PDFReport(object):
             width, height = letter
             margin = 0.66 * 72
             canvas.saveState()
-            canvas.setFillColor('gray')
+            canvas.setFillColor("gray")
             canvas.drawString(margin, height - margin, "CONFIDENTIAL")
-            canvas.drawRightString(
-                width - margin, height - margin, str(timezone.now()))
+            canvas.drawRightString(width - margin, height - margin, str(timezone.now()))
             canvas.restoreState()
+
         return func
 
     @staticmethod
@@ -244,11 +239,10 @@ class PDFReport(object):
         try:
             return user.email or user.username
         except AttributeError:
-            return 'Anonymous User'
+            return "Anonymous User"
 
 
 class ReportPageMixin(object):
-
     def report_pages(self, reports: list):
         pages = []
         for report in reports:
@@ -258,49 +252,36 @@ class ReportPageMixin(object):
 
     def report_page(self, report):
         if report.contact_voicemail:
-            voicemail_pref = 'Ok to leave voicemail'
+            voicemail_pref = "Ok to leave voicemail"
         else:
             voicemail_pref = "Not okay to leave voicemail"
 
         return [
+            Paragraph("Record", self.report_title_style),
+            Paragraph("Record Metadata", self.section_title_style),
             Paragraph(
-                "Record",
-                self.report_title_style,
-            ),
-            Paragraph(
-                "Record Metadata",
-                self.section_title_style,
-            ),
-            Paragraph(
-                f'''
+                f"""
                     Recorded by: {self.get_user_identifier(report.owner)}<br/>
                     Submitted on: {report.submitted_to_school}<br/>
                     Record Created: {report.added.strftime("%Y-%m-%d %H:%M")}<br />
-                ''',
+                """,
                 self.body_style,
             ),
+            Paragraph("Contact Preferences", self.section_title_style),
             Paragraph(
-                "Contact Preferences",
-                self.section_title_style,
-            ),
-            Paragraph(
-                f'''
+                f"""
                     Name: {report.contact_name or "<i>None provided</i>"}<br />
                     Phone: {report.contact_phone}<br />
                     Voicemail preferences: {voicemail_pref}<br />
                     Email: {report.contact_email}<br />
-                ''',
+                """,
                 self.body_style,
             ),
-            Paragraph(
-                report.contact_notes or "None provided",
-                self.notes_style,
-            )
+            Paragraph(report.contact_notes or "None provided", self.notes_style),
         ]
 
 
 class MatchPageMixin(object):
-
     def match_pages(self, match_report_and_report_content: list):
         pages = []
         for (match_report, match_content) in match_report_and_report_content:
@@ -310,17 +291,14 @@ class MatchPageMixin(object):
 
     def match_page(self, match_report, match_content):
         if match_report.report.contact_voicemail:
-            voicemail_pref = 'Ok to leave voicemail'
+            voicemail_pref = "Ok to leave voicemail"
         else:
             voicemail_pref = "Not okay to leave voicemail"
 
         return [
+            Paragraph("Matching Report Contents", self.report_title_style),
             Paragraph(
-                'Matching Report Contents',
-                self.report_title_style,
-            ),
-            Paragraph(
-                f'''
+                f"""
                     Perpetrator name given: {match_content.perp_name or "<i>Not available or none provided</i>"}<br />
                     Reported by: {self.get_user_identifier(match_report.report.owner)}<br />
                     Submitted to matching on: {match_report.added.strftime("%Y-%m-%d %H:%M")}<br />
@@ -332,33 +310,30 @@ class MatchPageMixin(object):
                     Voicemail preferences: {voicemail_pref}<br />
                     Email: {match_report.report.contact_email}<br />
                     Notes on preferred contact time of day, gender of admin, etc.:<br />
-                ''',
+                """,
                 self.body_style,
             ),
             Paragraph(
-                match_report.report.contact_notes or "None provided",
-                self.notes_style,
+                match_report.report.contact_notes or "None provided", self.notes_style
             ),
         ]
 
     def _is_submitted(self, match_report):
         if match_report.report.submitted_to_school:
             sent_report = match_report.report.sentfullreport_set.first()
-            report_id = sent_report.get_report_id() if sent_report else "<i>Not found</i>"
-            return f'''
+            report_id = (
+                sent_report.get_report_id() if sent_report else "<i>Not found</i>"
+            )
+            return f"""
                 Yes<br />
                 Submitted to school on: {match_report.report.submitted_to_school}<br />
                 Submitted report ID: {report_id}
-            '''
+            """
         else:
             return "No"
 
 
-class PDFFullReport(
-    PDFReport,
-    ReportPageMixin,
-):
-
+class PDFFullReport(PDFReport, ReportPageMixin):
     def __init__(self, report, report_data):
         super().__init__()
         self.report = report
@@ -370,22 +345,20 @@ class PDFFullReport(
         doc = SimpleDocTemplate(
             report_buffer,
             pagesize=letter,
-            rightMargin=72, leftMargin=72,
-            topMargin=72, bottomMargin=72,
+            rightMargin=72,
+            leftMargin=72,
+            topMargin=72,
+            bottomMargin=72,
         )
 
         # content fill
         self.pdf_elements.extend(
-            api.NotificationApi.get_cover_page(
-                report_id=report_id,
-                recipient=recipient,
-            ),
+            api.NotificationApi.get_cover_page(report_id=report_id, recipient=recipient)
         )
         self.pdf_elements.extend(self.report_page(self.report))
         self.pdf_elements.append(
-            Paragraph(
-                "Record Questions",
-                self.section_title_style))
+            Paragraph("Record Questions", self.section_title_style)
+        )
         self.render_questions(self.report_data)
 
         # teardown
@@ -400,10 +373,7 @@ class PDFFullReport(
         return result
 
 
-class PDFMatchReport(
-    PDFReport,
-    MatchPageMixin,
-):
+class PDFMatchReport(PDFReport, MatchPageMixin):
 
     report_title = "Match Report"
 
@@ -413,22 +383,24 @@ class PDFMatchReport(
         self.identifier = identifier
 
     def names_and_matching_identifiers(self, matches_with_reports):
-        names = ', '.join(
-            OrderedDict.fromkeys([
-                match_report_content.perp_name.strip()
-                for _, match_report_content in matches_with_reports
-                if match_report_content.perp_name
-            ])
+        names = ", ".join(
+            OrderedDict.fromkeys(
+                [
+                    match_report_content.perp_name.strip()
+                    for _, match_report_content in matches_with_reports
+                    if match_report_content.perp_name
+                ]
+            )
         )
         if len(names) < 1:
-            names = '<i>None provided</i>'
+            names = "<i>None provided</i>"
         return Paragraph(
-            f'Name(s): {names}<br/>Matching identifier: {self.identifier}',
+            f"Name(s): {names}<br/>Matching identifier: {self.identifier}",
             self.body_style,
         )
 
     def generate_match_report(self, report_id, recipient):
-        '''
+        """
         Generates PDF report about a discovered match.
 
         Args:
@@ -437,49 +409,38 @@ class PDFMatchReport(
         Returns:
           bytes: a PDF with the submitted perp information & contact information of the reporters for this match
 
-        '''
+        """
         # setup :: matches
         sorted_matches = sorted(
-            self.matches,
-            key=lambda m: m.added.strftime("%Y-%m-%d %H:%M"),
-            reverse=True,
+            self.matches, key=lambda m: m.added.strftime("%Y-%m-%d %H:%M"), reverse=True
         )
         match_report_and_report_content = [
-            (
-                match,
-                MatchReportContent(**json.loads(match.get_match(self.identifier))),
-            )
+            (match, MatchReportContent(**json.loads(match.get_match(self.identifier))))
             for match in sorted_matches
         ]
         # setup :: pdf
         buffer = BytesIO()
         doc = SimpleDocTemplate(
-            buffer, pagesize=letter,
-            rightMargin=72, leftMargin=72,
-            topMargin=72, bottomMargin=72,
+            buffer,
+            pagesize=letter,
+            rightMargin=72,
+            leftMargin=72,
+            topMargin=72,
+            bottomMargin=72,
         )
 
         # content fill
         self.pdf_elements.extend(
-            api.NotificationApi.get_cover_page(
-                report_id=report_id,
-                recipient=recipient,
-            ),
+            api.NotificationApi.get_cover_page(report_id=report_id, recipient=recipient)
         )
         self.pdf_elements.append(
-            Paragraph(
-                api.NotificationApi.report_title,
-                self.report_title_style,
-            )
+            Paragraph(api.NotificationApi.report_title, self.report_title_style)
         )
+        self.pdf_elements.append(Paragraph("Perpetrator(s)", self.section_title_style))
         self.pdf_elements.append(
-            Paragraph(
-                "Perpetrator(s)",
-                self.section_title_style))
-        self.pdf_elements.append(
-            self.names_and_matching_identifiers(match_report_and_report_content))
-        self.pdf_elements.extend(
-            self.match_pages(match_report_and_report_content))
+            self.names_and_matching_identifiers(match_report_and_report_content)
+        )
+        self.pdf_elements.extend(self.match_pages(match_report_and_report_content))
 
         # teardown
         doc.build(
@@ -493,13 +454,9 @@ class PDFMatchReport(
         return result
 
 
-class PDFUserReviewReport(
-    PDFReport,
-    ReportPageMixin,
-    MatchPageMixin,
-):
+class PDFUserReviewReport(PDFReport, ReportPageMixin, MatchPageMixin):
 
-    title = 'Submitted and Matched Reports'
+    title = "Submitted and Matched Reports"
 
     def cover_page(self):
         return [
@@ -519,11 +476,7 @@ class PDFUserReviewReport(
 
     def match_pages_empty_identifier(self, matches):
         match_report_and_report_content = [
-            (
-                match,
-                MatchReportContent.empty(),
-            )
-            for match in matches
+            (match, MatchReportContent.empty()) for match in matches
         ]
         return self.match_pages(match_report_and_report_content)
 
@@ -531,14 +484,16 @@ class PDFUserReviewReport(
     def generate(cls, pdf_input_data: dict):
         # setup
         self = cls()
-        reports = pdf_input_data.get('reports', [])
-        matches = pdf_input_data.get('matches', [])
+        reports = pdf_input_data.get("reports", [])
+        matches = pdf_input_data.get("matches", [])
         report_buffer = BytesIO()
         doc = SimpleDocTemplate(
             report_buffer,
             pagesize=letter,
-            rightMargin=72, leftMargin=72,
-            topMargin=72, bottomMargin=72,
+            rightMargin=72,
+            leftMargin=72,
+            topMargin=72,
+            bottomMargin=72,
         )
 
         # content fill
@@ -547,10 +502,7 @@ class PDFUserReviewReport(
         self.pdf_elements.extend(self.match_pages_empty_identifier(matches))
 
         # teardown
-        doc.build(
-            self.pdf_elements,
-            canvasmaker=NumberedCanvas,
-        )
+        doc.build(self.pdf_elements, canvasmaker=NumberedCanvas)
         result = report_buffer.getvalue()
         report_buffer.close()
         return result

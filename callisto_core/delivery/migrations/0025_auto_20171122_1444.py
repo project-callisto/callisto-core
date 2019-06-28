@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0024a_copy_attrs'),
-    ]
+    dependencies = [("delivery", "0024a_copy_attrs")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='sentfullreport',
-            name='report',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="sentfullreport", name="report")]

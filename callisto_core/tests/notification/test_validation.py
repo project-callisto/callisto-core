@@ -8,7 +8,6 @@ from callisto_core.utils.sites import TempSiteID
 
 
 class EmailValidationTest(TestCase):
-
     @override_settings()
     def setUp(self):
         del settings.SITE_ID
@@ -18,34 +17,30 @@ class EmailValidationTest(TestCase):
 
     def populate_sites(self):
         for i in range(1, 10):
-            site, _ = Site.objects.get_or_create(
-                id=i,
-            )
+            site, _ = Site.objects.get_or_create(id=i)
             site.domain = str(i)
             site.save()
 
     def populate_emails(self):
         for i in range(1, 10):
             email, _ = EmailNotification.objects.get_or_create(
-                name='example email',
-                body='example email',
-                subject='example email',
-                sites__id__in=[i]
+                name="example email",
+                body="example email",
+                subject="example email",
+                sites__id__in=[i],
             )
             email.sites.add(i)
             email.full_clean()
 
     def test_email_invalid_when_no_site_added(self):
         with self.assertRaises(ValidationError):
-            invalid_email = EmailNotification.objects.create(
-                name='has no site!!!')
+            invalid_email = EmailNotification.objects.create(name="has no site!!!")
             invalid_email.full_clean()
 
     def test_validation_error_does_not_delete_email(self):
         with self.assertRaises(ValidationError):
             invalid_email = EmailNotification.objects.get(
-                name='example email',
-                sites__id__in=[1],
+                name="example email", sites__id__in=[1]
             )
             invalid_email.sites.add(2)
             invalid_email.full_clean()
@@ -56,9 +51,7 @@ class EmailValidationTest(TestCase):
         with self.assertRaises(ValidationError):
             for i in range(10):
                 email = EmailNotification.objects.create(
-                    name='example email',
-                    body='example email',
-                    subject='example email',
+                    name="example email", body="example email", subject="example email"
                 )
                 email.sites.add(site_id)
                 email.full_clean()
@@ -67,21 +60,17 @@ class EmailValidationTest(TestCase):
     def test_cannot_add_site_which_would_create_duplicate(self):
         with self.assertRaises(ValidationError):
             email = EmailNotification.objects.get(
-                name='example email',
-                sites__id__in=[1],
+                name="example email", sites__id__in=[1]
             )
             email.sites.add(2)
             email.full_clean()
         self.assertEqual(EmailNotification.objects.on_site(2).count(), 1)
 
     def test_validation_error_contains_identifying_information(self):
-        email_name = 'example email'
+        email_name = "example email"
         invalid_site = 2
         with self.assertRaises(ValidationError) as error_context:
-            email = EmailNotification.objects.get(
-                name=email_name,
-                sites__id__in=[1],
-            )
+            email = EmailNotification.objects.get(name=email_name, sites__id__in=[1])
             email.sites.add(invalid_site)
             email.full_clean()
         exception_text = str(error_context.exception)
@@ -91,8 +80,7 @@ class EmailValidationTest(TestCase):
     def test_all_duplicate_sites_removed(self):
         with self.assertRaises(ValidationError):
             email_with_invalid_sites = EmailNotification.objects.get(
-                name='example email',
-                sites__id__in=[1],
+                name="example email", sites__id__in=[1]
             )
             email_with_invalid_sites.sites.add(2)
             email_with_invalid_sites.sites.add(3)
@@ -103,13 +91,10 @@ class EmailValidationTest(TestCase):
 
 
 class EmailSiteIDValidationTest(EmailValidationTest):
-
     @override_settings()
     def test_site_only_added_when_no_default_set(self):
         email = EmailNotification.objects.create(
-            name='example email',
-            body='example email',
-            subject='example email',
+            name="example email", body="example email", subject="example email"
         )
         email.sites.add(1)
 

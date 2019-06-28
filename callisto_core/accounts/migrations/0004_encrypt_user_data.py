@@ -18,8 +18,8 @@ def encrypt_user_data(apps, schema_editor):
 
         # sha256 + bcrypt matches our current state of the art in other
         # platforms.
-        userhash = sha256(username.lower().encode('utf-8')).hexdigest()
-        usercrypt = bcrypt.hashpw(userhash.encode('utf-8'), bcrypt.gensalt())
+        userhash = sha256(username.lower().encode("utf-8")).hexdigest()
+        usercrypt = bcrypt.hashpw(userhash.encode("utf-8"), bcrypt.gensalt())
         userindex = index(userhash)
 
         account.encrypted_username = usercrypt.decode()
@@ -29,8 +29,8 @@ def encrypt_user_data(apps, schema_editor):
         if email:
             # sha256 + bcrypt matches our current state of the art in other
             # platforms.
-            emailhash = sha256(email.lower().encode('utf-8')).hexdigest()
-            emailcrypt = bcrypt.hashpw(emailhash.encode('utf-8'), bcrypt.gensalt())
+            emailhash = sha256(email.lower().encode("utf-8")).hexdigest()
+            emailcrypt = bcrypt.hashpw(emailhash.encode("utf-8"), bcrypt.gensalt())
             emailindex = index(emailhash)
 
             account.encrypted_email = emailcrypt.decode()
@@ -44,7 +44,5 @@ class Migration(migrations.Migration):
     dependencies = [("accounts", "0003_auto_20190607_1540")]
 
     operations = [
-        migrations.RunPython(
-            encrypt_user_data, reverse_code=migrations.RunPython.noop
-        )
+        migrations.RunPython(encrypt_user_data, reverse_code=migrations.RunPython.noop)
     ]

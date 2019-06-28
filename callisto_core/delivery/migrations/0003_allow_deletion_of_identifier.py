@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0002_add_encryption_fields_to_match_report'),
-    ]
+    dependencies = [("delivery", "0002_add_encryption_fields_to_match_report")]
 
     operations = [
         migrations.AlterField(
-            model_name='matchreport',
-            name='identifier',
+            model_name="matchreport",
+            name="identifier",
             field=models.CharField(max_length=500, null=True),
-        ),
+        )
     ]

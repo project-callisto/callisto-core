@@ -7,29 +7,23 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0022_auto_20171122_1434'),
-    ]
+    dependencies = [("delivery", "0022_auto_20171122_1434")]
 
     operations = [
         migrations.RenameField(
-            model_name='sentfullreport',
-            old_name='new_sent',
-            new_name='sent',
+            model_name="sentfullreport", old_name="new_sent", new_name="sent"
         ),
         migrations.RenameField(
-            model_name='sentfullreport',
-            old_name='new_to_address',
-            new_name='to_address',
+            model_name="sentfullreport",
+            old_name="new_to_address",
+            new_name="to_address",
         ),
         migrations.RenameField(
-            model_name='sentmatchreport',
-            old_name='new_sent',
-            new_name='sent',
+            model_name="sentmatchreport", old_name="new_sent", new_name="sent"
         ),
         migrations.RenameField(
-            model_name='sentmatchreport',
-            old_name='new_to_address',
-            new_name='to_address',
+            model_name="sentmatchreport",
+            old_name="new_to_address",
+            new_name="to_address",
         ),
     ]

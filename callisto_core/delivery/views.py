@@ -1,4 +1,4 @@
-'''
+"""
 
 Views specific to callisto-core, if you are implementing callisto-core
 you SHOULD NOT be importing these views. Import from view_partials instead.
@@ -10,7 +10,7 @@ docs / reference:
 views should define:
     - templates
 
-'''
+"""
 from django.contrib.auth import views as auth_views
 
 from . import view_partials
@@ -20,10 +20,8 @@ from . import view_partials
 ################
 
 
-class LoginView(
-    auth_views.LoginView,
-):
-    template_name = 'callisto_core/delivery/login.html'
+class LoginView(auth_views.LoginView):
+    template_name = "callisto_core/delivery/login.html"
 
 
 ################
@@ -31,18 +29,14 @@ class LoginView(
 ################
 
 
-class ReportCreateView(
-    view_partials.ReportCreatePartial,
-):
-    template_name = 'callisto_core/delivery/new_report.html'
-    access_template_name = 'callisto_core/delivery/form.html'
+class ReportCreateView(view_partials.ReportCreatePartial):
+    template_name = "callisto_core/delivery/new_report.html"
+    access_template_name = "callisto_core/delivery/form.html"
 
 
-class ReportDeleteView(
-    view_partials.ReportDeletePartial,
-):
-    template_name = 'callisto_core/delivery/form.html'
-    access_template_name = 'callisto_core/delivery/form.html'
+class ReportDeleteView(view_partials.ReportDeletePartial):
+    template_name = "callisto_core/delivery/form.html"
+    access_template_name = "callisto_core/delivery/form.html"
 
 
 ################
@@ -50,20 +44,16 @@ class ReportDeleteView(
 ################
 
 
-class EncryptedWizardView(
-    view_partials.EncryptedWizardPartial,
-):
-    template_name = 'callisto_core/delivery/wizard_form.html'
-    access_template_name = 'callisto_core/delivery/form.html'
-    done_template_name = 'callisto_core/delivery/review.html'
+class EncryptedWizardView(view_partials.EncryptedWizardPartial):
+    template_name = "callisto_core/delivery/wizard_form.html"
+    access_template_name = "callisto_core/delivery/form.html"
+    done_template_name = "callisto_core/delivery/review.html"
 
 
-class WizardReviewView(
-    view_partials.EncryptedWizardPartial,
-):
-    done_template_name = 'callisto_core/delivery/review.html'
-    access_template_name = 'callisto_core/delivery/form.html'
-    done_template_name = 'callisto_core/delivery/review.html'
+class WizardReviewView(view_partials.EncryptedWizardPartial):
+    done_template_name = "callisto_core/delivery/review.html"
+    access_template_name = "callisto_core/delivery/form.html"
+    done_template_name = "callisto_core/delivery/review.html"
 
 
 #############
@@ -71,35 +61,25 @@ class WizardReviewView(
 #############
 
 
-class DashboardView(
-    view_partials.DashboardPartial,
-):
+class DashboardView(view_partials.DashboardPartial):
     template_name = "callisto_core/delivery/dashboard/index.html"
 
 
-class DashboardReportDeletedView(
-    DashboardView,
-):
+class DashboardReportDeletedView(DashboardView):
     template_name = "callisto_core/delivery/dashboard/report_deleted.html"
-    access_template_name = 'callisto_core/delivery/form.html'
+    access_template_name = "callisto_core/delivery/form.html"
 
 
-class DashboardMatchingWithdrawnView(
-    DashboardView,
-):
+class DashboardMatchingWithdrawnView(DashboardView):
     template_name = "callisto_core/delivery/dashboard/matching_withdrawn.html"
-    access_template_name = 'callisto_core/delivery/form.html'
+    access_template_name = "callisto_core/delivery/form.html"
 
 
-class DownloadPDFView(
-    view_partials.DownloadPDFPartial,
-):
-    template_name = 'callisto_core/delivery/form.html'
-    access_template_name = 'callisto_core/delivery/form.html'
+class DownloadPDFView(view_partials.DownloadPDFPartial):
+    template_name = "callisto_core/delivery/form.html"
+    access_template_name = "callisto_core/delivery/form.html"
 
 
-class ViewPDFView(
-    view_partials.ViewPDFPartial,
-):
-    template_name = 'callisto_core/delivery/form.html'
-    access_template_name = 'callisto_core/delivery/form.html'
+class ViewPDFView(view_partials.ViewPDFPartial):
+    template_name = "callisto_core/delivery/form.html"
+    access_template_name = "callisto_core/delivery/form.html"

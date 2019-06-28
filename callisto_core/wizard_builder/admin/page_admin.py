@@ -4,11 +4,5 @@ from .inlines import QuestionInline
 
 
 class PageAdmin(admin.ModelAdmin):
-    fieldsets = (
-        (None, {
-            'fields': ('position', 'section')
-        }),
-    )
-    inlines = [
-        QuestionInline,
-    ]
+    fieldsets = ((None, {"fields": ("position", "section")}),)
+    inlines = [QuestionInline]

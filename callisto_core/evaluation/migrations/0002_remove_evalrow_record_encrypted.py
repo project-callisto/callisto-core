@@ -5,13 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('evaluation', '0001_initial_eval_row'),
-    ]
+    dependencies = [("evaluation", "0001_initial_eval_row")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='evalrow',
-            name='record_encrypted',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="evalrow", name="record_encrypted")]

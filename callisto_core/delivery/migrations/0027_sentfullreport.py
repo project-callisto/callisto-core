@@ -7,19 +7,13 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0026_auto_20171122_1446'),
-    ]
+    dependencies = [("delivery", "0026_auto_20171122_1446")]
 
     operations = [
         migrations.CreateModel(
-            name='SentFullReport',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
-            bases=('delivery.newsentfullreport',),
-        ),
+            name="SentFullReport",
+            fields=[],
+            options={"proxy": True, "indexes": []},
+            bases=("delivery.newsentfullreport",),
+        )
     ]

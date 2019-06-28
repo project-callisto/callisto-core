@@ -7,13 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0015_admin_html_and_time'),
-    ]
+    dependencies = [("wizard_builder", "0015_admin_html_and_time")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='checkbox',
-            options={'verbose_name_plural': 'checkboxes'},
-        ),
+            name="checkbox", options={"verbose_name_plural": "checkboxes"}
+        )
     ]

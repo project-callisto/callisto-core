@@ -9,19 +9,41 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('delivery', '0039_auto_20171208_0039'),
+        ("delivery", "0039_auto_20171208_0039"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='EvalRow',
+            name="EvalRow",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('action', models.TextField(null=True)),
-                ('record_encrypted', models.BinaryField(null=True)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('record', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='delivery.Report')),
-                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("action", models.TextField(null=True)),
+                ("record_encrypted", models.BinaryField(null=True)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                (
+                    "record",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="delivery.Report",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
-        ),
+        )
     ]

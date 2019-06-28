@@ -7,34 +7,26 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('delivery', '0018_remove_matchreport_identifier'),
-    ]
+    dependencies = [("delivery", "0018_remove_matchreport_identifier")]
 
     operations = [
         migrations.AlterField(
-            model_name='matchreport',
-            name='encode_prefix',
+            model_name="matchreport",
+            name="encode_prefix",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='matchreport',
-            name='salt',
-            field=models.TextField(null=True),
+            model_name="matchreport", name="salt", field=models.TextField(null=True)
         ),
         migrations.AlterField(
-            model_name='report',
-            name='encode_prefix',
+            model_name="report",
+            name="encode_prefix",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='report',
-            name='salt',
-            field=models.TextField(null=True),
+            model_name="report", name="salt", field=models.TextField(null=True)
         ),
         migrations.AlterField(
-            model_name='sentreport',
-            name='to_address',
-            field=models.TextField(),
+            model_name="sentreport", name="to_address", field=models.TextField()
         ),
     ]

@@ -9,17 +9,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wizard_builder',
-         '0036_checkbox_multiplechoice_radiobutton_singlelinetext_textarea'),
+        (
+            "wizard_builder",
+            "0036_checkbox_multiplechoice_radiobutton_singlelinetext_textarea",
+        )
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='choice',
-            name='question',
+            model_name="choice",
+            name="question",
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                to='wizard_builder.FormQuestion'),
-        ),
+                to="wizard_builder.FormQuestion",
+            ),
+        )
     ]

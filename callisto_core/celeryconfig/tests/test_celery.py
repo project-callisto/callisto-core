@@ -4,7 +4,6 @@ from callisto_core.celeryconfig.tasks import add
 
 
 class TestCelery(TestCase):
-
     def test_add_task(self):
         add.delay(1, 2)
 

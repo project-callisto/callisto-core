@@ -7,20 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0007_remove_conditional'),
-    ]
+    dependencies = [("wizard_builder", "0007_remove_conditional")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='textpage',
-            name='pagebase_ptr',
-        ),
-        migrations.AlterModelOptions(
-            name='pagebase',
-            options={},
-        ),
-        migrations.DeleteModel(
-            name='TextPage',
-        ),
+        migrations.RemoveField(model_name="textpage", name="pagebase_ptr"),
+        migrations.AlterModelOptions(name="pagebase", options={}),
+        migrations.DeleteModel(name="TextPage"),
     ]

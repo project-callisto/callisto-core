@@ -8,19 +8,16 @@ from django.contrib.sites.models import Site
 from django.test import TestCase
 
 from callisto_core.notification.models import EmailNotification
-from callisto_core.tests.test_base import (
-    ReportFlowHelper as ReportFlowTestCase,
-)
+from callisto_core.tests.test_base import ReportFlowHelper as ReportFlowTestCase
 from callisto_core.utils.sites import TempSiteID
 
 User = get_user_model()
 
 
 class SiteIDTest(ReportFlowTestCase):
-
     def setUp(self):
         super().setUp()
-        self.second_site = Site.objects.create(domain='generic_second_site')
+        self.second_site = Site.objects.create(domain="generic_second_site")
 
     def test_on_site_respects_SITE_ID_setting(self):
         site_1 = Site.objects.get(id=1)
@@ -68,15 +65,14 @@ class SiteIDTest(ReportFlowTestCase):
 
 
 class SiteRequestTest(TestCase):
-
-    @skip('temporariy disabled')
+    @skip("temporariy disabled")
     def test_can_request_pages_without_site_id_set(self):
         self.client_post_report_creation()
         response = self.client_post_reporting()
         self.assertNotEqual(response.status_code, 404)
 
-    @skip('temporariy disabled')
-    @patch('...notification.managers.EmailNotificationQuerySet.on_site')
+    @skip("temporariy disabled")
+    @patch("...notification.managers.EmailNotificationQuerySet.on_site")
     def test_site_passed_to_email_notification_manager(self, mock_on_site):
         self.client_post_report_creation()
         self.client_post_reporting()

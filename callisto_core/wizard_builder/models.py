@@ -14,12 +14,7 @@ class Page(models.Model):
     WHERE = 2
     WHAT = 3
     WHO = 4
-    SECTION_CHOICES = (
-        (WHEN, 'When'),
-        (WHERE, 'Where'),
-        (WHAT, 'What'),
-        (WHO, 'Who'),
-    )
+    SECTION_CHOICES = ((WHEN, "When"), (WHERE, "Where"), (WHAT, "What"), (WHO, "Who"))
     position = models.PositiveSmallIntegerField("position", default=0)
     section = models.IntegerField(choices=SECTION_CHOICES, default=WHEN)
 
@@ -45,45 +40,40 @@ class Page(models.Model):
         super().save(*args, **kwargs)
 
     def set_page_position(self):
-        '''
+        """
             Page.position defaults to 0, but we take 0 to mean "not set"
             so when there are no pages, Page.position is set to 1
 
             otherwise we set Page.position to the position of the latest
             object that isn't self, +1
-        '''
+        """
         cls = self.__class__
         if cls.objects.count() == 0:
             self.position = 1
         elif bool(cls.objects.exclude(pk=self.pk)) and not self.position:
-            self.position = cls.objects.exclude(
-                pk=self.pk).latest('position').position + 1
+            self.position = (
+                cls.objects.exclude(pk=self.pk).latest("position").position + 1
+            )
 
     class Meta:
-        ordering = ['position']
+        ordering = ["position"]
 
 
 class FormQuestion(models.Model):
     text = models.TextField(blank=True, null=True)
     descriptive_text = models.TextField(blank=True, null=True)
     page = models.ForeignKey(
-        Page,
-        editable=True,
-        null=True,
-        blank=False,
-        on_delete=models.CASCADE,
+        Page, editable=True, null=True, blank=False, on_delete=models.CASCADE
     )
     sites = models.ManyToManyField(Site)
     position = models.PositiveSmallIntegerField("position", default=0)
     type = models.TextField(
-        choices=fields.get_field_options(),
-        null=True,
-        default='singlelinetext')
+        choices=fields.get_field_options(), null=True, default="singlelinetext"
+    )
 
     def __str__(self):
         type_str = "(Type: {})".format(str(type(self).__name__))
-        site_str = "(Sites: {})".format(
-            [site.name for site in self.sites.all()])
+        site_str = "(Sites: {})".format([site.name for site in self.sites.all()])
         return "{} {} {}".format(self.short_str, type_str, site_str)
 
     @property
@@ -104,12 +94,14 @@ class FormQuestion(models.Model):
     @property
     def serialized(self):
         data = model_to_dict(self)
-        data.update({
-            'sites': [site.id for site in self.sites.all()],
-            'question_text': self.text,
-            'field_id': self.field_id,
-            'choices': self.serialized_choices,
-        })
+        data.update(
+            {
+                "sites": [site.id for site in self.sites.all()],
+                "question_text": self.text,
+                "field_id": self.field_id,
+                "choices": self.serialized_choices,
+            }
+        )
         return data
 
     @property
@@ -124,53 +116,35 @@ class FormQuestion(models.Model):
             return []
 
     class Meta:
-        ordering = ['position']
+        ordering = ["position"]
 
 
-class SingleLineText(
-    model_helpers.ProxyQuestion,
-    FormQuestion,
-):
-    proxy_name = 'singlelinetext'
+class SingleLineText(model_helpers.ProxyQuestion, FormQuestion):
+    proxy_name = "singlelinetext"
 
 
-class TextArea(
-    model_helpers.ProxyQuestion,
-    FormQuestion,
-):
-    proxy_name = 'textarea'
+class TextArea(model_helpers.ProxyQuestion, FormQuestion):
+    proxy_name = "textarea"
 
 
-class MultipleChoice(
-    model_helpers.ProxyQuestion,
-    FormQuestion,
-):
+class MultipleChoice(model_helpers.ProxyQuestion, FormQuestion):
     pass
 
 
-class Checkbox(
-    MultipleChoice,
-):
-    proxy_name = 'checkbox'
+class Checkbox(MultipleChoice):
+    proxy_name = "checkbox"
 
 
-class RadioButton(
-    MultipleChoice,
-):
-    proxy_name = 'radiobutton'
+class RadioButton(MultipleChoice):
+    proxy_name = "radiobutton"
 
 
-class Dropdown(
-    MultipleChoice,
-):
-    proxy_name = 'dropdown'
+class Dropdown(MultipleChoice):
+    proxy_name = "dropdown"
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(
-        FormQuestion,
-        on_delete=models.CASCADE,
-        null=True)
+    question = models.ForeignKey(FormQuestion, on_delete=models.CASCADE, null=True)
     text = models.TextField(blank=False, null=True)
     position = models.PositiveSmallIntegerField("Position", default=0)
     extra_info_text = models.TextField(blank=True, null=True)
@@ -178,25 +152,19 @@ class Choice(models.Model):
     @property
     def data(self):
         data = model_to_dict(self)
-        data.update({
-            'pk': self.pk,
-            'options': self.options_data,
-        })
+        data.update({"pk": self.pk, "options": self.options_data})
         return data
 
     @property
     def options_data(self):
-        return [
-            {'pk': option.pk, 'text': option.text}
-            for option in self.options
-        ]
+        return [{"pk": option.pk, "text": option.text} for option in self.options]
 
     @property
     def options(self):
         return list(self.choiceoption_set.all())
 
     class Meta:
-        ordering = ['position', 'pk']
+        ordering = ["position", "pk"]
 
 
 class ChoiceOption(models.Model):

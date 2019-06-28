@@ -6,10 +6,9 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-
     def _setup_current_site(self):
-        if os.getenv('HEROKU_APP_NAME', default=''):
-            current_domain = os.getenv('HEROKU_APP_NAME') + '.herokuapp.com'
+        if os.getenv("HEROKU_APP_NAME", default=""):
+            current_domain = os.getenv("HEROKU_APP_NAME") + ".herokuapp.com"
         else:
             current_domain = settings.APP_URL
         Site.objects.filter(domain=current_domain).exclude(id=1).delete()

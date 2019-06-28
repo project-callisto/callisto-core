@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('wizard_builder', '0040_populate_dropdown'),
-    ]
+    dependencies = [("wizard_builder", "0040_populate_dropdown")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='formquestion',
-            name='is_dropdown',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="formquestion", name="is_dropdown")]
