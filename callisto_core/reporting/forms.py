@@ -32,16 +32,6 @@ class PrepForm(
         label="Is it okay if your school leaves a voicemail?", required=False
     )
 
-    class Meta:
-        model = delivery_models.Report
-        fields = [
-            "contact_name",
-            "contact_email",
-            "contact_phone",
-            "contact_notes",
-            "contact_voicemail",
-        ]
-
 
 class ReportSubclassBaseForm(
     NoRequiredLabelMixin, delivery_forms.FormViewExtensionMixin, forms.models.ModelForm
