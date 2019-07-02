@@ -90,7 +90,7 @@ class AccountEmailTest(ReportFlowTestCase):
     def test_can_activate_account(self):
         BulkAccount.objects.create(emails="tech@projectcallisto.org", site_id=2)
         account = Account.objects.get(school_email="tech@projectcallisto.org")
-        uid = urlsafe_base64_encode(force_bytes(account.user.pk)).decode("utf-8")
+        uid = urlsafe_base64_encode(force_bytes(account.user.pk))
         token = default_token_generator.make_token(account.user)
 
         response = self.client.get(

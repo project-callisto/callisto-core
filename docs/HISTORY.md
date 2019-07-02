@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.26.0 (2019-07-02)
+
+- Remove models that contain insecure contact information
+
 ## 0.25.10 (2019-06-28)
 
 - Ensure that only encrypted user data is being used, by invalidating the plaintext data.
