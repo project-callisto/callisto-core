@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.26.1 (2019-07-03)
+
+- Re-add models, since it looks like they are necessary.
+
 ## 0.26.0 (2019-07-02)
 
 - Remove models that contain insecure contact information
