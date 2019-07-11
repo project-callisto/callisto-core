@@ -295,9 +295,7 @@ class MatchPageMixin(object):
                 """,
                 self.body_style,
             ),
-            Paragraph(
-                match_content.notes or "None provided", self.notes_style
-            ),
+            Paragraph(match_content.notes or "None provided", self.notes_style),
         ]
 
     def _is_submitted(self, match_report):
