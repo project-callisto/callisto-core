@@ -251,33 +251,16 @@ class ReportPageMixin(object):
         return pages
 
     def report_page(self, report):
-        if report.contact_voicemail:
-            voicemail_pref = "Ok to leave voicemail"
-        else:
-            voicemail_pref = "Not okay to leave voicemail"
-
         return [
             Paragraph("Record", self.report_title_style),
             Paragraph("Record Metadata", self.section_title_style),
             Paragraph(
                 f"""
                     Recorded by: {self.get_user_identifier(report.owner)}<br/>
-                    Submitted on: {report.submitted_to_school}<br/>
                     Record Created: {report.added.strftime("%Y-%m-%d %H:%M")}<br />
                 """,
                 self.body_style,
             ),
-            Paragraph("Contact Preferences", self.section_title_style),
-            Paragraph(
-                f"""
-                    Name: {report.contact_name or "<i>None provided</i>"}<br />
-                    Phone: {report.contact_phone}<br />
-                    Voicemail preferences: {voicemail_pref}<br />
-                    Email: {report.contact_email}<br />
-                """,
-                self.body_style,
-            ),
-            Paragraph(report.contact_notes or "None provided", self.notes_style),
         ]
 
 
@@ -290,7 +273,7 @@ class MatchPageMixin(object):
         return pages
 
     def match_page(self, match_report, match_content):
-        if match_report.report.contact_voicemail:
+        if match_content.voicemail:
             voicemail_pref = "Ok to leave voicemail"
         else:
             voicemail_pref = "Not okay to leave voicemail"
@@ -303,18 +286,17 @@ class MatchPageMixin(object):
                     Reported by: {self.get_user_identifier(match_report.report.owner)}<br />
                     Submitted to matching on: {match_report.added.strftime("%Y-%m-%d %H:%M")}<br />
                     Record created: {match_report.report.added.strftime("%Y-%m-%d %H:%M")}<br />
-                    Full record submitted? {self._is_submitted(match_report)}<br />
                     <br /><br />
-                    Name: {match_report.report.contact_name or "<i>None provided</i>"}<br />
-                    Phone: {match_report.report.contact_phone}<br />
+                    Name: {match_content.contact_name or "<i>None provided</i>"}<br />
+                    Phone: {match_content.phone}<br />
                     Voicemail preferences: {voicemail_pref}<br />
-                    Email: {match_report.report.contact_email}<br />
+                    Email: {match_content.email}<br />
                     Notes on preferred contact time of day, gender of admin, etc.:<br />
                 """,
                 self.body_style,
             ),
             Paragraph(
-                match_report.report.contact_notes or "None provided", self.notes_style
+                match_content.notes or "None provided", self.notes_style
             ),
         ]
 
