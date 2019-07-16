@@ -256,7 +256,6 @@ class ReportPageMixin(object):
             Paragraph("Record Metadata", self.section_title_style),
             Paragraph(
                 f"""
-                    Recorded by: {self.get_user_identifier(report.owner)}<br/>
                     Record Created: {report.added.strftime("%Y-%m-%d %H:%M")}<br />
                 """,
                 self.body_style,
