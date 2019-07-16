@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.26.2 (2019-07-16)
+
+- Remove contact information from record PDF.
+- Move matching PDF to use encrypted content instead of plaintext.
+
 ## 0.26.1 (2019-07-03)
 
 - Re-add models, since it looks like they are necessary.
