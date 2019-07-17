@@ -54,7 +54,9 @@ class SignupPartial(edit_views.CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        account = models.Account.objects.create(user=form.instance, site_id=self.request.site.id)
+        account = models.Account.objects.create(
+            user=form.instance, site_id=self.request.site.id
+        )
 
         # create the encrypted user parameters, and make sure that we delete whatever
         # plaintext data might have been supplied
