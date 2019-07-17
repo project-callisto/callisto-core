@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.26.3 (2019-07-17)
+
+- Update signup form to properly encrypt user data.
+
 ## 0.26.2 (2019-07-16)
 
 - Remove contact information from record PDF.

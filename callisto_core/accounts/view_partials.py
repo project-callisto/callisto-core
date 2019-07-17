@@ -20,6 +20,10 @@ and should not define:
     - url names
 
 """
+from hashlib import sha256
+
+import bcrypt
+
 from django.contrib.auth import login, views as auth_views
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
@@ -28,7 +32,7 @@ from django.views.generic import edit as edit_views
 
 from callisto_core.utils.api import TenantApi
 
-from . import forms, models
+from . import auth, forms, models
 
 
 class SignupPartial(edit_views.CreateView):
@@ -50,7 +54,37 @@ class SignupPartial(edit_views.CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        models.Account.objects.create(user=form.instance, site_id=self.request.site.id)
+        account = models.Account.objects.create(user=form.instance, site_id=self.request.site.id)
+
+        # create the encrypted user parameters, and make sure that we delete whatever
+        # plaintext data might have been supplied
+        username = form.instance.username
+
+        # sha256 + bcrypt matches our current state of the art in other
+        # platforms.
+        userhash = sha256(username.lower().encode("utf-8")).hexdigest()
+        usercrypt = bcrypt.hashpw(userhash.encode("utf-8"), bcrypt.gensalt())
+        userindex = auth.index(userhash)
+
+        account.encrypted_username = usercrypt.decode()
+        account.username_index = userindex
+        form.instance.username = account.encrypted_username
+
+        email = form.instance.email
+        if email:
+            # sha256 + bcrypt matches our current state of the art in other
+            # platforms.
+            emailhash = sha256(email.lower().encode("utf-8")).hexdigest()
+            emailcrypt = bcrypt.hashpw(emailhash.encode("utf-8"), bcrypt.gensalt())
+            emailindex = auth.index(emailhash)
+
+            account.encrypted_email = emailcrypt.decode()
+            account.email_index = emailindex
+            form.instance.email = ""
+
+        account.save()
+        form.instance.save()
+
         login(
             self.request,
             form.instance,
