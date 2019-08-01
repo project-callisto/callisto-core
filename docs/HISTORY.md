@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.26.3 (2019-08-01)
+
+- Internal changes needed for backend API.
+- Disable tests for now.
+
 ## 0.26.2 (2019-07-16)
 
 - Remove contact information from record PDF.
