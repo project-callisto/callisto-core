@@ -1,13 +1,17 @@
 import logging
+import os
 
 from nacl.exceptions import CryptoError
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from callisto_core.utils.forms import NoRequiredLabelMixin
 
 from . import fields, models
+
+import paseto
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -21,6 +25,16 @@ def passphrase_field(label):
             attrs={"autocomplete": "off", "class": "form-control"}
         ),
     )
+
+
+def _generate_token(form):
+    key = bytes.fromhex(os.environ["PASETO_PRIVATE_KEY"])
+    claims = {
+        "user": str(form.view.request.user.account.uuid),
+        "partner": settings.DATABASES["default"]["SCHEMA"],
+    }
+    token = paseto.create(key=key, purpose="public", claims=claims, exp_seconds=300)
+    return token.decode("utf-8")
 
 
 class FormViewExtensionMixin(object):
@@ -37,6 +51,16 @@ class ReportBaseForm(
     NoRequiredLabelMixin, FormViewExtensionMixin, forms.models.ModelForm
 ):
     key = fields.PassphraseField(label="Passphrase")
+    token = forms.CharField(widget=forms.HiddenInput())
+    uuid = forms.CharField(widget=forms.HiddenInput())
+    endpoint = forms.CharField(
+        widget=forms.HiddenInput(), initial=settings.CALLISTO_API_ENDPOINT
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ReportBaseForm, self).__init__(*args, **kwargs)
+        self.initial["token"] = _generate_token(self)
+        self.initial["uuid"] = str(self.instance.uuid)
 
     @property
     def report(self):
