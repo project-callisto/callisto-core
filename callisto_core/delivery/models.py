@@ -123,30 +123,10 @@ class Report(models.Model):
         self.encrypted = security.encrypt_text(key, json.dumps(record_data))
 
     def _store_for_callisto_decryption(self, record_data: dict):
-        """
-        store callisto decryptable data and ignore fails
-        """
-        try:
-            encrypted_answers = model_helpers.gpg_encrypt_data(
-                data=record_data, key=settings.CALLISTO_EVAL_PUBLIC_KEY
-            )
-            self.encrypted_eval = encrypted_answers
-            RecordHistorical.objects.create(
-                record=self, encrypted_eval=encrypted_answers
-            )
-        except BaseException as error:
-            logger.exception(error)
+        pass
 
     class Meta:
         ordering = ("-added",)
-
-
-class RecordHistorical(models.Model):
-    """for saving the change in record eval data over time"""
-
-    record = models.ForeignKey(Report, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    encrypted_eval = models.BinaryField(null=True)
 
 
 class MatchReport(models.Model):
