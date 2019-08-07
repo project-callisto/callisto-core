@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.26.7 (2019-08-07)
+
+- autocomplete=off for password forms
+
 ## 0.26.6 (2019-08-06)
 
 - Disable RecordHistorical model.

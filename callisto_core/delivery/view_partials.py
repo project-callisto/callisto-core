@@ -254,21 +254,9 @@ class WizardPDFPartial(_ReportActionPartial):
     EVAL_ACTION_TYPE = "ACCESS_PDF"
 
     def form_valid(self, form):
-        super().form_valid(form)
-        response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = (
-            self.content_disposition + '; filename="record.pdf"'
-        )
-
-        data = self.report.decrypt_record(self.request.POST["key"])
-        data = data_helper.SerializedDataHelper.get_zipped_data(
-            data["data"], data["wizard_form_serialized"]
-        )
-
-        response.write(
-            report_delivery.report_as_pdf(report=self.report, data=data, recipient=None)
-        )
-        return response
+        # remove the old PDF generator completely.
+        # this should be generated via JS now.
+        pass
 
 
 class ViewPDFPartial(WizardPDFPartial):

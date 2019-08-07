@@ -41,7 +41,7 @@ class LoginForm(AuthenticationForm):
     password = CharField(
         max_length=64,
         label="Password",
-        widget=PasswordInput(),
+        widget=PasswordInput(attrs={"autocomplete": "off"}),
         error_messages={"required": REQUIRED_ERROR.format("password")},
     )
 
@@ -198,8 +198,10 @@ class FormattedPasswordChangeForm(PasswordChangeForm):
             label="Enter your new password",
             widget=PasswordInput(),
             error_messages={"required": REQUIRED_ERROR.format("password")},
+            attrs={"autocomplete": "off"},
         )
         self.fields["new_password2"].label = "Confirm new password"
+        self.fields["new_password2"].attrs = {"autocomplete": "off"}
         self.fields["old_password"].label = "Old password"
 
 
