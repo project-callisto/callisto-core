@@ -196,12 +196,11 @@ class FormattedPasswordChangeForm(PasswordChangeForm):
             min_length=settings.PASSWORD_MIN_LENGTH,
             max_length=settings.PASSWORD_MAX_LENGTH,
             label="Enter your new password",
-            widget=PasswordInput(),
+            widget=PasswordInput(attrs={"autocomplete": "off"},),
             error_messages={"required": REQUIRED_ERROR.format("password")},
-            attrs={"autocomplete": "off"},
         )
         self.fields["new_password2"].label = "Confirm new password"
-        self.fields["new_password2"].attrs = {"autocomplete": "off"}
+        self.fields["new_password2"].widget.attrs = {"autocomplete": "off"}
         self.fields["old_password"].label = "Old password"
 
 

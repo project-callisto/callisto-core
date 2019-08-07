@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.27.8 (2019-08-07)
+
+- more autocomplete
+
 ## 0.26.7 (2019-08-07)
 
 - autocomplete=off for password forms
