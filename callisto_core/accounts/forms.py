@@ -62,10 +62,12 @@ class LoginForm(AuthenticationForm):
         current_site_id = self.request.site.id
         if user.account.site_id is not current_site_id:
             error_msg = "user site_id not matching in login request"
-            if settings.DEBUG:
-                logger.error(error_msg)
-            else:
-                logger.warn(error_msg)
+            # XXX (lojikil//Stefan Trail of Bits) removing some indirection
+            # here and just making this an error; a normal user will probably
+            # rarely have mismatching site_ids, but it's a common pattern for
+            # attackers, so we should just accept the warning here (and alert
+            # on it in something like an SIEM)
+            logger.error(error_msg)
             raise ValidationError(
                 self.error_messages["invalid_login"],
                 code="invalid_login",

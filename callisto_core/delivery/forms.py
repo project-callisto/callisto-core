@@ -111,5 +111,9 @@ class ReportAccessForm(ReportBaseForm):
         return self.data["key"]
 
     def _decryption_failed(self):
+        # XXX (lojikil//Stefan Trail of Bits) the `report` property includes
+        # a token & UUID for reports; technically the UUID is in the URL, so
+        # that's ok, but the property would leak the token to logs; is that
+        # problematic?
         logger.info(self.message_key_error_log.format(self.report))
         raise forms.ValidationError(self.message_key_error)
