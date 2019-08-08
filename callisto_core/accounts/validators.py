@@ -17,6 +17,11 @@ def validate_school_email(email, school_email_domain):
     ]
 
     if input_email_domain not in allowed and not settings.DEBUG:
+        # XXX (lojikil//Stefan Trail of Bits): I just want to raise if we're ok with this
+        # since if a user adds a specific domain that can easily be tied back to them
+        # (say, me@lojikil.com, lojikil.com would be logged here), someone with access to
+        # the logs could tie a report back to a user. Not concerning per se, but something
+        # we should be aware of
         logger.warning(
             f"non school email {input_email_domain} used for domain {school_email_domain}"
         )
