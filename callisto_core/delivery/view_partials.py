@@ -33,6 +33,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic as views
+from django.utils.http import is_safe_url
 
 from callisto_core.evaluation.view_partials import EvalDataMixin
 from callisto_core.reporting import report_delivery
@@ -159,7 +160,8 @@ class _ReportAccessPartial(_ReportLimitedDetailPartial):
         next_url = None
         if "next" in request.GET:
             if re.search(r"^/[\W/-]*", request.GET["next"]):
-                next_url = request.GET["next"]
+                if is_safe_url(request.GET["next"]):
+                    next_url = request.GET["next"]
         return next_url
 
     def dispatch(self, request, *args, **kwargs):

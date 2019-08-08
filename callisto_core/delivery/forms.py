@@ -111,5 +111,5 @@ class ReportAccessForm(ReportBaseForm):
         return self.data["key"]
 
     def _decryption_failed(self):
-        logger.info(self.message_key_error_log.format(self.report))
+        logger.info(self.message_key_error_log.format(self.report.uuid))
         raise forms.ValidationError(self.message_key_error)
