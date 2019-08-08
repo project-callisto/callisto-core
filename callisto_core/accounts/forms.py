@@ -90,7 +90,7 @@ class SignUpForm(UserCreationForm):
         max_length=settings.PASSWORD_MAX_LENGTH,
         label="Password",
         widget=PasswordInput(
-            attrs={"class": "show-requirements", "data-requirement": "password"}
+            attrs={"class": "show-requirements", "data-requirement": "password", "autocomplete": "off"}
         ),
         error_messages={"required": REQUIRED_ERROR.format("password")},
     )
@@ -99,6 +99,7 @@ class SignUpForm(UserCreationForm):
             attrs={
                 "class": "show-requirements",
                 "data-requirement": "password-confirmation",
+                "autocomplete": "off",
             }
         ),
         label="Confirm password",
@@ -200,8 +201,9 @@ class FormattedPasswordChangeForm(PasswordChangeForm):
             error_messages={"required": REQUIRED_ERROR.format("password")},
         )
         self.fields["new_password2"].label = "Confirm new password"
-        self.fields["new_password2"].widget.attrs = {"autocomplete": "off"}
+        self.fields["new_password2"].widget.attrs["autocomplete"] = "off"
         self.fields["old_password"].label = "Old password"
+        self.fields["old_password"].widget.attrs["autocomplete"] = "off"
 
 
 # in original PasswordChangeForm file to reorder fields
