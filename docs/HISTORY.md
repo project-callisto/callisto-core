@@ -1,5 +1,10 @@
 # History / Changelog
 
+## 0.27.9 (2019-08-08)
+
+- more autocomplete
+- security updates
+
 ## 0.27.8 (2019-08-07)
 
 - more autocomplete
