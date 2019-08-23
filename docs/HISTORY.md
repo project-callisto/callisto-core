@@ -1,5 +1,9 @@
 # History / Changelog
 
+## 0.27.10 (2019-08-23)
+
+- unbreak some user account checking
+
 ## 0.27.9 (2019-08-08)
 
 - more autocomplete
