@@ -6,6 +6,6 @@ django-migration-testcase==0.0.15
 pytest-django==3.5.1
 selenium==3.141.0
 coverage==4.5.4
-pytest-cov==2.8.0
+pytest-cov==2.8.1
 
 -r base.txt
