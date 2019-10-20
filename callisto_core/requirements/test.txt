@@ -1,4 +1,4 @@
-psycopg2==2.8.3
+psycopg2==2.8.4
 mock==3.0.5
 PyPDF2==1.26.0
 black==19.3b0
