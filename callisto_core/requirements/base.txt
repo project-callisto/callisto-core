@@ -4,7 +4,7 @@ celery==4.4.7
 django==3.1
 paseto==0.0.5
 
-django-polymorphic==2.1.2
+django-polymorphic==3.0.0
 django-ratelimit==3.0.1
 django-celery-results==1.2.1
 PyNaCl==1.4.0
