@@ -1,7 +1,7 @@
 argon2-cffi==20.1.0
 bcrypt==3.2.0
 celery==4.4.7
-django==3.1
+django==3.1.1
 paseto==0.0.5
 
 django-polymorphic==3.0.0
