@@ -1,6 +1,6 @@
 argon2-cffi==20.1.0
 bcrypt==3.2.0
-celery==5.0.5
+celery==5.1.0
 django==3.2.3
 paseto==0.0.5
 
