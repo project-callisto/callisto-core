@@ -3,7 +3,7 @@ mock==4.0.3
 PyPDF2==1.26.0
 black==21.5b2
 django-migration-testcase==0.0.15
-pytest-django==4.3.0
+pytest-django==4.4.0
 selenium==3.141.0
 coverage==5.5
 pytest-cov==2.12.1
