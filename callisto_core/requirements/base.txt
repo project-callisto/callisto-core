@@ -4,15 +4,15 @@ celery==5.1.0
 django==3.2.4
 paseto==0.0.5
 
-django-polymorphic==3.0.0
-django-ratelimit==3.0.1
-django-celery-results==2.1.0
+django-polymorphic
+django-ratelimit
+django-celery-results
 PyNaCl==1.4.0
 python-gnupg==0.4.7
 pytz==2021.1
-reportlab==3.5.67
+reportlab
 six==1.16.0
 requests==2.25.1
-git+git://github.com/project-callisto/django-decorator-include.git
+django-decorator-include
 
 -e .
