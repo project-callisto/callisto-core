@@ -75,6 +75,12 @@ class CallistoCoreNotificationApi(object):
         else:
             return subject
 
+		def prepend_subject_if_debug(self, subject):
+				if settings.DEBUG:
+						return f'[DEBUG]' {subject}"
+				else:
+						return subject
+
     def user_site_id(self, user):
         return user.account.site_id
 
@@ -375,9 +381,11 @@ class CallistoCoreNotificationApi(object):
             self.context.update(
                 {
                     "notification_name": self.context["email_template_name"],
-                    "subject": self.prepend_subject_if_demo_mode(
-                        self.context["email_subject"]
-                    ),
+                    "subject": self.prepend_subject_if_debug(
+												self.prepend_subject_if_demo_mode(
+                        		self.context["email_subject"]
+                    		)
+										),
                     "body": body,
                 }
             )
@@ -385,16 +393,20 @@ class CallistoCoreNotificationApi(object):
             notification = self.models_on_site[0]
             self.context.update(
                 {
-                    "subject": self.prepend_subject_if_demo_mode(notification.subject),
+                    "subject": self.prepend_subject_if_debug(
+												self.prepend_subject_if_demo_mode(notification.subject)
+										),
                     "body": notification.body,
                 }
             )
         else:
             self.context.update(
                 {
-                    "subject": self.prepend_subject_if_demo_mode(
-                        self.context["notification_name"]
-                    ),
+                    "subject": self.prepend_subject_if_debug(
+												self.prepend_subject_if_demo_mode(
+                        		self.context["notification_name"]
+                    		)
+										),
                     "body": self.context["notification_name"],
                 }
             )
