@@ -4,7 +4,7 @@ Thank you so much for considering contributing to callisto-core. We couldn't do 
 
 ## Your first contribution
 
-Working on your first open source contribution? We are so excited to have you! You can learn how to make a pull request from this free series [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github)!
+Working on your first open source contribution? We are so excited to have you! You can learn how to make a pull request from this free course [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github)!
 
 ## How to submit
 
