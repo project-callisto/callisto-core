@@ -1,6 +1,6 @@
 psycopg2==2.8.3
 mock==3.0.5
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 black==19.3b0
 django-migration-testcase==0.0.14
 pytest-django==3.5.1
