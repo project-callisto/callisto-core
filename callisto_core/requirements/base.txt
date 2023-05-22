@@ -12,7 +12,7 @@ python-gnupg==0.4.4
 pytz==2019.1
 reportlab
 six==1.12.0
-requests==2.22.0
+requests==2.31.0
 django-decorator-include
 
 -e .
